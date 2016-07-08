@@ -48,10 +48,10 @@ class Lead extends EloquentUser {
         return ($sphere_id)? $relation->where('sphere_id','=',$sphere_id)->where('_type', '=', 'checkbox') : $relation;
     }
 
-    public function openLeads(){
+    public function openLeads($agent_id=NULL){
         $relation = $this->hasMany('App\Models\OpenLeads', 'lead_id', 'id');
 
-        return $relation;
+        return ($agent_id)? $relation->where('agent_id','=',$agent_id) : $relation;
     }
 
     public function sphere(){

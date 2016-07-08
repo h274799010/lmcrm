@@ -26,7 +26,7 @@ class UserData extends Controller
         foreach($leads as $lead){
 
             // если id таблицы leads нет в таблице open_leads - данные не выводятся
-            if( count($lead->openLeads)!=0 ){
+            if( count($lead->openLeads($lead->agent_id)->get() )!=0 ){
                 $fields = [];
 
                 $fields['id'] = $lead->id;
