@@ -19,28 +19,14 @@ class OpenLeadsData extends Controller
 
     public function index(){
 
-        // все лиды, доступные текущему пользователю
-        $userOpenLeads = OpenLeads::where('agent_id', '=', Sentinel::getUser()->id)->get();
+        $userOpenLeads = Lead::join('open_leads', function($join){
+            $join->on('leads.id', '=', 'open_leads.lead_id')
+                ->where('open_leads.agent_id', '=', Sentinel::getUser()->id);
+        })->join('customers', function($j){
+          $j->on('leads.customer_id', '=', 'customers.id');
+        })->get();
 
-        // все поля таблицы
-        $sortingLeadsLine = [];
-
-        foreach($userOpenLeads as $openLead){
-
-            $lead = Lead::find($openLead->lead_id);
-
-            $fields = [];
-
-            $fields['id'] = $lead->id;
-            $fields['date'] = $lead->date;
-            $fields['name'] = $lead->name;
-            $fields['phone'] = $lead->phone->phone;
-            $fields['email'] = $lead->email;
-
-            $sortingLeadsLine[] = $fields;
-        }
-
-        return view('OpenLeadsData.index', ['leads' => $sortingLeadsLine]);
+        return view('OpenLeadsData.index', ['leads' => $userOpenLeads->toArray()]);
     }
 
 
