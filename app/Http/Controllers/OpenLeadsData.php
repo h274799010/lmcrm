@@ -11,35 +11,36 @@ use Illuminate\Support\Facades\Response;
 use App\Http\Requests;
 use App\Models\Lead;
 use App\Models\SphereAttr;
-//use App\Models\OpenLeads;
+use App\Models\OpenLeads;
+use Sentinel;
 
-class UserData extends Controller
+class OpenLeadsData extends Controller
 {
 
     public function index(){
 
-        $leads = Lead::all();
+        // все лиды, доступные текущему пользователю
+        $userOpenLeads = OpenLeads::where('agent_id', '=', Sentinel::getUser()->id)->get();
 
         // все поля таблицы
         $sortingLeadsLine = [];
 
-        foreach($leads as $lead){
+        foreach($userOpenLeads as $openLead){
 
-            // если id таблицы leads нет в таблице open_leads - данные не выводятся
-            if( count($lead->openLeads($lead->agent_id)->get() )!=0 ){
-                $fields = [];
+            $lead = Lead::find($openLead->lead_id);
 
-                $fields['id'] = $lead->id;
-                $fields['date'] = $lead->date;
-                $fields['name'] = $lead->name;
-                $fields['phone'] = $lead->phone->phone;
-                $fields['email'] = $lead->email;
+            $fields = [];
 
-                $sortingLeadsLine[] = $fields;
-            }
+            $fields['id'] = $lead->id;
+            $fields['date'] = $lead->date;
+            $fields['name'] = $lead->name;
+            $fields['phone'] = $lead->phone->phone;
+            $fields['email'] = $lead->email;
+
+            $sortingLeadsLine[] = $fields;
         }
 
-        return view('userdata.index', ['leads' => $sortingLeadsLine]);
+        return view('OpenLeadsData.index', ['leads' => $sortingLeadsLine]);
     }
 
 

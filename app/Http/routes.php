@@ -13,7 +13,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'we
     include('routes/admin.routes.php');
 });
 
-Route::get('/userdata', ['as' => 'userdata', 'middleware' => ['auth', 'agent'], 'uses' => 'UserData@index']);
-Route::post('/userdata', ['as' => 'userdata', 'middleware' => ['auth', 'agent'], 'uses' => 'UserData@create']);
+Route::get('/open_leads', ['as' => 'OpenLeads', 'middleware' => ['auth', 'agent'], 'uses' => 'OpenLeadsData@index']);
+Route::post('/open_leads', ['as' => 'OpenLeads', 'middleware' => ['auth', 'agent'], 'uses' => 'OpenLeadsData@create']);
 
 

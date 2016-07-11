@@ -109,7 +109,7 @@
         var id = $(this).attr('data_id');
 
         if( (view_data.html()==false) || (id != $('#all_data_table').attr('allDataId')) ){
-            $.post('userdata', {'id': id, '_token': '{{csrf_token()}}'}, function( data ){
+            $.post('open_leads', {'id': id, '_token': '{{csrf_token()}}'}, function( data ){
 
                 view_data.empty();
 
