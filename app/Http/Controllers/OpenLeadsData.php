@@ -19,12 +19,7 @@ class OpenLeadsData extends Controller
 
     public function index(){
 
-        $userOpenLeads = Lead::join('open_leads', function($join){
-            $join->on('leads.id', '=', 'open_leads.lead_id')
-                ->where('open_leads.agent_id', '=', Sentinel::getUser()->id);
-        })->join('customers', function($j){
-          $j->on('leads.customer_id', '=', 'customers.id');
-        })->get();
+        $userOpenLeads = Lead::AgentLeads()->get();
 
         return view('OpenLeadsData.index', ['leads' => $userOpenLeads->toArray()]);
     }
