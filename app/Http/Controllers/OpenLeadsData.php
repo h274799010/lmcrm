@@ -47,6 +47,15 @@ class OpenLeadsData extends Controller
 
     public function create(Request $request){
 
+        $userId = Sentinel::getUser()->id;
+
+        $userCheck = OpenLeads::where('agent_id', '=', $userId)->where('lead_id', '=', $request['id'])->first();
+
+        if(!$userCheck){
+            return null;
+        }
+
+
         $lead =  Lead::find($request['id']);
 
         // поле radio
