@@ -34,36 +34,6 @@ class Lead extends EloquentUser {
     #    'password', 'remember_token',
     #];
 
-    public function scopePopular($query, $userId)
-    {
-        return $query->where('id', '=', $userId);
-    }
-
-    public function scopeAgentLeads($query){
-
-        $agentOpenLeads = $query
-            ->join
-            (
-                'open_leads',
-                function($joinOpen_leads)
-                {
-                    $joinOpen_leads
-                        ->on('leads.id', '=', 'open_leads.lead_id')
-                        ->where('open_leads.agent_id', '=', Sentinel::getUser()->id);
-                }
-
-            )->join
-            (
-                'customers',
-                function($joinCustomers)
-                {
-                    $joinCustomers->on('leads.customer_id', '=', 'customers.id');
-                }
-            );
-
-        return $agentOpenLeads;
-    }
-
 
     // возвращает все поля SphereAttr со значением поля label=radio
     public function sAttrRadio($sphere_id=NULL){

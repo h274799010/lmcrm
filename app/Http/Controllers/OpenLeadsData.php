@@ -19,9 +19,20 @@ class OpenLeadsData extends Controller
 
     public function index(){
 
-        $userOpenLeads = Lead::AgentLeads()->get();
+        // получаем id текущего пользователя
+        $userId = Sentinel::getUser()->id;
 
-        return view('OpenLeadsData.index', ['leads' => $userOpenLeads->toArray()]);
+        // Находим данные всех лидов доступных данному пользователю по его id (таблица open_leads)
+        $userOpenLeads = OpenLeads::where('agent_id', '=', $userId)->get();
+
+        // выбираем данные всех доступных лидов в таблице leads, в том числе и телефон в таблице customer
+        $leadsData = $userOpenLeads->map(function($item){
+                        $lead = $item->userLead->toArray();
+                        $lead['phone'] = $item->userLead->phone->phone;
+                        return $lead;
+                    });
+
+        return view('OpenLeadsData.index', ['leads' => $leadsData]);
     }
 
 

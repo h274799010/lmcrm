@@ -81,7 +81,7 @@
         <tbody>
 
             @foreach($leads as $lead)
-                <tr class="all_data" data_id="{{$lead['lead_id']}}">
+                <tr class="all_data" data_id="{{$lead['id']}}">
                     <td></td>
                     <td>{{$lead['date']}}</td>
                     <td>{{$lead['name']}}</td>

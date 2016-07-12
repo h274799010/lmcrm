@@ -8,6 +8,9 @@ class OpenLeads extends Model {
 
     protected $table="open_leads";
 
+    public function userLead(){
+         return $this->hasOne('App\Models\Lead','id', 'lead_id');
+    }
 
     public function lead(){
         return $this->hasMany('App\Models\Lead','id', 'lead_id');
