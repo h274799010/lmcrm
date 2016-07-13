@@ -8,7 +8,6 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-use Sentinel;
 
 #class Lead extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
 #    use Authenticatable, CanResetPassword;
@@ -34,6 +33,12 @@ class Lead extends EloquentUser {
     #    'password', 'remember_token',
     #];
 
+
+    public function sphereAttr($sphere_id=NULL){
+        $relation = $this->hasMany('App\Models\SphereAttr', 'sphere_id', 'sphere_id');
+
+        return ($sphere_id)? $relation->where('sphere_id','=',$sphere_id) : $relation;
+    }
 
     // возвращает все поля SphereAttr со значением поля label=radio
     public function sAttrRadio($sphere_id=NULL){

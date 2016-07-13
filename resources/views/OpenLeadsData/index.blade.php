@@ -113,7 +113,7 @@
 
                 view_data.empty();
 
-                var fields = ['icon', 'date', 'name', 'phone', 'email', 'Radio', 'Checkbox'];
+                var fields = ['icon', 'date', 'name', 'phone', 'email', 'radio', 'checkbox'];
 
                 var table = $('<table/>');
 
@@ -132,7 +132,7 @@
                     }
 
                     td1.text(val).appendTo(tr);
-                    td2.text(data[i]).appendTo(tr);
+                    td2.text(data[val]).appendTo(tr);
 
                     tr.appendTo(table);
 

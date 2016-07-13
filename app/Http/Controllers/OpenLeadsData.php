@@ -13,6 +13,7 @@ use App\Models\Lead;
 use App\Models\SphereAttr;
 use App\Models\OpenLeads;
 use Sentinel;
+use Illuminate\Support\Facades\DB;
 
 class OpenLeadsData extends Controller
 {
@@ -39,113 +40,68 @@ class OpenLeadsData extends Controller
 
     public function create(Request $request){
 
+        // получаем id пользователя
         $userId = Sentinel::getUser()->id;
 
+        // проверяем соответствует ли пользователю идентификатор лида, который он запросил,
+        // по таблице open_leads
         $userCheck = OpenLeads::where('agent_id', '=', $userId)->where('lead_id', '=', $request['id'])->first();
 
-        if(!$userCheck){
-            return null;
-        }
+        // если соответствий нет - отправвляется пустой ответ
+        if(!$userCheck){ return null; }
 
+        // если есть - производится поиск данных лида по id
+        // (связываются таблицы open_leads.lead_id c leads.id)
+        $lead = $userCheck->userLead;
 
-        $lead =  Lead::find($request['id']);
+        // преобразовываем данные лида в массив и добавляем телефон
+        $leadData = $lead->toArray();
+        $leadData['phone'] = $lead->phone->phone;
 
-        // поле radio
-        $lead_radio = '';
-        // поле checkbox
-        $lead_checkbox = '';
+        // выбираем данные из стаблицы sphere_bitmask_ХХ по id лида
+        // для получения значения полей fb_AID_OID
+        $sphere_bitmask_XXdata = DB::table('sphere_bitmask_' .$lead->sphere_id)
+            ->where('user_id', '=', $lead->id)
+            ->where('type', '=', 'lead')
+            ->get()[0];
 
-        // Имя таблицы sphere_bitmask_XX
-        $sphere_bitmask = 'sphere_bitmask_' .$lead->sphere_id;
+        // перебираем данные из таблицы sphere_attributes
+        $lead->sphereAttr($lead->sphere_id)->get()->each(function($attribute) use ($sphere_bitmask_XXdata, &$leadData){
 
-        // все строки таблыцы sphere_attributes в которых
-        // значение поля sphere_id = leads.sphere_id и
-        // значение поля label = radio
-        $sphereAttr_radio = $lead->sAttrRadio($lead->sphere_id)->get();
+            // первые два символа имени поля fb_AID_OID
+            $fb_AID_ = 'fb_'.$attribute->id .'_';
 
-        foreach($sphereAttr_radio as $radio){
+            // ссылаемся на массив $leadData (radio или checkBox)
+            $leadData[$attribute->_type] = '';
+            // задаем его по ссылке, чтобы удобнее было передавать
+            $type = &$leadData[$attribute->_type];
 
-            // все строки таблицы sphere_attributes по id
-            // там только одна такая строка,
-            // посто в дальнейшем сможем вызвать метод options и sphereBitmaskData
-            // с нужным нам id таблицы sphere_attributes
-            $sphere = SphereAttr::find($radio->id);
-            // получаем данные из таблицы sphere_attributes_options по id
-            $sphereOptions = $sphere->options;
+            // перебираем все поля sphere_attributes_option и выбираем только те,
+            // в которых поле fb_AID_OID = 1
+            // Если поля два и больше, они будут добавленны через запятую
+            $attribute->options->each(function($option) use($sphere_bitmask_XXdata, $fb_AID_, &$type){
 
-            // имя поля fb_AID_OID (первые два значения имени)
-            $fb_AID_ = 'fb_'.$radio->id .'_';
-
-            // перебираем все поля sphere_attributes_options и выводим только те,
-            // по которым значение fb_AID_OID=1 в таблице sphere_bitmask_XX
-            foreach($sphereOptions as $option){
-
-                // имя поля fb_AID_OID
+                // Полное название поля fb_AID_OID
                 $fb_AID_OID = $fb_AID_ .$option->id;
 
-                // получаем значение поля fb_AID_OID
-                $fb_AID_OID_value = $sphere->sphereBitmaskData($sphere_bitmask, $lead->id)->$fb_AID_OID;
+                if($sphere_bitmask_XXdata->$fb_AID_OID == 1){
+                    if($type == ''){
+                        $type=$option->value;
+                        return true;
 
-                // если значений несколько, они присваиваются через запятую
-                if($fb_AID_OID_value == 1){
-                    if($lead_radio == ''){
-                        $lead_radio = $option->value;
                     }else{
-                        $lead_radio .= ', ' .$option->value;
+                        $type = $type .', ' .$option->value;
+                        return true;
                     }
                 }
-            }
-        }
 
-        $sphereAttr_checkbox = $lead->sAttrCheckbox($lead->sphere_id)->get();
+                return false;
+            });
 
-        foreach($sphereAttr_checkbox as $checkbox){
+            return true;
+        });
 
-            // все строки таблицы sphere_attributes по id
-            // там только одна такая строка,
-            // посто в дальнейшем сможем вызвать метод options и sphereBitmaskData
-            // с нужным нам id таблицы sphere_attributes
-            $sphere = SphereAttr::find($checkbox->id);
-            // получаем данные из таблицы sphere_attributes_options по id
-            $sphereOptions = $sphere->options;
-
-            // имя поля fb_AID_OID (первые два значения имени)
-            $fb_AID_ = 'fb_'.$checkbox->id .'_';
-
-            // перебираем все поля sphere_attributes_options и выводим только те,
-            // по которым значение fb_AID_OID=1 в таблице sphere_bitmask_XX
-            foreach($sphereOptions as $option){
-
-                // имя поля fb_AID_OID
-                $fb_AID_OID = $fb_AID_ .$option->id;
-
-                // получаем значение поля fb_AID_OID
-                $fb_AID_OID_value = $sphere->sphereBitmaskData($sphere_bitmask, $lead->id)->$fb_AID_OID;
-
-                // если значений несколько, они присваиваются через запятую
-                if($fb_AID_OID_value == 1){
-                    if($lead_checkbox == ''){
-                        $lead_checkbox = $option->value;
-                    }else{
-                        $lead_checkbox .= ', ' .$option->value;
-                    }
-                }
-            }
-        }
-
-        // поля для вывода
-        $response =
-        [
-            '',
-            $lead->date,
-            $lead->name,
-            $lead->phone->phone,
-            $lead->email,
-            $lead_radio,
-            $lead_checkbox,
-        ];
-
-        return Response::json( $response );
+        return Response::json( $leadData );
     }
 }
 
