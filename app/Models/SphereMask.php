@@ -107,6 +107,20 @@ class SphereMask extends Model
         return $short_mask;
     }
 
+    public function findLeadShortMask($user_id=NULL){
+        $user_id = ($user_id)?$user_id:$this->userID;
+        $short_mask=array();
+        $mask = $this->tableDB->where('user_id','=',$user_id)->where('type', '=', 'lead')->first();
+        if(!$mask) { return $short_mask; }
+        $mask=get_object_vars($mask);
+        foreach($mask as $field=>$val){
+            if(stripos($field,'fb_')!==false){
+                $short_mask[preg_replace('/^fb_[\d]+_/','',$field)]=$val;
+            }
+        }
+        return $short_mask;
+    }
+
     public function findSphereMask($sphere_id,$user_id=NULL){
         $user_id = ($user_id)?$user_id:$this->userID;
         $this->changeTable($sphere_id);

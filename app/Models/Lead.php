@@ -40,6 +40,14 @@ class Lead extends EloquentUser {
         return ($sphere_id)? $relation->where('sphere_id','=',$sphere_id) : $relation;
     }
 
+    public function sphereAttrByType($type=NULL, $sphere_id=NULL){
+
+        $relation = $this->hasMany('App\Models\SphereAttr', 'sphere_id', 'sphere_id');
+
+        return ($sphere_id and $type)? $relation->where('sphere_id','=',$sphere_id)->where('_type', '=', $type) : $relation;
+    }
+
+
     // возвращает все поля SphereAttr со значением поля label=radio
     public function sAttrRadio($sphere_id=NULL){
         $relation = $this->hasMany('App\Models\SphereAttr', 'sphere_id', 'sphere_id');

@@ -12,8 +12,11 @@ use App\Http\Requests;
 use App\Models\Lead;
 use App\Models\SphereAttr;
 use App\Models\OpenLeads;
+use App\Models\SphereMask;
 use Sentinel;
 use Illuminate\Support\Facades\DB;
+
+
 
 class OpenLeadsData extends Controller
 {
@@ -54,52 +57,81 @@ class OpenLeadsData extends Controller
         // (связываются таблицы open_leads.lead_id c leads.id)
         $lead = $userCheck->userLead;
 
+        // находим таблицу sphere_bitmask_XX
+        $sphere_bitmask_XX = new SphereMask($lead->sphere_id);
+        // получаем массив данных полей fb_AID_OID из таблицы sphere_bitmask_XX
+        $fb_AID_OID = $sphere_bitmask_XX->findLeadShortMask($lead->id);
+
         // преобразовываем данные лида в массив и добавляем телефон
         $leadData = $lead->toArray();
         $leadData['phone'] = $lead->phone->phone;
 
-        // выбираем данные из стаблицы sphere_bitmask_ХХ по id лида
-        // для получения значения полей fb_AID_OID
-        $sphere_bitmask_XXdata = DB::table('sphere_bitmask_' .$lead->sphere_id)
-            ->where('user_id', '=', $lead->id)
-            ->where('type', '=', 'lead')
-            ->get()[0];
+        $leadData['radio'] = '';
+        $leadData['checkbox'] = '';
 
-        // перебираем данные из таблицы sphere_attributes
-        $lead->sphereAttr($lead->sphere_id)->get()->each(function($attribute) use ($sphere_bitmask_XXdata, &$leadData){
+        // Находимо значение поля radio
+        $lead->sphereAttrByType('radio', $lead->sphere_id)->first()->options()->get()
+            ->each(function($option) use (&$leadData, $fb_AID_OID){
 
-            // первые два символа имени поля fb_AID_OID
-            $fb_AID_ = 'fb_'.$attribute->id .'_';
+                if($fb_AID_OID[$option->id] == 1){
 
-            // ссылаемся на массив $leadData (radio или checkBox)
-            $leadData[$attribute->_type] = '';
-            // задаем его по ссылке, чтобы удобнее было передавать
-            $type = &$leadData[$attribute->_type];
-
-            // перебираем все поля sphere_attributes_option и выбираем только те,
-            // в которых поле fb_AID_OID = 1
-            // Если поля два и больше, они будут добавленны через запятую
-            $attribute->options->each(function($option) use($sphere_bitmask_XXdata, $fb_AID_, &$type){
-
-                // Полное название поля fb_AID_OID
-                $fb_AID_OID = $fb_AID_ .$option->id;
-
-                if($sphere_bitmask_XXdata->$fb_AID_OID == 1){
-                    if($type == ''){
-                        $type=$option->value;
+                    if($leadData['radio'] == ''){
+                        $leadData['radio']=$option->value;
                         return true;
 
                     }else{
-                        $type = $type .', ' .$option->value;
+                        $leadData['radio'] = $leadData['radio'] .', ' .$option->value;
                         return true;
                     }
+
                 }
 
                 return false;
             });
 
-            return true;
-        });
+        // Находим значение поля checkbox
+        $lead->sphereAttrByType('checkbox', $lead->sphere_id)->first()->options()->get()
+            ->each(function($option) use (&$leadData, $fb_AID_OID){
+
+                if($fb_AID_OID[$option->id] == 1){
+
+                    if($leadData['checkbox'] == ''){
+                        $leadData['checkbox']=$option->value;
+                        return true;
+
+                    }else{
+                        $leadData['checkbox'] = $leadData['checkbox'] .', ' .$option->value;
+                        return true;
+                    }
+
+                }
+
+                return false;
+            });
+
+
+//        $lead->sphereAttr($lead->sphere_id)->get()->each(function($attribute) use(&$leadData, $fb_AID_OID){
+//
+//            // ссылаемся на массив $leadData (radio или checkBox)
+//            $leadData[$attribute->_type] = '';
+//            // задаем его по ссылке, чтобы удобнее было передавать
+//            $type = &$leadData[$attribute->_type];
+//
+//            $attribute->options->each(function($option) use($fb_AID_OID, &$type){
+//
+//                if($fb_AID_OID[$option->id] == 1){
+//                    if($type == ''){
+//                        $type=$option->value;
+//                        return true;
+//
+//                    }else{
+//                        $type = $type .', ' .$option->value;
+//                        return true;
+//                    }
+//                }
+//                return false;
+//            });
+//        });
 
         return Response::json( $leadData );
     }
