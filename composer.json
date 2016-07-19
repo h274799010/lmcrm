@@ -15,7 +15,8 @@
         "mcamara/laravel-localization": "1.1.*",
         "yajra/laravel-datatables-oracle": "~6.0",
         "intervention/image": "^2.3",
-        "spescina/mediabrowser": "^4.0"
+        "spescina/mediabrowser": "^4.0",
+        "guzzlehttp/guzzle": "^6.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
