@@ -10,6 +10,8 @@ use App\Models\Customer;
 use App\Models\LeadInfoEAV;
 use App\Models\Sphere;
 use App\Models\SphereMask;
+use App\Models\Notification;
+use App\Models\Notificate_users;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -29,6 +31,10 @@ class SphereController extends Controller {
     public function index()
     {
         $spheres = Sphere::with('leads')->active()->get();
+
+        dd(Notificate_users::all());
+//        dd(3);
+
         return view('sphere.lead.list')->with('spheres',$spheres);
     }
 
