@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Models\Notification;
-use App\Models\Notificate_users;
+use App\Models\Notification_users;
 
 
 class Notice extends Model
@@ -42,7 +42,7 @@ class Notice extends Model
 
         // запись данных по каждому пользователю
         $agents->each(function($agent) use ($notice){
-            $userNotice = new Notificate_users;
+            $userNotice = new Notification_users;
             $userNotice->notification_id = $notice->id;
             $userNotice->user_id = $agent;
             $userNotice->time = date("Y-m-d H:i:s");
