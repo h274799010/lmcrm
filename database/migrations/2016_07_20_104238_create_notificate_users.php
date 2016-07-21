@@ -17,7 +17,7 @@ class CreateNotificateUsers extends Migration
             $table->integer('notification_id');
             $table->integer('user_id');
             $table->boolean('notified')->default(0);
-            $table->date('time');
+            $table->timestamp('time');
             $table->timestamps();
         });
     }

@@ -5,15 +5,73 @@ namespace App\Helper;
 use Illuminate\Database\Eloquent\Model;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use App\Models\Notification;
+use App\Models\Notificate_users;
 
 
-class notice extends Model
+class Notice extends Model
 {
+    /**
+     * Отправка уведомления всем агентам
+     *
+     * todo доработать
+     * пока что уведомление только о новом лиде
+     * в дальнейшем доработать
+     * чтобы можно было добавлять любые уведомления
+     * (предупреждения, и оповещения и т.д.)
+     *
+     */
+    public static function allAgents($sender)
+    {
+
+    // получение id всех агентов
+        $agentRole = Sentinel::findRoleBySlug('agent');
+        $agents = $agentRole->users()->with('roles')->get();
+        $agents = $agents->map(function($agent){
+                       return $agent->id;
+                    });
+
+
+
+    // todo занесение уведомлений в базу данных
+
+        // запись данных о уведомлении в таблицу notifications
+        $notice = new Notification;
+        $notice->sender_id = $sender;
+        $notice->event = 'newLead';
+        $notice->save();
+
+        // получение id
+        $noticeId = $notice->id;
+
+
+        $agents->each(function($agent) use ($noticeId){
+            $userNotice = new Notificate_users;
+            $userNotice->notification_id = $noticeId;
+            $userNotice->user_id = $agent;
+            $userNotice->time = date("Y-m-d H:i:s");
+            $userNotice->save();
+
+        });
+
+
+        // todo отправка уведомления на фронтенд
+
+        // todo Push по телефону
+//        self::sendMessageThroughGCM($registatoin_ids, $message);
+
+        // todo оргазиновать страницу ответа от пользователя
+
+        return $notice->id;
+    }
+
+
      /**
       * Отправка PUSH на телефон
       *
       */
-    function sendMessageThroughGCM($registatoin_ids, $message) {
+    public function sendMessageThroughGCM($registatoin_ids, $message) {
         if(count($registatoin_ids)==0) { return false; }
         //Google cloud messaging GCM-API url
         $url = 'https://android.googleapis.com/gcm/send';

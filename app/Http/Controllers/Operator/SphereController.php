@@ -10,8 +10,11 @@ use App\Models\Customer;
 use App\Models\LeadInfoEAV;
 use App\Models\Sphere;
 use App\Models\SphereMask;
+
 use App\Models\Notification;
 use App\Models\Notificate_users;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use App\Helper\Notice;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -32,8 +35,7 @@ class SphereController extends Controller {
     {
         $spheres = Sphere::with('leads')->active()->get();
 
-        dd(Notificate_users::all());
-//        dd(3);
+        Notice::allAgents( Sentinel::getUser()->id );
 
         return view('sphere.lead.list')->with('spheres',$spheres);
     }

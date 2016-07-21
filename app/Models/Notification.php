@@ -8,11 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
 
-    // оповещение пользователей по id
-    public function noticeById($event, $userId)
-    {
+    // добавление записи в таблицу notifications
 
-    }
 
     // оповещение группы пользователей, id которых находятся в массиве
     public function noticeByArray($event, $arrUsersId)
