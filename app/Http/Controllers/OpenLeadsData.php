@@ -34,7 +34,7 @@ class OpenLeadsData extends Controller
                         $lead = $item->userLead->toArray();
                         $lead['phone'] = $item->userLead->phone->phone;
                         return $lead;
-                    });
+        });
 
         return view('OpenLeadsData.index', ['leads' => $leadsData]);
     }

@@ -9,10 +9,10 @@ class Notification extends Model
 {
 
     /**
-    * add a new record to the table 'notifications'
+    * Add a new record to the table 'notifications'
     *
-    * @param int $sender
-    * @param string $event
+    * @param  int  $sender
+    * @param  string  $event
     * @return object
     */
     public static function make( $sender, $event )

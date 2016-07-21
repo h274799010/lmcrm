@@ -27,32 +27,24 @@ class Notice extends Model
     public static function allAgents( $sender )
     {
 
-    // получение id всех агентов
+    // получение данных всех агентов
         $agentRole = Sentinel::findRoleBySlug('agent');
         $agents = $agentRole->users()->with('roles')->get();
-        $agents = $agents->map(function($agent){
-                       return $agent->id;
-                    });
 
-
-    // занесение уведомлений в базу данных$notice
+    // занесение уведомлений в базу данных
 
         // запись данных о уведомлении в таблицу notifications
         $notice = Notification::make( $sender, 'newLead' );
 
-        // запись данных по каждому пользователю
+        // запись данных по каждому пользователю, таблица notification_users
         $agents->each(function($agent) use ($notice){
-            $userNotice = new Notification_users;
-            $userNotice->notification_id = $notice->id;
-            $userNotice->user_id = $agent;
-            $userNotice->time = date("Y-m-d H:i:s");
-            $userNotice->save();
+                        Notification_users::make( $agent, $notice );
         });
 
 
-        // todo отправка уведомления на фронтенд
+    // todo отправка уведомления на фронтенд
 
-        // todo Push по телефону
+    // todo Push по телефону
 //        self::sendMessageThroughGCM($registatoin_ids, $message);
 
         // todo оргазиновать страницу ответа от пользователя
@@ -63,6 +55,9 @@ class Notice extends Model
      /**
       * Отправка PUSH на телефон
       *
+      * @param  int  $registatoin_ids
+      * @param  string  $message
+      * @return mixed
       */
     public function sendMessageThroughGCM($registatoin_ids, $message) {
         if(count($registatoin_ids)==0) { return false; }
@@ -125,7 +120,7 @@ class Notice extends Model
         return $result;
     }
 
-
+    // todo доработать, убрать
     public function key_update($usertoken_id,$key){
         $sql = $this->model->dbString("UPDATE usersToken SET `key` = '%s' WHERE id = $usertoken_id",$key);
         return $this->model->query($sql);
