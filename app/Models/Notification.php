@@ -8,6 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
 
+    // добавление новой записи в таблицу notifications
+    public static function make( $sender, $event )
+    {
+        $notice = new Notification;
+        $notice->sender_id = $sender;
+        $notice->event = $event;
+        $notice->save();
+
+        return $notice;
+    }
+
     // добавление записи в таблицу notifications
 
 

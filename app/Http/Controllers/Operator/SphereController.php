@@ -14,7 +14,7 @@ use App\Models\SphereMask;
 use App\Models\Notification;
 use App\Models\Notificate_users;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
-use App\Helper\Notice;
+use App\Http\Controllers\Notice;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;

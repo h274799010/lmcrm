@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helper;
+namespace App\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Model;
 use GuzzleHttp\Client;
@@ -13,7 +13,7 @@ use App\Models\Notificate_users;
 class Notice extends Model
 {
     /**
-     * Отправка уведомления всем агентам
+     * Notification to all agents
      *
      * todo доработать
      * пока что уведомление только о новом лиде
@@ -21,8 +21,10 @@ class Notice extends Model
      * чтобы можно было добавлять любые уведомления
      * (предупреждения, и оповещения и т.д.)
      *
+     * @param int $sender
+     * @return void
      */
-    public static function allAgents($sender)
+    public static function allAgents( $sender )
     {
 
     // получение id всех агентов
@@ -33,26 +35,18 @@ class Notice extends Model
                     });
 
 
-
-    // todo занесение уведомлений в базу данных
+    // занесение уведомлений в базу данных$notice
 
         // запись данных о уведомлении в таблицу notifications
-        $notice = new Notification;
-        $notice->sender_id = $sender;
-        $notice->event = 'newLead';
-        $notice->save();
+        $notice = Notification::make( $sender, 'newLead' );
 
-        // получение id
-        $noticeId = $notice->id;
-
-
-        $agents->each(function($agent) use ($noticeId){
+        // запись данных по каждому пользователю
+        $agents->each(function($agent) use ($notice){
             $userNotice = new Notificate_users;
-            $userNotice->notification_id = $noticeId;
+            $userNotice->notification_id = $notice->id;
             $userNotice->user_id = $agent;
             $userNotice->time = date("Y-m-d H:i:s");
             $userNotice->save();
-
         });
 
 
@@ -63,7 +57,6 @@ class Notice extends Model
 
         // todo оргазиновать страницу ответа от пользователя
 
-        return $notice->id;
     }
 
 
