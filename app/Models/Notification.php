@@ -8,7 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
 
-    // добавление новой записи в таблицу notifications
+    /**
+    * add a new record to the table 'notifications'
+    *
+    * @param int $sender
+    * @param string $event
+    * @return object
+    */
     public static function make( $sender, $event )
     {
         $notice = new Notification;
