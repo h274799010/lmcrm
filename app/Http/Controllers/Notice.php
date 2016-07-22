@@ -21,6 +21,7 @@ class Notice extends Model
      * чтобы можно было добавлять любые уведомления
      * (предупреждения, и оповещения и т.д.)
      *
+     * @todo добавить еще один аргумент - событие ($event)
      * @param int $sender
      * @return void
      */
@@ -37,7 +38,7 @@ class Notice extends Model
         $notice = Notification::make( $sender, 'newLead' );
 
         // запись данных по каждому пользователю, таблица notification_users
-        $agents->each(function($agent) use ($notice){
+        $agents->each(function( $agent ) use ( $notice ){
                         Notification_users::make( $agent, $notice );
         });
 
@@ -45,7 +46,7 @@ class Notice extends Model
     // todo отправка уведомления на фронтенд
 
     // todo Push по телефону
-//        self::sendMessageThroughGCM($registatoin_ids, $message);
+       // self::sendMessageThroughGCM($registatoin_ids, $message);
 
         // todo оргазиновать страницу ответа от пользователя
 
@@ -120,7 +121,12 @@ class Notice extends Model
         return $result;
     }
 
-    // todo доработать, убрать
+    public static function taken( $agent, $event )
+    {
+
+    }
+
+    // todo переместить и доработать
     public function key_update($usertoken_id,$key){
         $sql = $this->model->dbString("UPDATE usersToken SET `key` = '%s' WHERE id = $usertoken_id",$key);
         return $this->model->query($sql);
