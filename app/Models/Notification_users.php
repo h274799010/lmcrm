@@ -7,38 +7,60 @@ use Illuminate\Database\Eloquent\Model;
 class Notification_users extends Model
 {
     /**
-     * Add a new record to the table 'notification_users'
+     * Новое оповещение
      *
-     * @param  object $user
-     * @param  object $notice
+     * Добавление записи в таблицу 'notification_users'
+     *
+     * @param  integer  $user
+     * @param  integer  $notice
+     *
      * @return object
      */
     public static function make( $user, $notice )
     {
-
         $userNotice = new Notification_users;
-        $userNotice->notification_id = $notice->id;
-        $userNotice->user_id = $user->id;
+        $userNotice->notification_id = $notice;
+        $userNotice->user_id = $user;
         $userNotice->notified = 0;
         $userNotice->save();
+
         return $userNotice;
     }
+
+
 
     /**
-     * Set users notified=1 by $notice
+     * Все записи пользователя с пометкой "НЕ уведомлен"
+     * Если пользователь не указан, возвращаются все записи с пометкой "НЕ уведомлен"
      *
-     * @param  object $user
-     * @param  object $notice
+     *
+     * @param integer $userId
+     *
      * @return object
      */
-    public static function takenByNotice( $user, $notice )
+    public function notNotified( $userId = NULL )
     {
-        $userNotice = self::where('user_id', '=', $user)->where('notification_id', '=', $notice)->first();
-        $userNotice->notified = 1;
-        $userNotice->save();
+        // все записи с пометкой "НЕ уведомлен"
+        $records = $this->where('notified', '=', '0');
 
-        return $userNotice;
+        return ($userId)? $records->where('user_id','=',$userId)->get() : $records;
     }
 
 
+
+    /**
+     * Помечает заданную запись как "уведомлен"
+     *
+     * выставляет поле notified = 1
+     *
+     *
+     * @return object
+     */
+    public function received()
+    {
+        $this->notified = 1;
+        $this->save();
+
+        return $this;
+    }
 }
