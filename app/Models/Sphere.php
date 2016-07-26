@@ -15,11 +15,11 @@ class Sphere extends Model
     }
 
     public function attributes() {
-        return $this->hasMany('App\Models\SphereAttr','sphere_id','id')->orderBy('position');
+        return $this->hasMany('App\Models\SphereFromFilters','sphere_id','id')->orderBy('position');
     }
 
     public function leadAttr() {
-        return $this->hasMany('App\Models\SphereLeadAttr','sphere_id','id')->orderBy('position');
+        return $this->hasMany('App\Models\SphereAdditionForms','sphere_id','id')->orderBy('position');
     }
 
     public function leads(){

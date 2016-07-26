@@ -34,30 +34,30 @@ class Lead extends EloquentUser {
     #];
 
 
-    public function sphereAttr($sphere_id=NULL){
-        $relation = $this->hasMany('App\Models\SphereAttr', 'sphere_id', 'sphere_id');
+    public function SphereFromFilters($sphere_id=NULL){
+        $relation = $this->hasMany('App\Models\SphereFromFilters', 'sphere_id', 'sphere_id');
 
         return ($sphere_id)? $relation->where('sphere_id','=',$sphere_id) : $relation;
     }
 
     public function sphereAttrByType($type=NULL, $sphere_id=NULL){
 
-        $relation = $this->hasMany('App\Models\SphereAttr', 'sphere_id', 'sphere_id');
+        $relation = $this->hasMany('App\Models\SphereFromFilters', 'sphere_id', 'sphere_id');
 
         return ($sphere_id and $type)? $relation->where('sphere_id','=',$sphere_id)->where('_type', '=', $type) : $relation;
     }
 
 
-    // возвращает все поля SphereAttr со значением поля label=radio
+    // возвращает все поля SphereFromFilters со значением поля label=radio
     public function sAttrRadio($sphere_id=NULL){
-        $relation = $this->hasMany('App\Models\SphereAttr', 'sphere_id', 'sphere_id');
+        $relation = $this->hasMany('App\Models\SphereFromFilters', 'sphere_id', 'sphere_id');
 
         return ($sphere_id)? $relation->where('sphere_id','=',$sphere_id)->where('_type', '=', 'radio') : $relation;
     }
 
-    // возвращает все поля SphereAttr со значением поля label=checkbox
+    // возвращает все поля SphereFromFilters со значением поля label=checkbox
     public function sAttrCheckbox($sphere_id=NULL){
-        $relation = $this->hasMany('App\Models\SphereAttr', 'sphere_id', 'sphere_id');
+        $relation = $this->hasMany('App\Models\SphereFromFilters', 'sphere_id', 'sphere_id');
 
         return ($sphere_id)? $relation->where('sphere_id','=',$sphere_id)->where('_type', '=', 'checkbox') : $relation;
     }

@@ -39,19 +39,19 @@ class SentinelDatabaseSeeder extends Seeder
 
 
 
-//        $agent = Sentinel::getUserRepository()->create(array(
-//
-//            'email'    => 'agent@agent.com',
-//            'password' => 'agent'
-//
-//        ));
-//
-//        $operator = Sentinel::getUserRepository()->create(array(
-//
-//            'email'    => 'operator@operator.com',
-//            'password' => 'operator'
-//
-//        ));
+        $agent = Sentinel::getUserRepository()->create(array(
+
+            'email'    => 'agent@agent.com',
+            'password' => 'agent'
+
+        ));
+
+        $operator = Sentinel::getUserRepository()->create(array(
+
+            'email'    => 'operator@operator.com',
+            'password' => 'operator'
+
+        ));
 
 
         // Create Activations
@@ -62,13 +62,13 @@ class SentinelDatabaseSeeder extends Seeder
 
         Activation::complete($admin, $code);
 
-//        $code = Activation::create($agent)->code;
+        $code = Activation::create($agent)->code;
 
-//        Activation::complete($agent, $code);
+        Activation::complete($agent, $code);
 
-//        $code = Activation::create($operator)->code;
+        $code = Activation::create($operator)->code;
 
-//        Activation::complete($operator, $code);
+        Activation::complete($operator, $code);
 
 
         // Create Roles
@@ -124,9 +124,9 @@ class SentinelDatabaseSeeder extends Seeder
 
         $administratorRole->users()->attach($admin);
 
-//        $agentRole->users()->attach($agent);
-//
-//        $operatorRole->users()->attach($operator);
+        $agentRole->users()->attach($agent);
+
+        $operatorRole->users()->attach($operator);
 
     }
 

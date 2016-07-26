@@ -106,7 +106,7 @@ class OpenLeadsData extends Controller
             });
 
 
-//        $lead->sphereAttr($lead->sphere_id)->get()->each(function($attribute) use(&$leadData, $fb_AID_OID){
+//        $lead->SphereFromFilters($lead->sphere_id)->get()->each(function($attribute) use(&$leadData, $fb_AID_OID){
 //
 //            // ссылаемся на массив $leadData (radio или checkBox)
 //            $leadData[$attribute->_type] = '';
