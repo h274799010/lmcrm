@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
-use App\Models\SphereAttrOptions;
+use App\Models\SphereFiltersOptions;
 use Illuminate\Support\Facades\Input;
 use App\Models\User;
 use App\Models\Sphere;
-use App\Models\SphereAttr;
+use App\Models\SphereFromFilters;
 use App\Models\SphereLeadAttr;
 use App\Models\SphereStatuses;
 use App\Models\SphereMask;
@@ -315,14 +315,14 @@ class SphereController extends AdminController {
 
                 foreach ($eoptions as $optVal) {
                     if ($optVal['id']) {
-                        $chr_options = SphereAttrOptions::find($optVal['id']);
+                        $chr_options = SphereFiltersOptions::find($optVal['id']);
                         $chr_options->ctype = 'lead';
                         $chr_options->_type = 'option';
                         $chr_options->name = $optVal['val'];
                         //$chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
                         $chr_options->save();
                     } else {
-                        $chr_options = new SphereAttrOptions();
+                        $chr_options = new SphereFiltersOptions();
                         $chr_options->ctype = 'lead';
                         $chr_options->_type = 'option';
                         $chr_options->name = $optVal['val'];
@@ -353,14 +353,14 @@ class SphereController extends AdminController {
 
                 foreach ($eoptions as $optVal) {
                     if ($optVal['id']) {
-                        $chr_options = SphereAttrOptions::find($optVal['id']);
+                        $chr_options = SphereFiltersOptions::find($optVal['id']);
                         $chr_options->ctype = 'lead';
                         $chr_options->_type = 'validate';
                         $chr_options->name = $optVal['val'];
                         $chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
                         $chr_options->save();
                     } else {
-                        $chr_options = new SphereAttrOptions();
+                        $chr_options = new SphereFiltersOptions();
                         $chr_options->ctype = 'lead';
                         $chr_options->_type = 'validate';
                         $chr_options->name = $optVal['val'];
@@ -421,11 +421,11 @@ class SphereController extends AdminController {
         }
         if($new_chr) foreach($new_chr as $attr) {
             if (isset($attr['id']) && $attr['id']) {
-                $characteristic = SphereAttr::find($attr['id']);
+                $characteristic = SphereFromFilters::find($attr['id']);
                 $characteristic->update($attr);
             } else {
                 if(!is_array($attr)) { continue; }
-                $characteristic = new SphereAttr((array)$attr);
+                $characteristic = new SphereFromFilters((array)$attr);
                 $group->attributes()->save($characteristic);
             }
             if (isset($attr['option'])) {
@@ -446,13 +446,13 @@ class SphereController extends AdminController {
                 $default_value = [];
                 foreach ($attr['option'] as $optVal) {
                     if ($optVal['id']) {
-                        $chr_options = SphereAttrOptions::find($optVal['id']);
+                        $chr_options = SphereFiltersOptions::find($optVal['id']);
                         $chr_options->ctype = 'agent';
                         $chr_options->name = $optVal['val'];
                         //$chr_options->icon = (isset($optVal['vale'][1])) ? $optVal['vale'][1] : NULL;
                         $chr_options->save();
                     } else {
-                        $chr_options = new SphereAttrOptions();
+                        $chr_options = new SphereFiltersOptions();
                         $chr_options->ctype = 'agent';
                         $chr_options->name = $optVal['val'];
                         //$chr_options->icon = (isset($optVal['vale'][1])) ? $optVal['vale'][1] : NULL;

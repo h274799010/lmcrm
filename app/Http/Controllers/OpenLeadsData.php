@@ -9,13 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 use App\Http\Requests;
-use App\Models\Lead;
-use App\Models\SphereAttr;
 use App\Models\OpenLeads;
 use App\Models\SphereMask;
 use Sentinel;
-use Illuminate\Support\Facades\DB;
-
 
 
 class OpenLeadsData extends Controller

@@ -4,16 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SphereLeadAttr extends Model
+class SphereAdditionForms extends Model
 {
-    protected $table = 'sphere_lead_attributes';
+    protected $table = 'sphere_addition_forms';
     protected $fillable = ['_type', 'label','icon','required', 'position' ];
 
     public function options() {
-        return $this->hasMany('App\Models\SphereAttrOptions','sphere_attr_id','id')->where('ctype','=','lead')->where('_type','=','option')->orderBy('position');
+        return $this->hasMany('App\Models\SphereFiltersOptions','sphere_ff_id','id')->where('ctype','=','lead')->where('_type','=','option')->orderBy('position');
     }
     public function validators() {
-        return $this->hasMany('App\Models\SphereAttrOptions','sphere_attr_id','id')->where('ctype','=','lead')->where('_type','=','validate')->orderBy('position');
+        return $this->hasMany('App\Models\SphereFiltersOptions','sphere_ff_id','id')->where('ctype','=','lead')->where('_type','=','validate')->orderBy('position');
     }
 
     public function validatorRules() {
@@ -28,5 +28,4 @@ class SphereLeadAttr extends Model
     public function sphere() {
         return $this->belongsTo('App\Models\Sphere','id','sphere_id');
     }
-
 }
