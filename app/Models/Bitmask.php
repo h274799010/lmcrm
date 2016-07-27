@@ -294,6 +294,15 @@ class Bitmask extends Model
     }
 
 
+
+
+
+
+
+
+
+
+
     /**
      * Добавляет к таблице новый столбец (атрибут)
      *
@@ -314,6 +323,225 @@ class Bitmask extends Model
         }
         return $this->tableDB;
     }
+
+
+    /**
+     * Добавляет к таблице новый столбец с типом "Календарь"
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer  $opt_index
+     *
+     * @return object
+     */
+    public function addCalendar($group_index,$opt_index){
+        $index = implode('_', ['fb', $group_index, $opt_index]);
+        if (!in_array($index, $this->attributes())) {
+            DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` DATE NULL', []);
+        }
+        return $this->tableDB;
+    }
+
+
+    /**
+     * Добавляет к таблице новый столбец с типом "e_mail"
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer  $opt_index
+     *
+     * @return object
+     */
+    public function email($group_index,$opt_index){
+        $index = implode('_', ['fb', $group_index, $opt_index]);
+        if (!in_array($index, $this->attributes())) {
+            DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` VARCHAR(255) NULL', []);
+        }
+        return $this->tableDB;
+    }
+
+
+    /**
+     * Добавляет к таблице новый столбец с типом "text input"
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer  $opt_index
+     *
+     * @return object
+     */
+    public function textInput($group_index,$opt_index){
+        $index = implode('_', ['fb', $group_index, $opt_index]);
+        if (!in_array($index, $this->attributes())) {
+            DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` VARCHAR(255) NULL', []);
+        }
+        return $this->tableDB;
+    }
+
+
+    /**
+     * Добавляет к таблице новый столбец с типом "text area"
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer  $opt_index
+     *
+     * @return object
+     */
+    public function textArea($group_index,$opt_index){
+        $index = implode('_', ['fb', $group_index, $opt_index]);
+        if (!in_array($index, $this->attributes())) {
+            DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` TEXT NULL', []);
+        }
+        return $this->tableDB;
+    }
+
+
+    /**
+     * Добавляет к таблице новый столбец "Drop Down"
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer|array  $opt_index
+     *
+     * @return object
+     */
+    public function addDropDown($group_index,$opt_index){
+        if(is_array($opt_index)) {
+            foreach($opt_index as $aVal) $this->addDropDown($group_index,$aVal);
+        } else {
+            $index = implode('_', ['fb', $group_index, $opt_index]);
+            if (!in_array($index, $this->attributes())) {
+                DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` VARCHAR(255) NULL', []);
+            }
+        }
+        return $this->tableDB;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Добавляет к таблице новый столбец c заданным типом
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer|array  $opt_index
+     * @param  string  $type
+     *
+     * @return object
+     */
+    public function addAttrWidthType($group_index,$opt_index, $type='VARCHAR(255)'){
+        if(is_array($opt_index)) {
+            foreach($opt_index as $aVal) $this->addAttrWidthType($group_index,$aVal, $type);
+        } else {
+            $index = implode('_', ['fb', $group_index, $opt_index]);
+            if (!in_array($index, $this->attributes())) {
+                DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` ' .$type .' NULL', []);
+            }
+        }
+        return $this->tableDB;
+    }
+
+
+    /**
+     * Добавляет к таблице новый столбец c типом boolean
+     *
+     * Используется для полей
+     *    - radio
+     *    - checkbox
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer|array  $opt_index
+     *
+     * @return object
+     */
+    public function addAttrBoolean($group_index,$opt_index){
+
+        $this->addAttrWidthType($group_index,$opt_index, 'TINYINT(1)');
+
+        return $this->tableDB;
+    }
+
+
+    /**
+     * Добавляет к таблице новый столбец c типом varchar
+     *
+     * Используется для полей
+     *    - e-mail
+     *    - text input
+     *    - dropdown
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer|array  $opt_index
+     *
+     * @return object
+     */
+    public function addAttrVarchar($group_index,$opt_index){
+
+        $this->addAttrWidthType($group_index,$opt_index, 'VARCHAR(255)');
+
+        return $this->tableDB;
+    }
+
+
+    /**
+     * Добавляет к таблице новый столбец c типом date
+     *
+     * Используется для полей
+     *    - date
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer|array  $opt_index
+     *
+     * @return object
+     */
+    public function addAttrDate($group_index,$opt_index){
+
+        $this->addAttrWidthType($group_index,$opt_index, 'DATE');
+
+        return $this->tableDB;
+    }
+
+
+    /**
+     * Добавляет к таблице новый столбец c типом text
+     *
+     * Используется для полей
+     *    - text area
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer|array  $opt_index
+     *
+     * @return object
+     */
+    public function addAttrText($group_index,$opt_index){
+
+        $this->addAttrWidthType($group_index,$opt_index, 'TEXT');
+
+        return $this->tableDB;
+    }
+
+
+
+
+
+
+
 
 
     /**
