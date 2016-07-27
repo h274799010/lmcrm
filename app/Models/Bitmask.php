@@ -14,6 +14,9 @@ class Bitmask extends Model
     // имя таблицы
     protected $table = NULL;
 
+    // поля создаваемой таблицы
+    protected $tableFields = NULL;
+
     // индекс пользователя
     protected $userID = NULL;
 
@@ -42,9 +45,10 @@ class Bitmask extends Model
     {
         $this->tablePrefix = $tablePrefix;
         $this->table = $this->tablePrefix .(int)$id;
+        $this->tableFields = $tableFields;
+
         if ( $id && !DB::getSchemaBuilder()->hasTable( $this->table ) ) {
-            DB::statement('CREATE TABLE IF NOT EXISTS `' . $this->table .'`' .$tableFields , []);
-            DB::statement('ALTER TABLE `'.$this->table.'` ADD UNIQUE (`user_id`)');
+            $this->createTable();
         }
         $this->tableDB = DB::table($this->table);
         if($userID) { $this->userID=$userID; }
@@ -52,6 +56,18 @@ class Bitmask extends Model
         parent::__construct($attributes);
 
         return $this->table;
+    }
+
+
+    /**
+     * Создание новой таблицы
+     *
+     * @return void
+     */
+    protected function createTable()
+    {
+        DB::statement('CREATE TABLE IF NOT EXISTS `' . $this->table .'`' .$this->tableFields , []);
+        DB::statement('ALTER TABLE `'.$this->table.'` ADD UNIQUE (`user_id`)');
     }
 
 
@@ -102,7 +118,7 @@ class Bitmask extends Model
 
 
     /**
-     * Возвращает статуст пользователя по его id
+     * Возвращает данные таблицы (строку) по заданному пользователю
      *
      * @param  integer  $user_id
      *
@@ -129,19 +145,6 @@ class Bitmask extends Model
 
 
     /**
-     * Получить цену
-     *
-     * @param  integer  $user_id
-     *
-     * @return object
-     */
-    public function getPrice($user_id=NULL){
-        $user_id = ($user_id)?$user_id:$this->userID;
-        return $this->tableDB->where('user_id','=',$user_id)->first();
-    }
-
-
-    /**
      * Установить цену
      *
      * @param  integer  $val
@@ -152,17 +155,6 @@ class Bitmask extends Model
     public function setPrice($val=0,$user_id=NULL){
         $user_id = ($user_id)?$user_id:$this->userID;
         return $this->tableDB->where('user_id','=',$user_id)->update(['lead_price'=>$val]);
-    }
-
-
-    /**
-     * todo разобраться
-     * Непонятно зачем этот метод
-     * Он еще не доаписан?
-     */
-    public function findMask($user_id = NULL){
-        $user_id = ($user_id) ? $user_id : $this->userID;
-        return $this->tableDB->where('user_id','=',$user_id);
     }
 
 
