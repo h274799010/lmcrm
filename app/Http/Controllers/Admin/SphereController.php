@@ -3,15 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
-use App\Models\SphereFiltersOptions;
+
+use App\Models\Agent;
+use App\Models\AgentBitmask;
+use App\Models\FormFiltersOptions;
+use App\Models\AdditionFormsOptions;
+
+use App\Models\LeadBitmask;
 use Illuminate\Support\Facades\Input;
 use App\Models\User;
 use App\Models\Sphere;
-use App\Models\SphereFromFilters;
+
+
+    use App\Models\SphereFormFilters;
+
+
 use App\Models\SphereAdditionForms;
+
 use App\Models\SphereStatuses;
-use App\Models\SphereMask;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Datatables;
 
 class SphereController extends AdminController {
@@ -128,39 +139,56 @@ class SphereController extends AdminController {
                         'option'=>[['key'=>1,'value'=>'on'],['key'=>0,'value'=>'off']],
                     ]
                 ],
-                "openLead"=>[
+
+                "openLead"=>
+                [
                     "renderType"=>"single",
+
                     'name' => 'openLead',
+
                     'values'=>'',
-                    "attributes" => [
+
+                    "attributes" =>
+                    [
                         "type"=>'text',
                         "class" => 'form-control',
                         "data-integer"=>true,
                     ],
-                    "settings"=>[
+
+                    "settings"=>
+                    [
                         "label" => 'Max lead to open',
                         "type"=>'text',
                     ],
+
                     "values"=>3,
                 ],
             ],
         ];
+
         $threshold = [
             "renderType"=>"single",
             'name' => 'status',
             'values'=>'',
-            "attributes" => [
+
+            "attributes" =>
+            [
                 "type"=>'text',
                 "class" => 'form-control',
             ],
-            "values"=>[
+
+            "values"=>
+            [
                 ["id"=>0,"val"=>'bad lead',"vale"=>[1,15],"position"=>1],
             ],
-            "settings"=>[
+
+            "settings"=>
+            [
                 "label" => 'Form name',
                 "type"=>'statuses',
                 'option'=>[],
-                'stat'=>[
+                'stat'=>
+                [
                     'minLead'=>10
                 ]
             ]
@@ -237,26 +265,356 @@ class SphereController extends AdminController {
     /**
      * Store a newly created resource in storage.
      *
-     * @return
-     * Response
+     * @return Response
      */
     public function store(Request $request)
     {
         return $this->update($request, false);
     }
 
+
     /**
      * Create a newly created, update existing resource in storage.
      *
+     * @param  Request  $request
+     * @param  integer  $id
+     *
      * @return Response
      */
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
-        if(!count($request->all())) {
-            return response()->json(FALSE);
-        }
+
+        /**
+         *  ===+==-  Структура Request  -==+===
+         *
+         *
+         * opt    <-- данные сферы
+         *  |
+         *   `data
+         *     |
+         *     |`targetEntity    <-- значение "SphereSettings"
+         *     |
+         *      `variables    <-- данные формы сферы
+         *        |
+         *        |`name    <-- название сферы
+         *        |`status    <-- статус сферы (On/Off) значение соответственно (1/0)
+         *         `openLead    <-- максимальное количество открытых лидов
+         *
+         *
+         * lead    <-- данные формы лидов
+         *  |
+         *   `data
+         *     |
+         *     |`targetEntity    <-- значение "SphereForm"
+         *     |
+         *      `variables    <-- атрибуты Лидов
+         *        |
+         *        |`0    <-- атрибута Лида с типом "email"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (email)
+         *        |  |
+         *        |  |`label    <-- подпись поля (не имя)
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |   `placeholder    <-- данные по умолчанию в поле
+         *        |
+         *        |
+         *        |`1    <-- атрибута Лида с типом "textarea"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (textarea)
+         *        |  |
+         *        |  |`label    <-- подпись поля (не имя)
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |  |`placeholder    <-- данные по умолчанию в поле
+         *        |  |
+         *        |  |`minHeight    <-- минимальная высота (незнаю зачем этот параметр)
+         *        |  |
+         *        |   `validate    <-- валидация (непонятный параметр и его назначение)
+         *        |     |
+         *        |     |`0    <-- параметр валидации
+         *        |     | |
+         *        |     | |`id    <-- идентификатор
+         *        |     | |`val    <-- значение (email, url...)
+         *        |     |  `vale    <-- параметр пустой, непонятно что означает
+         *        |     |
+         *        |     |`...
+         *        |     |
+         *        |
+         *        |
+         *        |`2    <-- атрибута Лида с типом "input"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (input)
+         *        |  |
+         *        |  |`label    <-- подпись поля (не имя)
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |  |`placeholder    <-- данные по умолчанию в поле
+         *        |  |
+         *        |  |`minHeight    <-- минимальная высота (незнаю зачем этот параметр)
+         *        |  |
+         *        |   `validate    <-- валидация (непонятный параметр и его назначение)
+         *        |     |
+         *        |     |`0    <-- параметр валидации
+         *        |     | |
+         *        |     | |`id    <-- идентификатор
+         *        |     | |`val    <-- значение (email, url...)
+         *        |     |  `vale    <-- параметр пустой, непонятно что означает
+         *        |     |
+         *        |     |`...
+         *        |     |
+         *        |
+         *        |
+         *        |`3    <-- атрибута Лида с типом "checkbox"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (checkbox)
+         *        |  |
+         *        |  |`label    <-- подпись поля (не имя)
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |  |`placeholder    <-- данные по умолчанию в поле
+         *        |  |
+         *        |   `option    <-- поля checkbox
+         *        |     |
+         *        |     |`0    <-- поле
+         *        |     | |
+         *        |     | |`id    <-- идентификатор
+         *        |     |  `val    <-- значение поля checkbox
+         *        |     |
+         *        |     |`...
+         *        |     |
+         *        |
+         *        |
+         *        |`4    <-- атрибута Лида с типом "radio"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (radio)
+         *        |  |
+         *        |  |`label    <-- подпись поля (не имя)
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |  |`placeholder    <-- данные по умолчанию в поле
+         *        |  |
+         *        |   `option    <-- поля radio
+         *        |     |
+         *        |     |`0    <-- поле
+         *        |     | |
+         *        |     | |`id    <-- идентификатор
+         *        |     |  `val    <-- значение поля radio
+         *        |     |
+         *        |     |`...
+         *        |     |
+         *        |
+         *        |
+         *        |`5    <-- атрибута Лида с типом "dropDown"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (select)
+         *        |  |
+         *        |  |`label    <-- подпись поля (не имя)
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |  |`placeholder    <-- данные по умолчанию в поле
+         *        |  |
+         *        |   `option    <-- поля dropDown
+         *        |     |
+         *        |     |`0    <-- поле
+         *        |     | |
+         *        |     | |`id    <-- идентификатор
+         *        |     |  `val    <-- значение поля dropDown
+         *        |     |
+         *        |     |`...
+         *        |     |
+         *        |
+         *        |
+         *        |`6    <-- атрибута Лида с типом "calendar"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (calendar)
+         *        |  |
+         *        |  |`label    <-- подпись поля (не имя)
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |   `position    <-- порядковый номер
+         *        |
+         *        |
+         *        |`...
+         *        |
+         *
+         *
+         *
+         * cform    <-- данные формы агентов
+         *  |
+         *   `data
+         *     |
+         *     |`targetEntity    <-- значение "SphereForm"
+         *     |
+         *      `variables    <-- атрибуты Агентов
+         *        |
+         *        |`0    <-- атрибут Агента с типом "checkbox"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (checkbox)
+         *        |  |
+         *        |  |`label    <-- подпись поля
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |   `option    <-- опции атрибута Агента
+         *        |     |
+         *        |     |`0    <-- индекс опции
+         *        |     |  |
+         *        |     |  |`id    <-- id опции, если опция только создана, ее id=0
+         *        |     |  |
+         *        |     |  |`val    <-- значение опции (в БД пишется в поле name)
+         *        |     |  |
+         *        |     |   `vale    <-- значения (о или 1 или еще что)
+         *        |     |     |
+         *        |     |      `1    <-- везде значение "1", непонятно назначение этого поля
+         *        |     |
+         *        |     |`...
+         *        |     |
+         *        |
+         *        |
+         *        |`1    <-- атрибут Агента с типом "radio"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (radio)
+         *        |  |
+         *        |  |`label    <-- подпись поля
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |   `option    <-- опции атрибута Агента
+         *        |     |
+         *        |     |`0    <-- индекс опции
+         *        |     |  |
+         *        |     |  |`id    <-- id опции, если опция только создана, ее id=0
+         *        |     |  |
+         *        |     |  |`val    <-- значение опции (в БД пишется в поле name)
+         *        |     |  |
+         *        |     |   `vale    <-- значения (о или 1 или еще что)
+         *        |     |     |
+         *        |     |      `1    <-- везде значение "1", непонятно назначение этого поля
+         *        |     |
+         *        |     |`...
+         *        |     |
+         *        |
+         *        |
+         *        |`2    <-- атрибут Агента с типом "dropDown"
+         *        |  |
+         *        |  |`id    <-- идентификатор
+         *        |  |
+         *        |  |`_type    <-- тип поля (select)
+         *        |  |
+         *        |  |`label    <-- подпись поля
+         *        |  |
+         *        |  |`icon    <-- иконка (пока пустое поле)
+         *        |  |
+         *        |  |`position    <-- порядковый номер
+         *        |  |
+         *        |   `option    <-- опции атрибута Агента
+         *        |     |
+         *        |     |`0    <-- индекс опции
+         *        |     |  |
+         *        |     |  |`id    <-- id опции, если опция только создана, ее id=0
+         *        |     |  |
+         *        |     |  |`val    <-- значение опции (в БД пишется в поле name)
+         *        |     |  |
+         *        |     |   `vale    <-- значения (о или 1 или еще что)
+         *        |     |     |
+         *        |     |      `1    <-- везде значение "1", непонятно назначение этого поля
+         *        |     |
+         *        |     |`...
+         *        |     |
+         *        |
+         *        |
+         *        |`...
+         *        |
+         *
+         *
+         * threshold    <-- данные с вкладки статусов
+         *  |
+         *   `data
+         *     |
+         *     |`0    <-- один из статосов (как я понял)
+         *     |  |
+         *     |  |`id    <-- идентификатор
+         *     |  |
+         *     |  |`val    <-- по умолчанию стоит "bad lead"
+         *     |  |
+         *     |  |`position    <-- позиция (порядковый номер)
+         *     |  |
+         *     |   `vale    <-- значения
+         *     |     |
+         *     |     |`0    <-- похоже это переключатель min/max
+         *     |      `1    <-- количественное значение
+         *     |
+         *     |`...
+         *     |
+         *
+         *
+         * stat_minLead    <-- значение "1" (непонял назначение)
+         *
+         *
+         */
+
+
+
+
+
+
+
+
+
+
+
+
+        if( !count($request->all()) ) { return response()->json(FALSE); }
+
+
         $opt = $request->only('opt');
 
+        /**
+         * Выбираем сферу по id, либо, создаем новую, если id нету
+         *
+         */
         if($id) {
             $group = Sphere::find($id);
             $group->name = $opt['opt']['data']['variables']['name'];
@@ -264,7 +622,8 @@ class SphereController extends AdminController {
             $group->status = $opt['opt']['data']['variables']['status'];
             $group->openLead = $opt['opt']['data']['variables']['openLead'];
         } else {
-            $group = new Sphere([
+            $group = new Sphere(
+            [
                 'name' => $opt['opt']['data']['variables']['name'],
                 'status' => $opt['opt']['data']['variables']['status'],
                 'minLead' => $request->get('stat_minLead'),
@@ -272,210 +631,288 @@ class SphereController extends AdminController {
             ]);
             $group->save();
         }
-        $bitMask = new SphereMask($group->id);
-        $group->table_name = $bitMask->getTableName();
+
+
+        /**
+         * Создание или битмасков лида и агента
+         */
+        // битмас лида
+        $leadBitmask = new LeadBitmask($group->id);
+
+        // битмаск агенда
+        $agentBitmask = new AgentBitmask($group->id);
+
+//    Непонял, зачем присваивать имя таблицы битмаск объекту sphere
+//        $group->table_name = $bitMask->getTableName();
         $group->save();
 
         $data = $request->only('lead');
         $new_chr = $data['lead']['data']['variables'];
-        if($new_chr) foreach($new_chr as $index=>$leadAttr) {
-            if(isset($leadAttr['_status'])){
-                if($leadAttr['_status'] == 'DELETE') {
-                    $group->leadAttr()->where('id', '=', $leadAttr['id'])->delete();
-                    unset($new_chr[$index]);
-                }
-            }
-        }
-        if($new_chr) foreach($new_chr as $attr) {
-            if (isset($attr['id']) && $attr['id']) {
-                $leadAttr = SphereAdditionForms::find($attr['id']);
-                $leadAttr->update($attr);
-            } else {
-                if(!is_array($attr)) { continue; }
-                $leadAttr = new SphereAdditionForms($attr);
-                $group->leadAttr()->save($leadAttr);
-            }
-            $eoptions=array();
-            if(isset($attr['option'])) {
-                if (isset($attr['option']['id'])) {
-                    $attr['option'] = [$attr['option']];
-                }
-                $eoptions=$attr['option'];
-            }
-            if(count($eoptions)) {
-                $new_options = [];
-                for ($i = 0; $i < count($eoptions); $i++) {
-                    if ($eoptions[$i]['id']) $new_options[] = $eoptions[$i]['id'];
-                }
 
-                $old_options = $leadAttr->options()->lists('id')->all();
-                if ($deleted = (array_diff($old_options, $new_options))) {
-                    $leadAttr->options()->whereIn('id', $deleted)->delete();
-                }
-
-                foreach ($eoptions as $optVal) {
-                    if ($optVal['id']) {
-                        $chr_options = SphereFiltersOptions::find($optVal['id']);
-                        $chr_options->ctype = 'lead';
-                        $chr_options->_type = 'option';
-                        $chr_options->name = $optVal['val'];
-                        //$chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
-                        $chr_options->save();
-                    } else {
-                        $chr_options = new SphereFiltersOptions();
-                        $chr_options->ctype = 'lead';
-                        $chr_options->_type = 'option';
-                        $chr_options->name = $optVal['val'];
-                        //$chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
-
-                        $leadAttr->options()->save($chr_options);
-                    }
-                }
-            }
-
-            $eoptions=array();
-            if(isset($attr['validate'])) {
-                if (isset($attr['validate']['id'])) {
-                    $attr['validate'] = [$attr['validate']];
-                }
-                $eoptions=$attr['validate'];
-            }
-            if(count($eoptions)) {
-                $new_options = [];
-                for ($i = 0; $i < count($eoptions); $i++) {
-                    if ($eoptions[$i]['id']) $new_options[] = $eoptions[$i]['id'];
-                }
-
-                $old_options = $leadAttr->options()->lists('id')->all();
-                if ($deleted = (array_diff($old_options, $new_options))) {
-                    $leadAttr->options()->whereIn('id', $deleted)->delete();
-                }
-
-                foreach ($eoptions as $optVal) {
-                    if ($optVal['id']) {
-                        $chr_options = SphereFiltersOptions::find($optVal['id']);
-                        $chr_options->ctype = 'lead';
-                        $chr_options->_type = 'validate';
-                        $chr_options->name = $optVal['val'];
-                        $chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
-                        $chr_options->save();
-                    } else {
-                        $chr_options = new SphereFiltersOptions();
-                        $chr_options->ctype = 'lead';
-                        $chr_options->_type = 'validate';
-                        $chr_options->name = $optVal['val'];
-                        $chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
-
-                        $leadAttr->validators()->save($chr_options);
-                    }
-                }
-            }
-        }
-
-        $data = $request->only('threshold');
-        $new_chr = $data['threshold']['data'];
-        $rId=[];
+        /**
+         * Удаление атрибута Лида, если его статус == 'DELETE'
+         */
         if($new_chr) {
-            $nId=[];
-            foreach($new_chr as $i=>$attr) {
-                if(isset($attr['id'])) { $nId[]=$attr['id']; }
+            foreach ($new_chr as $index => $leadAttr) {
+                if (isset($leadAttr['_status'])) {
+                    if ($leadAttr['_status'] == 'DELETE') {
+                        $group->leadAttr()->where('id', '=', $leadAttr['id'])->delete();
+                        unset($new_chr[$index]);
+                    }
+                }
             }
-            $oId = $group->statuses()->lists('id')->all();
-            $rId = array_diff($oId,$nId);
-            if(count($rId)) { $group->statuses()->whereIn('id',$rId)->delete(); }
-        } else {
-            $group->statuses()->delete();
         }
 
-        if($new_chr) foreach($new_chr as $attr) {
-            if (isset($attr['id']) && $attr['id']) {
-                if(!in_array($attr['id'],$rId)) {
-                    $status = SphereStatuses::find($attr['id']);
+
+        if($new_chr) {
+            foreach ($new_chr as $attr) {
+                if (isset($attr['id']) && $attr['id']) {
+                    $leadAttr = SphereAdditionForms::find($attr['id']);
+                    $leadAttr->update($attr);
+                } else {
+                    if (!is_array($attr)) {
+                        continue;
+                    }
+                    $leadAttr = new SphereAdditionForms($attr);
+                    $group->leadAttr()->save($leadAttr);
+                }
+
+                $eoptions = array();
+                if (isset($attr['option'])) {
+                    if (isset($attr['option']['id'])) {
+                        $attr['option'] = [$attr['option']];
+                    }
+                    $eoptions = $attr['option'];
+                }
+
+                if (count($eoptions)) {
+
+                    $new_options = [];
+                    for ($i = 0; $i < count($eoptions); $i++) {
+                        if ($eoptions[$i]['id']) $new_options[] = $eoptions[$i]['id'];
+                    }
+
+                    $old_options = $leadAttr->options()->lists('id')->all();
+                    if ($deleted = (array_diff($old_options, $new_options))) {
+                        $leadAttr->options()->whereIn('id', $deleted)->delete();
+                    }
+
+                    foreach ($eoptions as $optVal) {
+                        if ($optVal['id']) {
+                            $chr_options = AdditionFormsOptions::find($optVal['id']);
+//                            $chr_options->ctype = 'lead';
+                            $chr_options->_type = 'option';
+                            $chr_options->name = $optVal['val'];
+                            //$chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
+                            $chr_options->save();
+                        } else {
+                            $chr_options = new AdditionFormsOptions();
+//                            $chr_options->ctype = 'lead';
+                            $chr_options->_type = 'option';
+                            $chr_options->name = $optVal['val'];
+                            //$chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
+
+                            $leadAttr->options()->save($chr_options);
+
+                            // добавление нового столбца в таблицу agent_bitmask_X
+                            $leadBitmask->addAttr($leadAttr->id, $chr_options->id);
+
+                            if (isset($optVal['parent'])) {
+                                // копирование атрибутов
+                                $agentBitmask->copyAttr
+                                (
+                                    $leadAttr->id,
+                                    $chr_options->id,
+                                    /*parent*/
+                                    $optVal['parent']
+                                );
+                            }
+                        }
+                    }
+                }
+
+
+                $eoptions = array();
+                if (isset($attr['validate'])) {
+                    if (isset($attr['validate']['id'])) {
+                        $attr['validate'] = [$attr['validate']];
+                    }
+                    $eoptions = $attr['validate'];
+                }
+
+                if (count($eoptions)) {
+
+                    $new_options = [];
+                    for ($i = 0; $i < count($eoptions); $i++) {
+                        if ($eoptions[$i]['id']) $new_options[] = $eoptions[$i]['id'];
+                    }
+
+                    $old_options = $leadAttr->options()->lists('id')->all();
+                    if ($deleted = (array_diff($old_options, $new_options))) {
+                        $leadAttr->options()->whereIn('id', $deleted)->delete();
+                    }
+
+                    foreach ($eoptions as $optVal) {
+                        if ($optVal['id']) {
+                            $chr_options = AdditionFormsOptions::find($optVal['id']);
+//                            $chr_options->ctype = 'lead';
+                            $chr_options->_type = 'validate';
+                            $chr_options->name = $optVal['val'];
+                            $chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
+                            $chr_options->save();
+                        } else {
+                            $chr_options = new AdditionFormsOptions();
+//                            $chr_options->ctype = 'lead';
+                            $chr_options->_type = 'validate';
+                            $chr_options->name = $optVal['val'];
+                            $chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
+
+                            $leadAttr->validators()->save($chr_options);
+                        }
+                    }
+                }
+            }
+
+            $data = $request->only('threshold');
+            $new_chr = $data['threshold']['data'];
+            $rId = [];
+            if ($new_chr) {
+                $nId = [];
+                foreach ($new_chr as $i => $attr) {
+                    if (isset($attr['id'])) {
+                        $nId[] = $attr['id'];
+                    }
+                }
+                $oId = $group->statuses()->lists('id')->all();
+                $rId = array_diff($oId, $nId);
+                if (count($rId)) {
+                    $group->statuses()->whereIn('id', $rId)->delete();
+                }
+            } else {
+                $group->statuses()->delete();
+            }
+
+            if ($new_chr) foreach ($new_chr as $attr) {
+                if (isset($attr['id']) && $attr['id']) {
+                    if (!in_array($attr['id'], $rId)) {
+                        $status = SphereStatuses::find($attr['id']);
+                        $status->stepname = $attr['val'];
+                        $status->minmax = $attr['vale'][0];
+                        $status->percent = $attr['vale'][1];
+                        $status->position = (isset($attr['position'])) ? $attr['position'] : 0;
+                        $status->save();
+                    }
+                } else {
+                    if (!is_array($attr)) {
+                        continue;
+                    }
+                    $status = new SphereStatuses();
                     $status->stepname = $attr['val'];
                     $status->minmax = $attr['vale'][0];
                     $status->percent = $attr['vale'][1];
-                    $status->position = (isset($attr['position']))?$attr['position']:0;
-                    $status->save();
-                }
-            } else {
-                if(!is_array($attr)) { continue; }
-                $status = new SphereStatuses();
-                $status->stepname =$attr['val'];
-                $status->minmax =$attr['vale'][0];
-                $status->percent =$attr['vale'][1];
-                $status->position = (isset($attr['position']))?$attr['position']:0;
-                $group->statuses()->save($status);
-            }
-        }
-
-        $data = $request->only('cform');
-        $new_chr = $data['cform']['data']['variables'];
-        if($new_chr) foreach($new_chr as $index=>$characteristic) {
-            if(isset($characteristic['_status'])){
-                if($characteristic['_status'] == 'DELETE') {
-                    $group->attributes()->where('id', '=', $characteristic['id'])->delete();
-                    $bitMask->removeAttr([(int)$characteristic['id']], null);
-                    unset($new_chr[$index]);
+                    $status->position = (isset($attr['position'])) ? $attr['position'] : 0;
+                    $group->statuses()->save($status);
                 }
             }
-        }
-        if($new_chr) foreach($new_chr as $attr) {
-            if (isset($attr['id']) && $attr['id']) {
-                $characteristic = SphereFromFilters::find($attr['id']);
-                $characteristic->update($attr);
-            } else {
-                if(!is_array($attr)) { continue; }
-                $characteristic = new SphereFromFilters((array)$attr);
-                $group->attributes()->save($characteristic);
-            }
-            if (isset($attr['option'])) {
-                $new_options = [];
-                if (isset($attr['option']['id'])) {
-                    $attr['option'] = [$attr['option']];
-                }
-                for ($i = 0; $i < count($attr['option']); $i++) {
-                    if ($attr['option'][$i]['id']) $new_options[] = $attr['option'][$i]['id'];
-                }
 
-                $old_options = $characteristic->options()->lists('id')->all();
-                if ($deleted = (array_diff($old_options, $new_options))) {
-                    $characteristic->options()->whereIn('id', $deleted)->delete();
-                    $bitMask->removeAttr($characteristic->id, $deleted);
-                }
+            $data = $request->only('cform');
+            $new_chr = $data['cform']['data']['variables'];
+            if ($new_chr) foreach ($new_chr as $index => $characteristic) {
+                if (isset($characteristic['_status'])) {
+                    if ($characteristic['_status'] == 'DELETE') {
+                        $group->attributes()->where('id', '=', $characteristic['id'])->delete();
 
-                $default_value = [];
-                foreach ($attr['option'] as $optVal) {
-                    if ($optVal['id']) {
-                        $chr_options = SphereFiltersOptions::find($optVal['id']);
-                        $chr_options->ctype = 'agent';
-                        $chr_options->name = $optVal['val'];
-                        //$chr_options->icon = (isset($optVal['vale'][1])) ? $optVal['vale'][1] : NULL;
-                        $chr_options->save();
-                    } else {
-                        $chr_options = new SphereFiltersOptions();
-                        $chr_options->ctype = 'agent';
-                        $chr_options->name = $optVal['val'];
-                        //$chr_options->icon = (isset($optVal['vale'][1])) ? $optVal['vale'][1] : NULL;
-                        $characteristic->options()->save($chr_options);
-                        $bitMask->addAttr($characteristic->id, $chr_options->id);
-                        if(isset($optVal['parent'])) {
-                            $bitMask->copyAttr($characteristic->id,$chr_options->id,/*parent*/$optVal['parent']);
-                        }
+                        // удаление столбца
+                        $leadBitmask->removeAttr([(int)$characteristic['id']], null);
+                        unset($new_chr[$index]);
                     }
-                    $default_value[$chr_options->id] = (isset($optVal['vale'][0]) && $optVal['vale'][0]) ? 1 : 0;
                 }
-                $bitMask->setDefault($characteristic->id, $default_value);
-                $characteristic->default_value = implode('', array_values($default_value));
-                $characteristic->save();
+            }
+
+            if ($new_chr) foreach ($new_chr as $attr) {
+                if (isset($attr['id']) && $attr['id']) {
+                    $characteristic = SphereFormFilters::find($attr['id']);
+                    $characteristic->update($attr);
+                } else {
+                    if (!is_array($attr)) {
+                        continue;
+                    }
+                    $characteristic = new SphereFormFilters((array)$attr);
+                    $group->attributes()->save($characteristic);
+                }
+                if (isset($attr['option'])) {
+                    $new_options = [];
+                    if (isset($attr['option']['id'])) {
+                        $attr['option'] = [$attr['option']];
+                    }
+                    for ($i = 0; $i < count($attr['option']); $i++) {
+                        if ($attr['option'][$i]['id']) $new_options[] = $attr['option'][$i]['id'];
+                    }
+
+                    $old_options = $characteristic->options()->lists('id')->all();
+                    if ($deleted = (array_diff($old_options, $new_options))) {
+                        $characteristic->options()->whereIn('id', $deleted)->delete();
+
+                        // Удаление столбца из таблицы agent_bitmask
+                        $agentBitmask->removeAttr($characteristic->id, $deleted);
+                    }
+
+                    $default_value = [];
+                    foreach ($attr['option'] as $optVal) {
+                        if ($optVal['id']) {
+                            $chr_options = FormFiltersOptions::find($optVal['id']);
+//                            $chr_options->ctype = 'agent';
+                            $chr_options->name = $optVal['val'];
+                            //$chr_options->icon = (isset($optVal['vale'][1])) ? $optVal['vale'][1] : NULL;
+                            $chr_options->save();
+                        } else {
+                            $chr_options = new FormFiltersOptions();
+//                            $chr_options->ctype = 'agent';
+                            $chr_options->name = $optVal['val'];
+                            //$chr_options->icon = (isset($optVal['vale'][1])) ? $optVal['vale'][1] : NULL;
+                            $characteristic->options()->save($chr_options);
+
+                            // добавление нового столбца в таблицу agent_bitmask_X
+                            $agentBitmask->addAttr($characteristic->id, $chr_options->id);
+
+                            if (isset($optVal['parent'])) {
+                                // копирование атрибутов
+                                $agentBitmask->copyAttr
+                                (
+                                    $characteristic->id,
+                                    $chr_options->id,
+                                    /*parent*/
+                                    $optVal['parent']
+                                );
+                            }
+                        }
+                        $default_value[$chr_options->id] = (isset($optVal['vale'][0]) && $optVal['vale'][0]) ? 1 : 0;
+                    }
+
+                    // Установка поля в положение по умолчанию (1)
+                    $agentBitmask->setDefault($characteristic->id, $default_value);
+                    $characteristic->default_value = implode('', array_values($default_value));
+                    $characteristic->save();
+                }
             }
         }
-        return response()->json(TRUE);
+//        return response()->json(TRUE);
+// todo убрать
+        return $request->all();
     }
 
+
+
     public function destroy($id){
+
         $group = Sphere::find($id);
-        $bitMask = new SphereMask($group->id);
-        $bitMask->_delete();
+
+        $leadBitmask = new LeadBitmask($group->id);
+        $agentBitmask = new AgentBitmask($group->id);
+
+        $leadBitmask->_delete();
+        $agentBitmask->_delete();
+
         $group->delete();
         return redirect()->route('admin.sphere.index');
     }
