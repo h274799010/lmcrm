@@ -9,12 +9,30 @@ class SphereAdditionForms extends Model
     protected $table = 'sphere_addition_forms';
     protected $fillable = ['_type', 'label','icon','required', 'position' ];
 
+    /**
+     * Возваращает все строки из таблицы AdditionFormsOptions
+     *
+     */
+    public function allFormsOptions() {
+        return $this->hasMany('App\Models\AdditionFormsOptions','attr_id','id');
+    }
+
+    /**
+     * Возваращает все опции из таблицы AdditionFormsOptions в которых _type=option
+     *
+     */
     public function options() {
-        return $this->hasMany('App\Models\SphereFiltersOptions','sphere_ff_id','id')->where('ctype','=','lead')->where('_type','=','option')->orderBy('position');
+        return $this->hasMany('App\Models\AdditionFormsOptions','attr_id','id')->where('_type','=','option')->orderBy('position');
     }
+
     public function validators() {
-        return $this->hasMany('App\Models\SphereFiltersOptions','sphere_ff_id','id')->where('ctype','=','lead')->where('_type','=','validate')->orderBy('position');
+        return $this->hasMany('App\Models\AdditionFormsOptions','attr_id','id')->where('_type','=','validate')->orderBy('position');
     }
+
+    public function field() {
+        return $this->hasOne('App\Models\AdditionFormsOptions','attr_id','id')->where('_type','=','field');
+    }
+
 
     public function validatorRules() {
         $validators=array();

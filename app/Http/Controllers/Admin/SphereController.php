@@ -596,309 +596,649 @@ class SphereController extends AdminController {
          */
 
 
+        /** ----- ОБРАБОТКА ДАННЫХ ПОЛУЧЕННЫХ С ФРОНТЕНДА ---------- */
 
-
-
-
-
-
-
-
-
-
+        // если Request пустой, возвращаем false
         if( !count($request->all()) ) { return response()->json(FALSE); }
 
+        // данные формы сферы
+        $sphereData = $request['opt']['data'];
 
-        $opt = $request->only('opt');
+        // данные формы лида
+        $leadData = $request['lead']['data'];
+
+        // проверка атрибутов лида
+        // массив атрибутов лида может выглядеть по разному, на каждый вариант своя обработка
+        if(isset($leadData['variables'])){
+            // переменная существует (ее может и не быть)
+
+            if(isset($leadData['variables']['_type'])){
+                // наличие переменной '_type' в массиве
+
+                /*
+                 * если у лида только одни атрибут,
+                 * он может просто находится в 'variables', без индексов,
+                 * (при этом у него всегда бует переменная '_type')
+                 *
+                 * у лида должно быть не меньше 3 атрибутов
+                 * работа метода останавливается
+                 */
+
+                return response()->json(FALSE);
+
+            }elseif( $leadData['variables']==["email" => "", "textarea" => "", "input" => "", "checkbox" => "", "radio" => "", "select" => "", "calendar" => "", "submit" => ""] ){
+                // 'variables' состоит из массива с ключами из типов полей
+
+                /*
+                 * когда у лида нет вообще атрибутов (собственно, это ошибка, такого быть не должно)
+                 * переменная 'variables' может принимать такой вид (описанный выше)
+                 *
+                 * работа метода останавливается
+                 */
+
+                return response()->json(FALSE);
+
+            }elseif(isset($leadData['variables'][0])){
+                // 'variables' массив элемент с ключом "0" (по идее в других вариантах его быть недолжно)
+
+                if( count($leadData['variables']) < 3 ){
+                    // если у лида меньше 3 атрибутов
+                    // работа метода останавливается
+
+                    // у лида должно быть не меньше 3 атрибутов
+                    return response()->json(FALSE);
+
+                }else{
+                    // у лида 3 и больше атрибутов
+
+                    /*
+                     * массив просто преобразовывается в коллекцию
+                     * чтобы было проще дальше обрабатывать
+                     */
+
+                    $leadDataAttr = collect( $leadData['variables'] );
+                }
+
+
+
+            }else{
+                // ничего из вышеперечисленного не подошло
+
+                /*
+                 * если ничего вышеперечисленное не подошло
+                 * нужно либо добавить обработчик,
+                 * либо это ошибка фронтенда
+                 *
+                 * работа метода останавливается
+                 */
+
+                return response()->json(FALSE);
+            }
+
+        }else{
+            // у лида нет атрибутов
+            // работа метода останавливается
+
+            // у лида должно быть не меньше 3 атрибутов
+            return response()->json(FALSE);
+        }
+
+        // данные формы агента
+        $agentData = $request['cform']['data'];
+
+        // проверка атрибутов агента
+        // массив атрибутов агента может выглядеть по разному, на каждый вариант своя обработка
+        if(isset($agentData['variables'])){
+            // переменная существует (ее может и не быть)
+
+            if(isset($agentData['_type'])) {
+                // наличие переменной '_type' в массиве
+
+                /*
+                 * если у агента только одни атрибут,
+                 * он приходит с фронтенда просто как массив 'variables', без индексов,
+                 * (при этом у него всегда бует переменная '_type')
+                 * в этом случае переменная просто помещается в массив
+                 */
+
+                $agentDataAttr = collect( [ $agentData['variables'] ] );
+
+            }elseif( $agentData['variables']==["email" => "", "textarea" => "", "input" => "", "checkbox" => "", "radio" => "", "select" => "", "calendar" => "", "submit" => ""] ) {
+                // 'variables' состоит из массива с ключами из типов полей
+                // агент должен иметь не меньше одного атрибута
+                // работа метода останавливается
+
+                /*
+                 * когда у агента нет атрибутов
+                 * переменная 'variables' может принимать такой вид (описанный выше)
+                 * агент должен иметь не меньше одного атрибута
+                 * поэтому в этом случае возвращается FALSE
+                 * дальнейшая работа метода прекращается
+                 */
+
+                return response()->json(FALSE);
+
+            } elseif( isset($agentData['variables'][0]) ){
+                // 'variables' массив у которого есть хотя бы один атрибут
+
+                /*
+                 * массив просто преобразовывается в коллекцию
+                 * чтобы было проще дальше обрабатывать
+                 */
+
+                $agentDataAttr = collect( $agentData['variables'] );
+
+            }else{
+                // ничего из вышеперечисленного не подошло
+
+                /*
+                 * если ничего вышеперечисленное не подошло
+                 * нужно либо добавить обработчик,
+                 * либо это ошибка фронтенда
+                 *
+                 * работа метода останавливается
+                 */
+
+                return response()->json(FALSE);
+            }
+
+        }else{
+            // у агента нет атрибутов
+            // работа метода останавливается
+
+            // у агента должно быть не меньше 1 атрибута
+            return response()->json(FALSE);
+        }
+
+        // минимальное количество лидов
+        $minLead = $request['stat_minLead'];
+
+        // статусы
+        $statusData = ($request['threshold']['data']) ? collect( $request['threshold']['data'] ) : FALSE;
+
+
+        /** ----- КОНЕЦ ОБРАБОТКИ ДАННЫХ ПОЛУЧЕННЫХ С ФРОНТЕНДА ---------- */
+
+
+        /** ----- ПРОВЕРКИ НА ОШИБКИ ---------- */
+
+        // переменная указывающая на ошибки, если $error = true работа метода останавливается
+        $error = false;
+        $ddd = ''; // todo удалить
+        /* проверка атрибутов формы лида на ошибки */
+        if( $leadDataAttr ){
+
+            /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
+               хотя бы одна */
+            // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
+            $leadDataAttr->each(function( $attr ) use( &$error, &$ddd ){
+
+                // если у атрибута тип checkbox, radio или select
+                if( ($attr['_type']=='checkbox') || ($attr['_type']=='radio') || ($attr['_type']=='select') ){
+                    // и при этом у него нет опций, либо их количество равно 0
+                    if( !isset($attr['option']) || (count($attr['option']) == 0) ){
+                        // помечаем ошибку
+                        $error = true;
+
+                        $ddd = $attr['_type'];
+                    }
+                }
+            });
+        }
+
+        /* проверка атрибутов формы агента на ошибки */
+        if( $agentDataAttr ){
+
+            /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
+               хотя бы одна */
+            // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
+            $agentDataAttr->each(function( $attr ) use( &$error ){
+
+                // если у атрибута тип checkbox, radio или select
+                if( ($attr['_type']=='checkbox') && ($attr['_type']=='radio') && ($attr['_type']=='select') ){
+                    // и при этом у него нет опций, либо их количество равно 0
+                    if( !isset($attr['option']) && (count($attr['option']) == 0) ){
+                        // помечаем ошибку
+                        $error = true;
+                    }
+                }
+            });
+        }
+
+        // если есть ошибка, функция вернет ошибку и остановится
+//        if($error){ return response()->json(FALSE); } todo вернуть
+        if($error){ return $ddd; }
+
+        /** ----- КОНЕЦ ПРОВРОК НА ОШИБКИ ---------- */
+
+
 
         /**
-         * Выбираем сферу по id, либо, создаем новую, если id нету
+         * Выбираем сферу по id, либо, создаем новую
          *
          */
         if($id) {
-            $group = Sphere::find($id);
-            $group->name = $opt['opt']['data']['variables']['name'];
-            $group->minLead = $request->get('stat_minLead');
-            $group->status = $opt['opt']['data']['variables']['status'];
-            $group->openLead = $opt['opt']['data']['variables']['openLead'];
+            $sphere = Sphere::find($id);
+            $sphere->name = $sphereData['variables']['name'];
+            $sphere->minLead = $minLead;
+            $sphere->status = $sphereData['variables']['status'];
+            $sphere->openLead = $sphereData['variables']['openLead'];
         } else {
-            $group = new Sphere(
+            $sphere = new Sphere(
             [
-                'name' => $opt['opt']['data']['variables']['name'],
-                'status' => $opt['opt']['data']['variables']['status'],
-                'minLead' => $request->get('stat_minLead'),
-                'openLead' => $opt['opt']['data']['variables']['openLead'],
+                'name' => $sphereData['variables']['name'],
+                'status' => $sphereData['variables']['status'],
+                'minLead' => $minLead,
+                'openLead' => $sphereData['variables']['openLead'],
             ]);
-            $group->save();
         }
 
+        $sphere->save();
+
+
 
         /**
-         * Создание или битмасков лида и агента
+         * Битмаски лида и анента
+         * либо создаем, либо подключаемся к существующим
          */
-        // битмас лида
-        $leadBitmask = new LeadBitmask($group->id);
+        // битмаск лида
+        $leadBitmask = new LeadBitmask($sphere->id);
+        // битмаск агента
+        $agentBitmask = new AgentBitmask($sphere->id);
 
-        // битмаск агенда
-        $agentBitmask = new AgentBitmask($group->id);
 
-//    Непонял, зачем присваивать имя таблицы битмаск объекту sphere
-//        $group->table_name = $bitMask->getTableName();
-        $group->save();
-
-        $data = $request->only('lead');
-        $new_chr = $data['lead']['data']['variables'];
 
         /**
-         * Удаление атрибута Лида, если его статус == 'DELETE'
+         * Обработка атрибутов лида
          */
-        if($new_chr) {
-            foreach ($new_chr as $index => $leadAttr) {
-                if (isset($leadAttr['_status'])) {
-                    if ($leadAttr['_status'] == 'DELETE') {
-                        $group->leadAttr()->where('id', '=', $leadAttr['id'])->delete();
-                        unset($new_chr[$index]);
+        // если у формы лида заданны атрибуты
+        // перебираем их и обрабатываем
+        if($leadDataAttr){
+
+            // создаем/обновляем атрибут с его опциями
+            $leadDataAttr->each(function( $attr )  use( $sphere, &$leadBitmask ){
+
+
+            // ЕСЛИ '_status'=='DELETE' УДАЛЯЕМ АТРИБУТ
+
+                // проверяем есть ли задание на удаление
+                if( isset( $attr['_status'] ) ){
+                    if( $attr['_status'] == 'DELETE' ){
+                        // удаляем атрибут из БД
+
+                        // выбираем атрибут по его id
+                        $dbAttribute = $sphere->leadAttr()->where('id', '=', $attr['id']);
+
+                        // удаление всех опций атрибутов
+                        $dbAttribute->each(function($option){
+                            $option->allFormsOptions()->delete();
+                        });
+
+                        // удаление атрибута
+                        $dbAttribute->delete();
+
+                        // удаление полей в маске атрибута
+                        $leadBitmask->removeAttr($attr['id'], null);
+                        // останавливаем дальнейшую обработку
+                        return false;
                     }
                 }
-            }
-        }
 
 
-        if($new_chr) {
-            foreach ($new_chr as $attr) {
+            // СОЗДАЕМ НОВЫЙ АТРИБУТ ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ
+
+                // если у атрибуте есть id и он НЕ равен '0'
                 if (isset($attr['id']) && $attr['id']) {
+                    // выбираем его
                     $leadAttr = SphereAdditionForms::find($attr['id']);
+                    // и обновляем
                     $leadAttr->update($attr);
+
                 } else {
-                    if (!is_array($attr)) {
-                        continue;
-                    }
+                    // если атрибута нет или он равен 0 создаем его
                     $leadAttr = new SphereAdditionForms($attr);
-                    $group->leadAttr()->save($leadAttr);
+                    $sphere->leadAttr()->save($leadAttr);
                 }
 
-                $eoptions = array();
-                if (isset($attr['option'])) {
-                    if (isset($attr['option']['id'])) {
-                        $attr['option'] = [$attr['option']];
-                    }
-                    $eoptions = $attr['option'];
-                }
 
-                if (count($eoptions)) {
+            // ДЕЙСТВИЯ НАД ДАННЫМИ АТРИБУТА В ЗАВИСИМОСТИ ОТ ЕГО ТИПА
+            //    - типы 'checkbox','radio', 'select'
+            //    - типы 'textarea', 'input'
+            //    - типы 'email', 'calendar'
 
-                    $new_options = [];
-                    for ($i = 0; $i < count($eoptions); $i++) {
-                        if ($eoptions[$i]['id']) $new_options[] = $eoptions[$i]['id'];
-                    }
 
-                    $old_options = $leadAttr->options()->lists('id')->all();
-                    if ($deleted = (array_diff($old_options, $new_options))) {
-                        $leadAttr->options()->whereIn('id', $deleted)->delete();
-                    }
+                if( ($attr['_type']=='checkbox') || ($attr['_type']=='radio') || ($attr['_type']=='select') ){
+                    // обработка атрибутов с типом 'checkbox','radio', 'select'
+                    // у этого атрибута должна быть хотя бы одна опция
+                    // в начале метода стоит проверка,
+                    // если опций нет - метод вернет ошибку еще в начале (до этого места не дойдет)
 
-                    foreach ($eoptions as $optVal) {
-                        if ($optVal['id']) {
-                            $chr_options = AdditionFormsOptions::find($optVal['id']);
-//                            $chr_options->ctype = 'lead';
-                            $chr_options->_type = 'option';
-                            $chr_options->name = $optVal['val'];
-                            //$chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
-                            $chr_options->save();
-                        } else {
-                            $chr_options = new AdditionFormsOptions();
-//                            $chr_options->ctype = 'lead';
-                            $chr_options->_type = 'option';
-                            $chr_options->name = $optVal['val'];
-                            //$chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
+                    // перебираем все опции и либо создаем новую,
+                    // либо обновляем существующую запись опции
+                    $optionCollection = collect($attr['option']);
+                    $optionCollection->each(function( $option ) use ( &$leadAttr, &$leadBitmask ){
 
-                            $leadAttr->options()->save($chr_options);
+                        if($option['id']){
+                            // у опции ЕСТЬ id, т.е. опция уже есть в БД
 
-                            // добавление нового столбца в таблицу agent_bitmask_X
-                            $leadBitmask->addAttr($leadAttr->id, $chr_options->id);
+                            // выбираем данные опции из БД
+                            $dbOption = AdditionFormsOptions::find($option['id']);
+                            // присваиваем опции новые значения
+                            $dbOption->_type = 'option';
+                            $dbOption->name = $option['val'];
+                            $dbOption->value = (isset($option['vale'])) ? $option['vale'] : '';
+                            // сохраняем
+                            $dbOption->save();
 
-                            if (isset($optVal['parent'])) {
-                                // копирование атрибутов
-                                $agentBitmask->copyAttr
-                                (
-                                    $leadAttr->id,
-                                    $chr_options->id,
-                                    /*parent*/
-                                    $optVal['parent']
-                                );
+                        }else{
+                            // у опции НЕТ id
+                            // (создание новой зписи и полей в битмаске соответственно)
+
+                            // создание новой опции
+                            $newOption = new AdditionFormsOptions();
+                            // присваиваем опции новые значения
+                            $newOption->_type = 'option';
+                            $newOption->name = $option['val'];
+                            $newOption->value = (isset($option['vale'])) ? $option['vale'] : '';
+                            // сохраняем
+                            $leadAttr->options()->save($newOption);
+
+                            // создаем новый столбец в БД
+                            $leadBitmask->addAttrWithType($leadAttr->id, $newOption->id, $leadAttr->_type);
+
+                            /** смысл этой конструкции я не понял */
+//                            if (isset($option['parent'])) {
+//                                // копирование атрибутов
+//                                $leadBitmask->copyAttr
+//                                (
+//                                    $leadAttr->id,
+//                                    $newOption->id,
+//                                    /*parent*/
+//                                    $option['parent']
+//                                );
+//                            }
+                        }
+                    });
+
+                }elseif( ($attr['_type']=='textarea') || ($attr['_type']=='input') ){
+                    // обработка атрибутов с типом 'textarea' и 'input'
+                    // атрибут этого типа может иметь валидации, а может и не иметь
+                    // если валидации есть - они записываются в таблицу опций,
+                    // если нет - НЕ записываются
+
+                    if( isset($attr['validate']) ) {
+                        // у атрибута есть поле валидации
+
+                        // обработка значений переменной
+                        // данные могут быть либо в одном массиве, либо в массиве с ключами
+                        if(isset($attr['validate']['val'])){
+                            // если один массив помещаем его в массив
+                            // т.е. будет массив с одним ключоьм "0"
+                            // создаем объект collect
+
+                            $validateCollection = collect( [ $attr['validate'] ] );
+
+                        }else{
+                            // массив с ключами
+                            // просто создаем объект collect
+
+                            $validateCollection = collect( $attr['validate'] );
+                        }
+
+                        // перебираем все валидации и либо создаем новую,
+                        // либо обновляем существующую запись валидации
+                        $validateCollection->each(function ($validate) use (&$leadAttr) {
+
+                            if ($validate['id']) {
+                                // у валидации ЕСТЬ id, т.е. валидация уже есть в БД
+
+                                // выбираем данные валидации из БД
+                                $dbValidate = AdditionFormsOptions::find($validate['id']);
+                                // присваиваем валидации новые значения
+                                $dbValidate->_type = 'validate';
+                                $dbValidate->name = $validate['val'];
+                                $dbValidate->value = (isset($validate['vale'])) ? $validate['vale'] : '';
+
+                                // сохраняем
+                                $dbValidate->save();
+
+                            } else {
+                                // у валидации НЕТ id
+                                // (создание новой зписи)
+
+                                // создание новой валидации
+                                $newValidate = new AdditionFormsOptions();
+                                // присваиваем валидации новые значения
+                                $newValidate->_type = 'validate';
+                                $newValidate->name = $validate['val'];
+                                $newValidate->value = (isset($validate['vale'])) ? $validate['vale'] : '';
+                                // сохраняем
+                                $leadAttr->validators()->save($newValidate);
                             }
-                        }
+                        });
+                    }
+
+                }elseif( ($attr['_type']=='email') || ($attr['_type']=='calendar') ){
+                    // обработка атрибутов с типом 'email' и 'calendar'
+                    // у атрибута нет ни опций, ни валидаций
+                    // в БД опций записываются с _type=field
+
+                    // атрибут должен иметь опцию в таблице опций лида
+                    // чтобы его можно было занести в таблицу битмаска
+
+                    // получаем запись поля в таблице addition_forms_options по id атрибута
+                    // по идее эта запись в таблице должна быть только одна
+                    $field = $leadAttr->field()->first();
+
+                    if( $field==true ){
+                        // запись уже есть в бд
+
+                        // выбираем данные поля из БД
+                        $dbField = AdditionFormsOptions::find($field['id']);
+                        // присваиваем полю новые значения
+                        $dbField->_type = 'field';
+                        $dbField->name = '';
+                        $dbField->value = '';
+                        // сохраняем
+                        $dbField->save();
+
+                    }else{
+                        // у поля НЕТ id
+                        // (создание новой зписи)
+
+                        // создание новой валидации
+                        $newField = new AdditionFormsOptions();
+                        // присваиваем валидации новые значения
+                        $newField->_type = 'field';
+                        $newField->name = '';
+                        $newField->value = '';
+                        // сохраняем
+                        $leadAttr->options()->save($newField);
+
+                        // создаем новый столбец в БД
+                        $leadBitmask->addAttrWithType($leadAttr->id, $newField->id, $leadAttr->_type);
                     }
                 }
 
+                return true;
+            });
 
-                $eoptions = array();
-                if (isset($attr['validate'])) {
-                    if (isset($attr['validate']['id'])) {
-                        $attr['validate'] = [$attr['validate']];
-                    }
-                    $eoptions = $attr['validate'];
-                }
-
-                if (count($eoptions)) {
-
-                    $new_options = [];
-                    for ($i = 0; $i < count($eoptions); $i++) {
-                        if ($eoptions[$i]['id']) $new_options[] = $eoptions[$i]['id'];
-                    }
-
-                    $old_options = $leadAttr->options()->lists('id')->all();
-                    if ($deleted = (array_diff($old_options, $new_options))) {
-                        $leadAttr->options()->whereIn('id', $deleted)->delete();
-                    }
-
-                    foreach ($eoptions as $optVal) {
-                        if ($optVal['id']) {
-                            $chr_options = AdditionFormsOptions::find($optVal['id']);
-//                            $chr_options->ctype = 'lead';
-                            $chr_options->_type = 'validate';
-                            $chr_options->name = $optVal['val'];
-                            $chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
-                            $chr_options->save();
-                        } else {
-                            $chr_options = new AdditionFormsOptions();
-//                            $chr_options->ctype = 'lead';
-                            $chr_options->_type = 'validate';
-                            $chr_options->name = $optVal['val'];
-                            $chr_options->value = (isset($optVal['vale'])) ? $optVal['vale'] : NULL;
-
-                            $leadAttr->validators()->save($chr_options);
-                        }
-                    }
-                }
-            }
-
-            $data = $request->only('threshold');
-            $new_chr = $data['threshold']['data'];
-            $rId = [];
-            if ($new_chr) {
-                $nId = [];
-                foreach ($new_chr as $i => $attr) {
-                    if (isset($attr['id'])) {
-                        $nId[] = $attr['id'];
-                    }
-                }
-                $oId = $group->statuses()->lists('id')->all();
-                $rId = array_diff($oId, $nId);
-                if (count($rId)) {
-                    $group->statuses()->whereIn('id', $rId)->delete();
-                }
-            } else {
-                $group->statuses()->delete();
-            }
-
-            if ($new_chr) foreach ($new_chr as $attr) {
-                if (isset($attr['id']) && $attr['id']) {
-                    if (!in_array($attr['id'], $rId)) {
-                        $status = SphereStatuses::find($attr['id']);
-                        $status->stepname = $attr['val'];
-                        $status->minmax = $attr['vale'][0];
-                        $status->percent = $attr['vale'][1];
-                        $status->position = (isset($attr['position'])) ? $attr['position'] : 0;
-                        $status->save();
-                    }
-                } else {
-                    if (!is_array($attr)) {
-                        continue;
-                    }
-                    $status = new SphereStatuses();
-                    $status->stepname = $attr['val'];
-                    $status->minmax = $attr['vale'][0];
-                    $status->percent = $attr['vale'][1];
-                    $status->position = (isset($attr['position'])) ? $attr['position'] : 0;
-                    $group->statuses()->save($status);
-                }
-            }
-
-            $data = $request->only('cform');
-            $new_chr = $data['cform']['data']['variables'];
-            if ($new_chr) foreach ($new_chr as $index => $characteristic) {
-                if (isset($characteristic['_status'])) {
-                    if ($characteristic['_status'] == 'DELETE') {
-                        $group->attributes()->where('id', '=', $characteristic['id'])->delete();
-
-                        // удаление столбца
-                        $leadBitmask->removeAttr([(int)$characteristic['id']], null);
-                        unset($new_chr[$index]);
-                    }
-                }
-            }
-
-            if ($new_chr) foreach ($new_chr as $attr) {
-                if (isset($attr['id']) && $attr['id']) {
-                    $characteristic = SphereFormFilters::find($attr['id']);
-                    $characteristic->update($attr);
-                } else {
-                    if (!is_array($attr)) {
-                        continue;
-                    }
-                    $characteristic = new SphereFormFilters((array)$attr);
-                    $group->attributes()->save($characteristic);
-                }
-                if (isset($attr['option'])) {
-                    $new_options = [];
-                    if (isset($attr['option']['id'])) {
-                        $attr['option'] = [$attr['option']];
-                    }
-                    for ($i = 0; $i < count($attr['option']); $i++) {
-                        if ($attr['option'][$i]['id']) $new_options[] = $attr['option'][$i]['id'];
-                    }
-
-                    $old_options = $characteristic->options()->lists('id')->all();
-                    if ($deleted = (array_diff($old_options, $new_options))) {
-                        $characteristic->options()->whereIn('id', $deleted)->delete();
-
-                        // Удаление столбца из таблицы agent_bitmask
-                        $agentBitmask->removeAttr($characteristic->id, $deleted);
-                    }
-
-                    $default_value = [];
-                    foreach ($attr['option'] as $optVal) {
-                        if ($optVal['id']) {
-                            $chr_options = FormFiltersOptions::find($optVal['id']);
-//                            $chr_options->ctype = 'agent';
-                            $chr_options->name = $optVal['val'];
-                            //$chr_options->icon = (isset($optVal['vale'][1])) ? $optVal['vale'][1] : NULL;
-                            $chr_options->save();
-                        } else {
-                            $chr_options = new FormFiltersOptions();
-//                            $chr_options->ctype = 'agent';
-                            $chr_options->name = $optVal['val'];
-                            //$chr_options->icon = (isset($optVal['vale'][1])) ? $optVal['vale'][1] : NULL;
-                            $characteristic->options()->save($chr_options);
-
-                            // добавление нового столбца в таблицу agent_bitmask_X
-                            $agentBitmask->addAttr($characteristic->id, $chr_options->id);
-
-                            if (isset($optVal['parent'])) {
-                                // копирование атрибутов
-                                $agentBitmask->copyAttr
-                                (
-                                    $characteristic->id,
-                                    $chr_options->id,
-                                    /*parent*/
-                                    $optVal['parent']
-                                );
-                            }
-                        }
-                        $default_value[$chr_options->id] = (isset($optVal['vale'][0]) && $optVal['vale'][0]) ? 1 : 0;
-                    }
-
-                    // Установка поля в положение по умолчанию (1)
-                    $agentBitmask->setDefault($characteristic->id, $default_value);
-                    $characteristic->default_value = implode('', array_values($default_value));
-                    $characteristic->save();
-                }
-            }
         }
-//        return response()->json(TRUE);
-// todo убрать
-        return $request->all();
+
+
+
+        /**
+         * Обработка атрибутов агента
+         */
+        if($agentDataAttr){
+
+            // перебираем все атрибуты, создаем/обновляем его данные
+            $agentDataAttr->each(function( $attr )  use( $sphere, &$agentBitmask ) {
+
+
+            // ЕСЛИ '_status'=='DELETE' УДАЛЯЕМ АТРИБУТ
+
+                // проверяем есть ли задание на удаление
+                if (isset($attr['_status'])) {
+                    if ($attr['_status'] == 'DELETE') {
+                        // удаляем атрибуд из БД
+
+                        // выбираем атрибут по его id
+                        $dbAttribute = $sphere->attributes()->where('id', '=', $attr['id']);
+
+                        // удаление всех опций атрибутов
+                        $dbAttribute->each(function($option){
+                            $option->options()->delete();
+                        });
+
+                        // удаление атрибута
+                        $dbAttribute->delete();
+
+                        // удаление полей в маске атрибута
+                        $agentBitmask->removeAttr($attr['id'], null);
+                        // останавливаем дальнейшую обработку
+                        return false;
+                    }
+                }
+
+
+            // СОЗДАЕМ НОВЫЙ АТРИБУТ ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ
+
+                // если у атрибуте есть id и он НЕ равен '0'
+                if (isset($attr['id']) && $attr['id']) {
+                    // выбираем его
+                    $agentAttr = SphereFormFilters::find($attr['id']);
+                    // и обновляем
+                    $agentAttr->update($attr);
+
+                } else {
+                    // если атрибута нет или он равен 0 создаем его
+                    $agentAttr = new SphereFormFilters($attr);
+                    $sphere->attributes()->save($agentAttr);
+                }
+
+
+            // ОБРАБОТКА ОПЦИЙ АТРИБУТА (предполагается что у атрибута есть только опции)
+
+                if (isset($attr['option'])) {
+                    // контрольная проверка наличия опций
+                    // по идее опции должны быть, в начале метода стоит проверка
+
+                    // перебираем все опции и либо создаем новую,
+                    // либо обновляем существующую запись опции
+                    $optionCollection = collect($attr['option']);
+                    $optionCollection->each(function ($option) use (&$agentAttr, &$agentBitmask) {
+
+                        if ($option['id']) {
+                            // у опции ЕСТЬ id, т.е. опция уже есть в БД
+
+                            // выбираем данные опции из БД
+                            $dbOption = FormFiltersOptions::find($option['id']);
+                            // присваиваем опции новые значения
+                            $dbOption->name = $option['val'];
+                            // сохраняем
+                            $dbOption->save();
+
+                        } else {
+                            // у опции НЕТ id
+                            // (создание новой зписи и полей в битмаске соответственно)
+
+                            // создание новой опции
+                            $newOption = new FormFiltersOptions();
+                            // присваиваем опции новые значения
+                            $newOption->name = $option['val'];
+                            // сохраняем
+                            $agentAttr->options()->save($newOption);
+
+                            // создаем новый столбец в БД
+                            $agentBitmask->addAttrWithType($agentAttr->id, $newOption->id, $agentAttr->_type);
+
+                            /** смысл этой конструкции я не понял */
+//                            if (isset($option['parent'])) {
+//                                // копирование атрибутов
+//                                $agentBitmask->copyAttr
+//                                (
+//                                    $agentAttr->id,
+//                                    $newOption->id,
+//                                    /*parent*/
+//                                    $option['parent']
+//                                );
+//                            }
+                        }
+                    });
+
+                }
+
+                return true;
+            });
+
+        }
+
+
+
+        /**
+         * Обработка статусов
+         */
+        if($statusData){
+
+        // УДАЛЕНИЕ СТАТУСА ИЗ БД
+            // если с фронтенда не пришел статус с таким id как у статуса в БД - статус удаляется
+
+            // все статусы сферы из базы данных
+            $dbStatuses =  $sphere->statuses;
+
+            // перебираем все id статуса в БД
+            $dbStatuses->each(function( $dbStatus ) use( $statusData ) {
+
+                // переключатель, если true статус удаляется из БД
+                $delete = true;
+
+                // перебираем все полученные статусы с фронтенда
+                $statusData->each(function( $newStatus ) use( $dbStatus, &$delete ) {
+                    // если в таблице статусов есть запись с таким же id как и на фронтенде
+                    // переключатель $delete переводится в состояние false
+                    if($newStatus['id'] == $dbStatus['id']){
+                        $delete=false;
+                    }
+                });
+
+                // если $delete==false - запись не удаляется, иначе - удаляется
+                if($delete){ $dbStatus->delete(); }
+            });
+
+
+        // СОЗДАЕМ НОВЫЙ СТАТУС ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ
+
+            // перебираем все атрибуты, создаем/обновляем его данные
+            $statusData->each(function($status) use($sphere){
+
+                // если у атрибуте есть id и он НЕ равен '0'
+                if (isset($status['id']) && $status['id']) {
+                    // выбираем его
+                    $dbStatus = SphereStatuses::find($status['id']);
+
+                    $dbStatus->stepname = $status['val'];
+                    $dbStatus->minmax = $status['vale'][0];
+                    $dbStatus->percent = $status['vale'][1];
+                    $dbStatus->position = (isset($status['position'])) ? $status['position'] : 0;
+
+
+                    // и обновляем
+                    $dbStatus->save();
+
+                } else {
+                    // если атрибута нет или он равен 0 создаем его
+                    $newStatus = new SphereStatuses();
+                    $newStatus->stepname = $status['val'];
+                    $newStatus->minmax = $status['vale'][0];
+                    $newStatus->percent = $status['vale'][1];
+                    $newStatus->position = (isset($status['position'])) ? $status['position'] : 0;
+                    $sphere->statuses()->save($newStatus);
+                }
+            });
+        }
+
+        return response()->json(TRUE);
     }
 
 

@@ -365,10 +365,11 @@ class Bitmask extends Model
                 'radio' => $fieldsType['boolean'],
                 'checkbox' => $fieldsType['boolean'],
                 'calendar' => $fieldsType['data'],
-                'e-mail' => $fieldsType['varchar'],
-                'text input' => $fieldsType['varchar'],
+                'email' => $fieldsType['varchar'],
+                'input' => $fieldsType['varchar'],
                 'dropdown' => $fieldsType['varchar'],
-                'text area' => $fieldsType['text'],
+                'select' => $fieldsType['varchar'],
+                'textarea' => $fieldsType['text'],
             ];
 
 
@@ -390,8 +391,8 @@ class Bitmask extends Model
      * Удаляет столбец таблицы (атрибут)
      *
      *
-     * @param  integer  $group_index
-     * @param  integer  $opt_index
+     * @param  integer|array  $group_index
+     * @param  integer|array  $opt_index
      *
      * @return object
      */
@@ -403,7 +404,12 @@ class Bitmask extends Model
                     DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '', []);
                 }
             }
-        } else {
+        } elseif(is_numeric($group_index) && $opt_index==null){
+            $delAttr = preg_grep("/^fb_" . $group_index . "_.*/", $this->attributes());
+            foreach($delAttr as $item) {
+                DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '', []);
+            }
+        }else {
             if (is_array($opt_index)) {
                 foreach ($opt_index as $aVal) $this->removeAttr($group_index, $aVal);
             } else {

@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSphereFromFilters extends Migration
+class CreateSphereFormFilters extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateSphereFromFilters extends Migration
      */
     public function up()
     {
-        Schema::create('sphere_from_filters', function (Blueprint $table) {
+        Schema::create('sphere_form_filters', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('sphere_id');
             $table->string('_type');
@@ -32,6 +32,6 @@ class CreateSphereFromFilters extends Migration
      */
     public function down()
     {
-        Schema::drop('sphere_from_filters');
+        Schema::drop('sphere_form_filters');
     }
 }

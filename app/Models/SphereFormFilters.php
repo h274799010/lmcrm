@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SphereFromFilters extends Model
+class SphereFormFilters extends Model
 {
     protected $table = 'sphere_form_filters';
     protected $fillable = ['_type', 'label','icon','required', 'position' ];
 
     public function options() {
-        return $this->hasMany('App\Models\SphereFiltersOptions','sphere_attr_id','id')->where('ctype','=','agent')->orderBy('position');
+        return $this->hasMany('App\Models\FormFiltersOptions','attr_id','id')->orderBy('position');
     }
 
     public function sphere() {
