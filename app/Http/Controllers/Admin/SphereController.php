@@ -231,20 +231,27 @@ class SphereController extends AdminController {
                 $arr['icon'] = $chrct->icon;
                 //$arr['required'] = ($chrct->required)?1:0;
                 $arr['position'] = $chrct->position;
+
+                $arr['option']=[];
                 if($chrct->has('options')) {
-                    $arr['option']=[];
+//                    $arr['option']=[];
                     foreach($chrct->options()->get() as $eav) {
                         $arr['option'][]=['id'=>$eav->id,'val'=>$eav->name,'vale'=>$eav->value];
                     }
                 }
+
                 if($chrct->has('validators')) {
-                    $arr['option']=[];
+//                    $arr['option']=[];
                     foreach($chrct->validators()->get() as $eav) {
                         $arr['validate'][]=['id'=>$eav->id,'val'=>$eav->name,'vale'=>$eav->value];
                     }
                 }
                 $lead['values'][]=$arr;
+//                dd($chrct->validators()->get());
             }
+
+            // todo удалить
+//            dd($lead);
 
             if($group->has('statuses')) { $threshold['values']=array(); }
             foreach($group->statuses()->get() as $chrct) {

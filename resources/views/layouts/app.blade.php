@@ -76,8 +76,20 @@
     @include('partials.nav')
 
     <div class="container">
-    @yield('content')
+
+        <div class="row">
+            <div class="col-md-1 col-sm-2">
+                @include('partials.sidebar')
+            </div>
+
+            <div class="col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-9">
+                @yield('content')
+            </div>
+        </div>
+
     </div>
+
+    {{--@yield('content')--}}
 </div>
 @include('partials.footer')
 

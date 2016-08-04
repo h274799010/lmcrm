@@ -4,7 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 
-class SphereMask extends Model
+class delliiiSphereMask extends Model
 {
     protected $table = NULL;
     private $userID = NULL;

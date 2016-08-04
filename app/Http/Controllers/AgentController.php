@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agent;
 use App\Models\Salesman;
-use App\Models\SphereMask;
+use App\Models\AgentBitmask;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -37,8 +37,8 @@ class AgentController extends BaseController
             return redirect()->route('login');
         }
 
-        $this->mask = new SphereMask($sphere_id,$this->uid);
-        $price = $this->mask->getPrice();
+        $this->mask = new AgentBitmask($sphere_id,$this->uid);
+        $price = $this->mask->getStatus();
         $price = ($price && $price->lead_price)?floor($bill->balance/$price->lead_price):0;
         view()->share('balance', [0,$price]);
     }

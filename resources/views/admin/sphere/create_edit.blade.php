@@ -214,7 +214,10 @@
                         data: postData,
                         success: function (data, textStatus) {
                             $this.prop('disabled',false);
-                            window.location = '{{ route('admin.sphere.index') }}';
+                            // todo обновление страницы, вернуть обратно
+                            {{--window.location = '{{ route('admin.sphere.index') }}';--}}
+                            // todo удалить, сообщение что респонс получен нормально
+                            alert("OK");
                         },
                         error: function (XMLHttpRequest, textStatus) {
                             alert(textStatus);

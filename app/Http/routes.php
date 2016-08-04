@@ -16,4 +16,20 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'we
 Route::get('/open_leads', ['as' => 'OpenLeads', 'middleware' => ['auth', 'agent'], 'uses' => 'OpenLeadsData@index']);
 Route::post('/open_leads', ['as' => 'OpenLeads', 'middleware' => ['auth', 'agent'], 'uses' => 'OpenLeadsData@create']);
 
+Route::get('/create', function(){
+
+
+//    $a = new App\Models\LeadBitmask(3);
+////
+//    $a->addAttrWithType( 12, [1,2,3,4], 'varchar' );
+////
+//    dd($a->get());
+
+    $a = App\Models\Lead::find(2)->bitmask();
+
+    dd($a);
+//
+//    echo 'Данные пока не заданны';
+
+});
 

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Agent;
 use App\Http\Controllers\AgentController;
 use Validator;
 use App\Models\Sphere;
-use App\Models\SphereMask;
+use App\Models\AgentBitmask;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -20,7 +20,7 @@ class SphereController extends AgentController {
     public function index()
     {
         $spheres = Sphere::active()->get();
-        $mask=new SphereMask();
+        $mask=new AgentBitmask();
         $mask->setUserID($this->uid);
 
         return view('agent.sphere.index')

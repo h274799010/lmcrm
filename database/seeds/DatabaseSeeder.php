@@ -16,10 +16,16 @@ class DatabaseSeeder extends Seeder
 //        $this->command->comment('данные пользователей загруженны');
         // добавление лидов
 
-//        $this->call('SphereFiltersOptionsSeeder');
-////        $this->command->comment('добавленны данные фильтров');
-//        // добавление лидов
-//
+        DB::table('agent_sphere')->insert([
+            'id' => '1',
+            'agent_id' => '2',
+            'sphere_id' => '1',
+            'created_at' => '2016-05-16 10:21:44',
+            'updated_at' => '2016-05-24 10:46:48',
+        ]);
+
+
+
 //
 //        DB::table('leads')->insert([
 //            'id' => '7',

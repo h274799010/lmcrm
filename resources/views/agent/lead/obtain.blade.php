@@ -7,7 +7,7 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <div class="dataTables_container">
-            <div class="col-md-12">
+            <div class="col-sm-12">
                 <select data-name="date" class="selectbox dataTables_filter">
                     <option></option>
                     <option value="2d">last 2 days</option>
@@ -20,18 +20,18 @@
                     <option value="50">50</option>
                 </select>
             </div>
-            <div class="col-md-12">
+            <div class="col-sm-12">
             <table class="table table-bordered table-striped table-hover ajax-dataTable">
                 <thead>
                 <tr>@php($i=0)
-                    <th>{!! trans("site/lead.count") !!}</th>
-                    <th>{!! trans("main.open") !!}</th>
-                    <th>{!! trans("site/lead.updated") !!}</th>
-                    <th>{!! trans("site/lead.name") !!}</th>
-                    <th>{!! trans("site/lead.phone") !!}</th>
-                    <th>{!! trans("site/lead.email") !!}</th>
+                    <th class="col-md-1 col-lg-1">{!! trans("site/lead.count") !!}</th>
+                    <th class="col-md-1 col-lg-1">{!! trans("main.open") !!}</th>
+                    <th class="col-md-1 col-lg-1">{!! trans("site/lead.updated") !!}</th>
+                    <th class="col-md-1 col-lg-1">{!! trans("site/lead.name") !!}</th>
+                    <th class="col-md-1 col-lg-1">{!! trans("site/lead.phone") !!}</th>
+                    <th class="col-md-1 col-lg-1">{!! trans("site/lead.email") !!}</th>
                     @forelse($lead_attr as $attr)
-                    <th>{{ $attr->label }}</th>@php($i++)
+                    <th class="col-md-1 col-lg-1">{{ $attr->label }}</th>@php($i++)
                     @empty
                     @endforelse
                 </tr>
