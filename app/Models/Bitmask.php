@@ -163,10 +163,9 @@ class Bitmask extends Model
     /**
      * todo разобраться
      * непонял смысл
-     * выбрать выбор по типу определенного пользователя?
      *
      */
-    public function obtain($type='lead',$user_id=NULL){
+    public function obtain( $user_id=NULL ){
         $user_id = ($user_id) ? (int)$user_id : $this->userID;
         $attributes = $this->attributes();
         $list = DB::table(DB::raw('`'.$this->table.'` as `t1`'))->join(DB::raw('`'.$this->table.'` as `t2`'),function($join) use ($attributes){
@@ -178,7 +177,6 @@ class Bitmask extends Model
         })
             ->where('t1.user_id','=',$user_id)
             ->where('t1.status','=','1')
-//            ->where('t2.type','=',$type)
             ->where('t2.user_id','<>',$user_id) ///??? need refactoring
             ->select('t2.*');
         return $list;

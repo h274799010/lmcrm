@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
-use App\Models\SphereMask;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;

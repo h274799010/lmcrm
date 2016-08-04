@@ -30,7 +30,7 @@
                                     <td>{!! $lead->name !!}</td>
                                     <td>@if($sphere->status) <span class="label label-success">on</span> @else <span class="label label-danger">off</span> @endif</td>
                                     <td>{!! $lead->updated_at !!}</td>
-                                    <td><a href="{{ route('operator.sphere.lead.edit',['sphere'=>$sphere->id,'id'=>$lead->id]) }}" class="btn btn-sm" ><img src="/public/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                                    <td><a href="{{ route('operator.sphere.lead.edit',['sphere'=>$sphere->id,'id'=>$lead->id]) }}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
                                 </tr>
                             @empty
                             @endforelse

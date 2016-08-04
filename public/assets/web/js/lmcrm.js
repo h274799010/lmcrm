@@ -72,8 +72,12 @@ $(function(){
 					});
 					d['filter'] = filter;
 				},
-			}
-		});
+			},
+
+            // ругается на что-то, не критично
+            "responsive": true
+
+        });
 		$container.find(".dataTables_filter").change(function () {
 			if ($(this).data('js') == '1') {
 				switch ($(this).data('name')) {
