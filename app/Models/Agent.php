@@ -61,4 +61,43 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     public function bill(){
         return $this->hasOne('\App\Models\Credits','agent_id','id');
     }
+
+
+    /**
+     * Выбор маски пользователя по id сферы
+     *
+     * Если индекс сферы не задан
+     * вернет данные пользователя по всем битмаскам
+     *
+     *
+     * @param  integer  $sphere
+     *
+     * @return object
+     */
+    public function bitmask($sphere=NULL)
+    {
+
+        // если сфера не заданна
+        if(!$sphere){
+
+            // находим все сферф
+            $spheres = Sphere::all();
+            // получаем id юзера
+            $userId = $this->id;
+
+            // перебираем все сферы и выбираем из каждой данные юзера
+            $allMasks = $spheres->map(function($item) use ($userId){
+                $mask = new AgentBitmask($item->id);
+                return $mask->where('user_id', '=', $userId)->first();
+            });
+
+            return $allMasks;
+        }
+
+
+        $mask = new AgentBitmask($sphere);
+
+        return $mask->where('user_id', '=', $this->id)->first();
+    }
+
 }

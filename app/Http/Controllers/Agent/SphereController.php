@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Agent;
 use App\Http\Controllers\AgentController;
 use Validator;
 use App\Models\Sphere;
-use App\Models\SphereMask;
+use App\Models\AgentBitmask;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -20,7 +20,7 @@ class SphereController extends AgentController {
     public function index()
     {
         $spheres = Sphere::active()->get();
-        $mask=new SphereMask();
+        $mask=new AgentBitmask();
         $mask->setUserID($this->uid);
 
         return view('agent.sphere.index')
@@ -37,7 +37,7 @@ class SphereController extends AgentController {
     {
         $data = Sphere::findOrFail($id);
         $data->load('attributes.options');
-        $mask = new SphereMask($data->id,$this->uid);
+        $mask = new AgentBitmask($data->id,$this->uid);
         $mask = $mask->findShortMask();
         return view('agent.sphere.edit')->with('sphere',$data)->with('mask',$mask);
     }
@@ -60,14 +60,13 @@ class SphereController extends AgentController {
             }
         }
         $sphere = Sphere::findOrFail($id);
-        $mask = new SphereMask($sphere->id,$this->uid);
+        $mask = new AgentBitmask($sphere->id,$this->uid);
 
         $options=array();
         if ($request->has('options')) {
             $options=$request->only('options')['options'];
         }
         $mask->setAttr($options);
-        $mask->setType('agent');
         $mask->setStatus(0);
 
         if($request->ajax()){

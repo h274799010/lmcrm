@@ -15,11 +15,11 @@ class Sphere extends Model
     }
 
     public function attributes() {
-        return $this->hasMany('App\Models\SphereAttr','sphere_id','id')->orderBy('position');
+        return $this->hasMany('App\Models\SphereFormFilters','sphere_id','id')->orderBy('position');
     }
 
     public function leadAttr() {
-        return $this->hasMany('App\Models\SphereLeadAttr','sphere_id','id')->orderBy('position');
+        return $this->hasMany('App\Models\SphereAdditionForms','sphere_id','id')->orderBy('position');
     }
 
     public function leads(){
@@ -38,8 +38,23 @@ class Sphere extends Model
         parent::boot();
 
         static::deleting(function($group) { // before delete() method call
-            $group->attributes()->delete();
-            $group->leadAttr()->delete();
+
+            // выбираем все атрибуты (атрибуты агента)
+            $attributes = $group->attributes();
+            // удаляем опции всех атрибутов
+            $attributes->each(function($attr){ $attr->options()->delete(); });
+            // удаление атрибутов агента
+            $attributes->delete();
+
+            // выбираем все атрибутв лида
+            $leadAttr = $group->leadAttr();
+            // удаляем опции всех атрибутов лида
+            $leadAttr->each(function($attr){ $attr->options()->delete(); });
+            //  удаление атрибутов лида
+            $leadAttr->delete();
+
+            $group->statuses()->delete();
+
         });
     }
 }

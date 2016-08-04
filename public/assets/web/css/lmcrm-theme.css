@@ -145,16 +145,16 @@ footer,.footer,#footer{
 }
 
 .icon.icon-add-user{
-	background-image: url('/public/icons/AddUser.png');
+	background-image: url('/assets/web/icons/AddUser.png');
 }
 .icon.icon-sell{
-	background-image: url('/public/icons/Sell.png');
+	background-image: url('/assets/web/icons/Sell.png');
 }
 .icon.icon-buy{
-	background-image: url('/public/icons/Buy.png');
+	background-image: url('/assets/web/icons/Buy.png');
 }
 .icon.icon-document{
-	background-image: url('/public/icons/Document.png');
+	background-image: url('/assets/web/icons/Document.png');
 }
 
 .navbar-top-links { /*TEMP!!!*/
