@@ -37,8 +37,9 @@ $(function(){
 					show: false
 				});
 				dialog.on("show.bs.modal", function() {
-					$(this).find('.ajax-form').ajaxForm(function() {
+					$(this).find('.ajax-form').ajaxForm(function(resp) {
 						dialog.modal('hide');
+                        if (resp=='reload') location.reload();
 					});
 				});
 				dialog.modal("show");
@@ -92,8 +93,10 @@ $(function(){
 			$.ajax({
 				url: href,
 				method: 'GET',
-				success: function () {
+				success: function (resp) {
 					dTable.ajax.reload();
+                    $('#alertContent').html(resp);
+                    $('#alert').removeClass('hidden');
 				}
 			});
 			return false;

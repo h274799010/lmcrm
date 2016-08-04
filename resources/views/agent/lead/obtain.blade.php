@@ -6,6 +6,10 @@
 
     <div class="panel panel-default">
         <div class="panel-body">
+            <div class="alert alert-warning alert-dismissible fade in hidden" role="alert" id="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                  <div id="alertContent"></div>
+            </div>
             <div class="dataTables_container">
             <div class="col-md-12">
                 <select data-name="date" class="selectbox dataTables_filter">
@@ -26,6 +30,7 @@
                 <tr>@php($i=0)
                     <th>{!! trans("site/lead.count") !!}</th>
                     <th>{!! trans("main.open") !!}</th>
+                    <th>{!! trans("main.open.all") !!}</th>
                     <th>{!! trans("site/lead.updated") !!}</th>
                     <th>{!! trans("site/lead.name") !!}</th>
                     <th>{!! trans("site/lead.phone") !!}</th>
