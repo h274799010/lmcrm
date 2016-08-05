@@ -59,6 +59,9 @@ class Kernel extends HttpKernel
         'operator' => \App\Http\Middleware\SentinelOperatorUser::class,
         //'notCurrentUser' => \App\Http\Middleware\SentinelNotCurrentUser::class,
         'redirectAdmin' => \App\Http\Middleware\SentinelRedirectAdmin::class,
+        'redirectAgent' => \App\Http\Middleware\SentinelRedirectAgent::class,
+        'redirectSalesman' => \App\Http\Middleware\SentinelRedirectSalesman::class,
+        'redirectOperator' => \App\Http\Middleware\SentinelRedirectOperator::class,
 
         'localize' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRoutes::class,
         'localizationRedirect' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,
