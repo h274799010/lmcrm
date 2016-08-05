@@ -161,6 +161,11 @@ footer,.footer,#footer{
 	margin-top: 25px;
 }
 
+
+#side-menu li a.active i{
+	background-position: 0px -40px;
+}
+
 .selectboxit-btn {
 	background: #ffffff none;
 	border: 1px solid #3ebbdf;
