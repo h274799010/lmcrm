@@ -9,7 +9,7 @@
             <span class="help-block">{{ $errors->first('name', ':message') }}</span>
         </div>
         <div class="col-xs-2">
-            <img src="/public/icons/list-edit.png" class="_icon pull-left flip">
+            <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
         </div>
     </div>
 
@@ -19,7 +19,7 @@
             <span class="help-block">{{ $errors->first('phone', ':message') }}</span>
         </div>
         <div class="col-xs-2">
-            <img src="/public/icons/list-edit.png" class="_icon pull-left flip">
+            <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
         </div>
     </div>
 
@@ -29,7 +29,7 @@
             <span class="help-block">{{ $errors->first('comment', ':message') }}</span>
         </div>
         <div class="col-xs-2">
-            <img src="/public/icons/list-edit.png" class="_icon pull-left flip">
+            <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
         </div>
     </div>
 

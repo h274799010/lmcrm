@@ -1,7 +1,6 @@
 @extends('layouts.master')
 
 @section('content')
-        proverka
         <!-- Page Content -->
             <div class="container">
                 <div class="row">

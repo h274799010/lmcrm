@@ -69,14 +69,24 @@
     @section('script') @show
     <script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
 
-  <link rel="shortcut icon" href="{!! asset('site/ico/favicon.ico')  !!} ">
+  <link rel="shortcut icon" href="{!! asset('assets/web/ico/favicon.ico')  !!} ">
 </head>
 <body>
 <div id="wrapper">
     @include('partials.nav')
 
-    <div class="container">
-    @yield('content')
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-1 col-sm-2">
+                @include('partials.sidebar')
+            </div>
+
+            <div class="col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-9">
+                @yield('content')
+            </div>
+        </div>
+
     </div>
 </div>
 @include('partials.footer')

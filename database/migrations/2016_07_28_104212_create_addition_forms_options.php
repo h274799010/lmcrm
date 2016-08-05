@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSphereAttributeOptions extends Migration
+class CreateAdditionFormsOptions extends Migration
 {
     /**
      * Run the migrations.
@@ -12,11 +12,10 @@ class CreateSphereAttributeOptions extends Migration
      */
     public function up()
     {
-        Schema::create('sphere_attribute_options', function (Blueprint $table) {
+        Schema::create('addition_forms_options', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('sphere_attr_id');
-            $table->enum('ctype', array('agent', 'lead'));
-            $table->enum('_type', array('option', 'validate'));
+            $table->string('attr_id');
+            $table->enum('_type', array('option', 'validate', 'field'));
             $table->string('name');
             $table->string('value');
             $table->string('position');
@@ -31,6 +30,6 @@ class CreateSphereAttributeOptions extends Migration
      */
     public function down()
     {
-        Schema::drop('sphere_attribute_options');
+        Schema::drop('addition_forms_options');
     }
 }

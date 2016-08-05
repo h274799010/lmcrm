@@ -19,7 +19,7 @@
                     <tbody>
                     @forelse($salesmen as $salesman)
                         <tr>
-                            <td><a href="{{route('agent.salesman.edit',[$salesman->id])}}" class="btn btn-sm" ><img src="/public/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                            <td><a href="{{route('agent.salesman.edit',[$salesman->id])}}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
                             <td>{!! $salesman->updated_at !!}</td>
                             <td>{!! $salesman->name !!}</td>
                             <td>{!! $salesman->email !!}</td>

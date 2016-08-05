@@ -22,7 +22,7 @@
                     <td>@php($smask = $mask->findSphereMask($sphere->id)->first())
                         @if(isset($smask->status) && $smask->status) <span class="label label-success">@lang('site/sphere.status_1')</span> @else <span class="label label-danger">@lang('site/sphere.status_0')</span> @endif</td>
                     <td>{!! $sphere->updated_at !!}</td>
-                    <td><a href="{{ route('agent.sphere.edit',['id'=>$sphere->id]) }}" class="btn btn-sm" ><img src="/public/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                    <td><a href="{{ route('agent.sphere.edit',['id'=>$sphere->id]) }}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
                 </tr>
             @empty
             @endforelse

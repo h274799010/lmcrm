@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
+use App\Models\LeadBitmask;
 use App\Models\Organizer;
-use App\Models\SphereMask;
 use App\Models\SphereStatuses;
 use Validator;
 use App\Models\Agent;
@@ -277,8 +277,8 @@ class LeadController extends AgentController {
         foreach ($data->sphereAttr as $key=>$sphereAttr){
             $str = '';
             foreach ($sphereAttr->options as $option){
-                $mask = new SphereMask($data->sphere_id,$data->id);
-                $resp = $mask->where('type','lead')->where('fb_'.$option->sphere_attr_id.'_'.$option->id,1)->get()->toArray();
+                $mask = new LeadBitmask($data->sphere_id,$data->id);
+                $resp = $mask->where('fb_'.$option->sphere_attr_id.'_'.$option->id,1)->get()->toArray();
                 if (count($resp))
                     $str .= $option->value;
             }

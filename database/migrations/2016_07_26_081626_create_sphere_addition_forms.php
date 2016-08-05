@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSphereAttributes extends Migration
+class CreateSphereAdditionForms extends Migration
 {
     /**
      * Run the migrations.
@@ -12,15 +12,13 @@ class CreateSphereAttributes extends Migration
      */
     public function up()
     {
-        Schema::create('sphere_attributes', function (Blueprint $table) {
+        Schema::create('sphere_addition_forms', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('sphere_id');
-
             $table->string('_type');
             $table->string('label');
             $table->string('icon',2083);
             $table->string('required');
-            $table->string('default_value');
             $table->integer('position');
             $table->timestamps();
         });
@@ -33,6 +31,6 @@ class CreateSphereAttributes extends Migration
      */
     public function down()
     {
-        Schema::drop('sphere_attributes');
+        Schema::drop('sphere_addition_forms');
     }
 }
