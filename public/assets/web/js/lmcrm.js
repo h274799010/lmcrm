@@ -76,7 +76,7 @@ $(function(){
 			},
 
             // ругается на что-то, не критично
-            "responsive": true
+            "responsive": true,
 
         });
 		$container.find(".dataTables_filter").change(function () {
