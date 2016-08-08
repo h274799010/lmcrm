@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateOrganizer extends Migration
+class CreateCreditTypes extends Migration
 {
     /**
      * Run the migrations.
@@ -12,11 +12,9 @@ class CreateOrganizer extends Migration
      */
     public function up()
     {
-        Schema::create('organizer', function (Blueprint $table) {
+        Schema::create('credit_types', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('open_lead_id');
-            $table->integer('time');
-            $table->text('comment');
+            $table->char('descr',255);
             $table->engine = 'InnoDB';
         });
     }
@@ -28,6 +26,6 @@ class CreateOrganizer extends Migration
      */
     public function down()
     {
-        Schema::drop('organizer');
+        Schema::drop('credit_types');
     }
 }
