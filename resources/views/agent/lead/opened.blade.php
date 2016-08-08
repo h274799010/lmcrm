@@ -4,11 +4,8 @@
         <!-- Page Content -->
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-2">
-                    </div>
-                    <!-- /.col-lg-2 -->
-                    <div class="col-lg-10">
-                        <h1 class="page-header">@lang('site/sidebar.lead_opened')</h1>
+                    <div class="col-md-10">
+                        {{--<h1 class="page-header">@lang('site/sidebar.lead_opened')</h1>--}}
                         <table class="table table-bordered table-striped table-hover dataTable">
                             <thead>
                                 <tr>
@@ -57,7 +54,7 @@
                 </div>
                 <!-- /.row -->
             </div>
-            <!-- /.container-fluid -->
+            <!-- /.container -->
     </div>
     <script>
     var table;

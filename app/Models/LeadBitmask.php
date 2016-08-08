@@ -22,7 +22,7 @@ class LeadBitmask extends Bitmask
     public function __construct( $id = NULL, $leadID = NULL, array $attributes = array() )
     {
         $tablePrefix = 'lead_bitmask_';
-        $fields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT NULL,`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
+        $fields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
         parent::__construct( $id, $leadID, $attributes, $tablePrefix, $fields );
 
         return $this->table;

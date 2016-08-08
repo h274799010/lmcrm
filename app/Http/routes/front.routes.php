@@ -1,7 +1,7 @@
 <?php
 
 /***************    Site routes  **********************************/
-Route::get('/', ['as' => 'home', 'middleware'=>'redirectAdmin', 'uses' => 'Frontend\HomeController@index']);
+Route::get('/', ['as' => 'home', 'middleware'=>[ 'redirectAdmin', 'redirectAgent', 'redirectSalesman', 'redirectOperator' ], 'uses' => 'Frontend\HomeController@index']);
 Route::get('home', 'Frontend\HomeController@index');
 
 # Authentication
