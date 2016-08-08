@@ -1,6 +1,6 @@
 <div class="navbar-default sidebar" role="navigation">
-    <div class="sidebar-nav navbar-collapse">
-        <ul class="nav" id="side-menu">
+    <div class="sidebar-nav">
+        <ul class="nav " id="side-menu">
             <li>
                 <a href="{{ route('agent.lead.create') }}" class="dialog"><i class="icon icon-add-user"></i>@lang('site/sidebar.add_lead')</a>
             </li>

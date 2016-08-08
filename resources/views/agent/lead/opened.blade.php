@@ -27,7 +27,7 @@
                                     <td>{{ $data->email }}</td>
                                     <td>
                                         <a href="{{ route('agent.lead.showOpenedLead',$data->id) }}">
-                                            <img src="/public/icons/list-edit.png" class="_icon pull-left flip">
+                                            <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
                                         </a>
                                     </td>
                                 </tr>
