@@ -11,6 +11,9 @@ class Bitmask extends Model
     // префикс таблицы
     protected $tablePrefix = NULL;
 
+    // Номер таблицы (id сферы)
+    protected $tableNum = NULL;
+
     // имя таблицы
     protected $table = NULL;
 
@@ -43,6 +46,7 @@ class Bitmask extends Model
      */
     public function __construct($id = NULL, $userID = NULL, array $attributes = array(), $tablePrefix = NULL, $tableFields = NULL)
     {
+        $this->tableNum = $id;
         $this->tablePrefix = $tablePrefix;
         $this->table = $this->tablePrefix .(int)$id;
         $this->tableFields = $tableFields;
@@ -104,6 +108,15 @@ class Bitmask extends Model
         return $this->table;
     }
 
+    /**
+     * Возвращает номер таблицы
+     *
+     * @return integer
+     */
+    public function getTableNum(){
+        return $this->tableNum;
+    }
+
 
     /**
      * Меняет id пользователя
@@ -121,6 +134,7 @@ class Bitmask extends Model
      * Возвращает данные таблицы (строку) по заданному пользователю
      *
      * был похожий метод getPrice()
+     * был похожий метод findMask()
      *
      * @param  integer  $user_id
      *
@@ -128,7 +142,7 @@ class Bitmask extends Model
      */
     public function getStatus($user_id=NULL){
         $user_id = ( $user_id ) ? $user_id : $this->userID;
-        return $this->tableDB->where('user_id','=',$user_id)->first();
+        return $this->tableDB->where('user_id','=',$user_id);
     }
 
 
@@ -157,29 +171,6 @@ class Bitmask extends Model
     public function setPrice($val=0,$user_id=NULL){
         $user_id = ($user_id)?$user_id:$this->userID;
         return $this->tableDB->where('user_id','=',$user_id)->update(['lead_price'=>$val]);
-    }
-
-
-    /**
-     * todo разобраться
-     * непонял смысл
-     *
-     */
-    public function obtain( $user_id=NULL ){
-        $user_id = ($user_id) ? (int)$user_id : $this->userID;
-        $attributes = $this->attributes();
-        $list = DB::table(DB::raw('`'.$this->table.'` as `t1`'))->join(DB::raw('`'.$this->table.'` as `t2`'),function($join) use ($attributes){
-            foreach($attributes as $attr){
-                if(stripos($attr,'fb_')!==false) {
-                    $join->on('t1.'.$attr,'>=','t2.'.$attr);
-                }
-            }
-        })
-            ->where('t1.user_id','=',$user_id)
-            ->where('t1.status','=','1')
-            ->where('t2.user_id','<>',$user_id) ///??? need refactoring
-            ->select('t2.*');
-        return $list;
     }
 
 
@@ -219,6 +210,44 @@ class Bitmask extends Model
 
 
     /**
+     * Получение короткой маски
+     *
+     * возвращает только значения полей маски
+     *
+     * todo доработать
+     *
+     * @param  integer  $user_id
+     *
+     * @return array
+     */
+    public function findFieldsMask($user_id=NULL){
+
+        $user_id = ($user_id) ? $user_id : $this->userID;
+        $short_mask=array();
+
+        // строка по id пользователя
+        $mask = $this->tableDB->where( 'user_id','=',$user_id )->first();
+
+        // если пользователя нет в таблице - возвращается пустая строка
+        if(!$mask) { return $short_mask; }
+
+        // возвращает свойства объекта в массив
+        $mask=get_object_vars($mask);
+
+        // перебираем массив, выбирая только нужные данные
+        foreach($mask as $field=>$val){
+
+            if(stripos($field,'fb_')!==false){
+                $short_mask[$field]=$val;
+            }
+        }
+
+        return $short_mask;
+    }
+
+
+
+    /**
      * Поиск маски пользователя по заданному индексу таблицы
      *
      *
@@ -230,7 +259,7 @@ class Bitmask extends Model
     public function findSphereMask($sphere_id,$user_id=NULL){
         $user_id = ($user_id) ? $user_id : $this->userID;
         $this->changeTable($sphere_id);
-        return $this->findMask($user_id);
+        return $this->getStatus($user_id);
     }
 
 
@@ -373,7 +402,7 @@ class Bitmask extends Model
             ];
 
 
-        // создание заданного поля
+        // создание поля с заданным типом
         if(is_array($opt_index)) {
             foreach($opt_index as $aVal) $this->addAttrWithType($group_index,$aVal, $field);
         } else {
@@ -385,6 +414,66 @@ class Bitmask extends Model
         return $this->tableDB;
     }
 
+    /**
+     * Добавляет к таблице новый столбец "additional data" ( ad_ ) c заданным типом
+     *
+     * По умолчанию установлен тип varchar
+     *
+     * можно указывать как сами типы так и имена полей
+     * имена полей легко можно менять и тобавлять, как и их типы
+     *
+     *
+     *
+     * @param  integer  $group_index
+     * @param  integer|array  $opt_index
+     * @param  string  $field
+     *
+     * @return object
+     */
+    public function addAb($group_index,$opt_index, $field='varchar')
+    {
+
+        // все типы полей которые могут понадобится
+        $fieldsType =
+            [
+                'boolean' => 'TINYINT(1)',
+                'varchar' => 'VARCHAR(255)',
+                'data' => 'DATE',
+                'text' => 'TEXT',
+            ];
+
+
+        // названия полей и какие им типы, которые им соответствуют
+        $fieldsParameter =
+            [
+                'boolean' => $fieldsType['boolean'],
+                'varchar' => $fieldsType['varchar'],
+                'data' => $fieldsType['data'],
+                'text' => $fieldsType['text'],
+
+                'radio' => $fieldsType['boolean'],
+                'checkbox' => $fieldsType['boolean'],
+                'calendar' => $fieldsType['data'],
+                'email' => $fieldsType['varchar'],
+                'input' => $fieldsType['varchar'],
+                'dropdown' => $fieldsType['varchar'],
+                'select' => $fieldsType['varchar'],
+                'textarea' => $fieldsType['text'],
+            ];
+
+
+        // создание поля с заданным типом
+        if (is_array($opt_index)) {
+            foreach ($opt_index as $aVal) $this->addAttrWithType($group_index, $aVal, $field);
+        } else {
+            $index = implode('_', ['ad', $group_index, $opt_index]);
+            if (!in_array($index, $this->attributes())) {
+                DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` ' . $fieldsParameter[$field] . ' NULL', []);
+            }
+        }
+
+        return $this->tableDB;
+    }
 
 
     /**
@@ -421,6 +510,45 @@ class Bitmask extends Model
         }
         return $this->tableDB;
     }
+
+
+
+
+    /**
+     * Удаляет столбец таблицы c типом "ad_"
+     *
+     *
+     * @param  integer|array  $group_index
+     * @param  integer|array  $opt_index
+     *
+     * @return object
+     */
+    public function removeAd($group_index,$opt_index){
+        if(is_array($group_index) && $opt_index==null) {
+            foreach($group_index as $item) {
+                $delAttr = preg_grep("/^ad_" . $item . "_.*/", $this->attributes());
+                foreach($delAttr as $item) {
+                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '', []);
+                }
+            }
+        } elseif(is_numeric($group_index) && $opt_index==null){
+            $delAttr = preg_grep("/^ad_" . $group_index . "_.*/", $this->attributes());
+            foreach($delAttr as $item) {
+                DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '', []);
+            }
+        }else {
+            if (is_array($opt_index)) {
+                foreach ($opt_index as $aVal) $this->removeAd($group_index, $aVal);
+            } else {
+                $index = implode('_', ['ad', $group_index, $opt_index]);
+                if (in_array($index, $this->attributes())) {
+                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $index . '', []);
+                }
+            }
+        }
+        return $this->tableDB;
+    }
+
 
 
     /**

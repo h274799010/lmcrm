@@ -21,7 +21,7 @@ class AgentBitmask extends Bitmask
     public function __construct( $id = NULL, $agentID = NULL, array $attributes = array() )
     {
         $tablePrefix = 'agent_bitmask_';
-        $fields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
+        $fields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT NULL, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
 
         parent::__construct( $id, $agentID, $attributes, $tablePrefix, $fields );
 
@@ -38,6 +38,33 @@ class AgentBitmask extends Bitmask
     public function agent() {
         return $this->hasOne('\App\Models\Agent','id','user_id');
     }
+
+
+
+
+    /**
+     * Добавление нового столбца fb к таблице
+     *
+     * @param  integer  $attr_id
+     * @param  integer|array  $opt_id
+     *
+     * @return object
+     */
+    public function addFb($attr_id,$opt_id){
+
+        // todo вынести в переменные объекта, чтобы не создавать каждый раз заново
+        $leadBitmask = new LeadBitmask($this->tableNum);
+
+        if(is_array($opt_id)) {
+            foreach($opt_id as $option) $this->addFb($attr_id, $option);
+
+        } else {
+            $this->addAttr($attr_id, $opt_id);
+            $leadBitmask->addAttr($attr_id, $opt_id);
+        }
+
+    }
+
 
 
 }

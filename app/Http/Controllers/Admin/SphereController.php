@@ -250,9 +250,6 @@ class SphereController extends AdminController {
 //                dd($chrct->validators()->get());
             }
 
-            // todo удалить
-//            dd($lead);
-
             if($group->has('statuses')) { $threshold['values']=array(); }
             foreach($group->statuses()->get() as $chrct) {
                 $arr=[];
@@ -816,7 +813,7 @@ class SphereController extends AdminController {
 //        if($error){ return response()->json(FALSE); } todo вернуть
         if($error){ return $ddd; }
 
-        /** ----- КОНЕЦ ПРОВРОК НА ОШИБКИ ---------- */
+        /** ----- КОНЕЦ ПРОВЕРОК НА ОШИБКИ ---------- */
 
 
 
@@ -885,7 +882,7 @@ class SphereController extends AdminController {
                         $dbAttribute->delete();
 
                         // удаление полей в маске атрибута
-                        $leadBitmask->removeAttr($attr['id'], null);
+                        $leadBitmask->removeAd($attr['id'], null);
                         // останавливаем дальнейшую обработку
                         return false;
                     }
@@ -950,8 +947,8 @@ class SphereController extends AdminController {
                             // сохраняем
                             $leadAttr->options()->save($newOption);
 
-                            // создаем новый столбец в БД
-                            $leadBitmask->addAttrWithType($leadAttr->id, $newOption->id, $leadAttr->_type);
+                            // создаем новый столбец "ad_" в БД
+                            $leadBitmask->addAb($leadAttr->id, $newOption->id, $leadAttr->_type);
 
                             /** смысл этой конструкции я не понял */
 //                            if (isset($option['parent'])) {
@@ -1062,8 +1059,8 @@ class SphereController extends AdminController {
                         // сохраняем
                         $leadAttr->options()->save($newField);
 
-                        // создаем новый столбец в БД
-                        $leadBitmask->addAttrWithType($leadAttr->id, $newField->id, $leadAttr->_type);
+                        // создаем новый столбец "ad_" в БД
+                        $leadBitmask->addAb($leadAttr->id, $newField->id, $leadAttr->_type);
                     }
                 }
 
@@ -1080,7 +1077,7 @@ class SphereController extends AdminController {
         if($agentDataAttr){
 
             // перебираем все атрибуты, создаем/обновляем его данные
-            $agentDataAttr->each(function( $attr )  use( $sphere, &$agentBitmask ) {
+            $agentDataAttr->each(function( $attr )  use( $sphere, &$agentBitmask, &$leadBitmask ) {
 
 
             // ЕСЛИ '_status'=='DELETE' УДАЛЯЕМ АТРИБУТ
@@ -1101,8 +1098,10 @@ class SphereController extends AdminController {
                         // удаление атрибута
                         $dbAttribute->delete();
 
-                        // удаление полей в маске атрибута
+                        // удаление полей в битмаске агента и лида
                         $agentBitmask->removeAttr($attr['id'], null);
+                        $leadBitmask->removeAttr($attr['id'], null);
+
                         // останавливаем дальнейшую обработку
                         return false;
                     }
@@ -1134,7 +1133,7 @@ class SphereController extends AdminController {
                     // перебираем все опции и либо создаем новую,
                     // либо обновляем существующую запись опции
                     $optionCollection = collect($attr['option']);
-                    $optionCollection->each(function ($option) use (&$agentAttr, &$agentBitmask) {
+                    $optionCollection->each(function ($option) use (&$agentAttr, &$agentBitmask, &$leadBitmask) {
 
                         if ($option['id']) {
                             // у опции ЕСТЬ id, т.е. опция уже есть в БД
@@ -1157,8 +1156,10 @@ class SphereController extends AdminController {
                             // сохраняем
                             $agentAttr->options()->save($newOption);
 
-                            // создаем новый столбец в БД
-                            $agentBitmask->addAttrWithType($agentAttr->id, $newOption->id, $agentAttr->_type);
+                            // создаем новые столбцы в битмасе агента и лида
+                            $agentBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean');
+                            $leadBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean');
+
 
                             /** смысл этой конструкции я не понял */
 //                            if (isset($option['parent'])) {
@@ -1263,6 +1264,8 @@ class SphereController extends AdminController {
         $group->delete();
         return redirect()->route('admin.sphere.index');
     }
+
+
 
     /**
      * Show a list of all the languages posts formatted for Datatables.

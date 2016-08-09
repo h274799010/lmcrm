@@ -18,6 +18,7 @@ class CreateSpheres extends Migration
             $table->string('name');
             $table->integer('openLead')->default(3);
             $table->integer('minLead');
+            $table->integer('revenue');
             $table->string('table_name');
             $table->timestamps();
         });

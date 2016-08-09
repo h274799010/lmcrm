@@ -17,6 +17,7 @@ use App\Models\OpenLeads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 //use App\Http\Requests\Admin\ArticleRequest;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
 
 class LeadController extends AgentController {
@@ -37,27 +38,114 @@ class LeadController extends AgentController {
     }
 
     public function obtain(){
+
+        // данные агента
         $agent = $this->user;
+        // данные маски агента (пользователь уже задан)
         $mask=$this->mask;
 
-        $list = $mask->obtain()->skip(0)->take(10);
-        $leads = Lead::with('obtainedBy')->whereIn('id',$list->lists('user_id'))->get();
+//        $list = $mask->obtain()->skip(0)->take(10);
         $lead_attr = $agent->sphere()->leadAttr()->get();
+
+
+
+
+//
+//
+//        // маска лида
+//        $leadBitmask = new LeadBitmask($mask->getTableNum());
+//
+//        // данные полей "fb_" агента (ключ=>значение)
+//        $agentBitmaskData = $mask->findFieldsMask();
+//
+//        // выкидаваем те лиды которые не подходят под фильтр агента
+//        $list = $leadBitmask->get()->reject(function( $leadData ) use ( $agentBitmaskData ){
+//
+//            foreach( $agentBitmaskData as $key=>$agentData){
+//
+//                if( !($agentData >= $leadData->$key)){
+//                    return true;
+//                }
+//            }
+//        });
+//
+//
+//
+//        // выбираем лидов по данным из маски
+//        $leads = $list->map(function($item){
+//            return $item->lead;
+////                ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']);
+////                    ->select(['leads.opened', 'leads.id', 'leads.updated_at', 'leads.name', 'leads.customer_id', 'leads.email']);
+//        });
+//
+//        dd($leads->get()->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']));
+//
+//        // выкидываем лиды, которые принадлежать текущему пользователю
+//        $leads = $leads->reject(function( $lead ) use( $agent ){
+//            if($lead->agent_id == $agent->id){
+//                return true;
+//            }
+//        });
+//
+//
+//
+//
+//
+//
+
+
+
+
+        // todo удалить
+//        dd(Lead::all());
+
         return view('agent.lead.obtain')
-            ->with('leads',$leads)
-            ->with('lead_attr',$lead_attr)
-            ->with('filter',$list->get());
+            ->with('lead_attr',$lead_attr);
+//            ->with('filter',$list->get());
     }
+
+
+
 
     public function obtainData(Request $request)
     {
         $agent = $this->user;
         $mask=$this->mask;
 
-        $list = $mask->obtain();
-        $leads = Lead::whereIn('id', $list->lists('user_id'))
-            ->where('leads.agent_id','<>',$this->uid)
-            ->select(['leads.opened', 'leads.id', 'leads.updated_at', 'leads.name', 'leads.customer_id', 'leads.email']);
+        // маска лида
+        $leadBitmask = new LeadBitmask($mask->getTableNum());
+
+        // данные полей "fb_" агента (ключ=>значение)
+        $agentBitmaskData = $mask->findFieldsMask();
+
+        // выкидаваем те лиды которые не подходят под фильтр агента
+        $list = $leadBitmask->get()->reject(function( $leadData ) use ( $agentBitmaskData ){
+
+            foreach( $agentBitmaskData as $key=>$agentData){
+
+                if( !($agentData >= $leadData->$key)){
+                    return true;
+                }
+            }
+        });
+
+
+        // выбираем лидов по данным из маски
+        $leads = $list->map(function($item){
+            return $item->lead;
+//                ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']);
+//                    ->select(['leads.opened', 'leads.id', 'leads.updated_at', 'leads.name', 'leads.customer_id', 'leads.email']);
+        });
+
+        // выкидываем лиды, которые принадлежать текущему пользователю
+        $leads = $leads->reject(function( $lead ) use( $agent ){
+            if($lead->agent_id == $agent->id){
+                return true;
+            }
+        });
+
+
+
         if (count($request->only('filter'))) {
             $eFilter = $request->only('filter')['filter'];
             foreach ($eFilter as $eFKey => $eFVal) {
@@ -99,15 +187,24 @@ class LeadController extends AgentController {
             ->edit_column('email',function($lead) use ($agent){
                 return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('lead.hidden');
             });
+
         $lead_attr = $agent->sphere()->leadAttr()->get();
+
         foreach($lead_attr as $key=>$l_attr){
            $datatable->add_column('a_'.$key,function($lead) use ($l_attr){
-                $val = $lead->info()->where('lead_attr_id','=',$l_attr->id)->first();
+
+               // todo данные должны браться из leadBitmask, полей (ad_), доработать
+//               $val = $lead->info()->where('lead_attr_id','=',$l_attr->id)->first();
+               $val='ага';
                 return view('agent.lead.datatables.obtain_data',['data'=>$val,'type'=>$l_attr->_type]);
            });
         }
+
         return $datatable->make();
     }
+
+
+
 
     public function openLead($id){
         $agent = $this->user;
@@ -281,8 +378,29 @@ class LeadController extends AgentController {
         return response()->route('agent.lead.index');
     }
 
+    /**
+     * Показывает всех открытых лидов для пользователя
+     *
+     * по идее возвращает лиды по таблице open_leads
+     *
+     * @return object
+     *
+     */
     public function openedLeads(){
-        $dataArray = Lead::has('obtainedBy')->get();
+
+//        $dataArray = Lead::has('obtainedBy')->get();
+
+        // id пользователя
+        $userId = Sentinel::getUser()->id;
+
+        // данные открытых лидов для конкретного пользователя
+        $openLeads = OpenLeads::where('agent_id', '=', $userId)->get();
+
+        // лиды по полученным данным открытых лидов
+        $dataArray = $openLeads->map(function( $openLead ){
+            return $openLead->lead;
+        });
+
         return view('agent.lead.opened',['dataArray'=>$dataArray]);
     }
 
