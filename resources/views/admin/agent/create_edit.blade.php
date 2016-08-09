@@ -75,6 +75,20 @@
 
     </div>
     <div class="tab-pane" id="tab-info">
+        <div class="form-group  {{ $errors->has('buyed') ? 'has-error' : '' }}">
+            {!! Form::label('buyed', trans("admin/buyed.buyed"), array('class' => 'control-label')) !!}
+            <div class="controls">
+                {!! Form::text('buyed', $agent->bill->buyed, array('class' => 'form-control')) !!}
+                <span class="help-block">{{ $errors->first('buyed', ':message') }}</span>
+            </div>
+        </div>
+        <div class="form-group  {{ $errors->has('earned') ? 'has-error' : '' }}">
+            {!! Form::label('earned', trans("admin/earned.earned"), array('class' => 'control-label')) !!}
+            <div class="controls">
+                {!! Form::text('earned', $agent->bill->earned, array('class' => 'form-control')) !!}
+                <span class="help-block">{{ $errors->first('earned', ':message') }}</span>
+            </div>
+        </div>
         <div class="form-group  {{ $errors->has('sphere') ? 'has-error' : '' }}">
             {!! Form::label('sphere', trans("admin/sphere.sphere"), array('class' => 'control-label')) !!}
             <div class="controls">

@@ -7,10 +7,6 @@ use Illuminate\Support\Facades\Route;
 
 class CreditController extends AdminController
 {
-    public function __construct()
-    {
-        echo 123;exit;
-    }
     /*
     * Display a listing of the resource.
     *
@@ -20,7 +16,7 @@ class CreditController extends AdminController
     {
         // Show the page
         view()->share('type', 'creditHistory');
-        return view('admin.user.index');
+        return view('admin.credit.index');
     }
 
     /**
@@ -32,7 +28,7 @@ class CreditController extends AdminController
     {
         $history = CreditHistory::all();
 
-        return Datatables::of($history)->make();
+        return Datatables::of($history)->remove_column('updated_at')->make();
     }
 
 }

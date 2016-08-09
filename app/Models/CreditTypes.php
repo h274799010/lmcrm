@@ -9,4 +9,5 @@ class CreditTypes extends Model {
     const LEAD_PURCHASE = -1;
     const LEAD_SALE = 2;
     const EXTERNAL_REFILL = 3;
+    const MANUAL_CHANGE = 4;
 }
