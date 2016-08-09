@@ -175,34 +175,6 @@ class Bitmask extends Model
 
 
     /**
-     * todo разобраться
-     * непонял смысл
-     *
-     */
-    public function obtain( $user_id=NULL ){
-        $user_id = ($user_id) ? (int)$user_id : $this->userID;
-        $attributes = $this->attributes();
-        $list = DB::table(DB::raw('`'.$this->table.'` as `t1`'))
-
-            ->join(DB::raw('`'.$this->table.'` as `t2`'),function($join) use ($attributes){
-
-                foreach($attributes as $attr){
-                    if(stripos($attr,'fb_')!==false) {
-                        $join->on('t1.'.$attr,'>=','t2.'.$attr);
-                    }
-                }
-            })
-
-            ->where('t1.user_id','=',$user_id)
-            ->where('t1.status','=','1')
-            ->where('t2.user_id','<>',$user_id) ///??? need refactoring
-            ->select('t2.*');
-
-        return $list;
-    }
-
-
-    /**
      * Получение короткой маски
      *
      * возвращает только значения полей маски

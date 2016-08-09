@@ -38,12 +38,14 @@ class Credits extends Model {
 
     public function save(array $options = []){
         $history = new CreditHistory();
-        $history->buyed = ($this->source < 0)?$history->buyed*-1:$history->buyed;
-        $history->earned = ($this->source < 0)?$history->earned*-1:$history->earned;
+        $history->buyed = ($this->source < 0)?$this->buyed*-1:$this->buyed;
+        $history->earned = ($this->source < 0)?$this->earned*-1:$this->earned;
         $history->agent_id = $this->agent_id;
+        $history->source = $this->source;
         if ($this->descrHistory)
             $history->descr = $this->descrHistory;
         $history->save();
+        unset($this->source);
         parent::save($options);
     }
 }

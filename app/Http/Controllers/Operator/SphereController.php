@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
+use App\Models\AgentBitmask;
 use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -41,7 +42,7 @@ class SphereController extends Controller {
     {
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
-        $mask = new SphereMask($data->id);
+        $mask = new AgentBitmask($data->id);
         $mask = $mask->findShortMask($id);
 
         $lead = Lead::with('phone')->find($id);
