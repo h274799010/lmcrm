@@ -9,6 +9,10 @@ body {
 	background: #335964;
 }
 
+.maincontent{
+	min-height: 50vh;
+}
+
 .panel { /*8*/
 	border: 0px solid #ffffff;
 	box-shadow: none;
@@ -159,6 +163,11 @@ footer,.footer,#footer{
 
 .navbar-top-links { /*TEMP!!!*/
 	margin-top: 25px;
+}
+
+
+#side-menu li a.active i{
+	background-position: 0px -40px;
 }
 
 .selectboxit-btn {

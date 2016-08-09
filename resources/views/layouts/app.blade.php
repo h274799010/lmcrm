@@ -77,7 +77,7 @@
 
     <div class="container-fluid">
 
-        <div class="row">
+        <div class="row maincontent">
             <div class="col-md-1 col-sm-2">
                 @include('partials.sidebar')
             </div>
@@ -87,9 +87,16 @@
             </div>
         </div>
 
+        <div class="row">
+
+            <div class="col-md-12">
+
+                @include('partials.footer')
+
+            </div>
+
     </div>
 </div>
-@include('partials.footer')
 
 <!-- Scripts -->
 @yield('scripts')
