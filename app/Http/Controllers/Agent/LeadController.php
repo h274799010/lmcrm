@@ -166,22 +166,25 @@ class LeadController extends AgentController {
 
     public function openAllLeads($id){
         $agent = $this->user;
-        $agent->load('bill');
+        $agent->load('bill');//todo: зачем ещё раз получать баланс?
         $credit = Credits::where('agent_id','=',$this->uid)->sharedLock()->first();
         $balance = $credit->balance;
 
         $mask=$this->mask;
 
-        $lead = Lead::lockForUpdate()->find($id);
+        $lead = Lead::lockForUpdate()->find($id);//todo: проследить чтобы lockForUpdate не лочил всю таблицу
+        //$agent->openedLeads()-> //todo получить опенлидов через отношение
         $ol = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
         $obtainedByThisAgent = 0;
         if ($ol)
             $obtainedByThisAgent = $ol->count;
         if ($lead->opened > 0 && $lead->opened != $obtainedByThisAgent)
+
             return 'Part of leads is already obtained by other agent';
+            //todo: response in JSON format and by translator (@lang @transliterator_create())
 
         $mustBeAdded = $lead->sphere->openLead - $obtainedByThisAgent;
-        $price = $mask->findMask()->sharedLock()->first()->lead_price*$mustBeAdded;
+        $price = $mask->findMask()->sharedLock()->first()->lead_price*$mustBeAdded;//todo: убрать sharedLock, если не нужен
 
         if($price > $balance) {
             return 'Error: low balance';
