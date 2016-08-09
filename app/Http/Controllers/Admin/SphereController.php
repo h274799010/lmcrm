@@ -1287,7 +1287,7 @@ class SphereController extends AdminController {
         $spheres = Sphere::active()->get();
         $collection = array();
         foreach($spheres as $sphere){
-            $mask = new SphereMask($sphere->id);
+            $mask = new AgentBitmask($sphere->id);
             $collection[$sphere->id] = $mask->query_builder()
                 ->join('users','users.id','=','user_id')
                 ->where('status','=',0)
@@ -1298,21 +1298,25 @@ class SphereController extends AdminController {
             ->with('spheres',Sphere::active()->lists('name','id'));
     }
 
+
+
+
+
     public function filtrationEdit($sphere,$agent_id){
         $sphere = Sphere::findOrFail($sphere);
-        $mask = new SphereMask($sphere->id);
+        $mask = new AgentBitmask($sphere->id);
         $bitmask = $mask->findShortMask($agent_id);
 
         return view('admin.sphere.reprice_edit')
             ->with('sphere',$sphere)
             ->with('agent_id',$agent_id)
             ->with('mask',$bitmask)
-            ->with('price',$mask->getPrice($agent_id));
+            ->with('price',$mask->getStatus($agent_id));
     }
 
     public function filtrationUpdate(Request $request,$sphere,$id){
         $sphere = Sphere::findOrFail($sphere);
-        $mask = new SphereMask($sphere->id);
+        $mask = new AgentBitmask($sphere->id);
         $mask->setUserID($id);
 
         $mask->setPrice($request->input('price',0));

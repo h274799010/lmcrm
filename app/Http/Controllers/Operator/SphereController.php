@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
+use App\Models\LeadBitmask;
 use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -42,16 +43,16 @@ class SphereController extends Controller {
     {
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
-        $mask = new AgentBitmask($data->id);
+        $mask = new LeadBitmask($data->id);
         $mask = $mask->findShortMask($id);
 
         $lead = Lead::with('phone')->find($id);
-        $lead_info=$lead->info()->lists('value','lead_attr_id');
+//        $lead_info=$lead->info()->lists('value','lead_attr_id');
         return view('sphere.lead.edit')
             ->with('sphere',$data)
             ->with('mask',$mask)
-            ->with('lead',$lead)
-            ->with('leadInfo',$lead_info);
+            ->with('lead',$lead);
+//            ->with('leadInfo',$lead_info);
     }
 
     /**
@@ -72,13 +73,14 @@ class SphereController extends Controller {
             }
         }
         $sphere = Sphere::findOrFail($sphere_id);
-        $mask = new SphereMask($sphere->id);
+        $mask = new LeadBitmask($sphere->id);
         $options=array();
         if ($request->has('options')) {
             $options=$request->only('options')['options'];
         }
         $mask->setAttr($options,$lead_id);
-        $mask->setType('lead',$lead_id);
+        $mask->setStatus(1, $lead_id);
+//        $mask->setType('lead',$lead_id);
 
         $lead = Lead::find($lead_id);
 
@@ -90,15 +92,15 @@ class SphereController extends Controller {
         $lead->save();
 
 
-        $lead->info()->delete();
-        if(count($request->only('info')['info'])) {
-            $save_arr = array();
-            foreach ($request->only('info')['info'] as $key => $val) {
-                $save_arr[] = new LeadInfoEAV(['lead_attr_id' => $key, 'value' => $val]);
-            }
-            $lead->info()->saveMany($save_arr);
-            unset($save_arr);
-        }
+//        $lead->info()->delete();
+//        if(count($request->only('info')['info'])) {
+//            $save_arr = array();
+//            foreach ($request->only('info')['info'] as $key => $val) {
+//                $save_arr[] = new LeadInfoEAV(['lead_attr_id' => $key, 'value' => $val]);
+//            }
+//            $lead->info()->saveMany($save_arr);
+//            unset($save_arr);
+//        }
 
         if($request->ajax()){
             return response()->json();

@@ -16,6 +16,8 @@ class CreateOpenLeads extends Migration
             $table->increments('id');
             $table->integer('lead_id');
             $table->integer('agent_id');
+            $table->integer('count');
+            $table->integer('status');
             $table->timestamps();
             $table->engine = 'InnoDB';
         });

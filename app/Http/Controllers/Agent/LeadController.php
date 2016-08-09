@@ -41,67 +41,12 @@ class LeadController extends AgentController {
 
         // данные агента
         $agent = $this->user;
-        // данные маски агента (пользователь уже задан)
-        $mask=$this->mask;
 
-//        $list = $mask->obtain()->skip(0)->take(10);
+        // атрибуты лида (наверное)
         $lead_attr = $agent->sphere()->leadAttr()->get();
-
-
-
-
-//
-//
-//        // маска лида
-//        $leadBitmask = new LeadBitmask($mask->getTableNum());
-//
-//        // данные полей "fb_" агента (ключ=>значение)
-//        $agentBitmaskData = $mask->findFieldsMask();
-//
-//        // выкидаваем те лиды которые не подходят под фильтр агента
-//        $list = $leadBitmask->get()->reject(function( $leadData ) use ( $agentBitmaskData ){
-//
-//            foreach( $agentBitmaskData as $key=>$agentData){
-//
-//                if( !($agentData >= $leadData->$key)){
-//                    return true;
-//                }
-//            }
-//        });
-//
-//
-//
-//        // выбираем лидов по данным из маски
-//        $leads = $list->map(function($item){
-//            return $item->lead;
-////                ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']);
-////                    ->select(['leads.opened', 'leads.id', 'leads.updated_at', 'leads.name', 'leads.customer_id', 'leads.email']);
-//        });
-//
-//        dd($leads->get()->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']));
-//
-//        // выкидываем лиды, которые принадлежать текущему пользователю
-//        $leads = $leads->reject(function( $lead ) use( $agent ){
-//            if($lead->agent_id == $agent->id){
-//                return true;
-//            }
-//        });
-//
-//
-//
-//
-//
-//
-
-
-
-
-        // todo удалить
-//        dd(Lead::all());
 
         return view('agent.lead.obtain')
             ->with('lead_attr',$lead_attr);
-//            ->with('filter',$list->get());
     }
 
 
@@ -118,37 +63,12 @@ class LeadController extends AgentController {
         // данные полей "fb_" агента (ключ=>значение)
         $agentBitmaskData = $mask->findFieldsMask();
 
-        $list = $leadBitmask->filterByMask($agentBitmaskData)->with('leads')->get();
+        // выбираем данные лидов по маске (битмаск и лиды)
+        $list = $leadBitmask->filterByMask( $agentBitmaskData, $agent->id )->with('lead')->get();
 
-        foreach($agentBitmaskData as $k=>$v){
-            $query->where($k,'>=',$v);
-        }
-
-
-        // выкидаваем те лиды которые не подходят под фильтр агента
-        $list = $leadBitmask->get()->reject(function( $leadData ) use ( $agentBitmaskData ){
-
-            foreach( $agentBitmaskData as $key=>$agentData){
-
-                if( !($agentData >= $leadData->$key)){
-                    return true;
-                }
-            }
-        });
-
-
-        // выбираем лидов по данным из маски
-        $leads = $list->map(function($item){
-            return $item->lead;
-//                ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']);
-//                    ->select(['leads.opened', 'leads.id', 'leads.updated_at', 'leads.name', 'leads.customer_id', 'leads.email']);
-        });
-
-        // выкидываем лиды, которые принадлежать текущему пользователю
-        $leads = $leads->reject(function( $lead ) use( $agent ){
-            if($lead->agent_id == $agent->id){
-                return true;
-            }
+        // очищаем, возвращаем только лидов
+        $leads = $list->map(function( $item ){
+            return $item['lead'];
         });
 
 
@@ -217,10 +137,10 @@ class LeadController extends AgentController {
         $agent = $this->user;
         $agent->load('bill');
         $credit = Credits::where('agent_id','=',$this->uid)->sharedLock()->first();
-        $balance = $credit->balance;
+        $balance = $credit ? $credit->balance : 0;
 
         $mask=$this->mask;
-        $price = $mask->findMask()->sharedLock()->first()->lead_price;
+        $price = $mask->getStatus()->sharedLock()->first()->lead_price;
 
         if($price > $balance) {
             return 'Error: low balance';
@@ -264,7 +184,7 @@ class LeadController extends AgentController {
         $agent = $this->user;
         $agent->load('bill');
         $credit = Credits::where('agent_id','=',$this->uid)->sharedLock()->first();
-        $balance = $credit->balance;
+        $balance = $credit ? $credit->balance : 0;
 
         $mask=$this->mask;
 
@@ -277,7 +197,7 @@ class LeadController extends AgentController {
             return 'Part of leads is already obtained by other agent';
 
         $mustBeAdded = $lead->sphere->openLead - $obtainedByThisAgent;
-        $price = $mask->findMask()->sharedLock()->first()->lead_price*$mustBeAdded;
+        $price = $mask->getStatus()->sharedLock()->first()->lead_price*$mustBeAdded;
 
         if($price > $balance) {
             return 'Error: low balance';
@@ -344,6 +264,7 @@ class LeadController extends AgentController {
         $lead = new Lead($request->except('phone'));
         $lead->customer_id=$customer->id;
         $lead->date=date('Y-m-d');
+        $lead->sphere_id = $agent->sphere()->id;
 
         $agent->leads()->save($lead);
 
@@ -399,11 +320,12 @@ class LeadController extends AgentController {
         $arr[] = ['name',$data->name];
         $arr[] = ['phone',$data->phone->phone];
         $arr[] = ['email',$data->email];
-        foreach ($data->sphereAttr as $key=>$sphereAttr){
+
+        foreach ($data->SphereFormFilters as $key=>$sphereAttr){
             $str = '';
             foreach ($sphereAttr->options as $option){
                 $mask = new LeadBitmask($data->sphere_id,$data->id);
-                $resp = $mask->where('fb_'.$option->sphere_attr_id.'_'.$option->id,1)->get()->toArray();
+                $resp = $mask->where('fb_'.$option->attr_id.'_'.$option->id,1)->get()->toArray();
                 if (count($resp))
                     $str .= $option->value;
             }
