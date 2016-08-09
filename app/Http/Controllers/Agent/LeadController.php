@@ -118,6 +118,13 @@ class LeadController extends AgentController {
         // данные полей "fb_" агента (ключ=>значение)
         $agentBitmaskData = $mask->findFieldsMask();
 
+        $list = $leadBitmask->filterByMask($agentBitmaskData)->with('leads')->get();
+
+        foreach($agentBitmaskData as $k=>$v){
+            $query->where($k,'>=',$v);
+        }
+
+
         // выкидаваем те лиды которые не подходят под фильтр агента
         $list = $leadBitmask->get()->reject(function( $leadData ) use ( $agentBitmaskData ){
 
