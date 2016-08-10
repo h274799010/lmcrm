@@ -4,9 +4,6 @@ use App\Http\Controllers\AdminController;
 use App\Models\Agent;
 use App\Models\AgentInfo;
 use App\Models\AgentSphere;
-use App\Models\CreditHistory;
-use App\Models\Credits;
-use App\Models\CreditTypes;
 use App\Models\Sphere;
 //use App\Http\Requests\Admin\UserRequest;
 use App\Http\Requests\AdminUsersEditFormRequest;
@@ -86,7 +83,6 @@ class AgentController extends AdminController
     public function update(Request $request, $id)
     {
         $agent=Agent::findOrFail($id);
-        //var_dump($request->info['agent']['bill']);exit;
         $password = $request->password;
         $passwordConfirmation = $request->password_confirmation;
 
@@ -96,15 +92,6 @@ class AgentController extends AdminController
                 $agent->password = \Hash::make($request->input('password'));
             }
         }
-        $credits = $agent->bill()->first();
-        if (!$credits)
-            $credits = new Credits();
-        $credits->buyed = $request->buyed;
-        $credits->earned = $request->earned;
-        $credits->agent_id = $id;
-        $credits->source = CreditTypes::MANUAL_CHANGE;
-        $credits->save();
-
         $agent->update($request->except('password','password_confirmation','sphere','info'));
         $agent->info()->update($request->only('info')['info']);
 

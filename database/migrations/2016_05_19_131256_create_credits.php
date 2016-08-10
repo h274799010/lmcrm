@@ -22,11 +22,10 @@ class CreateCredits extends Migration
         });
         Schema::create('credit_history', function (Blueprint $table) {
             $table->increments('id');
-            $table->double('buyed', 8, 2);
-            $table->double('earned', 8, 2);
+            $table->integer('bill_id');
+            $table->float('deposit');
             $table->integer('source');
-            $table->integer('agent_id');
-            $table->char('descr',255);
+            $table->integer('operator_id');
             $table->timestamps();
             $table->engine = 'InnoDB';
         });

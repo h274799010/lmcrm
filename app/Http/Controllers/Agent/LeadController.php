@@ -167,15 +167,7 @@ class LeadController extends AgentController {
                     $ol->increment('count');
                 }
                 $credit->payment=$price;
-                $credit->descrHistory = 1;
-                $credit->source = CreditTypes::LEAD_PURCHASE;
-                $credit->save();//уменьшаем баланс купившего
-
-                $credit = Credits::where('agent_id','=',$lead->agent_id)->sharedLock()->first();
-                $credit->earned += $price*(intval($lead->sphere->revenue)/100);
-                $credit->descrHistory = 1;
-                $credit->source = CreditTypes::LEAD_SALE;
-                $credit->save();//увеличиваем баланс добавившего
+                $credit->save();
                 return 'Successfully obtained';
             }
             else{
@@ -225,15 +217,7 @@ class LeadController extends AgentController {
             $ol->count = $lead->sphere->openLead;
             $ol->save();
             $credit->payment=$price;
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_PURCHASE;
-            $credit->save();//уменьшаем баланс купившего
-
-            $credit = Credits::where('agent_id','=',$lead->agent_id)->sharedLock()->first();
-            $credit->earned += $price*(intval($lead->sphere->revenue)/100);
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_SALE;
-            $credit->save();//увеличиваем баланс добавившего
+            $credit->save();
             return 'Successfully obtained';
         }
         else{
