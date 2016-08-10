@@ -35,9 +35,10 @@ class LeadBitmask extends Bitmask
      * @return object
      */
     public function lead() {
-        return $this->hasOne('\App\Models\Lead','id','user_id')
-                    ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']);
+        return $this->hasOne('\App\Models\Lead','id','user_id');
     }
+
+
 
 
 }

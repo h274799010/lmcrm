@@ -19,6 +19,9 @@ class CreateSpheres extends Migration
             $table->integer('openLead')->default(3);
             $table->integer('minLead');
             $table->integer('revenue');
+            $table->float('price_call-center');
+            $table->integer('pending_time');
+            $table->integer('steps');
             $table->string('table_name');
             $table->timestamps();
         });

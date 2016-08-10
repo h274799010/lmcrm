@@ -21,6 +21,7 @@ class CreateLeads extends Migration
             $table->integer('customer_id');
             $table->string('name')->nullable();
             $table->text('comment')->nullable();
+            $table->timestamp('pending_time');
             $table->boolean('bad')->default(false);
             $table->date('date')->nullable();
             $table->timestamps();

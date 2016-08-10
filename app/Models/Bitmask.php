@@ -248,6 +248,44 @@ class Bitmask extends Model
 
 
     /**
+     * Фильтрация полей fb
+     *
+     * Получает все данные из таблицы маски
+     * через фильтр
+     *
+     * задаваемый параметр это просто массив (ключ=>значение, 'fb_34_2'=>0)
+     *
+     * ПРИМЕР ФИЛЬТРАЦИИ:
+     * если в качестве данных для выборки
+     * задан Agent:
+     *
+     *    Agent       Lead
+     *      0    <->   0    - выбираем
+     *      1    <->   1    - выбираем
+     *      1    <->   0    - выбираем
+     *      0    <->   1    - Пропускаем
+     *
+     *
+     * @param  array  $filter
+     *
+     * @return object
+     *
+     */
+    public function filterByMask( $filter ){
+
+        // выборка полей по маске
+        $list = $this->where(function( $query ) use ( $filter ){
+
+            // выборка по всем полям fb_
+            foreach( $filter as $field=>$value ){
+                $query->where( $field, '<=', $value );
+            }
+        });
+
+        return $list;
+    }
+
+    /**
      * Поиск маски пользователя по заданному индексу таблицы
      *
      *
@@ -323,20 +361,10 @@ class Bitmask extends Model
     }
 
 
-
-
-
-
-
-
-
-
-
     /**
      * Добавляет к таблице новый столбец (атрибут)
      *
      *
-     * @todo поменить ссылки на этот метод в системе и удалить
      * @param  integer  $group_index
      * @param  integer  $opt_index
      *
