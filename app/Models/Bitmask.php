@@ -255,45 +255,35 @@ class Bitmask extends Model
      *
      * задаваемый параметр это просто массив (ключ=>значение, 'fb_34_2'=>0)
      *
-     *
-     * Если в качестве данных для выборки
+     * ПРИМЕР ФИЛЬТРАЦИИ:
+     * если в качестве данных для выборки
      * задан Agent:
      *
      *    Agent       Lead
-     *      0    да    0    - выбираем
-     *      1    да    1    - выбираем
-     *      0    нет   1    - Пропускаем
-     *      1    да    0    - выбираем
+     *      0    <->   0    - выбираем
+     *      1    <->   1    - выбираем
+     *      1    <->   0    - выбираем
+     *      0    <->   1    - Пропускаем
      *
      *
-     * @param  array  $data
-     * @param  integer  $userId
+     * @param  array  $filter
      *
      * @return object
      *
      */
-    public function filterByMask( $data, $userId=NULL ){
+    public function filterByMask( $filter ){
 
         // выборка полей по маске
-        $list = $this->where(function( $query ) use ( $data, $userId ){
-
-            // исключаем пользователя из выборки, если он задан
-            if( $userId ){ $query->where('user_id', '<>', $userId); }
+        $list = $this->where(function( $query ) use ( $filter ){
 
             // выборка по всем полям fb_
-            foreach( $data as $field=>$value ){ $query->where( $field, '<=', $value ); }
+            foreach( $filter as $field=>$value ){
+                $query->where( $field, '<=', $value );
+            }
         });
 
         return $list;
     }
-
-
-    public function leads(){
-
-        return $this->hasOne('\App\Models\Lead','id','user_id');
-
-    }
-
 
     /**
      * Поиск маски пользователя по заданному индексу таблицы
@@ -371,20 +361,10 @@ class Bitmask extends Model
     }
 
 
-
-
-
-
-
-
-
-
-
     /**
      * Добавляет к таблице новый столбец (атрибут)
      *
      *
-     * @todo поменить ссылки на этот метод в системе и удалить
      * @param  integer  $group_index
      * @param  integer  $opt_index
      *

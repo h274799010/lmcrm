@@ -51,7 +51,13 @@ class LeadController extends AgentController {
 
 
 
-
+    /**
+     * Заполнение строк таблицы на странице obtain
+     *
+     * @param Request $request
+     *
+     * @return object
+     */
     public function obtainData(Request $request)
     {
         $agent = $this->user;
@@ -60,17 +66,48 @@ class LeadController extends AgentController {
         // маска лида
         $leadBitmask = new LeadBitmask($mask->getTableNum());
 
-        // данные полей "fb_" агента (ключ=>значение)
-        $agentBitmaskData = $mask->findFieldsMask();
+        // получаем данные агента из битмаска
+        $agentBitmask = $mask->getStatus()->first();
 
-        // выбираем данные лидов по маске (битмаск и лиды)
-        $list = $leadBitmask->filterByMask( $agentBitmaskData, $agent->id )->with('lead')->get();
+        // проверка на маску перед получением лидов агента
+        if( $agentBitmask  ){
+            // если у агента есть запись в битмаске
 
-        // очищаем, возвращаем только лидов
-        $leads = $list->map(function( $item ){
-            return $item['lead'];
-        });
+            // получаем данные полей "fb_" агента (ключ=>значение)
+            $agentBitmaskData = $mask->findFieldsMask();
 
+            // проверка на статус и наличие ключей
+            if( ($agentBitmask->status==0) || ($agentBitmaskData==[]) ){
+                // если статус агента=0, или массив фильтра пустой (на всякий случай)
+
+                // возвращаем пустую коллекцию
+                $leads = collect();
+
+            }else{
+                // получаем лиды
+
+                // выбираем данные лидов по маске (битмаск и лиды)
+                $list = $leadBitmask->filterByMask( $agentBitmaskData )->get();
+
+
+                // составляем массив из id лидов
+                $leadsId = $list->map(function( $item ){
+                    return $item->user_id;
+                });
+
+                // получаем все лиды по id из массива, без лидов автора
+                $leads = Lead::whereIn('id', $leadsId)
+                    ->where('agent_id', '<>', $agent->id)
+                    ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
+                ->get();
+            }
+
+        }else{
+            // если у агента нет записи в битмаске
+
+            // возвращаем пустую коллекцию
+            $leads = collect();
+        }
 
 
         if (count($request->only('filter'))) {
