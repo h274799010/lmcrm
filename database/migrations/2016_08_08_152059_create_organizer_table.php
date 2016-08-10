@@ -17,6 +17,7 @@ class CreateOrganizerTable extends Migration
             $table->integer('open_lead_id');
             $table->integer('time');
             $table->text('comment');
+            $table->timestamps();
             $table->engine = 'InnoDB';
         });
     }

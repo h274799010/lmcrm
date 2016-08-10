@@ -27,4 +27,10 @@ class OpenLeads extends Model {
     public function statusInfo() {
         return $this->hasOne('App\Models\SphereStatuses','id','status')->orderBy('position');
     }
+
+    public function getCanSetBadAttribute(){
+        if (!$this->bad && $this->lead->pending_time > date('Y-m-d H:i:s'))
+            return true;
+        return false;
+    }
 }
