@@ -768,7 +768,6 @@ class SphereController extends AdminController {
 
         // переменная указывающая на ошибки, если $error = true работа метода останавливается
         $error = false;
-        $ddd = ''; // todo удалить
         /* проверка атрибутов формы лида на ошибки */
         if( $leadDataAttr ){
 
@@ -810,8 +809,7 @@ class SphereController extends AdminController {
         }
 
         // если есть ошибка, функция вернет ошибку и остановится
-//        if($error){ return response()->json(FALSE); } todo вернуть
-        if($error){ return $ddd; }
+        if($error){ return response()->json(FALSE); }
 
         /** ----- КОНЕЦ ПРОВЕРОК НА ОШИБКИ ---------- */
 

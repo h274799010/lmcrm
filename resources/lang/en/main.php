@@ -13,6 +13,8 @@ return [
     'ok' => 'OK',
     "report" => "Report",
     'close' => 'Close',
+    'open' => 'Open',
+    'open.all' => 'OpenAll',
     'back' => 'Back',
     'search' => 'Search',
     'start' => 'Start',

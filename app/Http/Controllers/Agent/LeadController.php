@@ -146,23 +146,67 @@ class LeadController extends AgentController {
                 return '';
             })
             ->edit_column('customer_id',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('lead.hidden');
+                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
             })
             ->edit_column('email',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('lead.hidden');
+                return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('site/lead.hidden');
             });
 
-        $lead_attr = $agent->sphere()->leadAttr()->get();
+        // атрибуты лида
+        $leadAttributes = $agent->sphere()->leadAttr()->get();
 
-        foreach($lead_attr as $key=>$l_attr){
-           $datatable->add_column('a_'.$key,function($lead) use ($l_attr){
+
+        foreach($leadAttributes as $index=>$attr){
+
+            $attrType = $attr->_type;
+
+//            $optyonType = '';
+//
+//            switch($attrType){
+//                case 'calendar':
+//                    $optyonType = 'field';
+//                    break;
+//            }
+
+
+            if( $attrType=='calendar' || $attrType=='email' ){
+
+                $option = 'field';
+
+            }elseif( $attrType=='radio' || $attrType=='checkbox' || $attrType=='select' ){
+
+
+//                $option = 'option';
+                $allOption = $attr->options;
+
+                $option = $allOption[0]->name;
+
+//                dd($option);
+
+            }elseif( $attrType=='input' || $attrType=='textarea' ){
+
+                $option = 'text';
+
+            }else{
+
+            }
+
+
+           $datatable->add_column( 'a_'.$index,function( $lead ) use ( $attr, $option ){
+
+//               dd($lead);
 
                // todo данные должны браться из leadBitmask, полей (ad_), доработать
 //               $val = $lead->info()->where('lead_attr_id','=',$l_attr->id)->first();
-               $val='ага';
-                return view('agent.lead.datatables.obtain_data',['data'=>$val,'type'=>$l_attr->_type]);
+               $val=$option;
+//                return view('agent.lead.datatables.obtain_data',['data'=>$val,'type'=>$l_attr->_type]);
+
+               return view('agent.lead.datatables.obtain_data',['data'=>$val,'type'=>'undef']);
+
+
            });
         }
+
 
         return $datatable->make();
     }
