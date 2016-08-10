@@ -7,8 +7,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
 # Users
     Route::get('/user', ['as' => 'admin.user.index', 'uses' => 'Admin\UserController@index']);
+    Route::get('/credit', ['as' => 'admin.credit.index', 'uses' => 'Admin\CreditController@index']);
     //Route::resource('/','Admin\UserController');
     Route::get('user/data', 'Admin\UserController@data');
+    Route::get('creditHistory/data', 'Admin\CreditController@data');
 
     Route::get('user/create',['as'=>'admin.user.create', 'uses' => 'Admin\UserController@create']);
     Route::get('user/{id}/edit',['as'=>'admin.user.edit', 'uses' => 'Admin\UserController@edit']);

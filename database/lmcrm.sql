@@ -268,14 +268,18 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 --
 
 DROP TABLE IF EXISTS `open_leads`;
-CREATE TABLE IF NOT EXISTS `open_leads` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `lead_id` int(11) NOT NULL,
-  `agent_id` int(11) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
+CREATE TABLE `open_leads` (
+ `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+ `lead_id` int(11) NOT NULL,
+ `agent_id` int(11) NOT NULL,
+ `created_at` timestamp NULL DEFAULT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ `count` int(11) NOT NULL,
+ `status` int(11) NOT NULL,
+ `comment` text COLLATE utf8_unicode_ci NOT NULL,
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `lead_agent` (`lead_id`,`agent_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 
 --
 -- Дамп даних таблиці `open_leads`
@@ -711,3 +715,14 @@ INSERT INTO `users` (`id`, `email`, `password`, `confirmation_code`, `permission
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+DROP TABLE IF EXISTS `organizer`;
+CREATE TABLE `organizer` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `open_lead_id` int(11) NOT NULL,
+ `time` int(11) NOT NULL,
+ `comment` text NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
