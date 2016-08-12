@@ -774,7 +774,7 @@ class SphereController extends AdminController {
             /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
                хотя бы одна */
             // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
-            $leadDataAttr->each(function( $attr ) use( &$error, &$ddd ){
+            $leadDataAttr->each(function( $attr ) use( &$error ){
 
                 // если у атрибута тип checkbox, radio или select
                 if( ($attr['_type']=='checkbox') || ($attr['_type']=='radio') || ($attr['_type']=='select') ){
@@ -782,8 +782,6 @@ class SphereController extends AdminController {
                     if( !isset($attr['option']) || (count($attr['option']) == 0) ){
                         // помечаем ошибку
                         $error = true;
-
-                        $ddd = $attr['_type'];
                     }
                 }
             });
@@ -900,6 +898,14 @@ class SphereController extends AdminController {
                     // если атрибута нет или он равен 0 создаем его
                     $leadAttr = new SphereAdditionForms($attr);
                     $sphere->leadAttr()->save($leadAttr);
+
+                    // у типов атрибутов (input и textArea) нет опций
+                    // которые нужно записывать в битмаске
+                    // для них создается отдельное поле с индексом 0, вместо id опции
+                    if( ($attr['_type']=='textarea') || ($attr['_type']=='input') ){
+                        $leadBitmask->addAb($leadAttr->id, 0, $leadAttr->_type);
+                    }
+
                 }
 
 
@@ -993,6 +999,7 @@ class SphereController extends AdminController {
 
                             if ($validate['id']) {
                                 // у валидации ЕСТЬ id, т.е. валидация уже есть в БД
+                                // (обновляем существующую запись)
 
                                 // выбираем данные валидации из БД
                                 $dbValidate = AdditionFormsOptions::find($validate['id']);

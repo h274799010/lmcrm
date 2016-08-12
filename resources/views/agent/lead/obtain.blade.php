@@ -28,15 +28,15 @@
             <table class="table table-bordered table-striped table-hover ajax-dataTable">
                 <thead>
                 <tr>@php($i=0)
-                    <th>{!! trans("site/lead.count") !!}</th>
-                    <th>{!! trans("main.open") !!}</th>
-                    <th>{!! trans("main.open.all") !!}</th>
-                    <th>{!! trans("site/lead.updated") !!}</th>
-                    <th>{!! trans("site/lead.name") !!}</th>
-                    <th>{!! trans("site/lead.phone") !!}</th>
-                    <th>{!! trans("site/lead.email") !!}</th>
+                    <th><div>{!! trans("site/lead.count") !!}</div></th>
+                    <th><div>{!! trans("main.open") !!}</div></th>
+                    <th><div>{!! trans("main.open.all") !!}</div></th>
+                    <th><div>{!! trans("site/lead.updated") !!}</div></th>
+                    <th><div>{!! trans("site/lead.name") !!}</div></th>
+                    <th><div>{!! trans("site/lead.phone") !!}</div></th>
+                    <th><div>{!! trans("site/lead.email") !!}</div></th>
                     @forelse($lead_attr as $attr)
-                    <th>{{ $attr->label }}</th>@php($i++)
+                    <th><div>{{ $attr->label }}</div></th>@php($i++)
                     @empty
                     @endforelse
                 </tr>

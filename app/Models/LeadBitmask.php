@@ -7,6 +7,10 @@ use App\Models\Bitmask;
 class LeadBitmask extends Bitmask
 {
 
+
+    // имя таблицы
+    protected $table = NULL;
+
     /**
      * Конструктор LeadBitmask
      *
@@ -37,6 +41,229 @@ class LeadBitmask extends Bitmask
     public function lead() {
         return $this->hasOne('\App\Models\Lead','id','user_id');
     }
+
+
+
+    /**
+     * Установка значения опций атрибута полей "ad_"
+     *
+     *
+     * @param  integer  $attr
+     * @param  array|integer  $options
+     * @param  integer  $lead_id
+     *
+     * @return object
+     */
+    public function setBool( $attr, $options, $lead_id=NULL ){
+
+        // id лида
+        $lead_id = ($lead_id) ? $lead_id : $this->userID;
+
+        // если id лида нет - останавливаем метод
+        if(!$lead_id){ return false; }
+
+        // опции могут быть заданны как массив значений, либо как одно значение
+        // если число имеет тип string преобразовываем в int и помещаем в массив
+        if(is_string($options)){
+            $options = [intval($options)];
+        }
+
+        // если опция заданна как int, делаем из нее массив (для удобства обработки)
+        if( is_integer($options) ){
+            $options = [$options];
+        }
+
+        // массив с индексами полей в качестве ключей
+        $optField = array_flip($options);
+
+        // получаем все поля ad_
+        $AllAdAttributes = array_keys($this->findAdMask($lead_id));
+
+        $values = []; // массив опций с присвоенными значениями
+
+        // получаем индексы всех опций заданного атрибута
+        $AllAdAttributes = collect($AllAdAttributes);
+        $AllAdAttributes->each(function( $ad_attr_opt ) use( &$values, $attr, $optField ){
+            // перебираем все атрибуты
+
+            // разбиваем имя поля ([ 0=>префикс, 1=>id атрибута , 2=>id опции ])
+            $explode = explode('_', $ad_attr_opt);
+            $attr_id_db = $explode[1]; // индекс атрибута в БД
+            $opt_id_db = $explode[2]; // индекс опции в БД
+
+
+            // если атрибут поля совпадает с заданным атрибутом
+            if($attr_id_db==$attr){
+
+                // установка значения поля в зависимости от наличия опции в заданных параметрах
+                // если опция есть - 1
+                // если опиции нет - 0
+                $values[ 'ad_' .$attr_id_db. '_' .$opt_id_db ] = ( isset($optField[ $opt_id_db ]) ) ? 1 : 0;
+            }
+        });
+
+        // сохранение значения в БД
+        $this->where('user_id','=',$lead_id)->update($values);
+
+        return $this->where('user_id','=',$lead_id)->first();
+    }
+
+
+
+
+
+    /**
+     * Установка значения опций атрибута полей "ad_"
+     *
+     * @todo доработать эту функцию
+     *
+     * @param  integer  $attr
+     * @param  array|integer  $options
+     * @param  string  $type
+     * @param  integer  $lead_id
+     *
+     * @return object
+     */
+    public function setAd( $attr, $options, $type, $lead_id=NULL ){
+
+        // id лида
+        $lead_id = ($lead_id) ? $lead_id : $this->userID;
+
+        // если id лида нет - останавливаем метод
+        if(!$lead_id){ return false; }
+
+        // опции могут быть заданны как массив значений, либо как одно значение
+        // если число имеет тип string преобразовываем в int и помещаем в массив
+        if(is_string($options)){
+            $options = [intval($options)];
+        }
+
+        // если опция заданна как int, делаем из нее массив (для удобства обработки)
+        if( is_integer($options) ){
+            $options = [$options];
+        }
+
+        // массив с индексами полей в качестве ключей
+        $optField = array_flip($options);
+
+        // получаем все поля ad_
+        $AllAdAttributes = array_keys($this->findAdMask($lead_id));
+
+        $values = []; // массив опций с присвоенными значениями
+
+        // получаем индексы всех опций заданного атрибута
+        $AllAdAttributes = collect($AllAdAttributes);
+        $AllAdAttributes->each(function( $ad_attr_opt ) use( &$values, $attr, $optField ){
+            // перебираем все атрибуты
+
+            // разбиваем имя поля ([ 0=>префикс, 1=>id атрибута , 2=>id опции ])
+            $explode = explode('_', $ad_attr_opt);
+            $attr_id_db = $explode[1]; // индекс атрибута в БД
+            $opt_id_db = $explode[2]; // индекс опции в БД
+
+
+            // если атрибут поля совпадает с заданным атрибутом
+            if($attr_id_db==$attr){
+
+                // установка значения поля в зависимости от наличия опции в заданных параметрах
+                // если опция есть - 1
+                // если опиции нет - 0
+                $values[ 'ad_' .$attr_id_db. '_' .$opt_id_db ] = ( isset($optField[ $opt_id_db ]) ) ? 1 : 0;
+            }
+        });
+
+        // сохранение значения в БД
+        $this->where('user_id','=',$lead_id)->update($values);
+
+        return $this->where('user_id','=',$lead_id)->first();
+    }
+
+
+
+
+
+
+
+
+    /**
+     * Получение данных только ad_ полей из маски лидов
+     *
+     * если задан id лида
+     *      - возвращает данные только указанного лида
+     *      - если лида с таким индексом нет - вернет пустой массив
+     *
+     * если параметр не задан
+     *      - вернет данные всех лидов в массиве
+     *          ключ массива - id лида
+     *
+     *
+     * @param  integer  $leadId
+     *
+     * @return array
+     */
+    public function findAdMask( $leadId=NULL ){
+
+        // если в системе уже есть номер лида, он будет подставлен,
+        // если лида не указан в параметрах
+        $leadId = ($leadId) ? $leadId : ( ($this->userID)?$this->userID:NULL );
+
+        // возвращаемое значение
+        // либо маска одного лида
+        // либо массив с масками лидов (ключ - id лида)
+        $short_mask=array();
+
+
+        if($leadId){
+            // если указан id лида
+
+            // находим маску лида
+            $mask = $this->where('user_id', '=', $leadId)->first();
+
+            // перебираем все поля маски лида
+            $leadMask = collect($mask);
+            $leadMask->each(function( $val, $field ) use( &$short_mask ){
+
+                // выбираем поля с префиксом 'ad_'
+                if(stripos($field,'ad_')!==false){
+                    // сохраняем значение в массиве (ключ - полное имя поля, значение - значение в поле маски)
+                    $short_mask[$field]=$val;
+                }
+            });
+
+        }else{
+            // id лида не указан
+
+            // находим маски всех лидов
+            $mask = $this->get();
+
+            // перебираем все маски лидов
+            $mask->each(function( $lMask ) use( &$short_mask ){
+
+                // сохраняем id лида в переменную, для удобства
+                $leadId = $lMask->id;
+
+                // перебираем все поля маски лида
+                $leadMask = collect($lMask);
+                $leadMask->each(function( $val, $field ) use( $leadId, &$short_mask ){
+
+                    // выбираем поля с префиксом 'ad_'
+                    if(stripos($field,'ad_')!==false){
+                        // сохраняем значение в массиве с индексом лида
+                        // и значениями - поля ad_ с значениями
+                        $short_mask[$leadId][$field]=$val;
+                    }
+                });
+            });
+        }
+
+        return $short_mask;
+    }
+
+
+
+
+
+
 
 
 

@@ -15,7 +15,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseLead"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Lead info') </a>
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseLead"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Lead data') </a>
                     </h4>
                 </div>
                 <div id="collapseLead" class="panel-collapse collapse in">
@@ -49,7 +49,7 @@
                                 @foreach($attr->options as $option)
                                     <div class="form-group">
                                         <div class="checkbox">
-                                            {!! Form::checkbox('info['.$attr->id.']',$option->id, isset($leadInfo[$option->id])?$leadInfo[$option->id]:null, array('class' => '','id'=>"ch-$option->id")) !!}
+                                            {!! Form::checkbox('addit_data[checkbox]['.$attr->id.'][]', $option->id, isset($adFields['ad_' .$attr->id .'_' .$option->id])?$adFields['ad_' .$attr->id .'_' .$option->id]:null, array('class' => '','id'=>"ch-$option->id")) !!}
                                             <label for="ch-{{ $option->id }}">{{ $option->name }}</label>
                                         </div>
                                     </div>
@@ -58,29 +58,39 @@
                                 @foreach($attr->options as $option)
                                     <div class="form-group">
                                         <div class="radio">
-                                            {!! Form::radio('info['.$attr->id.']',$option->id, isset($leadInfo[$option->id])?$leadInfo[$option->id]:null, array('class' => '','id'=>"r-$option->id")) !!}
+                                            {!! Form::radio('addit_data[radio]['.$attr->id.']',$option->id, isset($adFields['ad_' .$attr->id .'_' .$option->id])?$adFields['ad_' .$attr->id .'_' .$option->id]:null, array('class' => '','id'=>"r-$option->id")) !!}
                                             <label for="r-{{ $option->id }}">{{ $option->name }}</label>
                                         </div>
                                     </div>
                                 @endforeach
                             @elseif ($attr->_type == 'select')
+                                @php($selected=12)
+                                    @forelse($attr->options as $option)
+                                        @if(isset($adFields['ad_' .$attr->id .'_' .$option->id]) && $adFields['ad_' .$attr->id .'_' .$option->id]==1) @php($selected=$option->id) @endif
+                                    @empty @endforelse
                                 <div class="form-group">
-                                    {!! Form::select('info['.$attr->id.']',$attr->options->lists('name','id'),isset($leadInfo[$attr->id])?$leadInfo[$attr->id]:null, array('class' => '')) !!}
+                                    {!! Form::select('addit_data[select]['.$attr->id.']',$attr->options->lists('name','id'), $selected, array('class' => '')) !!}
                                 </div>
                             @elseif ($attr->_type == 'email')
                                 <div class="form-group">
-                                    {!! Form::email('info['.$attr->id.']',isset($leadInfo[$attr->id])?$leadInfo[$attr->id]:null, array('class' => 'form-control','data-rule-email'=>true)) !!}
+                                    @php($field = $attr->field)
+                                    {!! Form::email('addit_data[email]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_' .$field->id])?$adFields['ad_' .$attr->id .'_' .$field->id]:null, array('class' => 'form-control','data-rule-email'=>true)) !!}
                                 </div>
                             @elseif ($attr->_type == 'input')
                                 <div class="form-group">
-                                    {!! Form::text('info['.$attr->id.']',isset($leadInfo[$attr->id])?$leadInfo[$attr->id]:null, array('class' => 'form-control')+$attr->validatorRules()) !!}
+                                    {!! Form::text('addit_data[input]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array('class' => 'form-control')+$attr->validatorRules()) !!}
                                 </div>
                             @elseif ($attr->_type == 'calendar')
                                 <div class="form-group">
                                     <div class="input-group">
-                                    {!! Form::text('info['.$attr->id.']',isset($leadInfo[$attr->id])?$leadInfo[$attr->id]:null, array('class' => 'form-control datepicker')) !!}
+                                    @php($field = $attr->field)
+                                    {!! Form::text('addit_data[calendar]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_' .$field->id])?$adFields['ad_' .$attr->id .'_' .$field->id]:null, array('class' => 'form-control datepicker')) !!}
                                         <div class="input-group-addon"> <a href="#"><i class="fa fa-calendar"></i></a> </div>
                                     </div>
+                                </div>
+                            @elseif ($attr->_type == 'textarea')
+                                <div class="form-group">
+                                    {!! Form::textarea('addit_data[textarea]['.$attr->id.']', isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array('class' => 'form-control')) !!}
                                 </div>
                             @else
                                 <br/>

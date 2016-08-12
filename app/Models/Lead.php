@@ -11,6 +11,8 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
+use Illuminate\Support\Facades\DB;
+
 #class Lead extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
 #    use Authenticatable, CanResetPassword;
 class Lead extends EloquentUser {
@@ -95,34 +97,42 @@ class Lead extends EloquentUser {
      * вернет данные лида по всем битмаскам
      *
      *
-     * @param  integer  $sphere
-     *
      * @return object
      */
-    public function bitmask($sphere=NULL)
+//    public function bitmask($sphere=NULL)
+//    {
+//
+//        // если сфера не заданна
+//        if(!$sphere){
+//
+//            // находим все сферы
+//            $spheres = Sphere::all();
+//            // получаем id юзера
+//            $userId = $this->id;
+//
+//            // перебираем все сферы и выбираем из каждой данные юзера
+//            $allMasks = $spheres->map(function($item) use ($userId){
+//                $mask = new LeadBitmask($item->id);
+//                return $mask->where('user_id', '=', $userId)->first();
+//            });
+//
+//            return $allMasks;
+//        }
+//
+//
+//        $mask = new LeadBitmask($sphere);
+//
+//        return $mask->where('user_id', '=', $this->id)->first();
+//    }
+
+    public function bitmask()
     {
 
-        // если сфера не заданна
-        if(!$sphere){
+        $tableName = 'lead_bitmask_' .$this->sphere_id;
 
-            // находим все сферф
-            $spheres = Sphere::all();
-            // получаем id юзера
-            $userId = $this->id;
+        $mask = DB::table($tableName)->where('user_id', '=', $this->id)->first();
 
-            // перебираем все сферы и выбираем из каждой данные юзера
-            $allMasks = $spheres->map(function($item) use ($userId){
-                $mask = new LeadBitmask($item->id);
-                return $mask->where('user_id', '=', $userId)->first();
-            });
-
-            return $allMasks;
-        }
-
-
-        $mask = new LeadBitmask($sphere);
-
-        return $mask->where('user_id', '=', $this->id)->first();
+        return $mask;
     }
 
 }

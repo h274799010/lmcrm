@@ -41,18 +41,35 @@ class SphereController extends Controller {
      */
     public function edit($sphere,$id)
     {
+
+
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
-        $mask = new LeadBitmask($data->id);
-        $mask = $mask->findShortMask($id);
 
         $lead = Lead::with('phone')->find($id);
-//        $lead_info=$lead->info()->lists('value','lead_attr_id');
+
+        $mask = new LeadBitmask($data->id, $id);
+        $shortMask = $mask->findShortMask();
+
+
+//        dd($shortMask);
+
+//        dd($mask->findAdMask(2));
+
+        // установка значнеия
+//        dd($mask->setBool(3, 6));
+
+
+
+
+        // данные всех полей ad в маске
+        $adFields = $mask->findAdMask();
+
         return view('sphere.lead.edit')
             ->with('sphere',$data)
-            ->with('mask',$mask)
-            ->with('lead',$lead);
-//            ->with('leadInfo',$lead_info);
+            ->with('mask',$shortMask)
+            ->with('lead',$lead)
+            ->with('adFields',$adFields);
     }
 
     /**
@@ -62,6 +79,9 @@ class SphereController extends Controller {
      */
     public function update(Request $request,$sphere_id,$lead_id)
     {
+
+//        dd($request);
+
         $validator = Validator::make($request->except('info'), [
             'options.*' => 'integer',
         ]);
@@ -92,20 +112,55 @@ class SphereController extends Controller {
         $lead->save();
 
 
-//        $lead->info()->delete();
-//        if(count($request->only('info')['info'])) {
-//            $save_arr = array();
-//            foreach ($request->only('info')['info'] as $key => $val) {
-//                $save_arr[] = new LeadInfoEAV(['lead_attr_id' => $key, 'value' => $val]);
-//            }
-//            $lead->info()->saveMany($save_arr);
-//            unset($save_arr);
-//        }
+
+        /** --  П О Л Я  ad_  =====  "additional data"  ===== обработка и сохранение  -- */
+
+        // заводим данные ad в переменную и преобразовываем в коллекцию
+        $additData = collect($request->only('addit_data')['addit_data']);
+
+        // проверка на наличие данных (по идее данные должны быть всегда, их отсутствие - ошибка)
+        if( $additData->count() > 0 ){
+
+            // перебираем все данные и обрабадываем их в соответствии с типом
+            $additData->each(function( $val, $type ) use( $mask, $lead_id ){
+
+                // обработка типа checkbox, radio, select
+                if( $type=='checkbox' || $type=='radio' || $type=='select' ){
+
+                    // создаем коллекцию для удобства обработки
+                    $attrId = collect($val);
+
+                    if( $attrId->count() > 0){
+                        $attrId->each(function( $opts, $attr ) use( $mask, $lead_id ){
+                            $mask->setBool( $attr, $opts, $lead_id);
+                        });
+
+                    }
+
+                }
+
+                // todo добавить обработчики для других полей
+
+
+
+
+            });
+
+        }
+
+
+
 
         if($request->ajax()){
             return response()->json();
         } else {
             return redirect()->route('operator.sphere.index');
+
+            // todo временно убрать
+//            return response()->json();
+//            return $request->all();
+//            dd($request);
+
         }
     }
 
