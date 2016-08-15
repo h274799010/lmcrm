@@ -30,7 +30,7 @@ class CreditHelper extends Model
         $change = $price*($percent/100)-$callCenter;
         $credit->earned += $change;
         $credit->earnedChange = $change;
-        $credit->descrHistory = $number.' ('.$price.'*'.$percent.'-'.$callCenter.') (price*%-callCenter)';
+        $credit->descrHistory = $number.' ('.$price.'*'.$percent.'%-'.$callCenter.') (price*%-callCenter)';
         $credit->source = CreditTypes::LEAD_SALE;
         $credit->lead_id = $lead->id;
         $credit->save();//увеличиваем баланс добавившего
