@@ -51,17 +51,6 @@ class SphereController extends Controller {
         $mask = new LeadBitmask($data->id, $id);
         $shortMask = $mask->findShortMask();
 
-
-//        dd($shortMask);
-
-//        dd($mask->findAdMask(2));
-
-        // установка значнеия
-//        dd($mask->setBool(3, 6));
-
-
-
-
         // данные всех полей ad в маске
         $adFields = $mask->findAdMask();
 
@@ -79,8 +68,6 @@ class SphereController extends Controller {
      */
     public function update(Request $request,$sphere_id,$lead_id)
     {
-
-//        dd($request);
 
         $validator = Validator::make($request->except('info'), [
             'options.*' => 'integer',
