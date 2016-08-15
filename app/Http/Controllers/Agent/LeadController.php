@@ -172,6 +172,8 @@ class LeadController extends AgentController {
         // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
         $adMask = collect($leadBitmask->findAdMask());
 
+//        dd($adMask);
+
         // перебираем все атрибуты и выставляем значения по маске лида
         foreach($leadAttributes as $index=>$attr){
 
@@ -189,10 +191,13 @@ class LeadController extends AgentController {
                    // в таблице опций должна быть только одна запись с этим атрибутом
 
                    // строка атрибута в таблице опций (по идее должна быть только одна)
-                   $fieldData= $attr->field;
+//                   $fieldData= $attr->field;
 
                    // полное имя поля ad в таблице маски лида
-                   $ad_attr_opt = 'ad_' .$fieldData->attr_id .'_' .$fieldData->id;
+//                   $ad_attr_opt = 'ad_' .$fieldData->attr_id .'_' .$fieldData->id;
+
+                   $ad_attr_opt = 'ad_' .$attr->id .'_0';
+
 
                    // присваивем значение поля записанное в мске лида
                    $value = $leadMask[$ad_attr_opt];
@@ -242,9 +247,6 @@ class LeadController extends AgentController {
                    }else{
                        $value = null;
                    }
-
-                   // todo заглушка полей input и textarea. Удалить.
-//                   $value = 'text';
 
                }else{
                    // если не подошло ни одно значение

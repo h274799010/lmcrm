@@ -100,7 +100,6 @@ class SphereController extends Controller {
         }
         $mask->setAttr($options,$lead_id);
         $mask->setStatus(1, $lead_id);
-//        $mask->setType('lead',$lead_id);
 
         $lead = Lead::find($lead_id);
 
@@ -118,49 +117,32 @@ class SphereController extends Controller {
         // заводим данные ad в переменную и преобразовываем в коллекцию
         $additData = collect($request->only('addit_data')['addit_data']);
 
-        // проверка на наличие данных (по идее данные должны быть всегда, их отсутствие - ошибка)
-        if( $additData->count() > 0 ){
+        // обнуляем все поля ad_ лида
+        // если оператор снимет все чекбоксы с атрибута (ну, к примеру),
+        // этот атрибут никак не отразится в респонсе, поэтому:
+        // обнуляем все поля, затем записываем то, что пришло с фронтенда
+        $mask->resetAllAd( $lead_id );
 
-            // перебираем все данные и обрабадываем их в соответствии с типом
-            $additData->each(function( $val, $type ) use( $mask, $lead_id ){
+        // перебираем все ad_ поля
+        $additData->each(function( $val, $type ) use( $mask, $lead_id ){
 
-                // обработка типа checkbox, radio, select
-                if( $type=='checkbox' || $type=='radio' || $type=='select' ){
+            // перебираем все значения полей
+            $attrId = collect($val);
+            $attrId->each(function( $opts, $attr ) use( $mask, $lead_id, $type ){
 
-                    // создаем коллекцию для удобства обработки
-                    $attrId = collect($val);
-
-                    if( $attrId->count() > 0){
-                        $attrId->each(function( $opts, $attr ) use( $mask, $lead_id ){
-                            $mask->setBool( $attr, $opts, $lead_id);
-                        });
-
-                    }
-
-                }
-
-                // todo добавить обработчики для других полей
-
-
-
+                // запоминаем значения в БД
+                // все остальное по типу разруливает метод модели
+                $mask->setAd( $attr, $opts, $type, $lead_id);
 
             });
 
-        }
-
-
+        });
 
 
         if($request->ajax()){
             return response()->json();
         } else {
             return redirect()->route('operator.sphere.index');
-
-            // todo временно убрать
-//            return response()->json();
-//            return $request->all();
-//            dd($request);
-
         }
     }
 

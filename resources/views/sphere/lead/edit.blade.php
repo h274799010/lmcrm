@@ -64,7 +64,7 @@
                                     </div>
                                 @endforeach
                             @elseif ($attr->_type == 'select')
-                                @php($selected=12)
+                                @php($selected=NULL)
                                     @forelse($attr->options as $option)
                                         @if(isset($adFields['ad_' .$attr->id .'_' .$option->id]) && $adFields['ad_' .$attr->id .'_' .$option->id]==1) @php($selected=$option->id) @endif
                                     @empty @endforelse
@@ -73,8 +73,7 @@
                                 </div>
                             @elseif ($attr->_type == 'email')
                                 <div class="form-group">
-                                    @php($field = $attr->field)
-                                    {!! Form::email('addit_data[email]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_' .$field->id])?$adFields['ad_' .$attr->id .'_' .$field->id]:null, array('class' => 'form-control','data-rule-email'=>true)) !!}
+                                    {!! Form::email('addit_data[email]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array('class' => 'form-control','data-rule-email'=>true)) !!}
                                 </div>
                             @elseif ($attr->_type == 'input')
                                 <div class="form-group">
@@ -83,8 +82,7 @@
                             @elseif ($attr->_type == 'calendar')
                                 <div class="form-group">
                                     <div class="input-group">
-                                    @php($field = $attr->field)
-                                    {!! Form::text('addit_data[calendar]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_' .$field->id])?$adFields['ad_' .$attr->id .'_' .$field->id]:null, array('class' => 'form-control datepicker')) !!}
+                                    {!! Form::text('addit_data[calendar]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?date(trans('main.date_format'),strtotime($adFields['ad_' .$attr->id .'_0'])):null, array('class' => 'form-control datepicker')) !!}
                                         <div class="input-group-addon"> <a href="#"><i class="fa fa-calendar"></i></a> </div>
                                     </div>
                                 </div>
