@@ -38,13 +38,9 @@ class AgentController extends BaseController
         }
 
         $this->mask = new AgentBitmask($sphere_id,$this->uid);
-        $price = $this->mask->getStatus();
+        $price = $this->mask->getStatus()->first();
 
-        // todo раскоентировать
-//        $price = ($price && $price->lead_price)?floor($bill->balance/$price->lead_price):0;
-
-        // todo удалить
-        $price = 0;
+        $price = ( $price && $price->lead_price && $bill )?floor($bill->balance/$price->lead_price):0;
 
         view()->share('balance', [0,$price]);
     }

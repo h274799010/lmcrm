@@ -3,6 +3,7 @@
 /***************    Site routes  **********************************/
 Route::get('/', ['as' => 'home', 'middleware'=>[ 'redirectAdmin', 'redirectAgent', 'redirectSalesman', 'redirectOperator' ], 'uses' => 'Frontend\HomeController@index']);
 Route::get('home', 'Frontend\HomeController@index');
+Route::get('crone', 'Frontend\CroneController@index');
 
 # Authentication
 Route::get('/auth/login', ['as' => 'login', 'middleware' => ['guest'], 'uses' => 'Auth\SessionsController@create']);

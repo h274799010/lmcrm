@@ -29,8 +29,10 @@ class OpenLeads extends Model {
     }
 
     public function getCanSetBadAttribute(){
-        if (!$this->bad && $this->lead->pending_time > date('Y-m-d H:i:s'))
+        if (!$this->bad && $this->lead->checked && $this->lead->pending_time > date('Y-m-d H:i:s'))
+        {
             return true;
+        }
         return false;
     }
 }

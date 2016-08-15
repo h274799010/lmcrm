@@ -125,4 +125,11 @@ class Lead extends EloquentUser {
         return $mask->where('user_id', '=', $this->id)->first();
     }
 
+    public function getIsBadAttribute(){
+        $badOPenLeads = $this->openLeads()->where('bad','=',1)->count();
+        $goodOPenLeads = $this->openLeads()->where('bad','=',0)->count();
+        if ($badOPenLeads > $goodOPenLeads)
+            return true;
+        return false;
+    }
 }

@@ -96,22 +96,6 @@
                 <span class="help-block">{{ $errors->first('sphere', ':message') }}</span>
             </div>
         </div>
-
-        <div class="form-group  {{ $errors->has('lead_revenue') ? 'has-error' : '' }}">
-            {!! Form::label('info[lead_revenue]', trans("admin/agent.lead_revenue"), array('class' => 'control-label')) !!}
-            <div class="controls">
-                {!! Form::text('info[lead_revenue]', null, array('class' => 'form-control')) !!}
-                <span class="help-block">{{ $errors->first('lead_revenue', ':message') }}</span>
-            </div>
-        </div>
-
-        <div class="form-group  {{ $errors->has('payment_revenue') ? 'has-error' : '' }}">
-            {!! Form::label('info[payment_revenue]', trans("admin/agent.payment_revenue"), array('class' => 'control-label')) !!}
-            <div class="controls">
-                {!! Form::text('info[payment_revenue]', null, array('class' => 'form-control')) !!}
-                <span class="help-block">{{ $errors->first('payment_revenue', ':message') }}</span>
-            </div>
-        </div>
     </div>
     <div class="form-group">
         <div class="col-md-12">
