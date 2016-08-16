@@ -5,12 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Credits extends Model {
-
+    //todo: залочить создание updated_at
     protected $table="credits";
-    public $descrHistory = false;
     public $buyedChange = 0;
     public $earnedChange = 0;
-    public $lead_id = 0;
+    public $transaction_id = 0;
 
     /**
      * The attributes that are mass assignable.
@@ -44,15 +43,17 @@ class Credits extends Model {
 
     public function save(array $options = []){
         $history = new CreditHistory();
+        if ($this->source < 0){
+            $this->earnedChange *= -1;
+            $this->buyedChange *= -1;
+        }
         $history->buyed = $this->buyed;
         $history->earned = $this->earned;
         $history->earnedChange = $this->earnedChange;
         $history->buyedChange = $this->buyedChange;
         $history->agent_id = $this->agent_id;
-        $history->lead_id = $this->lead_id;
         $history->source = $this->source;
-        if ($this->descrHistory)
-            $history->descr = $this->descrHistory;
+        $history->transaction_id = $this->transaction_id;
         $history->save();
         unset($this->source);
         parent::save($options);

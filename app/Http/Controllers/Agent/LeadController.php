@@ -191,19 +191,16 @@ class LeadController extends AgentController {
                     $ol = new OpenLeads();
                     $ol->lead_id = $id;
                     $ol->agent_id = $this->uid;
+                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
                     $ol->save();
                 }
                 else
                 {
+                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
                     $ol->increment('count');
                 }
                 CreditHelper::leadPurchase($credit,$price,1,$lead);
 
-                /*$credit = Credits::where('agent_id','=',$lead->agent_id)->sharedLock()->first();
-                $credit->earned += $price*(intval($lead->sphere->revenue)/100);
-                $credit->descrHistory = 1;
-                $credit->source = CreditTypes::LEAD_SALE;
-                $credit->save();//увеличиваем баланс добавившего*/
                 return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
             }
             else{
@@ -257,15 +254,11 @@ class LeadController extends AgentController {
                 $ol->agent_id = $this->uid;
             }
             $ol->count = $lead->sphere->openLead;
+            $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
             $ol->save();
 
             CreditHelper::leadPurchase($credit,$price,$mustBeAdded,$lead);
 
-            /*$credit = Credits::where('agent_id','=',$lead->agent_id)->sharedLock()->first();
-            $credit->earned += $price*(intval($lead->sphere->revenue)/100);
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_SALE;
-            $credit->save();//увеличиваем баланс добавившего*/
             return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
         }
         else{
