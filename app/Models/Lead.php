@@ -51,6 +51,12 @@ class Lead extends EloquentUser {
         return ($sphere_id and $type)? $relation->where('sphere_id','=',$sphere_id)->where('_type', '=', $type) : $relation;
     }
 
+    public function SphereAdditionForms($sphere_id=NULL){
+        $relation = $this->hasMany('App\Models\SphereAdditionForms', 'sphere_id', 'sphere_id');
+
+        return ($sphere_id)? $relation->where('sphere_id','=',$sphere_id) : $relation;
+    }
+
 
     // возвращает все поля SphereFromFilters со значением поля label=radio
     public function sAttrRadio($sphere_id=NULL){
@@ -76,10 +82,6 @@ class Lead extends EloquentUser {
         return $this->hasOne('App\Models\Sphere', 'id', 'sphere_id');
     }
 
-    public function info(){
-        return $this->hasMany('App\Models\LeadInfoEAV','lead_id','id');
-    }
-
     public function phone(){
         return $this->hasOne('App\Models\Customer','id','customer_id');
     }
@@ -88,6 +90,23 @@ class Lead extends EloquentUser {
         $relation=$this->belongsToMany('App\Models\Agent','open_leads','lead_id','agent_id');
         return ($agent_id)? $relation->where('agent_id','=',$agent_id) : $relation;
     }
+
+
+    // todo метод установки статуса
+    public function setStatus( $status )
+    {
+        $this->status = $status;
+        $this->save();
+
+        return $this;
+
+    }
+
+    // todo получение имени статуса
+    public function statusName(){
+        return $this->hasOne('App\Models\LeadStatus', 'id', 'status');
+    }
+
 
 
     /**
@@ -136,5 +155,6 @@ class Lead extends EloquentUser {
 
         return $mask;
     }
+
 
 }

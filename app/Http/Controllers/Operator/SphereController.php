@@ -30,6 +30,25 @@ class SphereController extends Controller {
     */
     public function index()
     {
+
+        // todo тестирую, удалить потом
+
+//        $l = Lead::find(1);
+
+        $leadBitmask = new LeadBitmask(1);
+
+        $agent = Agent::findOrFail(2);
+        $sphere = $agent->sphere();
+        $sphereAttr = $sphere->attributes;
+
+//        dd($sphereAttr);
+//        dd($agent);
+
+        dd($leadBitmask->findFbMask());
+
+
+//        dd($l->statusName);
+
         $spheres = Sphere::with('leads')->active()->get();
         return view('sphere.lead.list')->with('spheres',$spheres);
     }

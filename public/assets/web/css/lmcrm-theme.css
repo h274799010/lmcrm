@@ -166,6 +166,11 @@ footer,.footer,#footer{
 }
 
 
+#side-menu li {
+	max-width: 200px;
+}
+
+
 #side-menu li a.active i{
 	background-position: 0px -40px;
 }

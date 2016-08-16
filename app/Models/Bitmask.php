@@ -140,7 +140,8 @@ class Bitmask extends Model
      *
      * @return object
      */
-    public function getStatus($user_id=NULL){
+    // todo $model->status='1'; $model->save();
+    public function getStatus($user_id=NULL){ //->status
         $user_id = ( $user_id ) ? $user_id : $this->userID;
         return $this->tableDB->where('user_id','=',$user_id);
     }
@@ -338,6 +339,8 @@ class Bitmask extends Model
 
     /**
      * Возвращает все поля таблицы
+     *
+     * todo переименовать $this->attributes['']
      *
      */
     public function attributes() {
@@ -611,16 +614,6 @@ class Bitmask extends Model
     }
 
 
-    /**
-     * todo разобраться
-     *
-     * Этот класс недописан,
-     * что от него ожидалось получить?
-     */
-    public function getAppends() {
-
-        return $this->hasOne();
-    }
 
 
     /**

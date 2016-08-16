@@ -337,6 +337,84 @@ class LeadBitmask extends Bitmask
 
 
 
+    /**
+     * Получение данных только ad_ полей из маски лидов
+     *
+     * если задан id лида
+     *      - возвращает данные только указанного лида
+     *      - если лида с таким индексом нет - вернет пустой массив
+     *
+     * если параметр не задан
+     *      - вернет данные всех лидов в массиве
+     *          ключ массива - id лида
+     *
+     *
+     * @param  integer  $leadId
+     *
+     * @return array
+     */
+    public function findFbMask( $leadId=NULL ){
+
+        // если в системе уже есть номер лида, он будет подставлен,
+        // если лида не указан в параметрах
+        $leadId = ($leadId) ? $leadId : ( ($this->userID)?$this->userID:NULL );
+
+        // возвращаемое значение
+        // либо маска одного лида
+        // либо массив с масками лидов (ключ - id лида)
+        $short_mask=array();
+
+
+        if($leadId){
+            // если указан id лида
+
+            // находим маску лида
+            $mask = $this->where('user_id', '=', $leadId)->first();
+
+            // перебираем все поля маски лида
+            $leadMask = collect($mask);
+            $leadMask->each(function( $val, $field ) use( &$short_mask ){
+
+                // выбираем поля с префиксом 'ad_'
+                if(stripos($field,'ad_')!==false){
+                    // сохраняем значение в массиве (ключ - полное имя поля, значение - значение в поле маски)
+                    $short_mask[$field]=$val;
+                }
+            });
+
+        }else{
+            // id лида не указан
+
+            // находим маски всех лидов
+            $mask = $this->get();
+
+            // перебираем все маски лидов
+            $mask->each(function( $lMask ) use( &$short_mask ){
+
+                // сохраняем id лида в переменную, для удобства
+                $leadId = $lMask->user_id;
+
+                // перебираем все поля маски лида
+                $leadMask = collect($lMask);
+                $leadMask->each(function( $val, $field ) use( $leadId, &$short_mask ){
+
+                    // выбираем поля с префиксом 'ad_'
+                    if(stripos($field,'fb_')!==false){
+                        // сохраняем значение в массиве с индексом лида
+                        // и значениями - поля ad_ с значениями
+                        $short_mask[$leadId][$field]=$val;
+                    }
+                });
+            });
+        }
+
+        return $short_mask;
+    }
+
+
+
+
+
 
 
 
