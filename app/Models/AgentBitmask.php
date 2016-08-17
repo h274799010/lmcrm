@@ -64,7 +64,4 @@ class AgentBitmask extends Bitmask
         }
 
     }
-
-
-
 }

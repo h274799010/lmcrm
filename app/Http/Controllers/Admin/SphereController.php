@@ -611,6 +611,12 @@ class SphereController extends AdminController {
         // данные формы лида
         $leadData = $request['lead']['data'];
 
+
+        /**
+         * todo у лида может не быть атрибутов вообще, поправить этот момент
+         *
+         */
+
         // проверка атрибутов лида
         // массив атрибутов лида может выглядеть по разному, на каждый вариант своя обработка
         if(isset($leadData['variables'])){
@@ -768,14 +774,13 @@ class SphereController extends AdminController {
 
         // переменная указывающая на ошибки, если $error = true работа метода останавливается
         $error = false;
-        $ddd = ''; // todo удалить
         /* проверка атрибутов формы лида на ошибки */
         if( $leadDataAttr ){
 
             /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
                хотя бы одна */
             // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
-            $leadDataAttr->each(function( $attr ) use( &$error, &$ddd ){
+            $leadDataAttr->each(function( $attr ) use( &$error ){
 
                 // если у атрибута тип checkbox, radio или select
                 if( ($attr['_type']=='checkbox') || ($attr['_type']=='radio') || ($attr['_type']=='select') ){
@@ -783,8 +788,6 @@ class SphereController extends AdminController {
                     if( !isset($attr['option']) || (count($attr['option']) == 0) ){
                         // помечаем ошибку
                         $error = true;
-
-                        $ddd = $attr['_type'];
                     }
                 }
             });
@@ -810,8 +813,7 @@ class SphereController extends AdminController {
         }
 
         // если есть ошибка, функция вернет ошибку и остановится
-//        if($error){ return response()->json(FALSE); } todo вернуть
-        if($error){ return $ddd; }
+        if($error){ return response()->json(FALSE); }
 
         /** ----- КОНЕЦ ПРОВЕРОК НА ОШИБКИ ---------- */
 
@@ -902,6 +904,15 @@ class SphereController extends AdminController {
                     // если атрибута нет или он равен 0 создаем его
                     $leadAttr = new SphereAdditionForms($attr);
                     $sphere->leadAttr()->save($leadAttr);
+
+                    // для атрибутов с типами: input, textArea, email и calendar
+                    // в битмаске создается поле только с индексом атрибута
+                    // вместо индекса опции ставится "0"
+                    // ad_attrId_0 ( ad_54_0 )
+                    if( ($attr['_type']=='textarea') || ($attr['_type']=='input') || ($attr['_type']=='email') || ($attr['_type']=='calendar') ){
+                        $leadBitmask->addAb($leadAttr->id, 0, $leadAttr->_type);
+                    }
+
                 }
 
 
@@ -950,7 +961,7 @@ class SphereController extends AdminController {
                             // создаем новый столбец "ad_" в БД
                             $leadBitmask->addAb($leadAttr->id, $newOption->id, $leadAttr->_type);
 
-                            /** смысл этой конструкции я не понял */
+                            /** todo доработать метод копирования */
 //                            if (isset($option['parent'])) {
 //                                // копирование атрибутов
 //                                $leadBitmask->copyAttr
@@ -995,6 +1006,7 @@ class SphereController extends AdminController {
 
                             if ($validate['id']) {
                                 // у валидации ЕСТЬ id, т.е. валидация уже есть в БД
+                                // (обновляем существующую запись)
 
                                 // выбираем данные валидации из БД
                                 $dbValidate = AdditionFormsOptions::find($validate['id']);
@@ -1020,47 +1032,6 @@ class SphereController extends AdminController {
                                 $leadAttr->validators()->save($newValidate);
                             }
                         });
-                    }
-
-                }elseif( ($attr['_type']=='email') || ($attr['_type']=='calendar') ){
-                    // обработка атрибутов с типом 'email' и 'calendar'
-                    // у атрибута нет ни опций, ни валидаций
-                    // в БД опций записываются с _type=field
-
-                    // атрибут должен иметь опцию в таблице опций лида
-                    // чтобы его можно было занести в таблицу битмаска
-
-                    // получаем запись поля в таблице addition_forms_options по id атрибута
-                    // по идее эта запись в таблице должна быть только одна
-                    $field = $leadAttr->field()->first();
-
-                    if( $field==true ){
-                        // запись уже есть в бд
-
-                        // выбираем данные поля из БД
-                        $dbField = AdditionFormsOptions::find($field['id']);
-                        // присваиваем полю новые значения
-                        $dbField->_type = 'field';
-                        $dbField->name = '';
-                        $dbField->value = '';
-                        // сохраняем
-                        $dbField->save();
-
-                    }else{
-                        // у поля НЕТ id
-                        // (создание новой зписи)
-
-                        // создание новой валидации
-                        $newField = new AdditionFormsOptions();
-                        // присваиваем валидации новые значения
-                        $newField->_type = 'field';
-                        $newField->name = '';
-                        $newField->value = '';
-                        // сохраняем
-                        $leadAttr->options()->save($newField);
-
-                        // создаем новый столбец "ad_" в БД
-                        $leadBitmask->addAb($leadAttr->id, $newField->id, $leadAttr->_type);
                     }
                 }
 

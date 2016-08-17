@@ -43,16 +43,22 @@ class SphereController extends Controller {
     {
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
-        $mask = new LeadBitmask($data->id);
+        $mask = new AgentBitmask($data->id);
         $mask = $mask->findShortMask($id);
 
         $lead = Lead::with('phone')->find($id);
-//        $lead_info=$lead->info()->lists('value','lead_attr_id');
+
+        $mask = new LeadBitmask($data->id, $id);
+        $shortMask = $mask->findShortMask();
+
+        // данные всех полей ad в маске
+        $adFields = $mask->findAdMask();
+
         return view('sphere.lead.edit')
             ->with('sphere',$data)
-            ->with('mask',$mask)
-            ->with('lead',$lead);
-//            ->with('leadInfo',$lead_info);
+            ->with('mask',$shortMask)
+            ->with('lead',$lead)
+            ->with('adFields',$adFields);
     }
 
     /**
@@ -73,14 +79,13 @@ class SphereController extends Controller {
             }
         }
         $sphere = Sphere::findOrFail($sphere_id);
-        $mask = new LeadBitmask($sphere->id);
+        $mask = new SphereMask($sphere->id);
         $options=array();
         if ($request->has('options')) {
             $options=$request->only('options')['options'];
         }
         $mask->setAttr($options,$lead_id);
         $mask->setStatus(1, $lead_id);
-//        $mask->setType('lead',$lead_id);
 
         $lead = Lead::find($lead_id);
 
@@ -92,15 +97,33 @@ class SphereController extends Controller {
         $lead->save();
 
 
-//        $lead->info()->delete();
-//        if(count($request->only('info')['info'])) {
-//            $save_arr = array();
-//            foreach ($request->only('info')['info'] as $key => $val) {
-//                $save_arr[] = new LeadInfoEAV(['lead_attr_id' => $key, 'value' => $val]);
-//            }
-//            $lead->info()->saveMany($save_arr);
-//            unset($save_arr);
-//        }
+
+        /** --  П О Л Я  ad_  =====  "additional data"  ===== обработка и сохранение  -- */
+
+        // заводим данные ad в переменную и преобразовываем в коллекцию
+        $additData = collect($request->only('addit_data')['addit_data']);
+
+        // обнуляем все поля ad_ лида
+        // если оператор снимет все чекбоксы с атрибута (ну, к примеру),
+        // этот атрибут никак не отразится в респонсе, поэтому:
+        // обнуляем все поля, затем записываем то, что пришло с фронтенда
+        $mask->resetAllAd( $lead_id );
+
+        // перебираем все ad_ поля
+        $additData->each(function( $val, $type ) use( $mask, $lead_id ){
+
+            // перебираем все значения полей
+            $attrId = collect($val);
+            $attrId->each(function( $opts, $attr ) use( $mask, $lead_id, $type ){
+
+                // запоминаем значения в БД
+                // все остальное по типу разруливает метод модели
+                $mask->setAd( $attr, $opts, $type, $lead_id);
+
+            });
+
+        });
+
 
         if($request->ajax()){
             return response()->json();

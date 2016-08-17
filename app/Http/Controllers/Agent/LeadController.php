@@ -38,18 +38,80 @@ class LeadController extends AgentController {
         return view('agent.lead.deposited')->with('leads',$leads);
     }
 
+
+    /**
+     * Выводит таблицу с отфильтрованными лидами
+     * (только саму таблицу, строки добавляет метод obtainData)
+     *
+     *
+     * @return object
+     */
     public function obtain(){
 
         // данные агента
         $agent = $this->user;
+        // данные маски агента (пользователь уже задан)
+        $mask=$this->mask;
 
         // атрибуты лида (наверное)
         $lead_attr = $agent->sphere()->leadAttr()->get();
 
+
+
+
+//
+//
+//        // маска лида
+//        $leadBitmask = new LeadBitmask($mask->getTableNum());
+//
+//        // данные полей "fb_" агента (ключ=>значение)
+//        $agentBitmaskData = $mask->findFieldsMask();
+//
+//        // выкидаваем те лиды которые не подходят под фильтр агента
+//        $list = $leadBitmask->get()->reject(function( $leadData ) use ( $agentBitmaskData ){
+//
+//            foreach( $agentBitmaskData as $key=>$agentData){
+//
+//                if( !($agentData >= $leadData->$key)){
+//                    return true;
+//                }
+//            }
+//        });
+//
+//
+//
+//        // выбираем лидов по данным из маски
+//        $leads = $list->map(function($item){
+//            return $item->lead;
+////                ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']);
+////                    ->select(['leads.opened', 'leads.id', 'leads.updated_at', 'leads.name', 'leads.customer_id', 'leads.email']);
+//        });
+//
+//        dd($leads->get()->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']));
+//
+//        // выкидываем лиды, которые принадлежать текущему пользователю
+//        $leads = $leads->reject(function( $lead ) use( $agent ){
+//            if($lead->agent_id == $agent->id){
+//                return true;
+//            }
+//        });
+//
+//
+//
+//
+//
+//
+
+
+
+
+        // todo удалить
+//        dd(Lead::all());
+
         return view('agent.lead.obtain')
             ->with('lead_attr',$lead_attr);
+//            ->with('filter',$list->get());
     }
-
 
 
     /**
@@ -71,6 +133,9 @@ class LeadController extends AgentController {
         $agentBitmask = $mask->getStatus()->first();
 
         // проверка на маску перед получением лидов агента
+        if( $agentBitmask  ){
+            // если у агента есть запись в битмаске
+        // ПРОВЕРКА НАЛИЧИЯ МАСКИ У АГЕНТА ПЕРЕД ПОЛУЧЕНИЕМ ЛИДОВ
         if( $agentBitmask  ){
             // если у агента есть запись в битмаске
 
@@ -102,6 +167,7 @@ class LeadController extends AgentController {
                     ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
                 ->get();
             }
+        });
 
         }else{
             // если у агента нет записи в битмаске
@@ -147,21 +213,109 @@ class LeadController extends AgentController {
                 return '';
             })
             ->edit_column('customer_id',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('lead.hidden');
+                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:'<b>' .trans('site/lead.hidden') .'</b>';
             })
             ->edit_column('email',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('lead.hidden');
-            });
+                return ($lead->obtainedBy($agent->id)->count())?$lead->email:'<b>' .trans('site/lead.hidden') .'</b>';
+            })
+        ;
 
         $lead_attr = $agent->sphere()->leadAttr()->get();
 
-        foreach($lead_attr as $key=>$l_attr){
-           $datatable->add_column('a_'.$key,function($lead) use ($l_attr){
+        /* ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad В ТАБЛИЦЕ obtain ---  */
 
-               // todo данные должны браться из leadBitmask, полей (ad_), доработать
-//               $val = $lead->info()->where('lead_attr_id','=',$l_attr->id)->first();
-               $val='ага';
-                return view('agent.lead.datatables.obtain_data',['data'=>$val,'type'=>$l_attr->_type]);
+        // получаем все атрибуты лида
+        $leadAttributes = $agent->sphere()->leadAttr()->get();
+
+        // маска ad полей лидов
+        // массив с ключами и значениями только ad_ полей
+        // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
+        $adMask = collect($leadBitmask->findAdMask());
+
+//        dd($adMask);
+
+        // перебираем все атрибуты и выставляем значения по маске лида
+        foreach($leadAttributes as $index=>$attr){
+
+           $datatable->add_column( 'a_'.$index,function( $lead ) use ( $attr, $leadBitmask, $adMask ){
+
+               // маска текущего лида
+               $leadMask = $adMask[$lead->id];
+
+               // выбираем тип текущего атрибута
+               $attrType = $attr->_type;
+
+                /* - ОБРАБОТКА ОПЦИЙ В ЗАВИСИМОСТИ ОТ ТИПА АТРИБУТА - */
+               if( $attrType=='calendar' || $attrType=='email' ){
+                   // опции этих атрибутов имеют тип field,
+                   // в таблице опций должна быть только одна запись с этим атрибутом
+
+                   // строка атрибута в таблице опций (по идее должна быть только одна)
+//                   $fieldData= $attr->field;
+
+                   // полное имя поля ad в таблице маски лида
+//                   $ad_attr_opt = 'ad_' .$fieldData->attr_id .'_' .$fieldData->id;
+
+                   $ad_attr_opt = 'ad_' .$attr->id .'_0';
+
+
+                   // присваивем значение поля записанное в мске лида
+                   $value = $leadMask[$ad_attr_opt];
+
+               }elseif( $attrType=='radio' || $attrType=='checkbox' || $attrType=='select' ){
+                   // опции этих атрибутов имеют тип option их всегда несколько
+                   // дальше идет фильтрация по маске лида, выбираются опции которые относятся к лиду
+
+                   // все опции атрибута
+                   $allOption = $attr->options;
+
+                   // переменная с отфильтрованными опциями
+                   $value = '';
+
+                   // фльтруем все опции атрибута по маске атрибута
+                   foreach($allOption as $opt){
+
+                       // полное имя поля ad в таблице маски лида
+                       $ad_attr_opt = 'ad_' .$opt->attr_id .'_' .$opt->id;
+
+                       // если в поле есть значение, добавляем его,
+                       // если нет - пропускаем
+                       if( $leadMask[$ad_attr_opt] == 1 ){
+
+                           if( $value=='' ){
+                               // если переменная пустая - присваиваем значение
+                               $value = $opt->name;
+
+                           }else{
+                               // если в переменной уже есть опции - добавляем через запятую
+                               $value = $value .', ' .$opt->name;
+                           }
+                       }
+                   }
+
+               }elseif( $attrType=='input' || $attrType=='textarea' ){
+                   // опции этих атрибутов не имеют запись в таблице опций атрибутов
+
+
+
+                   // полное имя поля ad в таблице маски лида
+                   $ad_attr_opt = 'ad_' .$attr->id .'_0';
+
+                   // присваивем значение поля записанное в мске лида
+                   if(isset($leadMask[$ad_attr_opt])){
+                       $value = $leadMask[$ad_attr_opt];
+                   }else{
+                       $value = null;
+                   }
+
+               }else{
+                   // если не подошло ни одно значение
+                   // какие то ошибки на фронтенде
+
+                   $value = null;
+               }
+
+               return view('agent.lead.datatables.obtain_data',['data'=>$value,'type'=>$attrType]);
            });
         }
 
@@ -184,6 +338,9 @@ class LeadController extends AgentController {
 
         $lead = Lead::lockForUpdate()->find($id);//lockForUpdate лочит только выбранные строки
         if($lead->sphere->openLead > $lead->opened) {
+            //$lead->opened+=1;
+            //$credit->history()->save(new CreditHistory());
+
             $updateCount = Lead::where('id',$lead->id)->where('opened','<',$lead->sphere->openLead)->increment('opened');
             if($updateCount){
                 $ol = OpenLeads::lockForUpdate()->where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
@@ -247,9 +404,11 @@ class LeadController extends AgentController {
             return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
         }
 
+        //$lead->opened += $lead->sphere->openLead;
         $updateCount = Lead::where('id',$lead->id)->where('opened',$lead->opened)->increment('opened',$mustBeAdded);
         if ($updateCount)
         {
+            //$lead->obtainedBy()->attach($this->uid);
             if (!$ol){
                 $ol = new OpenLeads();
                 $ol->lead_id = $id;
@@ -258,6 +417,10 @@ class LeadController extends AgentController {
             $ol->count = $lead->sphere->openLead;
             $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
             $ol->save();
+            $credit->payment=$price;
+            $credit->descrHistory = $mustBeAdded;
+            $credit->source = CreditTypes::LEAD_PURCHASE;
+            $credit->save();//уменьшаем баланс купившего
 
             CreditHelper::leadPurchase($credit,$price,$mustBeAdded,$lead);
 
@@ -266,6 +429,7 @@ class LeadController extends AgentController {
         else{
             return json_encode(['msg'=>trans('lead/lead.obtainError')]);
         }
+        //$credit->history()->save(new CreditHistory());
     }
 
     /**

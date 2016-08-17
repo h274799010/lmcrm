@@ -30,11 +30,9 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         'password', 'remember_token',
     ];
 
-
-    // todo удалить этот метод вместе с миграцией и моделью
-//    public function info(){
-//        return $this->hasOne('App\Models\AgentInfo','agent_id','id');
-//    }
+    public function info(){
+        return $this->hasOne('App\Models\AgentInfo','agent_id','id');
+    }
 
     public function scopelistAll($query){
         return $query->whereIn('id',\Sentinel::findRoleBySlug('agent')->users()->lists('id'))->select(array('users.id','users.first_name','users.last_name', 'users.name', 'users.email', 'users.created_at'));

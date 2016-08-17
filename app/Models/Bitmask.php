@@ -302,7 +302,7 @@ class Bitmask extends Model
 
 
     /**
-     * Установка значения атрибута
+     * Установка значения опция атрибута
      *
      *
      * @param  string  $opt_index
