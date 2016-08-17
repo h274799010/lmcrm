@@ -52,7 +52,59 @@ $(function(){
 		$('.dataTable').DataTable({
 			responsive: true
 		});
+
+
+		$('.openLeadsTable').DataTable({
+			responsive: true,
+			"aoColumnDefs": [
+				{ "sWidth": "150px", "aTargets": [ 1 ] },
+
+			]
+		});
+
+
+        /**
+         * Изменяет высоту выпадающего меню на странице openLeads агента
+         *
+         * стилями и прочьими средствами невозможно выровнять высоту выпадающего меню
+         * под высоту ячейки. Только таким образом.
+         *
+         */
+        function dropMenuResize(){
+
+            // выбираем все ячейки с выпадающим меню в таблице
+            var allCells = $('table > tbody > tr > td.select_cell');
+
+            // путь к дроб меню относительно ячейки
+            var dropMenu = 'span.selectboxit-container.selectboxit-container';
+
+            // перебираем все ячейки
+            $.each( allCells, function( key, cell ){
+
+                // выбираем высоту ячейки
+                var cellHeight = $(cell).height();
+
+                // присваиваем высоту ячейки выбадающему меню (минус размер бордюров, 2 пикселя)
+                $(cell).find(dropMenu).height( cellHeight-2, 'important' );
+
+            });
+
+        }
+
+
+
+        /** Изменение высоты выпадающего списка на странице открытых лидов агента */
+
+        // изменяем высту при загрузске страницы
+        dropMenuResize();
+
+        // изменяем высту при изменении размера экрана (и ячейки, соответственно)
+        $(window).resize(function() {
+            dropMenuResize();
+        });
+
 	}
+
 
 	$('.ajax-dataTable').each(function() {
 		$table=$(this);

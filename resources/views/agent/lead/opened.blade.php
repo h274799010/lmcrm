@@ -4,8 +4,9 @@
         <!-- Page Content -->
                 <div class="row">
                     <div id="main_table" class="col-md-10">
-                        {{--<h1 class="page-header">@lang('site/sidebar.lead_opened')</h1>--}}
-                        <table class="table table-bordered table-striped table-hover dataTable">
+
+                        {{--<table class="table table-bordered table-striped table-hover openLeadsTable">--}}
+                        <table class="table table-bordered table-striped table-hover openLeadsTable">
                             <thead>
                                 <tr>
                                     <th>icon </th>
@@ -20,16 +21,18 @@
                             <tbody>
                             @foreach ($dataArray as $data)
                                 <tr onclick="reloadTable({{ $data->id }})">
-                                    <td></td>
-                                    <td class="select_cell"> {{ Form::select('age', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, ['class' => 'field', 'id'=>3]) }} </td>
-                                    <td>{{ $data->date }}</td>
-                                    <td>{{ $data->name }}</td>
-                                    <td>{{ $data->phone->phone }}</td>
-                                    <td>{{ $data->email }}</td>
+                                    <td><div></div></td>
+                                    <td class="select_cell"> {{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, ['class'=>'form']) }} </td>
+                                    <td><div>{{ $data->date }}</div></td>
+                                    <td><div>{{ $data->name }}</div></td>
+                                    <td><div>{{ $data->phone->phone }}</div></td>
+                                    <td><div>{{ $data->email }}</div></td>
                                     <td>
-                                        <a href="{{ route('agent.lead.showOpenedLead',$data->id) }}">
-                                            <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
-                                        </a>
+                                        <div>
+                                            <a href="{{ route('agent.lead.showOpenedLead',$data->id) }}">
+                                                <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -68,11 +71,62 @@
             cursor: help;
         }
 
-        .select_cell{
+        table.table.openLeadsTable > tbody > tr > td.select_cell{
             padding: 0 !important;
-            width: 10px !important;
+            margin: 0;
+            /*border: solid 1px #ED5056;*/
         }
 
+
+
+        .form{
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+            border: none;
+        }
+
+
+
+        /*длина контейнера*/
+        .selectboxit-container.selectboxit-container{
+            width: 100%;
+            /*height: 100% !important;*/
+            border: solid 1px #ED5056;
+
+        }
+
+        .selectboxit-container.selectboxit-container .selectboxit-text{
+            margin: 0;
+        }
+
+
+
+        .selectboxit-container.selectboxit-container .selectboxit-arrow-container{
+            width: 16px;
+            height: 100%;
+            background: #ED5056;
+        }
+
+        .selectboxit-container.selectboxit-container .selectboxit-arrow-container i{
+            font-size: 11px !important;
+        }
+
+
+        .selectboxit-container.selectboxit-container .selectboxit-option-icon-container{
+            margin: 0;
+        }
+
+
+        .selectboxit-container.selectboxit-container .selectboxit-option-icon-container i{
+            border: none;
+            background: none;
+        }
+
+
+        .selectboxit-container.selectboxit-container ul{
+            min-width: 150px !important;
+        }
 
 
     </style>
@@ -81,6 +135,7 @@
 
 @section('scripts')
     <script>
+
         var table;
         function reloadTable(id){
 
@@ -121,6 +176,15 @@
                 $('#info_table').attr('lead_id', id);
             }
         }
+
+//        $('document').find('span.selectboxit-container.selectboxit-container').css('height', '300px');
+
+//        $('span.selectboxit-container.selectboxit-container').css('height', '300px');
+
+//           var a = $('span.selectboxit-container.selectboxit-container').css('width');
+//
+//        alert(a);
+
 
     </script>
 @endsection
