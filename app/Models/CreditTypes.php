@@ -12,4 +12,5 @@ class CreditTypes extends Model {
     const MANUAL_CHANGE = 4;
     const LEAD_BAD_INC = 5;
     const LEAD_BAD_DEC = -6;
+    const OPERATOR_PAYMENT = -7;
 }

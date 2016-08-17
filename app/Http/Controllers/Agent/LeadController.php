@@ -186,7 +186,7 @@ class LeadController extends AgentController {
         if($lead->sphere->openLead > $lead->opened) {
             $updateCount = Lead::where('id',$lead->id)->where('opened','<',$lead->sphere->openLead)->increment('opened');
             if($updateCount){
-                $ol = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
+                $ol = OpenLeads::lockForUpdate()->where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
                 if (!$ol){
                     $ol = new OpenLeads();
                     $ol->lead_id = $id;
@@ -198,6 +198,7 @@ class LeadController extends AgentController {
                 {
                     $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
                     $ol->increment('count');
+
                 }
                 CreditHelper::leadPurchase($credit,$price,1,$lead);
 

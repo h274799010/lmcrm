@@ -76,6 +76,15 @@ class CreditHelper extends Model
         }
     }
 
+    public static function setGoodLead($lead){
+        $leadTransaction = LeadTransactions::create(['number'=>1,'lead_id'=>$lead->id]);
+        $credits = $lead->ownerBill()->first();
+        $credits->payment = $lead->sphere->price_call_center;
+        $credits->source = CreditTypes::OPERATOR_PAYMENT;
+        $credits->transaction_id = $leadTransaction->id;
+        $credits->save();
+    }
+
     public static function manual($credits,$request,$id){
         $manualTransaction = ManualTransactions::create(['initiator_id'=>Sentinel::getUser()->id]);
         if (!$credits)
