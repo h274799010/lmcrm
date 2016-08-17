@@ -4,12 +4,12 @@
     <link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
     <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
-    <div class="col-xs-12">
-        <h3>Lead info:</h3>
-        <b>Name:</b> {{ $openedLead->lead->name }}<br/>
-        <b>Phone:</b> {{ $openedLead->lead->phone->phone }}<br/>
-        <b>Email:</b> {{ $openedLead->lead->email }}<br/>
-        <h3>Current status:</h3>
+    <div class="col-xs-6">
+        <h3>{!! trans('Lead info') !!}:</h3>
+        <b>{!! trans('Name') !!}:</b> {{ $openedLead->lead->name }}<br/>
+        <b>{!! trans('Phone') !!}:</b> {{ $openedLead->lead->phone->phone }}<br/>
+        <b>{!! trans('Email') !!}:</b> {{ $openedLead->lead->email }}<br/>
+        <h3>{!! trans('Current status') !!}</h3>
         <div class="btn-group btn-breadcrumb">
             <div class="btn btn-success"><i class="glyphicon glyphicon-home"></i></div>
         @foreach($openedLead->lead->sphere->statuses as $status)
@@ -20,28 +20,28 @@
         </div>
         <br/><br/>
         @if ($openedLead->status<$status->position)
-        <a href="{{ route('agent.lead.nextStatus',$openedLead->lead_id) }}" type="button" class="btn btn-primary">Set next status</a>
+        <a href="{{ route('agent.lead.nextStatus',$openedLead->lead_id) }}" type="button" class="btn btn-primary">{!! trans('Set next status') !!}</a>
         @endif
     </div>
-
     <div class="col-xs-6">
     {!! Form::model($openedLead,array('route' => ['agent.lead.editOpenedLead'], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) !!}
     <input type="hidden" name="id" value="{{$openedLead->id}}">
+    @if ($openedLead->canSetBad)
     <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
         <div class="col-xs-10">
-            {!! Form::textarea('comment', null, array('class' => 'form-control','placeholder'=>trans('lead/form.comments'))) !!}
+            <h3>{!! trans('Set bad lead') !!}</h3>
+            {!! Form::textarea('comment', null, array('class' => 'form-control','placeholder'=>trans('lead/form.comments'),'size' => '25x5')) !!}
+            {!! Form::checkbox('bad',null,$openedLead->bad) !!}
+            {!! Form::submit(trans('save'),['class'=>'btn btn-info pull-right flip']) !!}
             <span class="help-block">{{ $errors->first('comment', ':message') }}</span>
         </div>
     </div>
-    <div class="form-group">
-        <div class="col-xs-10">
-            {!! Form::submit(trans('save'),['class'=>'btn btn-info pull-right flip']) !!}
-        </div>
-    </div>
+    @endif
     {!! Form::close() !!}
     </div>
 
     <div class="col-xs-5">
+    <h3>{!! trans(' Reminders') !!}</h3>
         <div class="form-group">
             @if ($openedLead->organizer)
                 <ul class="list-group">
@@ -49,13 +49,13 @@
                     <li class="list-group-item">
                         {{ date('Y-m-d H:i:s', $reminder->time) }}: {{$reminder->comment}}
                         <div style="float: right;">
-                            <a href="{{ route('agent.lead.deleteReminder',$reminder->id) }}">Delete</a>
+                            <a href="{{ route('agent.lead.deleteReminder',$reminder->id) }}">{!! trans('Delete') !!}</a>
                         </div>
                     </li>
                 @endforeach
                 </ul>
             @endif
-            <a class="dialog" href="{{ route('agent.lead.addReminder',$openedLead->id) }}">Add reminder</a>
+            <a class="dialog" href="{{ route('agent.lead.addReminder',$openedLead->id) }}">{!! trans('Add reminder') !!}</a>
         </div>
     </div>
     <style>

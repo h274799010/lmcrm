@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateOpenLeads extends Migration
+class LeadTransactions extends Migration
 {
     /**
      * Run the migrations.
@@ -12,16 +12,10 @@ class CreateOpenLeads extends Migration
      */
     public function up()
     {
-        Schema::create('open_leads', function (Blueprint $table) {
+        Schema::create('lead_transactions', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('number');
             $table->integer('lead_id');
-            $table->integer('agent_id');
-            $table->integer('count');
-            $table->integer('status');
-            $table->text('comment');
-            $table->boolean('bad');
-            $table->timestamp('pending_time');
-            $table->timestamps();
             $table->engine = 'InnoDB';
         });
     }
@@ -33,6 +27,6 @@ class CreateOpenLeads extends Migration
      */
     public function down()
     {
-        Schema::drop('open_leads');
+        Schema::drop('lead_transactions');
     }
 }

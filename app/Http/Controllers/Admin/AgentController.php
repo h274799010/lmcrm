@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Admin;
 
+use App\CreditHelper;
 use App\Http\Controllers\AdminController;
 use App\Models\Agent;
 use App\Models\AgentInfo;
@@ -72,7 +73,7 @@ class AgentController extends AdminController
      */
     public function edit($id)
     {
-        $agent = Agent::with('sphereLink','info')->findOrFail($id);
+        $agent = Agent::/*with('sphereLink','info')->*/findOrFail($id);
         $spheres = Sphere::active()->lists('name','id');
         return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres]);
     }
@@ -97,16 +98,11 @@ class AgentController extends AdminController
             }
         }
         $credits = $agent->bill()->first();
-        if (!$credits)
-            $credits = new Credits();
-        $credits->buyed = $request->buyed;
-        $credits->earned = $request->earned;
-        $credits->agent_id = $id;
-        $credits->source = CreditTypes::MANUAL_CHANGE;
-        $credits->save();
+
+        CreditHelper::manual($credits,$request,$id);
 
         $agent->update($request->except('password','password_confirmation','sphere','info'));
-        $agent->info()->update($request->only('info')['info']);
+        //$agent->info()->update($request->only('info')['info']);
 
         $agent->spheres()->sync($request->only('sphere'));
         return redirect()->route('admin.agent.index');

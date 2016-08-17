@@ -17,6 +17,7 @@ class CreateCredits extends Migration
             $table->integer('agent_id');
             $table->float('buyed');
             $table->float('earned');
+            $table->float('wasted');
             $table->timestamps();
             $table->engine = 'InnoDB';
         });
@@ -24,9 +25,11 @@ class CreateCredits extends Migration
             $table->increments('id');
             $table->double('buyed', 8, 2);
             $table->double('earned', 8, 2);
+            $table->double('buyedChange', 8, 2);
+            $table->double('earnedChange', 8, 2);
             $table->integer('source');
             $table->integer('agent_id');
-            $table->char('descr',255);
+            $table->integer('transaction_id');
             $table->timestamps();
             $table->engine = 'InnoDB';
         });

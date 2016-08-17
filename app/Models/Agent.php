@@ -31,12 +31,21 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     ];
 
 
+    // todo удалить этот метод вместе с миграцией и моделью
+//    public function info(){
+//        return $this->hasOne('App\Models\AgentInfo','agent_id','id');
+//    }
+
     public function scopelistAll($query){
         return $query->whereIn('id',\Sentinel::findRoleBySlug('agent')->users()->lists('id'))->select(array('users.id','users.first_name','users.last_name', 'users.name', 'users.email', 'users.created_at'));
     }
 
     public function leads(){
         return $this->hasMany('\App\Models\Lead','agent_id','id');
+    }
+
+    public function openLead($id){
+        return $this->hasOne('\App\Models\OpenLeads','agent_id','id')->where('open_leads.lead_id', '=', $id);
     }
 
     public function salesmen(){

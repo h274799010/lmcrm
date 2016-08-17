@@ -78,14 +78,14 @@
         <div class="form-group  {{ $errors->has('buyed') ? 'has-error' : '' }}">
             {!! Form::label('buyed', trans("admin/buyed.buyed"), array('class' => 'control-label')) !!}
             <div class="controls">
-                {!! Form::text('buyed', ($agent->bill)?$agent->bill->buyed:null, array('class' => 'form-control')) !!}
+                {!! Form::text('buyed', (isset($agent) && $agent->bill)?$agent->bill->buyed:null, array('class' => 'form-control')) !!}
                 <span class="help-block">{{ $errors->first('buyed', ':message') }}</span>
             </div>
         </div>
         <div class="form-group  {{ $errors->has('earned') ? 'has-error' : '' }}">
             {!! Form::label('earned', trans("admin/earned.earned"), array('class' => 'control-label')) !!}
             <div class="controls">
-                {!! Form::text('earned', ($agent->bill)?$agent->bill->earned:null, array('class' => 'form-control')) !!}
+                {!! Form::text('earned', (isset($agent) && $agent->bill)?$agent->bill->earned:null, array('class' => 'form-control')) !!}
                 <span class="help-block">{{ $errors->first('earned', ':message') }}</span>
             </div>
         </div>
@@ -94,22 +94,6 @@
             <div class="controls">
                 {!! Form::select('sphere',$spheres,(isset($agent))?$agent->sphereLink->sphere_id:NULL, array('class' => 'form-control','required'=>'required')) !!}
                 <span class="help-block">{{ $errors->first('sphere', ':message') }}</span>
-            </div>
-        </div>
-
-        <div class="form-group  {{ $errors->has('lead_revenue') ? 'has-error' : '' }}">
-            {!! Form::label('info[lead_revenue]', trans("admin/agent.lead_revenue"), array('class' => 'control-label')) !!}
-            <div class="controls">
-                {!! Form::text('info[lead_revenue]', null, array('class' => 'form-control')) !!}
-                <span class="help-block">{{ $errors->first('lead_revenue', ':message') }}</span>
-            </div>
-        </div>
-
-        <div class="form-group  {{ $errors->has('payment_revenue') ? 'has-error' : '' }}">
-            {!! Form::label('info[payment_revenue]', trans("admin/agent.payment_revenue"), array('class' => 'control-label')) !!}
-            <div class="controls">
-                {!! Form::text('info[payment_revenue]', null, array('class' => 'form-control')) !!}
-                <span class="help-block">{{ $errors->first('payment_revenue', ':message') }}</span>
             </div>
         </div>
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\CreditHelper;
 use App\Http\Controllers\AgentController;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
@@ -10,7 +11,6 @@ use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\Credits;
-use App\Models\CreditTypes;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\Sphere;
@@ -38,14 +38,6 @@ class LeadController extends AgentController {
         return view('agent.lead.deposited')->with('leads',$leads);
     }
 
-
-    /**
-     * Выводит таблицу с отфильтрованными лидами
-     * (только саму таблицу, строки добавляет метод obtainData)
-     *
-     *
-     * @return object
-     */
     public function obtain(){
 
         // данные агента
@@ -57,6 +49,7 @@ class LeadController extends AgentController {
         return view('agent.lead.obtain')
             ->with('lead_attr',$lead_attr);
     }
+
 
 
     /**
@@ -77,7 +70,7 @@ class LeadController extends AgentController {
         // получаем данные агента из битмаска
         $agentBitmask = $mask->getStatus()->first();
 
-        // ПРОВЕРКА НАЛИЧИЯ МАСКИ У АГЕНТА ПЕРЕД ПОЛУЧЕНИЕМ ЛИДОВ
+        // проверка на маску перед получением лидов агента
         if( $agentBitmask  ){
             // если у агента есть запись в битмаске
 
@@ -154,108 +147,21 @@ class LeadController extends AgentController {
                 return '';
             })
             ->edit_column('customer_id',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:'<b>' .trans('site/lead.hidden') .'</b>';
+                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('lead.hidden');
             })
             ->edit_column('email',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->email:'<b>' .trans('site/lead.hidden') .'</b>';
-            })
-        ;
+                return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('lead.hidden');
+            });
 
+        $lead_attr = $agent->sphere()->leadAttr()->get();
 
-        /* ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad В ТАБЛИЦЕ obtain ---  */
+        foreach($lead_attr as $key=>$l_attr){
+           $datatable->add_column('a_'.$key,function($lead) use ($l_attr){
 
-        // получаем все атрибуты лида
-        $leadAttributes = $agent->sphere()->leadAttr()->get();
-
-        // маска ad полей лидов
-        // массив с ключами и значениями только ad_ полей
-        // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
-        $adMask = collect($leadBitmask->findAdMask());
-
-//        dd($adMask);
-
-        // перебираем все атрибуты и выставляем значения по маске лида
-        foreach($leadAttributes as $index=>$attr){
-
-           $datatable->add_column( 'a_'.$index,function( $lead ) use ( $attr, $leadBitmask, $adMask ){
-
-               // маска текущего лида
-               $leadMask = $adMask[$lead->id];
-
-               // выбираем тип текущего атрибута
-               $attrType = $attr->_type;
-
-                /* - ОБРАБОТКА ОПЦИЙ В ЗАВИСИМОСТИ ОТ ТИПА АТРИБУТА - */
-               if( $attrType=='calendar' || $attrType=='email' ){
-                   // опции этих атрибутов имеют тип field,
-                   // в таблице опций должна быть только одна запись с этим атрибутом
-
-                   // строка атрибута в таблице опций (по идее должна быть только одна)
-//                   $fieldData= $attr->field;
-
-                   // полное имя поля ad в таблице маски лида
-//                   $ad_attr_opt = 'ad_' .$fieldData->attr_id .'_' .$fieldData->id;
-
-                   $ad_attr_opt = 'ad_' .$attr->id .'_0';
-
-
-                   // присваивем значение поля записанное в мске лида
-                   $value = $leadMask[$ad_attr_opt];
-
-               }elseif( $attrType=='radio' || $attrType=='checkbox' || $attrType=='select' ){
-                   // опции этих атрибутов имеют тип option их всегда несколько
-                   // дальше идет фильтрация по маске лида, выбираются опции которые относятся к лиду
-
-                   // все опции атрибута
-                   $allOption = $attr->options;
-
-                   // переменная с отфильтрованными опциями
-                   $value = '';
-
-                   // фльтруем все опции атрибута по маске атрибута
-                   foreach($allOption as $opt){
-
-                       // полное имя поля ad в таблице маски лида
-                       $ad_attr_opt = 'ad_' .$opt->attr_id .'_' .$opt->id;
-
-                       // если в поле есть значение, добавляем его,
-                       // если нет - пропускаем
-                       if( $leadMask[$ad_attr_opt] == 1 ){
-
-                           if( $value=='' ){
-                               // если переменная пустая - присваиваем значение
-                               $value = $opt->name;
-
-                           }else{
-                               // если в переменной уже есть опции - добавляем через запятую
-                               $value = $value .', ' .$opt->name;
-                           }
-                       }
-                   }
-
-               }elseif( $attrType=='input' || $attrType=='textarea' ){
-                   // опции этих атрибутов не имеют запись в таблице опций атрибутов
-
-
-
-                   // полное имя поля ad в таблице маски лида
-                   $ad_attr_opt = 'ad_' .$attr->id .'_0';
-
-                   // присваивем значение поля записанное в мске лида
-                   if(isset($leadMask[$ad_attr_opt])){
-                       $value = $leadMask[$ad_attr_opt];
-                   }else{
-                       $value = null;
-                   }
-
-               }else{
-                   // если не подошло ни одно значение
-                   // какие то ошибки на фронтенде
-
-                   $value = null;
-               }
-
-               return view('agent.lead.datatables.obtain_data',['data'=>$value,'type'=>$attrType]);
+               // todo данные должны браться из leadBitmask, полей (ad_), доработать
+//               $val = $lead->info()->where('lead_attr_id','=',$l_attr->id)->first();
+               $val='ага';
+                return view('agent.lead.datatables.obtain_data',['data'=>$val,'type'=>$l_attr->_type]);
            });
         }
 
@@ -266,112 +172,100 @@ class LeadController extends AgentController {
 
 
     public function openLead($id){
-        $agent = $this->user;
-        $agent->load('bill');
-        $credit = Credits::where('agent_id','=',$this->uid)->sharedLock()->first();
-        $balance = $credit ? $credit->balance : 0;
+        $credit = $this->user->bill;
+        $balance = $credit->balance;
 
         $mask=$this->mask;
         $price = $mask->getStatus()->sharedLock()->first()->lead_price;
 
         if($price > $balance) {
-            return 'Error: low balance';
-            //return redirect()->route('agent.lead.obtain',[0]);
+            return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
         }
 
-        $lead = Lead::lockForUpdate()->find($id);
+        $lead = Lead::lockForUpdate()->find($id);//lockForUpdate лочит только выбранные строки
         if($lead->sphere->openLead > $lead->opened) {
-            //$lead->opened+=1;
-            //$credit->history()->save(new CreditHistory());
-
             $updateCount = Lead::where('id',$lead->id)->where('opened','<',$lead->sphere->openLead)->increment('opened');
             if($updateCount){
-                //$lead->obtainedBy()->attach($this->uid);
-                $ol = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
+                $ol = OpenLeads::lockForUpdate()->where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
                 if (!$ol){
                     $ol = new OpenLeads();
                     $ol->lead_id = $id;
                     $ol->agent_id = $this->uid;
+                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
                     $ol->save();
                 }
                 else
                 {
+                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
                     $ol->increment('count');
-                }
-                $credit->payment=$price;
-                $credit->descrHistory = 1;
-                $credit->source = CreditTypes::LEAD_PURCHASE;
-                $credit->save();//уменьшаем баланс купившего
+                    $ol->save();
 
-//                $credit = Credits::where('agent_id','=',$lead->agent_id)->sharedLock()->first();
-//                $credit->earned += $price*(intval($lead->sphere->revenue)/100);
-//                $credit->descrHistory = 1;
-//                $credit->source = CreditTypes::LEAD_SALE;
-//                $credit->save();//увеличиваем баланс добавившего
-                return 'Successfully obtained';
+                }
+                CreditHelper::leadPurchase($credit,$price,1,$lead);
+
+                return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
             }
             else{
-                return 'Obtain error';
+                return json_encode(['msg'=>trans('lead/lead.obtainError')]);
             }
         }
         else
         {
-            return 'Превышен лимит: открыто '.$lead->opened.' из '.$lead->sphere->openLead;
+            return json_encode(
+                [
+                    'msg'=>trans(
+                        'lead/lead.limitExceeded',
+                        [
+                            'opened' => $lead->opened,
+                            'openLead' => $lead->sphere->openLead
+                        ]
+                    )
+                ]
+            );
         }
     }
 
     public function openAllLeads($id){
-        $agent = $this->user;
-        $agent->load('bill');
-        $credit = Credits::where('agent_id','=',$this->uid)->sharedLock()->first();
-        $balance = $credit ? $credit->balance : 0;
+        $credit = $this->user->bill;
+        $balance = $credit->balance;
 
         $mask=$this->mask;
 
         $lead = Lead::lockForUpdate()->find($id);
-        $ol = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
+
+        $ol = $this->user->openLead($id)->first();
         $obtainedByThisAgent = 0;
         if ($ol)
             $obtainedByThisAgent = $ol->count;
         if ($lead->opened > 0 && $lead->opened != $obtainedByThisAgent)
-            return 'Part of leads is already obtained by other agent';
+            return json_encode(['msg'=>trans('lead/lead.alreadyObtained')]);
 
         $mustBeAdded = $lead->sphere->openLead - $obtainedByThisAgent;
         $price = $mask->getStatus()->sharedLock()->first()->lead_price*$mustBeAdded;
 
         if($price > $balance) {
-            return 'Error: low balance';
-            //return redirect()->route('agent.lead.obtain',[0]);
+            return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
         }
 
-        //$lead->opened += $lead->sphere->openLead;
         $updateCount = Lead::where('id',$lead->id)->where('opened',$lead->opened)->increment('opened',$mustBeAdded);
         if ($updateCount)
         {
-            //$lead->obtainedBy()->attach($this->uid);
             if (!$ol){
                 $ol = new OpenLeads();
                 $ol->lead_id = $id;
                 $ol->agent_id = $this->uid;
             }
             $ol->count = $lead->sphere->openLead;
+            $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
             $ol->save();
-            $credit->payment=$price;
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_PURCHASE;
-            $credit->save();//уменьшаем баланс купившего
 
-            $credit = Credits::where('agent_id','=',$lead->agent_id)->sharedLock()->first();
-            $credit->earned += $price*(intval($lead->sphere->revenue)/100);
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_SALE;
-            $credit->save();//увеличиваем баланс добавившего
-            return 'Successfully obtained';
+            CreditHelper::leadPurchase($credit,$price,$mustBeAdded,$lead);
+
+            return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
         }
         else{
-            return 'Obtain error';
+            return json_encode(['msg'=>trans('lead/lead.obtainError')]);
         }
-        //$credit->history()->save(new CreditHistory());
     }
 
     /**
@@ -490,6 +384,8 @@ class LeadController extends AgentController {
     public function editOpenedLead(Request $request){
         $openLead = OpenLeads::where(['id'=>$request->input('id'),'agent_id'=>$this->uid])->first();
         $openLead->comment = $request->input('comment');
+        if ($openLead->canSetBad && $request->input('bad'))
+            $openLead->bad = 1;
         $openLead->save();
         return redirect()->back();
     }

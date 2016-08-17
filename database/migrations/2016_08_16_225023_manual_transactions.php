@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateOrganizerTable extends Migration
+class ManualTransactions extends Migration
 {
     /**
      * Run the migrations.
@@ -12,13 +12,9 @@ class CreateOrganizerTable extends Migration
      */
     public function up()
     {
-        Schema::create('organizer', function (Blueprint $table) {
+        Schema::create('manual_transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('open_lead_id');
-            $table->integer('time');
-            $table->text('comment');
-            $table->boolean('is_notice');
-            $table->timestamps();
+            $table->integer('initiator_id');
             $table->engine = 'InnoDB';
         });
     }
@@ -30,6 +26,6 @@ class CreateOrganizerTable extends Migration
      */
     public function down()
     {
-        Schema::drop('organizer');
+        Schema::drop('manual_transactions');
     }
 }
