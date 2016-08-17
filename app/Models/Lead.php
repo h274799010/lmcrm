@@ -101,6 +101,8 @@ class Lead extends EloquentUser {
      * вернет данные лида по всем битмаскам
      *
      *
+     * @param  integer  $sphere
+     *
      * @return object
      */
 //    public function bitmask($sphere=NULL)
@@ -152,4 +154,5 @@ class Lead extends EloquentUser {
         }
         return false;
     }
+
 }

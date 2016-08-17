@@ -41,10 +41,10 @@ class SphereController extends Controller {
      */
     public function edit($sphere,$id)
     {
+
+
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
-        $mask = new AgentBitmask($data->id);
-        $mask = $mask->findShortMask($id);
 
         $lead = Lead::with('phone')->find($id);
 
@@ -68,6 +68,7 @@ class SphereController extends Controller {
      */
     public function update(Request $request,$sphere_id,$lead_id)
     {
+
         $validator = Validator::make($request->except('info'), [
             'options.*' => 'integer',
         ]);
@@ -79,7 +80,7 @@ class SphereController extends Controller {
             }
         }
         $sphere = Sphere::findOrFail($sphere_id);
-        $mask = new SphereMask($sphere->id);
+        $mask = new LeadBitmask($sphere->id);
         $options=array();
         if ($request->has('options')) {
             $options=$request->only('options')['options'];

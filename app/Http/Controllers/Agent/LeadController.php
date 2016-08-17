@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Agent;
 
-use App\CreditHelper;
 use App\Http\Controllers\AgentController;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
@@ -132,9 +131,6 @@ class LeadController extends AgentController {
         // получаем данные агента из битмаска
         $agentBitmask = $mask->getStatus()->first();
 
-        // проверка на маску перед получением лидов агента
-        if( $agentBitmask  ){
-            // если у агента есть запись в битмаске
         // ПРОВЕРКА НАЛИЧИЯ МАСКИ У АГЕНТА ПЕРЕД ПОЛУЧЕНИЕМ ЛИДОВ
         if( $agentBitmask  ){
             // если у агента есть запись в битмаске
@@ -167,7 +163,6 @@ class LeadController extends AgentController {
                     ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
                 ->get();
             }
-        });
 
         }else{
             // если у агента нет записи в битмаске
@@ -220,7 +215,6 @@ class LeadController extends AgentController {
             })
         ;
 
-        $lead_attr = $agent->sphere()->leadAttr()->get();
 
         /* ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad В ТАБЛИЦЕ obtain ---  */
 
