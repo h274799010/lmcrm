@@ -20,14 +20,14 @@
                             </thead>
                             <tbody>
                             @foreach ($dataArray as $data)
-                                <tr onclick="reloadTable({{ $data->id }})">
+                                <tr lead_id="{{ $data->id }}">
                                     <td><div></div></td>
                                     <td class="select_cell"> {{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, ['class'=>'form']) }} </td>
                                     <td><div>{{ $data->date }}</div></td>
                                     <td><div>{{ $data->name }}</div></td>
                                     <td><div>{{ $data->phone->phone }}</div></td>
                                     <td><div>{{ $data->email }}</div></td>
-                                    <td>
+                                    <td class="edit">
                                         <div>
                                             <a href="{{ route('agent.lead.showOpenedLead',$data->id) }}">
                                                 <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
@@ -136,6 +136,9 @@
 @section('scripts')
     <script>
 
+
+        /** загрузка дополнительной таблицы с подробной информацией лида */
+
         var table;
         function reloadTable(id){
 
@@ -165,7 +168,6 @@
 
                         $('td', nRow).first().attr('class', 'hidden');
 
-
                         $('td+td', nRow).first().css('background-color', '#63A4B8');
                         $('td+td', nRow).first().css('color', 'white');
                         $('td+td', nRow).first().css('font-weight', 'bold');
@@ -177,13 +179,41 @@
             }
         }
 
-//        $('document').find('span.selectboxit-container.selectboxit-container').css('height', '300px');
 
-//        $('span.selectboxit-container.selectboxit-container').css('height', '300px');
+        /**
+         * Событие на клик на строку таблицы
+         *
+         * выводит таблицу с боку с подробными данными о лиде
+         *
+         * событие привязывается к каждой ячейке отдельно, а не ко всей строке
+         * чтобы таблица не выпрыгивала по каждому нажатию на выпадающий список (к примеру)
+         *
+         */
 
-//           var a = $('span.selectboxit-container.selectboxit-container').css('width');
-//
-//        alert(a);
+        // строка таблицы
+        var openLeadsTable = $('table.openLeadsTable tbody tr');
+
+        // перебираем все строки таблицы
+        $.each(openLeadsTable, function( key, tr ){
+
+            // получаем id лида, по котому будем получать доп. данные для лида
+            var id = $(tr).attr('lead_id');
+
+            // перебираем все ячейки строки
+            $.each( $(tr).find('td'), function( k, td ){
+
+                // выбираем те ячейки у которых нет класса 'select_cell' и 'edit'
+                // (это ячейки с данными по которым нужно кликать)
+                if( $(td).attr('class')!='select_cell' && $(td).attr('class')!='edit' ){
+
+                    // привязываем функцию которая отдает доп. таблицу по клику
+                    $(td).bind( 'click', function(){
+                        reloadTable(id);
+                    });
+                }
+            });
+
+        });
 
 
     </script>
