@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\CreditHelper;
 use App\Http\Controllers\AgentController;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
@@ -10,7 +11,6 @@ use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\Credits;
-use App\Models\CreditTypes;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\Sphere;
@@ -154,12 +154,11 @@ class LeadController extends AgentController {
                 return '';
             })
             ->edit_column('customer_id',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:'<b>' .trans('site/lead.hidden') .'</b>';
+                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('lead.hidden');
             })
             ->edit_column('email',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->email:'<b>' .trans('site/lead.hidden') .'</b>';
-            })
-        ;
+                return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('lead.hidden');
+            });
 
 
         /* ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad В ТАБЛИЦЕ obtain ---  */
@@ -266,112 +265,100 @@ class LeadController extends AgentController {
 
 
     public function openLead($id){
-        $agent = $this->user;
-        $agent->load('bill');
-        $credit = Credits::where('agent_id','=',$this->uid)->sharedLock()->first();
-        $balance = $credit ? $credit->balance : 0;
+        $credit = $this->user->bill;
+        $balance = $credit->balance;
 
         $mask=$this->mask;
         $price = $mask->getStatus()->sharedLock()->first()->lead_price;
 
         if($price > $balance) {
-            return 'Error: low balance';
-            //return redirect()->route('agent.lead.obtain',[0]);
+            return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
         }
 
-        $lead = Lead::lockForUpdate()->find($id);
+        $lead = Lead::lockForUpdate()->find($id);//lockForUpdate лочит только выбранные строки
         if($lead->sphere->openLead > $lead->opened) {
-            //$lead->opened+=1;
-            //$credit->history()->save(new CreditHistory());
-
             $updateCount = Lead::where('id',$lead->id)->where('opened','<',$lead->sphere->openLead)->increment('opened');
             if($updateCount){
-                //$lead->obtainedBy()->attach($this->uid);
-                $ol = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
+                $ol = OpenLeads::lockForUpdate()->where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
                 if (!$ol){
                     $ol = new OpenLeads();
                     $ol->lead_id = $id;
                     $ol->agent_id = $this->uid;
+                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
                     $ol->save();
                 }
                 else
                 {
+                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
                     $ol->increment('count');
-                }
-                $credit->payment=$price;
-                $credit->descrHistory = 1;
-                $credit->source = CreditTypes::LEAD_PURCHASE;
-                $credit->save();//уменьшаем баланс купившего
+                    $ol->save();
 
-//                $credit = Credits::where('agent_id','=',$lead->agent_id)->sharedLock()->first();
-//                $credit->earned += $price*(intval($lead->sphere->revenue)/100);
-//                $credit->descrHistory = 1;
-//                $credit->source = CreditTypes::LEAD_SALE;
-//                $credit->save();//увеличиваем баланс добавившего
-                return 'Successfully obtained';
+                }
+                CreditHelper::leadPurchase($credit,$price,1,$lead);
+
+                return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
             }
             else{
-                return 'Obtain error';
+                return json_encode(['msg'=>trans('lead/lead.obtainError')]);
             }
         }
         else
         {
-            return 'Превышен лимит: открыто '.$lead->opened.' из '.$lead->sphere->openLead;
+            return json_encode(
+                [
+                    'msg'=>trans(
+                        'lead/lead.limitExceeded',
+                        [
+                            'opened' => $lead->opened,
+                            'openLead' => $lead->sphere->openLead
+                        ]
+                    )
+                ]
+            );
         }
     }
 
     public function openAllLeads($id){
-        $agent = $this->user;
-        $agent->load('bill');
-        $credit = Credits::where('agent_id','=',$this->uid)->sharedLock()->first();
-        $balance = $credit ? $credit->balance : 0;
+        $credit = $this->user->bill;
+        $balance = $credit->balance;
 
         $mask=$this->mask;
 
         $lead = Lead::lockForUpdate()->find($id);
-        $ol = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
+
+        $ol = $this->user->openLead($id)->first();
         $obtainedByThisAgent = 0;
         if ($ol)
             $obtainedByThisAgent = $ol->count;
         if ($lead->opened > 0 && $lead->opened != $obtainedByThisAgent)
-            return 'Part of leads is already obtained by other agent';
+            return json_encode(['msg'=>trans('lead/lead.alreadyObtained')]);
 
         $mustBeAdded = $lead->sphere->openLead - $obtainedByThisAgent;
         $price = $mask->getStatus()->sharedLock()->first()->lead_price*$mustBeAdded;
 
         if($price > $balance) {
-            return 'Error: low balance';
-            //return redirect()->route('agent.lead.obtain',[0]);
+            return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
         }
 
-        //$lead->opened += $lead->sphere->openLead;
         $updateCount = Lead::where('id',$lead->id)->where('opened',$lead->opened)->increment('opened',$mustBeAdded);
         if ($updateCount)
         {
-            //$lead->obtainedBy()->attach($this->uid);
             if (!$ol){
                 $ol = new OpenLeads();
                 $ol->lead_id = $id;
                 $ol->agent_id = $this->uid;
             }
             $ol->count = $lead->sphere->openLead;
+            $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
             $ol->save();
-            $credit->payment=$price;
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_PURCHASE;
-            $credit->save();//уменьшаем баланс купившего
 
-            $credit = Credits::where('agent_id','=',$lead->agent_id)->sharedLock()->first();
-            $credit->earned += $price*(intval($lead->sphere->revenue)/100);
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_SALE;
-            $credit->save();//увеличиваем баланс добавившего
-            return 'Successfully obtained';
+            CreditHelper::leadPurchase($credit,$price,$mustBeAdded,$lead);
+
+            return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
         }
         else{
-            return 'Obtain error';
+            return json_encode(['msg'=>trans('lead/lead.obtainError')]);
         }
-        //$credit->history()->save(new CreditHistory());
     }
 
     /**
@@ -490,6 +477,8 @@ class LeadController extends AgentController {
     public function editOpenedLead(Request $request){
         $openLead = OpenLeads::where(['id'=>$request->input('id'),'agent_id'=>$this->uid])->first();
         $openLead->comment = $request->input('comment');
+        if ($openLead->canSetBad && $request->input('bad'))
+            $openLead->bad = 1;
         $openLead->save();
         return redirect()->back();
     }

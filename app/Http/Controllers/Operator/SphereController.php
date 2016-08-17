@@ -41,8 +41,6 @@ class SphereController extends Controller {
      */
     public function edit($sphere,$id)
     {
-
-
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
 
@@ -68,7 +66,6 @@ class SphereController extends Controller {
      */
     public function update(Request $request,$sphere_id,$lead_id)
     {
-
         $validator = Validator::make($request->except('info'), [
             'options.*' => 'integer',
         ]);
