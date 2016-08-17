@@ -198,6 +198,7 @@ class LeadController extends AgentController {
                 {
                     $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
                     $ol->increment('count');
+                    $ol->save();
 
                 }
                 CreditHelper::leadPurchase($credit,$price,1,$lead);
