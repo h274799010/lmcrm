@@ -82,6 +82,29 @@ class Lead extends EloquentUser {
         return $this->hasOne('App\Models\Sphere', 'id', 'sphere_id');
     }
 
+    /**
+     * Возвращает все статусы сферы лида
+     *
+     * todo доработать
+     *
+     */
+    public function sphereStatuses(){
+
+        $rel = $this->sphere()->with('statuses');
+
+        return $rel;
+    }
+
+
+    public function openLeadStatus(){
+
+        $openLead = $this->hasOne('App\Models\OpenLeads', 'lead_id', 'id');
+
+        return $openLead;
+
+    }
+
+
     public function phone(){
         return $this->hasOne('App\Models\Customer','id','customer_id');
     }

@@ -21,7 +21,7 @@
                             @foreach ($dataArray as $data)
                                 <tr onclick="reloadTable({{ $data->id }})">
                                     <td></td>
-                                    <td> в разработке </td>
+                                    <td class="select_cell"> {{ Form::select('age', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, ['class' => 'field', 'id'=>3]) }} </td>
                                     <td>{{ $data->date }}</td>
                                     <td>{{ $data->name }}</td>
                                     <td>{{ $data->phone->phone }}</td>
@@ -67,6 +67,13 @@
         #main_table table tr td{
             cursor: help;
         }
+
+        .select_cell{
+            padding: 0 !important;
+            width: 10px !important;
+        }
+
+
 
     </style>
 @endsection
@@ -117,3 +124,4 @@
 
     </script>
 @endsection
+

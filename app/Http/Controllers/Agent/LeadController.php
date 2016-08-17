@@ -520,16 +520,50 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
+
+        // todo получил все статусы
+//        $l = Lead::find(1);
+
+//        $s = $l->sphere;
+//
+//        $stat = $s->statuses;
+
+//        dd($stat);
+
+//        sphereStatuses
+
+//        $ss = $l->sphereStatuses;
+
+//        dd($s);
+//        dd($ss->statuses);
+//        dd($ss);
+
+        // todo лучший способ
+//        dd(Lead::find(1)->sphere->statuses);
+
+
+
+
+
+
         // id пользователя
         $userId = Sentinel::getUser()->id;
 
-        // данные открытых лидов для конкретного пользователя
+        // id открытых лидов пользователя
         $openLeads = OpenLeads::where('agent_id', '=', $userId)->lists('lead_id');
 
-        //
-        $leads = Lead::whereIn('id', $openLeads)->get();
+        // открытые лиды пользователя
+        $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->get();
 
-        // todo статус берется из леад битмаск
+//        $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->first();
+
+        //        dd(Lead::find(1)->sphere->statuses);
+
+//        dd($leads->first()->sphereStatuses->statuses->lists('stepname', 'id'));
+
+//        dd($leads->openLeadStatus->status);
+
+        // todo статус берется из опенЛид
         // todo при этом показываются все остальные статусы сферы
 
 
@@ -550,6 +584,7 @@ class LeadController extends AgentController {
 
         $index = 4;
 
+        // получаем все атрибуты агента
         foreach ($data->SphereFormFilters as $key=>$sphereAttr){
 
             $str = '';
@@ -573,6 +608,7 @@ class LeadController extends AgentController {
             ++$index;
         }
 
+        // получаем все атрибуты лида
         foreach ($data->SphereAdditionForms as $key=>$attr){
 
             $str = '';
