@@ -158,4 +158,14 @@ $(function(){
 		});
 		dTable.ajax.reload();
 	});
+
 });
+
+
+var source = new EventSource("/notice");
+source.onmessage = function(event) {
+	//document.getElementById("result").innerHTML += event.data + "<br>";
+	console.log(event.data);
+};
+
+

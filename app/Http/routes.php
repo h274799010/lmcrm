@@ -13,3 +13,18 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'we
 
     include('routes/admin.routes.php');
 });
+
+
+Route::get('notice', function(){
+
+    header('Content-Type: text/event-stream');
+    header('Cache-Control: no-cache');
+
+    $time = date('r');
+//    echo "data: The server time is: {$time}\n\n";
+    echo "data: {a:5, f:7}\n\n";
+
+    flush();
+
+
+});

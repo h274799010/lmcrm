@@ -19,19 +19,9 @@
                 <li><a><i class="fa fa-copyright bg-blue"></i> {{$balance[1]}} credits</a></li>
             </ul>
             @endif
+
             <ul class="nav navbar-top-links navbar-right language_bar_chooser flip">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-language"></i> {{ trans('site/site.languages') }} <i class="fa fa-caret-down"></i></a>
-                    <ul class="dropdown-menu" role="menu">
-                        @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-                            <li>
-                                <a rel="alternate" hreflang="{{$localeCode}}" href="{{LaravelLocalization::getLocalizedURL($localeCode) }}">
-                                    {{ $properties['native'] }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </li>
+
                 @if (Sentinel::guest())
                     <li class="{{ (Request::is('auth/login') ? 'active' : '') }}"><a href="{{ URL::to('auth/login') }}"><i
                                     class="fa fa-sign-in"></i> Login</a></li>
@@ -40,8 +30,7 @@
                 @else
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-expanded="false"><i class="fa fa-user"></i> {{ Sentinel::getUser()->name }} <i
-                                    class="fa fa-caret-down"></i></a>
+                           aria-expanded="false"><i class="glyphicon glyphicon-menu-hamburger"></i> {{ Sentinel::getUser()->name }} </a>
                         <ul class="dropdown-menu" role="menu">
                                 @if(Sentinel::inRole('administrator'))
                                     <li>
@@ -49,13 +38,34 @@
                                     </li>
                                     <li role="presentation" class="divider"></li>
                                 @endif
+
+
+                            <br>
+
+                            <li>
+                                <a href="{{ route('agent.salesman.index') }}"> Salesmen</a>                            </li>
+                            <hr>
+
+                            <li>
+                                <a href="{{ route('agent.sphere.index') }}"> Filtration customer</a>
+                            </li>
+                                    <hr>
                             <li>
                                 <a href="{{ URL::to('auth/logout')}}"><i class="fa fa-sign-out"></i> Logout</a>
                             </li>
                         </ul>
+
+
                     </li>
                 @endif
             </ul>
+
+                @if (!Sentinel::guest())
+            <ul class="nav navbar-top-links navbar-right flip">
+                <li><a class=""><i class="glyphicon glyphicon-bell"></i></a></li>
+            </ul>
+                @endif
+
         </div>
     </div>
 </nav>
