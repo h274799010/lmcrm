@@ -178,11 +178,11 @@ class Notice extends Model
      *
      * @return object | boolean
      */
-    public static function toMany( $sender, $users, $event, $message, $parent )
+    public static function toMany( $sender, $users, $event, $message='', $parent=0 )
     {
         if(is_object($users)==true){
             // создаем массив из id заданных пользователей
-            $usersArray = $users->map(function($user){ return $user->id; });
+            $usersArray = $users->map(function($user){ return $user->user_id; });
 
         }elseif(is_array($users)==true){
             $usersArray = $users;

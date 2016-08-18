@@ -9,9 +9,9 @@ use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
 use App\Models\Customer;
-use App\Models\LeadInfoEAV;
 use App\Models\Sphere;
-use App\Models\SphereMask;
+use App\Http\Controllers\Notice;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -30,24 +30,6 @@ class SphereController extends Controller {
     */
     public function index()
     {
-
-        // todo тестирую, удалить потом
-
-//        $l = Lead::find(1);
-
-        $leadBitmask = new LeadBitmask(1);
-
-        $agent = Agent::findOrFail(2);
-        $sphere = $agent->sphere();
-        $sphereAttr = $sphere->attributes;
-
-//        dd($sphereAttr);
-//        dd($agent);
-
-        dd($leadBitmask->findFbMask());
-
-
-//        dd($l->statusName);
 
         $spheres = Sphere::with('leads')->active()->get();
         return view('sphere.lead.list')->with('spheres',$spheres);
@@ -118,6 +100,10 @@ class SphereController extends Controller {
 
 
 
+
+
+
+
         /** --  П О Л Я  ad_  =====  "additional data"  ===== обработка и сохранение  -- */
 
         // заводим данные ad в переменную и преобразовываем в коллекцию
@@ -145,12 +131,45 @@ class SphereController extends Controller {
         });
 
 
+
+        // todo получение всех полей fb_ лида
+        $leadBitmaskData = $mask->findFbMask($lead_id);
+
+        // todo маски всех агентов сферы
+        $agentBitmasks = new AgentBitmask($sphere_id);
+
+//        $agentBitmasks = $agentBitmasks->where('user_id', '<>', $lead->agent_id);
+//
+//        dd($agentBitmasks->get());
+
+        // todo выбираем только тех агентов, которым подхоидт лид
+        $agents = $agentBitmasks->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )->get();
+
+        // todo нужно отсеять автора лида
+
+//        dd($agents);
+
+        if( $agents->count() ){
+
+            $senderId = Sentinel::getUser()->id;
+
+            // todo уведомить их
+            Notice::toMany( $senderId, $agents, 'note', 'Проверка на получение уведомления');
+
+        }
+
+
+
         if($request->ajax()){
             return response()->json();
         } else {
             return redirect()->route('operator.sphere.index');
         }
     }
+
+
+
+
 
     /**
      * Remove the specified resource from storage.

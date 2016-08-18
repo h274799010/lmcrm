@@ -105,14 +105,6 @@ class LeadController extends AgentController {
                 // выбираем данные лидов по маске (битмаск и лиды)
                 $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
 
-
-
-
-
-
-
-
-
                 // получаем все лиды по id из массива, без лидов автора
                 $leads = Lead::whereIn('id', $list)
                     ->where('agent_id', '<>', $agent->id)
