@@ -204,3 +204,40 @@ footer,.footer,#footer{
 	font-family: FontAwesome;
 	content: "\f077";
 }
+
+#notice{
+    margin-bottom: 20px;
+}
+
+.navbar{
+    margin-bottom: 0 !important;
+}
+
+.notice_newLead{
+    display: none;
+    background: #EE5255;
+    color: white;
+    font-size: 10px;
+    padding: 2px;
+    font-weight: bold;
+    height: 20px;
+    width: 100%;
+}
+
+
+.removNotice{
+
+    display: inline-block;
+    border-radius: 10px;
+    width: 15px;
+    height: 15px;
+    font-size: 10px;
+    color: red;
+    background: white;
+    padding-left: 4px;
+    cursor: pointer;
+    /*margin-left: 10px;*/
+
+}
+
+

@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Input;
 //use App\Http\Requests\Admin\ArticleRequest;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
+use App\Http\Controllers\Notice;
 
 class LeadController extends AgentController {
      /*
@@ -103,6 +104,14 @@ class LeadController extends AgentController {
 
                 // выбираем данные лидов по маске (битмаск и лиды)
                 $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
+
+
+
+
+
+
+
+
 
                 // получаем все лиды по id из массива, без лидов автора
                 $leads = Lead::whereIn('id', $list)

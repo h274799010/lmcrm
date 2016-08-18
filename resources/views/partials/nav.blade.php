@@ -43,13 +43,17 @@
                             <br>
 
                             <li>
-                                <a href="{{ route('agent.salesman.index') }}"> Salesmen</a>                            </li>
+                                <a href="{{ route('agent.salesman.index') }}"> Salesmen</a>
+                            </li>
+
                             <hr>
 
                             <li>
                                 <a href="{{ route('agent.sphere.index') }}"> Filtration customer</a>
                             </li>
-                                    <hr>
+
+                            <hr>
+
                             <li>
                                 <a href="{{ URL::to('auth/logout')}}"><i class="fa fa-sign-out"></i> Logout</a>
                             </li>
@@ -69,3 +73,22 @@
         </div>
     </div>
 </nav>
+
+<div id="notice">
+
+    <div class="notice_newLead">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div style="float: right;">новые лиды в системе <div class="removNotice" > х </div></div>
+                </div>
+                {{--<div class="col-md-1">--}}
+                    {{--<div class="removNotice" > х </div>--}}
+                {{--</div>--}}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

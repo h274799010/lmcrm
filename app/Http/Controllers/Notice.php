@@ -36,6 +36,9 @@ class Notice extends Model
         // запись данных о уведомлении в таблицу notifications
         $notice = Notification::make( $sender, $event, $message, $parent);
 
+        // todo проверить этот момент
+        $users = collect($users);
+
         // запись данных по каждому пользователю, таблица notification_users
         $users->each(function( $user ) use ( $notice ){
             Notification_users::make( $user, $notice->id );

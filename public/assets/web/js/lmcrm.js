@@ -162,10 +162,43 @@ $(function(){
 });
 
 
+
 var source = new EventSource("/notice");
+
+
 source.onmessage = function(event) {
 	//document.getElementById("result").innerHTML += event.data + "<br>";
-	console.log(event.data);
+
+	var a = $.parseJSON(event.data);
+
+	$.each( a, function( k, notice ){
+
+		if( notice == 'note' ){
+
+			var noteBlock = $('#notice .notice_newLead');
+
+			// делаем блок уведомлений видимым
+			noteBlock.css('display', 'block');
+
+
+			//if( noteBlock.css('display')=="none" ){
+			//	noteBlock.css('display', 'block');
+			//}
+
+			// todo включить обратно
+			noticeOff('note');
+		}
+
+	});
+
+
+	$('.removNotice').bind('click', function(){
+		$('#notice .notice_newLead').css('display', 'none');
+	})
+
 };
+
+
+
 
 

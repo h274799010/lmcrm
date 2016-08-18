@@ -15,16 +15,23 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'we
 });
 
 
-Route::get('notice', function(){
+// страница которая сообщает об уведомлениях
+Route::get('notice', ['as' => 'notification', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@index']);
 
-    header('Content-Type: text/event-stream');
-    header('Cache-Control: no-cache');
+Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notified']);
 
-    $time = date('r');
-//    echo "data: The server time is: {$time}\n\n";
-    echo "data: {a:5, f:7}\n\n";
 
-    flush();
 
+Route::get('sn', function(){
+
+
+    App\Http\Controllers\Notice::toOne( 1, 2, 'note', 'Проверка на получение уведомления');
+//    $n = App\Http\Controllers\Notice::search(2);
+
+//    dd($n);
+
+    echo 'ok';
+
+//    echo 'пока отключил';
 
 });
