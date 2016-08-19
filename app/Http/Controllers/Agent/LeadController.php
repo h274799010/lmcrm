@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Input;
 //use App\Http\Requests\Admin\ArticleRequest;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
+use App\CreditHelper;
 
 class LeadController extends AgentController {
      /*
@@ -352,7 +353,7 @@ class LeadController extends AgentController {
                     $ol->save();
 
                 }
-                CreditHelper::leadPurchase($credit,$price,1,$lead);
+                CreditHelper::leadPurchase($credit,$price,1,$lead,$this);
 
                 return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
             }
@@ -416,7 +417,7 @@ class LeadController extends AgentController {
             $credit->source = CreditTypes::LEAD_PURCHASE;
             $credit->save();//уменьшаем баланс купившего
 
-            CreditHelper::leadPurchase($credit,$price,$mustBeAdded,$lead);
+            CreditHelper::leadPurchase($credit,$price,$mustBeAdded,$lead,$this);
 
             return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
         }
