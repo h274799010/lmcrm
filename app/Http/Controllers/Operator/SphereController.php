@@ -9,11 +9,12 @@ use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
 use App\Models\Customer;
-use App\Models\LeadInfoEAV;
 use App\Models\Sphere;
-use App\Models\SphereMask;
+use App\Http\Controllers\Notice;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Input;
 //use App\Http\Requests\Admin\ArticleRequest;
 
@@ -23,13 +24,16 @@ class SphereController extends Controller {
     {
         view()->share('type', 'article');
     }
-     /*
-    * Display a listing of the resource.
-    *
-    * @return Response
-    */
+
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
     public function index()
     {
+
         $spheres = Sphere::with('leads')->active()->get();
         return view('sphere.lead.list')->with('spheres',$spheres);
     }
@@ -61,17 +65,31 @@ class SphereController extends Controller {
             ->with('adFields',$adFields);
     }
 
+
     /**
-     * Store the resource in storage.
+     * Сохранение данных лида и уведомление о нем агентов
+     *
+     * поля лида
+     * маска лида
+     * уведомление агентов которым подходит этот лид
+     *
+     *
+     * @param  Request  $request
+     * @param  integer  $sphere_id
+     * @param  integer  $lead_id
      *
      * @return Response
      */
-    public function update(Request $request,$sphere_id,$lead_id)
+    public function update(Request $request, $sphere_id, $lead_id)
     {
+
+
+    /** --  проверка данных на валидность  -- */
 
         $validator = Validator::make($request->except('info'), [
             'options.*' => 'integer',
         ]);
+
         if ($validator->fails()) {
             if($request->ajax()){
                 return response()->json($validator);
@@ -79,27 +97,44 @@ class SphereController extends Controller {
                 return redirect()->back()->withErrors($validator)->withInput();
             }
         }
+
+
+    /** --  П О Л Я  fb_  =====  сохранение данных опций атрибутов лида  -- */
+
+        // находим сферу по id
         $sphere = Sphere::findOrFail($sphere_id);
+        // выбираем маску по лида по сфере
         $mask = new LeadBitmask($sphere->id);
+
+        // выбираем только маску из реквеста
         $options=array();
         if ($request->has('options')) {
             $options=$request->only('options')['options'];
         }
+
+        // сохранение данных fb_ полей в маске лида
         $mask->setAttr($options,$lead_id);
+
+        // todo выяснить зачем нужен статус в маске лида, и нужен ли вообще
+        // в маске лида выставляется статус 1,
+        // где и зачем используется - непонятно
         $mask->setStatus(1, $lead_id);
 
-        $lead = Lead::find($lead_id);
 
+    /** --  выбираем лид и сохраняем в него новые данные  -- */
+
+        $lead = Lead::find($lead_id);
         $lead->name=$request->input('name');
         $lead->email=$request->input('email');
         $lead->comment=$request->input('comment');
+        $lead->bad= $request->input('bad') ? $request->input('bad') : 0;
         $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
         $lead->customer_id=$customer->id;
         $lead->save();
 
 
 
-        /** --  П О Л Я  ad_  =====  "additional data"  ===== обработка и сохранение  -- */
+    /** --  П О Л Я  ad_  =====  "additional data"  ===== обработка и сохранение  -- */
 
         // заводим данные ad в переменную и преобразовываем в коллекцию
         $additData = collect($request->only('addit_data')['addit_data']);
@@ -117,13 +152,36 @@ class SphereController extends Controller {
             $attrId = collect($val);
             $attrId->each(function( $opts, $attr ) use( $mask, $lead_id, $type ){
 
-                // запоминаем значения в БД
-                // все остальное по типу разруливает метод модели
+                // сохраняем значения полей в БД
                 $mask->setAd( $attr, $opts, $type, $lead_id);
-
             });
-
         });
+
+
+    /** --  уведомление Агентов которым этот лид подходит  -- */
+
+        // выбираем маску лида
+        $leadBitmaskData = $mask->findFbMask($lead_id);
+
+        // выбираем маски всех агентов
+        $agentBitmasks = new AgentBitmask($sphere_id);
+
+        // находим всех агентов которым подходит этот лид по фильтру
+        // исключаем агента добавившего лид
+        $agents = $agentBitmasks
+            ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
+            ->get();
+
+        // если агентов нет, пропускаем оповещения, если есть - оповещаем
+        if( $agents->count() ){
+
+            // находим id текущего оператора, чтобы отметить как отправителя сообщения
+            $senderId = Sentinel::getUser()->id;
+
+            // todo подобрать название к этому уведомлению
+            // рассылаем уведомления всем агентам которым подходит этот лид
+            Notice::toMany( $senderId, $agents, 'note');
+        }
 
 
         if($request->ajax()){
@@ -132,6 +190,7 @@ class SphereController extends Controller {
             return redirect()->route('operator.sphere.index');
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

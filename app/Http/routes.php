@@ -13,3 +13,10 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'we
 
     include('routes/admin.routes.php');
 });
+
+
+// метод сообщает об уведомлениях
+Route::get('notice', ['as' => 'notification', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notice']);
+
+// в этом месте сообщения отмечаются как полученные
+Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notified']);

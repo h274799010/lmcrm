@@ -646,29 +646,34 @@ class SphereController extends AdminController {
                  * работа метода останавливается
                  */
 
-                return response()->json(FALSE);
+                // todo проверить в работе
+//                return response()->json(FALSE);
+                $leadDataAttr = NULL;
+
 
             }elseif(isset($leadData['variables'][0])){
                 // 'variables' массив элемент с ключом "0" (по идее в других вариантах его быть недолжно)
 
-                if( count($leadData['variables']) < 3 ){
-                    // если у лида меньше 3 атрибутов
-                    // работа метода останавливается
+//                if( count($leadData['variables']) < 3 ){
+//                    // если у лида меньше 3 атрибутов
+//                    // работа метода останавливается
+//
+//                    // у лида должно быть не меньше 3 атрибутов
+//                    return response()->json(FALSE);
+//
+//                }else{
+//                    // у лида 3 и больше атрибутов
+//
+//                    /*
+//                     * массив просто преобразовывается в коллекцию
+//                     * чтобы было проще дальше обрабатывать
+//                     */
+//
+//                    $leadDataAttr = collect( $leadData['variables'] );
+//                }
 
-                    // у лида должно быть не меньше 3 атрибутов
-                    return response()->json(FALSE);
-
-                }else{
-                    // у лида 3 и больше атрибутов
-
-                    /*
-                     * массив просто преобразовывается в коллекцию
-                     * чтобы было проще дальше обрабатывать
-                     */
-
-                    $leadDataAttr = collect( $leadData['variables'] );
-                }
-
+                // todo если все есть - возвращаем просто данные в коллекции
+                $leadDataAttr = collect( $leadData['variables'] );
 
 
             }else{
@@ -689,8 +694,10 @@ class SphereController extends AdminController {
             // у лида нет атрибутов
             // работа метода останавливается
 
+            // todo добавить чтобы можно было сохранять и без атрибутов лида
             // у лида должно быть не меньше 3 атрибутов
-            return response()->json(FALSE);
+//            return response()->json(FALSE);
+            $leadDataAttr = NULL;
         }
 
         // данные формы агента

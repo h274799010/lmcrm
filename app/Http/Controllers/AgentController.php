@@ -26,7 +26,10 @@ class AgentController extends BaseController
             $this->user = $agent;
             $this->userClass = 'Agent';
             $bill=$agent->bill()->first();
-            $sphere_id=$agent->sphere()->id;
+
+            $sphere = $agent->sphere();
+            $sphere_id=$sphere->id;
+
         } elseif(Sentinel::inRole('salesman')) {
             $salesman = Salesman::findOrFail($this->uid);
             $this->user = $salesman;

@@ -10,6 +10,7 @@ use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\Credits;
+use App\Models\CreditTypes;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\Sphere;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Input;
 //use App\Http\Requests\Admin\ArticleRequest;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
+use App\Http\Controllers\Notice;
 use App\CreditHelper;
 
 class LeadController extends AgentController {
@@ -35,7 +37,8 @@ class LeadController extends AgentController {
 
     public function deposited(){
         $leads = $this->user->leads()->with('phone')->get();
-        return view('agent.lead.deposited')->with('leads',$leads);
+        return view('agent.lead.deposited')
+                    ->with('leads',$leads);
     }
 
 
@@ -50,67 +53,18 @@ class LeadController extends AgentController {
 
         // данные агента
         $agent = $this->user;
-        // данные маски агента (пользователь уже задан)
-        $mask=$this->mask;
 
         // атрибуты лида (наверное)
-        $lead_attr = $agent->sphere()->leadAttr()->get();
+//        $lead_attr = $agent->sphere()->leadAttr()->get();
+        $lead_attr = $agent->sphere()->leadAttr;
 
 
+        $agent_attr = $agent->sphere()->attributes;
 
-
-//
-//
-//        // маска лида
-//        $leadBitmask = new LeadBitmask($mask->getTableNum());
-//
-//        // данные полей "fb_" агента (ключ=>значение)
-//        $agentBitmaskData = $mask->findFieldsMask();
-//
-//        // выкидаваем те лиды которые не подходят под фильтр агента
-//        $list = $leadBitmask->get()->reject(function( $leadData ) use ( $agentBitmaskData ){
-//
-//            foreach( $agentBitmaskData as $key=>$agentData){
-//
-//                if( !($agentData >= $leadData->$key)){
-//                    return true;
-//                }
-//            }
-//        });
-//
-//
-//
-//        // выбираем лидов по данным из маски
-//        $leads = $list->map(function($item){
-//            return $item->lead;
-////                ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']);
-////                    ->select(['leads.opened', 'leads.id', 'leads.updated_at', 'leads.name', 'leads.customer_id', 'leads.email']);
-//        });
-//
-//        dd($leads->get()->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email']));
-//
-//        // выкидываем лиды, которые принадлежать текущему пользователю
-//        $leads = $leads->reject(function( $lead ) use( $agent ){
-//            if($lead->agent_id == $agent->id){
-//                return true;
-//            }
-//        });
-//
-//
-//
-//
-//
-//
-
-
-
-
-        // todo удалить
-//        dd(Lead::all());
 
         return view('agent.lead.obtain')
+            ->with('agent_attr', $agent_attr)
             ->with('lead_attr',$lead_attr);
-//            ->with('filter',$list->get());
     }
 
 
@@ -139,7 +93,7 @@ class LeadController extends AgentController {
             // получаем данные полей "fb_" агента (ключ=>значение)
             $agentBitmaskData = $mask->findFieldsMask();
 
-            // проверка на статус и наличие ключей
+            // todo поменять название      проверка на статус и наличие ключей
             if( ($agentBitmask->status==0) || ($agentBitmaskData==[]) ){
                 // если статус агента=0, или массив фильтра пустой (на всякий случай)
 
@@ -150,16 +104,10 @@ class LeadController extends AgentController {
                 // получаем лиды
 
                 // выбираем данные лидов по маске (битмаск и лиды)
-                $list = $leadBitmask->filterByMask( $agentBitmaskData )->get();
-
-
-                // составляем массив из id лидов
-                $leadsId = $list->map(function( $item ){
-                    return $item->user_id;
-                });
+                $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
 
                 // получаем все лиды по id из массива, без лидов автора
-                $leads = Lead::whereIn('id', $leadsId)
+                $leads = Lead::whereIn('id', $list)
                     ->where('agent_id', '<>', $agent->id)
                     ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
                 ->get();
@@ -181,11 +129,11 @@ class LeadController extends AgentController {
                         if($eFVal=='2d') {
                             $date = new \DateTime();
                             $date->sub(new \DateInterval('P2D'));
-                            $leads->where('leads.updated_at','>=',$date->format('Y-m-d'));
+                            $leads->where('leads.created_at','>=',$date->format('Y-m-d'));
                         } elseif($eFVal=='1m') {
                             $date = new \DateTime();
                             $date->sub(new \DateInterval('P1M'));
-                            $leads->where('leads.updated_at','>=',$date->format('Y-m-d'));
+                            $leads->where('leads.created_at','>=',$date->format('Y-m-d'));
                         } else {
 
                         }
@@ -205,34 +153,106 @@ class LeadController extends AgentController {
             ->add_column('ids',function($model){
                 return view('agent.lead.datatables.obtain_open_all',['lead'=>$model]);
             },2)
-            ->edit_column('status',function($model){
-                return '';
-            })
             ->edit_column('customer_id',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:'<b>' .trans('site/lead.hidden') .'</b>';
+                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
             })
             ->edit_column('email',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->email:'<b>' .trans('site/lead.hidden') .'</b>';
+                return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('site/lead.hidden');
             })
         ;
 
+        /* todo ---  ЗАПОЛНЕНИЕ ПОЛЕЙ fb_ В ТАБЛИЦЕ obtain ---  */
 
-        /* ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad В ТАБЛИЦЕ obtain ---  */
+        // todo получаем все атрибуты агента
+        $agentAttributes = $agent->sphere()->attributes;
+
+        // todo получение маски лида полей fb
+        // маска ad полей лидов
+        // массив с ключами и значениями только ad_ полей
+        // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
+        $fdMask = collect($leadBitmask->findFbMask());
+
+// todo поменять название индекса
+        $index = 0;
+
+        // перебираем все атрибуты и выставляем значения по маске лида
+        foreach($agentAttributes as $attr){
+
+            // todo поменять название индекса
+            $datatable->add_column( 'a_'.$index,function( $lead ) use ( $attr, $fdMask ){
+
+                // маска текущего лида
+                $leadMask = $fdMask[$lead->id];
+
+
+                // выбираем тип текущего атрибута
+                $attrType = $attr->_type;
+
+
+                // опции этих атрибутов имеют тип option их всегда несколько
+                // дальше идет фильтрация по маске лида, выбираются опции которые относятся к лиду
+
+                // все опции атрибута
+                $allOption = $attr->options;
+// todo удалить
+//                dd($allOption);
+
+
+
+                // переменная с отфильтрованными опциями
+                $value = '';
+
+//                 фльтруем все опции атрибута по маске атрибута
+                foreach($allOption as $opt){
+
+//                     полное имя поля ad в таблице маски лида
+                    $fb_attr_opt = 'fb_' .$opt->attr_id .'_' .$opt->id;
+
+//                     если в поле есть значение, добавляем его,
+//                     если нет - пропускаем
+                    if( $leadMask[$fb_attr_opt] == 1 ){
+
+                        if( $value=='' ){
+                            // если переменная пустая - присваиваем значение
+                            $value = $opt->name;
+
+                        }else{
+                            // если в переменной уже есть опции - добавляем через запятую
+                            $value = $value .', ' .$opt->name;
+                        }
+                    }
+
+
+                }
+
+                return view('agent.lead.datatables.obtain_data',['data'=>$value,'type'=>$attrType]);
+            });
+
+            ++$index;
+        }
+
+
+
+        /* ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad_ В ТАБЛИЦЕ obtain ---  */
 
         // получаем все атрибуты лида
-        $leadAttributes = $agent->sphere()->leadAttr()->get();
+        $leadAttributes = $agent->sphere()->leadAttr;
 
         // маска ad полей лидов
         // массив с ключами и значениями только ad_ полей
         // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
         $adMask = collect($leadBitmask->findAdMask());
 
+
+        // todo удалить
 //        dd($adMask);
 
-        // перебираем все атрибуты и выставляем значения по маске лида
-        foreach($leadAttributes as $index=>$attr){
 
-           $datatable->add_column( 'a_'.$index,function( $lead ) use ( $attr, $leadBitmask, $adMask ){
+
+        // перебираем все атрибуты и выставляем значения по маске лида
+        foreach($leadAttributes as $attr){
+
+           $datatable->add_column( 'a_'.$index, function( $lead ) use ( $attr, $adMask ){
 
                // маска текущего лида
                $leadMask = $adMask[$lead->id];
@@ -312,6 +332,8 @@ class LeadController extends AgentController {
 
                return view('agent.lead.datatables.obtain_data',['data'=>$value,'type'=>$attrType]);
            });
+
+            ++$index;
         }
 
         return $datatable->make();
@@ -498,40 +520,136 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
-//        $dataArray = Lead::has('obtainedBy')->get();
+
+        // todo получил все статусы
+//        $l = Lead::find(1);
+
+//        $s = $l->sphere;
+//
+//        $stat = $s->statuses;
+
+//        dd($stat);
+
+//        sphereStatuses
+
+//        $ss = $l->sphereStatuses;
+
+//        dd($s);
+//        dd($ss->statuses);
+//        dd($ss);
+
+        // todo лучший способ
+//        dd(Lead::find(1)->sphere->statuses);
+
+
+
+
+
 
         // id пользователя
         $userId = Sentinel::getUser()->id;
 
-        // данные открытых лидов для конкретного пользователя
-        $openLeads = OpenLeads::where('agent_id', '=', $userId)->get();
+        // id открытых лидов пользователя
+        $openLeads = OpenLeads::where('agent_id', '=', $userId)->lists('lead_id');
 
-        // лиды по полученным данным открытых лидов
-        $dataArray = $openLeads->map(function( $openLead ){
-            return $openLead->lead;
-        });
+        // открытые лиды пользователя
+        $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->get();
 
-        return view('agent.lead.opened',['dataArray'=>$dataArray]);
+//        $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->first();
+
+        //        dd(Lead::find(1)->sphere->statuses);
+
+//        dd($leads->first()->sphereStatuses->statuses->lists('stepname', 'id'));
+
+//        dd($leads->openLeadStatus->status);
+
+        // todo статус берется из опенЛид
+        // todo при этом показываются все остальные статусы сферы
+
+
+
+        return view('agent.lead.opened',['dataArray'=>$leads]);
     }
 
     public function openedLeadsAjax(){
         $id = $_GET['id'];
         $data = Lead::has('obtainedBy')->find($id);
-        $arr[] = ['date',$data->date];
-        $arr[] = ['name',$data->name];
-        $arr[] = ['phone',$data->phone->phone];
-        $arr[] = ['email',$data->email];
+        $arr[] = [0, 'date',$data->date];
+        $arr[] = [1, 'name',$data->name];
+        $arr[] = [2, 'phone',$data->phone->phone];
+        $arr[] = [3, 'email',$data->email];
 
+        $index = 4;
+
+        // получаем все атрибуты агента
         foreach ($data->SphereFormFilters as $key=>$sphereAttr){
+
             $str = '';
             foreach ($sphereAttr->options as $option){
                 $mask = new LeadBitmask($data->sphere_id,$data->id);
-                $resp = $mask->where('fb_'.$option->attr_id.'_'.$option->id,1)->get()->toArray();
-                if (count($resp))
-                    $str .= $option->value;
+
+            $resp = $mask->where('fb_'.$option->attr_id.'_'.$option->id,1)->where('user_id',$id)->first();
+
+                if (count($resp)){
+
+                    if( $str=='' ){
+                        $str = $option->name;
+                    }else{
+                        $str .= ', ' .$option->name;
+                    }
+
+                }
+
             }
-            $arr[] = [$sphereAttr->label,$str];
+            $arr[] = [$index, $sphereAttr->label, $str];
+            ++$index;
         }
+
+        // получаем все атрибуты лида
+        foreach ($data->SphereAdditionForms as $key=>$attr){
+
+            $str = '';
+
+//            $resp = $mask->where('ad_5_3',1)->where('user_id',$id)->first();
+            $mask = new LeadBitmask($data->sphere_id,$data->id);
+            $AdMask = $mask->findAdMask($id);
+
+            // todo доработать
+//            dd($AdMask);
+
+            // обработка полей с типом 'radio', 'checkbox' и 'select'
+            // у этих атрибутов несколько опций (по идее должно быть)
+            if( $attr->_type=='radio' || $attr->_type=='checkbox' || $attr->_type=='select' ){
+
+                foreach ($attr->options as $option){
+
+//                    $resp = $mask->where('ad_'.$option->attr_id.'_'.$option->id,1)->where('user_id',$id)->first();
+
+                    if($AdMask['ad_'.$option->attr_id.'_'.$option->id]==1){
+                        if( $str=='' ){
+                            $str = $option->name;
+                        }else{
+                            $str .= ', ' .$option->name;
+                        }
+
+                    }
+
+                }
+
+
+            }else{
+
+                $str = $AdMask['ad_'.$attr->id.'_0'];
+
+            }
+
+
+            $arr[] = [$index, $attr->label, $str];
+            ++$index;
+        }
+
+
+
         echo json_encode(['data'=>$arr]);exit;
     }
 
