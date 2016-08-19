@@ -16,6 +16,35 @@ use App\Jobs\Job;
 class Notice extends Model
 {
 
+    // todo дописать уведомления
+
+    /**
+     * todo доделать
+     * Этот блок нужен чтобы не запутаться в сообщениях,
+     * иначе будет простая опечатка и сообщения работать уже небудут
+     *
+     * перед каждым сравнением будет проверка на наличие такого уведомления в массиве
+     * если есть - удет уведомление, если нет - возвращает false
+     *
+     *
+     */
+
+//    public $notice =
+//    [
+
+//        new_approved_lead
+//       newApprovedLead
+
+//        leadApproved
+
+//        'newApprovedLead' => trans()'появился новый утвержденный лид', // утверждение нового лида оператором
+//
+//
+//
+//    ];
+
+
+
     /**
      * Создает уведомление о событии
      *
@@ -44,7 +73,7 @@ class Notice extends Model
             Notification_users::make( $user, $notice->id );
         });
 
-        // todo Push по телефону
+        // todo Push на телефон
         // self::sendMessageThroughGCM($registatoin_ids, $message);
 
 

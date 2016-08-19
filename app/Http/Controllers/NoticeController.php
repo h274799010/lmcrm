@@ -10,47 +10,61 @@ use App\Http\Controllers\Notice;
 
 class NoticeController extends Controller
 {
-    public function index(){
 
+
+    /**
+     * Страница получения уведомлений
+     *
+     * эту страницу с фронтедна забраживает server side events
+     *
+     *
+     * @return void
+     */
+    public function notice(){
+
+        // заголовки
         header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
-
 
         // id пользователя
         $userId = Sentinel::getUser()->id;
 
-        $notice = Notice::search($userId);
+        // поиск всех уведомлений для пользователя
+        $notices = Notice::search($userId);
 
-        if($notice){
+        // отправляем пользователю все его уведомления, если они есть
+        if( $notices ){
 
-            $n = json_encode($notice);
+            // кодируем уведомления в JSON
+            $noticesJSON = json_encode( $notices );
 
-            echo "data: {$n}\n";
-
-        }else{
-
-            $n = json_encode(['empty']);
-
-            echo "data: {$n}\n";
-
-
+            // отдаем уведомления на фронтенд
+            echo "data: {$noticesJSON}\n";
         }
 
+        // очистка буфера
         flush();
-
-
     }
 
 
-    public function notified(Request $request){
+    /**
+     * Отмечает что пользователь получил уведомление
+     *
+     * у пользователя может быть несколько уведомлений по одному и тому же событию
+     * этот метод отключает все уведомления пользователя по заданному событию
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return void
+     */
+    public function notified( Request $request ){
 
         // получаем id пользователя
         $agentId = Sentinel::getUser()->id;
 
-        // todo помечаем все сообщения о новых лидах как полученные
+        // помечаем все уведомления по событию как полученные
         Notice::taken( $agentId, $request['event']);
-
-
     }
 
 }

@@ -22,12 +22,7 @@
 
             <ul class="nav navbar-top-links navbar-right language_bar_chooser flip">
 
-                @if (Sentinel::guest())
-                    <li class="{{ (Request::is('auth/login') ? 'active' : '') }}"><a href="{{ URL::to('auth/login') }}"><i
-                                    class="fa fa-sign-in"></i> Login</a></li>
-                    <!--<li class="{{ (Request::is('auth/register') ? 'active' : '') }}"><a
-                                href="{{ URL::to('auth/register') }}">Register</a></li>-->
-                @else
+                @if (!Sentinel::guest())
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-expanded="false"><i class="glyphicon glyphicon-menu-hamburger"></i> {{ Sentinel::getUser()->name }} </a>
@@ -80,15 +75,9 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <div style="float: right;">новые лиды в системе <div class="removNotice" > х </div></div>
+                    <div class="removeNotice">новые лиды в системе <div class="removeNoticeIcon" > х </div></div>
                 </div>
-                {{--<div class="col-md-1">--}}
-                    {{--<div class="removNotice" > х </div>--}}
-                {{--</div>--}}
             </div>
-
         </div>
-
     </div>
-
 </div>

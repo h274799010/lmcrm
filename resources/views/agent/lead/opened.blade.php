@@ -22,7 +22,9 @@
                             @foreach ($dataArray as $data)
                                 <tr lead_id="{{ $data->id }}">
                                     <td><div></div></td>
-                                    <td class="select_cell"> {{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, ['class'=>'form']) }} </td>
+                                    <td class="select_cell">
+                                        {{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>'4,5,6' ]) }}
+                                    </td>
                                     <td><div>{{ $data->date }}</div></td>
                                     <td><div>{{ $data->name }}</div></td>
                                     <td><div>{{ $data->phone->phone }}</div></td>
@@ -97,7 +99,8 @@
         }
 
         .selectboxit-container.selectboxit-container .selectboxit-text{
-            margin: 0;
+            color: #ED5056;
+            margin: 4px;
         }
 
 
@@ -128,6 +131,40 @@
             min-width: 150px !important;
         }
 
+        table tbody tr.selected_row{
+            background: lightblue !important;
+        }
+
+
+        td.select_cell ul li.disabled{
+            background: lightgray;
+        }
+
+        td.select_cell ul li.disabled a{
+            color: grey;
+        }
+
+        /*td.select_cell ul li.selectboxit-selected{*/
+            /*background: red;*/
+        /*}*/
+
+        /*td.select_cell ul li.selectboxit-selected a{*/
+            /*color: white;*/
+            /*background: red !important;*/
+        /*}*/
+
+        td.select_cell ul li.selectboxit-focus a {
+            background: #ED5056 !important;
+        }
+
+        /*td.select_cell ul li.selectboxit-selected a:hover{*/
+            /*background: red !important;*/
+        /*}*/
+
+        /*td.select_cell ul li.selectboxit-selected:hover{*/
+            /*background: red;*/
+        /*}*/
+
 
     </style>
 @endsection
@@ -142,6 +179,8 @@
         var table;
         function reloadTable(id){
 
+            // возвращаем всем строкам дефолтный цвет
+            $('tr[lead_id]').removeClass('selected_row');
 
             if($('#info_table').attr('lead_id')==id){
 
@@ -151,12 +190,19 @@
 
             }else {
 
+                // выделяем активную строку цветом
+                $('tr[lead_id='+id+']').addClass('selected_row');
+
+
                 $('#table').show();
                 if (typeof(table) == 'object') {
                     table.destroy();
                 }
 
                 $('#main_table').attr('class', 'col-md-8');
+
+
+                // todo сделать обычной таблицей
 
                 table = $('#table').DataTable({
                     bInfo: false,
@@ -190,30 +236,59 @@
          *
          */
 
-        // строка таблицы
-        var openLeadsTable = $('table.openLeadsTable tbody tr');
+        // выбираем все ячейки таблицы кроме выпадающего меню и кнопки редактирования
+        var openLeadsTable = $('table.openLeadsTable tbody tr td').not( ".select_cell,.edit " );
 
-        // перебираем все строки таблицы
-        $.each(openLeadsTable, function( key, tr ){
+        // привязываем функцию на клик, которая будет прорисовывать таблицу
+        openLeadsTable.bind( 'click', function(){
 
-            // получаем id лида, по котому будем получать доп. данные для лида
-            var id = $(tr).attr('lead_id');
+            // id лида, данные которого нужно ввести в таблицу
+            var id = $(this).parent().attr('lead_id');
 
-            // перебираем все ячейки строки
-            $.each( $(tr).find('td'), function( k, td ){
+            // отрисовываем таблицу
+            reloadTable(id);
+        });
 
-                // выбираем те ячейки у которых нет класса 'select_cell' и 'edit'
-                // (это ячейки с данными по которым нужно кликать)
-                if( $(td).attr('class')!='select_cell' && $(td).attr('class')!='edit' ){
 
-                    // привязываем функцию которая отдает доп. таблицу по клику
-                    $(td).bind( 'click', function(){
-                        reloadTable(id);
-                    });
-                }
+
+
+
+
+
+
+        $(function(){
+
+
+            /**
+             * Отключаем опции в селекте
+             *
+             *
+             */
+
+            var select_cell = $('.select_cell');
+
+
+            $.each( select_cell, function( k, cell ){
+
+                // номера опций которые нужно заблокировать
+                var disabled_data = $(cell).find('select').attr('disabled_opt').split(',');
+
+
+                $.each( disabled_data, function( k, disabled ){
+
+                    $(cell).find('li[data-val="' + disabled + '"]')
+                            .attr( 'data-disabled', 'true')
+                            .addClass('disabled');
+
+//                    $('tr[lead_id]').removeClass('selected_row');
+//                    $('tr[lead_id]').addClass('selected_row');
+
+                });
+
             });
 
         });
+
 
 
     </script>

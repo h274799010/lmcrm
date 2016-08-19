@@ -15,23 +15,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'we
 });
 
 
-// страница которая сообщает об уведомлениях
-Route::get('notice', ['as' => 'notification', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@index']);
+// метод сообщает об уведомлениях
+Route::get('notice', ['as' => 'notification', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notice']);
 
+// в этом месте сообщения отмечаются как полученные
 Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notified']);
-
-
-
-Route::get('sn', function(){
-
-
-    App\Http\Controllers\Notice::toOne( 1, 2, 'note', 'Проверка на получение уведомления');
-//    $n = App\Http\Controllers\Notice::search(2);
-
-//    dd($n);
-
-    echo 'ok';
-
-//    echo 'пока отключил';
-
-});

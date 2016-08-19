@@ -23,6 +23,8 @@ $(function(){
 			}
 		});
 	}
+
+
 	if ($.isFunction($.fn.validate)) {
 		$(".validate").validate();
 	}
@@ -163,11 +165,13 @@ $(function(){
 
 
 
+
+// todo дописать функцию
+
 var source = new EventSource("/notice");
 
 
 source.onmessage = function(event) {
-	//document.getElementById("result").innerHTML += event.data + "<br>";
 
 	var a = $.parseJSON(event.data);
 
@@ -181,10 +185,6 @@ source.onmessage = function(event) {
 			noteBlock.css('display', 'block');
 
 
-			//if( noteBlock.css('display')=="none" ){
-			//	noteBlock.css('display', 'block');
-			//}
-
 			// todo включить обратно
 			noticeOff('note');
 		}
@@ -192,7 +192,7 @@ source.onmessage = function(event) {
 	});
 
 
-	$('.removNotice').bind('click', function(){
+	$('.removeNoticeIcon').bind('click', function(){
 		$('#notice .notice_newLead').css('display', 'none');
 	})
 

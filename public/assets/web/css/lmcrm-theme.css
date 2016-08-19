@@ -224,8 +224,11 @@ footer,.footer,#footer{
     width: 100%;
 }
 
+.removeNotice{
+    float: right;
+}
 
-.removNotice{
+.removeNoticeIcon{
 
     display: inline-block;
     border-radius: 10px;
