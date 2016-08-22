@@ -24,6 +24,7 @@ class CreateLeads extends Migration
             $table->text('comment')->nullable();
             $table->timestamp('pending_time');
             $table->boolean('bad')->default(false);
+            $table->boolean('checked')->default(false);
             $table->date('date')->nullable();
             $table->timestamps();
 

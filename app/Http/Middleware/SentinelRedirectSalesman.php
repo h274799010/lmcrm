@@ -21,7 +21,7 @@ class SentinelRedirectSalesman
             $salesman = Sentinel::findRoleBySlug('salesman');
 
             if ($user->inRole($salesman)) {
-                return redirect()->intended('salesman');
+                return redirect()->intended('agent/lead/obtain');
             }
         }
         return $next($request);

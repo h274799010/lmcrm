@@ -114,6 +114,9 @@ class Lead extends EloquentUser {
         return ($agent_id)? $relation->where('agent_id','=',$agent_id) : $relation;
     }
 
+    public function ownerBill(){
+        return $this->hasOne('\App\Models\Credits','agent_id','agent_id');
+    }
 
     // todo метод установки статуса
     public function setStatus( $status )
@@ -169,15 +172,6 @@ class Lead extends EloquentUser {
 //        return $mask->where('user_id', '=', $this->id)->first();
 //    }
 
-
-    public function closeStatuses(){
-
-
-        return $this->sphereStatuses();
-
-    }
-
-
     public function bitmask()
     {
 
@@ -186,6 +180,20 @@ class Lead extends EloquentUser {
         $mask = DB::table($tableName)->where('user_id', '=', $this->id)->first();
 
         return $mask;
+    }
+
+    public function getIsBadAttribute(){
+        $outOfPending = $this->openLeads()->where('pending_time','>',date('Y-m-d H:i:s'))->count();
+        $badOPenLeads = $this->openLeads()->where('bad','=',1)->count();
+        //$goodOPenLeads = $this->openLeads()->where('bad','=',0)->count();
+        //if ($badOPenLeads > $goodOPenLeads)
+        if ($this->opened && !$outOfPending) {
+            if ($badOPenLeads > $this->opened/2)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 

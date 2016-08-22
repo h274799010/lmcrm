@@ -17,6 +17,7 @@ class CreateAgentInfo extends Migration
             $table->integer('agent_id');
             $table->float('lead_revenue');
             $table->float('payment_revenue');
+            $table->integer('pending_time');
             $table->timestamps();
             $table->engine = 'InnoDB';
         });
