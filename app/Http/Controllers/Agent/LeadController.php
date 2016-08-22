@@ -619,13 +619,6 @@ class LeadController extends AgentController {
         exit;
     }
 
-
-
-
-
-
-
-
     public function showOpenedLead($id){
         $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
         return view('agent.lead.openedLead')->with('openedLead',$openedLead);

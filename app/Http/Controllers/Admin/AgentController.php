@@ -73,7 +73,7 @@ class AgentController extends AdminController
      */
     public function edit($id)
     {
-        $agent = Agent::with('sphereLink','info')->findOrFail($id);
+        $agent = Agent::/*with('sphereLink','info')->*/findOrFail($id);
         $spheres = Sphere::active()->lists('name','id');
         return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres]);
     }
