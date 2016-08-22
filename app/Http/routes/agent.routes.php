@@ -16,9 +16,18 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     Route::post('lead/editOpenedLead',['as'=>'agent.lead.editOpenedLead', 'uses' => 'Agent\LeadController@editOpenedLead']);
     Route::post('lead/putReminder',['as'=>'agent.lead.putReminder', 'uses' => 'Agent\LeadController@putReminder']);
     Route::get('lead/deleteReminder/{id}',['as'=>'agent.lead.deleteReminder', 'uses' => 'Agent\LeadController@deleteReminder']);
+
+    // установка статуса лида
+    Route::post('lead/setOpenLeadStatus',['as'=>'agent.lead.setOpenLeadStatus', 'uses' => 'Agent\LeadController@setOpenLeadStatus']);
+
+    // установка следующего по счету статуса лида
     Route::get('lead/nextStatus/{id}',['as'=>'agent.lead.nextStatus', 'uses' => 'Agent\LeadController@nextStatus']);
+
     Route::get('openedLeads', ['as'=>'agent.openedLeads', 'uses'=>'Agent\LeadController@openedLeads']);
-    Route::get('openedLeadsAjax', ['as'=>'agent.openedLeadsAjax','uses'=>'Agent\LeadController@openedLeadsAjax']);
+
+    // получение подробной информации об открытом лиде
+    Route::post('openedLeadsAjax', ['as'=>'agent.openedLeadsAjax','uses'=>'Agent\LeadController@openedLeadsAjax']);
+
     #Route::get('lead/{id}/edit',['as'=>'agent.lead.edit', 'uses' => 'Agent\LeadController@edit']);
     #Route::match(['put','post'],'lead/{id}',['as'=>'agent.lead.update', 'uses' => 'Agent\LeadController@update']);
     //Route::resource('lead','Agent\LeadController@create');

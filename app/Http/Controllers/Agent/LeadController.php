@@ -108,6 +108,7 @@ class LeadController extends AgentController {
 
                 // получаем все лиды по id из массива, без лидов автора
                 $leads = Lead::whereIn('id', $list)
+                    ->where('status', '=', 4)
                     ->where('agent_id', '<>', $agent->id)
                     ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
                 ->get();
@@ -242,11 +243,6 @@ class LeadController extends AgentController {
         // массив с ключами и значениями только ad_ полей
         // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
         $adMask = collect($leadBitmask->findAdMask());
-
-
-        // todo удалить
-//        dd($adMask);
-
 
 
         // перебираем все атрибуты и выставляем значения по маске лида
@@ -488,6 +484,8 @@ class LeadController extends AgentController {
         $lead->customer_id=$customer->id;
         $lead->date=date('Y-m-d');
         $lead->sphere_id = $agent->sphere()->id;
+        $lead->status = 2;
+
 
         $agent->leads()->save($lead);
 
@@ -520,32 +518,6 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
-
-        // todo получил все статусы
-//        $l = Lead::find(1);
-
-//        $s = $l->sphere;
-//
-//        $stat = $s->statuses;
-
-//        dd($stat);
-
-//        sphereStatuses
-
-//        $ss = $l->sphereStatuses;
-
-//        dd($s);
-//        dd($ss->statuses);
-//        dd($ss);
-
-        // todo лучший способ
-//        dd(Lead::find(1)->sphere->statuses);
-
-
-
-
-
-
         // id пользователя
         $userId = Sentinel::getUser()->id;
 
@@ -555,31 +527,23 @@ class LeadController extends AgentController {
         // открытые лиды пользователя
         $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->get();
 
-//        $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->first();
-
-        //        dd(Lead::find(1)->sphere->statuses);
-
-//        dd($leads->first()->sphereStatuses->statuses->lists('stepname', 'id'));
-
-//        dd($leads->openLeadStatus->status);
-
-        // todo статус берется из опенЛид
-        // todo при этом показываются все остальные статусы сферы
-
-
-
         return view('agent.lead.opened',['dataArray'=>$leads]);
     }
 
-    public function openedLeadsAjax(){
-        $id = $_GET['id'];
-        $data = Lead::has('obtainedBy')->find($id);
-        $arr[] = [0, 'date',$data->date];
-        $arr[] = [1, 'name',$data->name];
-        $arr[] = [2, 'phone',$data->phone->phone];
-        $arr[] = [3, 'email',$data->email];
 
-        $index = 4;
+
+    /**
+     * Данные для заполлнения подробной таблице на странице открытых лидов
+     *
+     *
+     */
+    public function openedLeadsAjax( Request $request ){
+        $id = $request->id;
+        $data = Lead::has('obtainedBy')->find($id);
+        $arr[] = [ 'date',$data->date ];
+        $arr[] = [ 'name',$data->name ];
+        $arr[] = [ 'phone',$data->phone->phone ];
+        $arr[] = [ 'email',$data->email ];
 
         // получаем все атрибуты агента
         foreach ($data->SphereFormFilters as $key=>$sphereAttr){
@@ -601,8 +565,7 @@ class LeadController extends AgentController {
                 }
 
             }
-            $arr[] = [$index, $sphereAttr->label, $str];
-            ++$index;
+            $arr[] = [ $sphereAttr->label, $str ];
         }
 
         // получаем все атрибуты лида
@@ -614,16 +577,11 @@ class LeadController extends AgentController {
             $mask = new LeadBitmask($data->sphere_id,$data->id);
             $AdMask = $mask->findAdMask($id);
 
-            // todo доработать
-//            dd($AdMask);
-
             // обработка полей с типом 'radio', 'checkbox' и 'select'
             // у этих атрибутов несколько опций (по идее должно быть)
             if( $attr->_type=='radio' || $attr->_type=='checkbox' || $attr->_type=='select' ){
 
                 foreach ($attr->options as $option){
-
-//                    $resp = $mask->where('ad_'.$option->attr_id.'_'.$option->id,1)->where('user_id',$id)->first();
 
                     if($AdMask['ad_'.$option->attr_id.'_'.$option->id]==1){
                         if( $str=='' ){
@@ -631,9 +589,7 @@ class LeadController extends AgentController {
                         }else{
                             $str .= ', ' .$option->name;
                         }
-
                     }
-
                 }
 
 
@@ -644,13 +600,23 @@ class LeadController extends AgentController {
             }
 
 
-            $arr[] = [$index, $attr->label, $str];
-            ++$index;
+            $arr[] = [ $attr->label, $str ];
         }
 
 
+        // находим данные открытого лида
+        $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
 
-        echo json_encode(['data'=>$arr]);exit;
+        $organizer = Organizer::where('open_lead_id', '=', $openedLead->id)->get();
+
+        $organizer = $organizer->map(function( $item ){
+
+            return [ $item->time, $item->comment ];
+
+        });
+
+        echo json_encode([ 'data'=>$arr, 'organizer'=> $organizer ]);
+        exit;
     }
 
     public function showOpenedLead($id){
@@ -667,6 +633,19 @@ class LeadController extends AgentController {
         return redirect()->back();
     }
 
+
+    /**
+     * Установка следующего статуса
+     *
+     * метод получает id лида
+     * находит пользователя у которого этот лид
+     * и прибавлает его статусу 1
+     *
+     *
+     * @param  integer  $id
+     *
+     * @return object
+     */
     public function nextStatus($id){
         $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
         $status = $openedLead->status+1;
@@ -674,6 +653,38 @@ class LeadController extends AgentController {
             $openedLead->increment('status');
         return redirect()->route('agent.lead.showOpenedLead',[$id]);
     }
+
+    /**
+     * метод устанавливает статус
+     *
+     * @param  Request  $request
+     *
+     * @return object
+     */
+    public function setOpenLeadStatus( Request $request ){
+
+        $lead_id = $request->lead_id;
+        $status = $request->status;
+
+        // находим данные открытого лида по id лида и id агента
+        $openedLead = OpenLeads::where(['lead_id'=>$lead_id,'agent_id'=>$this->uid])->first();
+
+        // если новый статус меньше уже установленного, выходим из метода
+        if( $status < $openedLead->status ){
+            return response()->json(FALSE);
+
+        }else{
+            // если статус больше - изменяем статус открытого лида
+
+            $openedLead->status = $status;
+            $openedLead->save();
+
+            return response()->json(TRUE);
+        }
+    }
+
+
+
 
     public function putReminder(Request $request){
         $openLead = OpenLeads::where(['id'=>$request->input('open_lead_id'),'agent_id'=>$this->uid])->first();
@@ -683,6 +694,7 @@ class LeadController extends AgentController {
             if ($request->input('id')){
                 $organizer = Organizer::where(['id'=>$request->input('id')])->first();
             }
+
             if (!$organizer)
             {
                 $organizer = new Organizer();
