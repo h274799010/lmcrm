@@ -16,6 +16,35 @@ use App\Jobs\Job;
 class Notice extends Model
 {
 
+    // todo дописать уведомления
+
+    /**
+     * todo доделать
+     * Этот блок нужен чтобы не запутаться в сообщениях,
+     * иначе будет простая опечатка и сообщения работать уже небудут
+     *
+     * перед каждым сравнением будет проверка на наличие такого уведомления в массиве
+     * если есть - удет уведомление, если нет - возвращает false
+     *
+     *
+     */
+
+//    public $notice =
+//    [
+
+//        new_approved_lead
+//       newApprovedLead
+
+//        leadApproved
+
+//        'newApprovedLead' => trans()'появился новый утвержденный лид', // утверждение нового лида оператором
+//
+//
+//
+//    ];
+
+
+
     /**
      * Создает уведомление о событии
      *
@@ -36,12 +65,15 @@ class Notice extends Model
         // запись данных о уведомлении в таблицу notifications
         $notice = Notification::make( $sender, $event, $message, $parent);
 
+        // todo проверить этот момент
+        $users = collect($users);
+
         // запись данных по каждому пользователю, таблица notification_users
         $users->each(function( $user ) use ( $notice ){
             Notification_users::make( $user, $notice->id );
         });
 
-        // todo Push по телефону
+        // todo Push на телефон
         // self::sendMessageThroughGCM($registatoin_ids, $message);
 
 
@@ -175,11 +207,11 @@ class Notice extends Model
      *
      * @return object | boolean
      */
-    public static function toMany( $sender, $users, $event, $message, $parent )
+    public static function toMany( $sender, $users, $event, $message='', $parent=0 )
     {
         if(is_object($users)==true){
             // создаем массив из id заданных пользователей
-            $usersArray = $users->map(function($user){ return $user->id; });
+            $usersArray = $users->map(function($user){ return $user->user_id; });
 
         }elseif(is_array($users)==true){
             $usersArray = $users;

@@ -140,7 +140,8 @@ class Bitmask extends Model
      *
      * @return object
      */
-    public function getStatus($user_id=NULL){
+    // todo $model->status='1'; $model->save();
+    public function getStatus($user_id=NULL){ //->status
         $user_id = ( $user_id ) ? $user_id : $this->userID;
         return $this->tableDB->where('user_id','=',$user_id);
     }
@@ -247,6 +248,89 @@ class Bitmask extends Model
 
 
 
+
+    /**
+     * Получение данных только fb_ полей из маски лидов
+     *
+     * если задан id лида
+     *      - возвращает данные только указанного лида
+     *      - если лида с таким индексом нет - вернет пустой массив
+     *
+     * если параметр не задан
+     *      - вернет данные всех лидов в массиве
+     *          ключ массива - id лида
+     *
+     *
+     * @param  integer  $leadId
+     *
+     * @return array
+     */
+    public function findFbMask( $leadId=NULL ){
+
+        // если в системе уже есть номер лида, он будет подставлен,
+        // если лида не указан в параметрах
+        $leadId = ($leadId) ? $leadId : ( ($this->userID)?$this->userID:NULL );
+
+        // возвращаемое значение
+        // либо маска одного лида
+        // либо массив с масками лидов (ключ - id лида)
+        $short_mask=array();
+
+
+        if($leadId){
+            // если указан id лида
+
+            // находим маску лида
+            $mask = $this->where('user_id', '=', $leadId)->first();
+
+            // перебираем все поля маски лида
+            $leadMask = collect($mask);
+            $leadMask->each(function( $val, $field ) use( &$short_mask ){
+
+                // выбираем поля с префиксом 'ad_'
+                if(stripos($field,'fb_')!==false){
+                    // сохраняем значение в массиве (ключ - полное имя поля, значение - значение в поле маски)
+                    $short_mask[$field]=$val;
+                }
+            });
+
+        }else{
+            // id лида не указан
+
+            // находим маски всех лидов
+            $mask = $this->get();
+
+            // перебираем все маски лидов
+            $mask->each(function( $lMask ) use( &$short_mask ){
+
+                // сохраняем id лида в переменную, для удобства
+                $leadId = $lMask->user_id;
+
+                // перебираем все поля маски лида
+                $leadMask = collect($lMask);
+                $leadMask->each(function( $val, $field ) use( $leadId, &$short_mask ){
+
+                    // выбираем поля с префиксом 'ad_'
+                    if(stripos($field,'fb_')!==false){
+                        // сохраняем значение в массиве с индексом лида
+                        // и значениями - поля ad_ с значениями
+                        $short_mask[$leadId][$field]=$val;
+                    }
+                });
+            });
+        }
+
+        return $short_mask;
+    }
+
+
+
+
+
+
+
+
+
     /**
      * Фильтрация полей fb
      *
@@ -270,6 +354,8 @@ class Bitmask extends Model
      *
      * @return object
      *
+     *
+     * todo это фильтр агента, чтобы найти лида
      */
     public function filterByMask( $filter ){
 
@@ -284,6 +370,55 @@ class Bitmask extends Model
 
         return $list;
     }
+
+    /**
+     * Фильтрация полей fb
+     *
+     * Получает все данные из таблицы маски
+     * через фильтр
+     *
+     * задаваемый параметр это просто массив (ключ=>значение, 'fb_34_2'=>0)
+     *
+     * ПРИМЕР ФИЛЬТРАЦИИ:
+     * если в качестве данных для выборки
+     * задан Agent:
+     *
+     *    Agent       Lead
+     *      0    <->   0    - выбираем
+     *      1    <->   1    - выбираем
+     *      1    <->   0    - выбираем
+     *      0    <->   1    - Пропускаем
+     *
+     *
+     * @param  array  $filter
+     *
+     * @return object
+     *
+     *
+     * todo это фильтр лида, чтобы найти агентов
+     */
+    public function filterAgentsByMask( $filter, $author=NULL ){
+
+        // выборка полей по маске
+        $list = $this->where(function( $query ) use ( $filter, $author ){
+
+            // todo доработать
+            if($author){
+                $query->where( 'user_id', '<>', $author );
+            }
+
+            // выборка по всем полям fb_
+            foreach( $filter as $field=>$value ){
+
+                $query->where( $field, '>=', $value );
+            }
+        });
+
+        return $list;
+    }
+
+
+
 
     /**
      * Поиск маски пользователя по заданному индексу таблицы
@@ -338,6 +473,8 @@ class Bitmask extends Model
 
     /**
      * Возвращает все поля таблицы
+     *
+     * todo переименовать $this->attributes['']
      *
      */
     public function attributes() {
@@ -611,16 +748,6 @@ class Bitmask extends Model
     }
 
 
-    /**
-     * todo разобраться
-     *
-     * Этот класс недописан,
-     * что от него ожидалось получить?
-     */
-    public function getAppends() {
-
-        return $this->hasOne();
-    }
 
 
     /**

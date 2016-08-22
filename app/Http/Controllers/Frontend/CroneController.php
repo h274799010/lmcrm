@@ -19,7 +19,7 @@ class CroneController extends Controller
                 if ($lead->bad)
                     CreditHelper::setBadLead($lead);
                 else
-                    ;
+                    CreditHelper::setGoodLead($lead);
             }
         }
     }

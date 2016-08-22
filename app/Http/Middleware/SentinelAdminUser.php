@@ -18,7 +18,7 @@ class SentinelAdminUser
     {
 
         if (!Sentinel::inRole('administrator')) {
-            return redirect()->route('login');
+            return redirect()->route('home');
         }
         return $next($request);
     }

@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LeadTransactions extends Model {
+class LeadTransactionInfo extends Model {
     public $timestamps = false;
-    protected $table="lead_transactions";
+    protected $table="lead_transaction_info";
     protected $fillable = [
         'number','lead_id'
     ];
