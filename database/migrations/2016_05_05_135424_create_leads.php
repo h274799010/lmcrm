@@ -17,6 +17,7 @@ class CreateLeads extends Migration
             $table->integer('agent_id');
             $table->integer('sphere_id');
             $table->integer('opened')->default(0);
+            $table->integer('status')->default(0);
             $table->string('email')->nullable();
             $table->integer('customer_id');
             $table->string('name')->nullable();

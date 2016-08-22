@@ -28,7 +28,7 @@ class CreateCredits extends Migration
             $table->double('buyedChange', 8, 2);
             $table->double('earnedChange', 8, 2);
             $table->integer('source');
-            $table->integer('agent_id');
+            $table->integer('bill_id');
             $table->integer('transaction_id');
             $table->timestamps();
             $table->engine = 'InnoDB';

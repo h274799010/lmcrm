@@ -51,6 +51,12 @@ class Lead extends EloquentUser {
         return ($sphere_id and $type)? $relation->where('sphere_id','=',$sphere_id)->where('_type', '=', $type) : $relation;
     }
 
+    public function SphereAdditionForms($sphere_id=NULL){
+        $relation = $this->hasMany('App\Models\SphereAdditionForms', 'sphere_id', 'sphere_id');
+
+        return ($sphere_id)? $relation->where('sphere_id','=',$sphere_id) : $relation;
+    }
+
 
     // возвращает все поля SphereFromFilters со значением поля label=radio
     public function sAttrRadio($sphere_id=NULL){
@@ -76,9 +82,28 @@ class Lead extends EloquentUser {
         return $this->hasOne('App\Models\Sphere', 'id', 'sphere_id');
     }
 
-    public function info(){
-        return $this->hasMany('App\Models\LeadInfoEAV','lead_id','id');
+    /**
+     * Возвращает все статусы сферы лида
+     *
+     * todo доработать
+     *
+     */
+    public function sphereStatuses(){
+
+        $rel = $this->sphere()->with('statuses');
+
+        return $rel;
     }
+
+
+    public function openLeadStatus(){
+
+        $openLead = $this->hasOne('App\Models\OpenLeads', 'lead_id', 'id');
+
+        return $openLead;
+
+    }
+
 
     public function phone(){
         return $this->hasOne('App\Models\Customer','id','customer_id');
@@ -92,6 +117,24 @@ class Lead extends EloquentUser {
     public function ownerBill(){
         return $this->hasOne('\App\Models\Credits','agent_id','agent_id');
     }
+
+    // todo метод установки статуса
+    public function setStatus( $status )
+    {
+        $this->status = $status;
+        $this->save();
+
+        return $this;
+
+    }
+
+    // todo получение имени статуса
+    public function statusName(){
+        return $this->hasOne('App\Models\LeadStatus', 'id', 'status');
+    }
+
+
+
     /**
      * Выбор маски лида по id сферы
      *
@@ -152,4 +195,6 @@ class Lead extends EloquentUser {
         }
         return false;
     }
+
+
 }

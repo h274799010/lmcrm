@@ -51,7 +51,7 @@ class Credits extends Model {
         $history->earned = $this->earned;
         $history->earnedChange = $this->earnedChange;
         $history->buyedChange = $this->buyedChange;
-        $history->agent_id = $this->agent_id;
+        $history->bill_id = $this->id;
         $history->source = $this->source;
         $history->transaction_id = $this->transaction_id;
         $history->save();

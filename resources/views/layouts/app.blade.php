@@ -2,6 +2,7 @@
 <html>
 <head>
     @include('partials.head')
+    @yield('styles')
 </head>
 <body>
 <div id="wrapper">
@@ -33,6 +34,7 @@
 
 <!-- Scripts -->
 @yield('scripts')
+@include('partials.scripts')
 
 </body>
 </html>

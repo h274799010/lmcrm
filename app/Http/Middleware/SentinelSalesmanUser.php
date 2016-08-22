@@ -20,7 +20,7 @@ class SentinelSalesmanUser
         $admin = Sentinel::findRoleBySlug('salesman');
 
         if (!$user->inRole($admin)) {
-            return redirect()->route('login');
+            return redirect()->route('home');
         }
         return $next($request);
     }

@@ -3,7 +3,7 @@
 namespace App;
 
 use App\Models\CreditHistory;
-use App\Models\LeadTransactions;
+use App\Models\LeadTransactionInfo;
 use App\Models\ManualTransactions;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\CreditTypes;
@@ -14,8 +14,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use Sentinel;
 class CreditHelper extends Model
 {
-    public static function leadPurchase($credit,$price,$number=1,$lead){
-        $leadTransaction = LeadTransactions::create(['number'=>$number,'lead_id'=>$lead->id]);
+    public static function leadPurchase($credit,$price,$number=1,$lead,$parent){
+        $leadTransaction = TransactionHelper::createLeadTransaction($number,$lead->id,$parent->user->id,$parent->userClass);
 
         $credit->payment=$price;
         $credit->source = CreditTypes::LEAD_PURCHASE;
@@ -39,7 +39,7 @@ class CreditHelper extends Model
     }
 
     public static function setBadLead($lead){
-        $leadTransactionArray = LeadTransactions::where('lead_id','=',$lead->id)->get();
+        $leadTransactionArray = LeadTransactionInfo::where('lead_id','=',$lead->id)->get();
         if (count($leadTransactionArray))
         {
             foreach ($leadTransactionArray as $transaction)
@@ -50,23 +50,21 @@ class CreditHelper extends Model
 
                     if ($operation->source == CreditTypes::LEAD_PURCHASE)
                     {
-                        $leadTransaction = LeadTransactions::create(['number'=>$transaction->number,'lead_id'=>$transaction->lead_id]);
+                        $leadTransaction = TransactionHelper::createLeadTransaction($transaction->number,$transaction->lead_id,$transaction->salesman_id,$transaction->salesman_id?'Salesman':false);
                         $credit->buyed += $operation->buyedChange;
                         $credit->buyedChange = $operation->buyedChange;
                         $credit->earned += $operation->earnedChange;
                         $credit->earnedChange = $operation->earnedChange;
                         $credit->source = CreditTypes::LEAD_BAD_INC;
-                        $credit->agent_id = $operation->agent_id;
                         $credit->transaction_id = $leadTransaction->id;
                         $credit->save();
                     }
                     elseif ($operation->source == CreditTypes::LEAD_SALE)
                     {
-                        $leadTransaction = LeadTransactions::create(['number'=>$transaction->number,'lead_id'=>$transaction->lead_id]);
+                        $leadTransaction = TransactionHelper::createLeadTransaction($transaction->number,$transaction->lead_id,$transaction->salesman_id?'Salesman':false);
                         $credit->earned -= $operation->earnedChange;
                         $credit->earnedChange = $operation->earnedChange;
                         $credit->source = CreditTypes::LEAD_BAD_DEC;
-                        $credit->agent_id = $operation->agent_id;
                         $credit->transaction_id = $leadTransaction->id;
                         $credit->wasted += $lead->sphere->price_call_center;
                         $credit->save();
@@ -78,6 +76,7 @@ class CreditHelper extends Model
 
     public static function setGoodLead($lead){
         $leadTransaction = LeadTransactions::create(['number'=>1,'lead_id'=>$lead->id]);
+        $leadTransaction = TransactionHelper::createLeadTransaction(1,$lead->id);
         $credits = $lead->ownerBill()->first();
         $credits->payment = $lead->sphere->price_call_center;
         $credits->source = CreditTypes::OPERATOR_PAYMENT;
