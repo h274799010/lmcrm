@@ -10,7 +10,7 @@ use App\Models\Agent;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\Sphere;
-use App\Http\Controllers\Notice;
+use App\Helper\Notice;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 
 use Illuminate\Http\Request;
@@ -34,7 +34,7 @@ class SphereController extends Controller {
     public function index()
     {
 
-        $spheres = Sphere::with('leads')->active()->get();
+        $spheres = Sphere::with('leadsFoOperator')->active()->get();
         return view('sphere.lead.list')->with('spheres',$spheres);
     }
 
@@ -127,6 +127,7 @@ class SphereController extends Controller {
         $lead->name=$request->input('name');
         $lead->email=$request->input('email');
         $lead->comment=$request->input('comment');
+        $lead->status = 4;
         $lead->bad= $request->input('bad') ? $request->input('bad') : 0;
         $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
         $lead->customer_id=$customer->id;

@@ -22,8 +22,22 @@ class Sphere extends Model
         return $this->hasMany('App\Models\SphereAdditionForms','sphere_id','id')->orderBy('position');
     }
 
+    /**
+     * Все лиды сферы
+     *
+     */
     public function leads(){
         return $this->hasMany('App\Models\Lead','sphere_id', 'id');
+    }
+
+    /**
+     * Все лиды, которые должны пройти проверку оператора
+     *
+     * лиды со статусом "2"
+     *
+     */
+    public function leadsFoOperator(){
+        return $this->hasMany('App\Models\Lead','sphere_id', 'id')->where('status', '=', 2);
     }
 
     public function statuses() {

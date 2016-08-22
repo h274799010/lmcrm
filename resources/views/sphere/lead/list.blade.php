@@ -25,7 +25,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @forelse($sphere->leads as $lead)
+                            @forelse($sphere->leadsFoOperator as $lead)
                                 <tr>
                                     <td>{!! $lead->name !!}</td>
                                     <td>@if($sphere->status) <span class="label label-success">on</span> @else <span class="label label-danger">off</span> @endif</td>

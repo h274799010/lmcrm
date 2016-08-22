@@ -169,6 +169,15 @@ class Lead extends EloquentUser {
 //        return $mask->where('user_id', '=', $this->id)->first();
 //    }
 
+
+    public function closeStatuses(){
+
+
+        return $this->sphereStatuses();
+
+    }
+
+
     public function bitmask()
     {
 

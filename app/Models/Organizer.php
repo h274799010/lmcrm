@@ -8,6 +8,10 @@ class Organizer extends Model {
 
     protected $table="organizer";
 
+    public $timestamps = false;
+
+
+
     public function openLead(){
         return $this->hasOne('App\Models\OpenLeads','id', 'open_lead_id');
     }

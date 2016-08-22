@@ -194,7 +194,10 @@ source.onmessage = function(event) {
 
 	$('.removeNoticeIcon').bind('click', function(){
 		$('#notice .notice_newLead').css('display', 'none');
-	})
+	});
+
+
+
 
 };
 

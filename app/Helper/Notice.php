@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Helper;
 
 use Cartalyst\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -9,8 +9,6 @@ use App\Models\Notification_users;
 use Cartalyst\Sentinel\Native\Facades\Sentinel;
 use App\Models\User;
 
-
-use App\Jobs\Job;
 
 //class Notice extends Job
 class Notice extends Model

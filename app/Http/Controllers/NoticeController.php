@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
-use App\Http\Controllers\Notice;
+use App\Helper\Notice;
 
 class NoticeController extends Controller
 {
