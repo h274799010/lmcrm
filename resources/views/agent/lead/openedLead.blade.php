@@ -1,9 +1,6 @@
 @extends('layouts.master')
 {{-- Content --}}
 @section('content')
-    <link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
-    <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
     <div class="col-xs-6">
         <h3>{!! trans('Lead info') !!}:</h3>
         <b>{!! trans('Name') !!}:</b> {{ $openedLead->lead->name }}<br/>
@@ -47,7 +44,8 @@
                 <ul class="list-group">
                 @foreach ($openedLead->organizer as $reminder)
                     <li class="list-group-item">
-                        {{ date('Y-m-d H:i:s', $reminder->time) }}: {{$reminder->comment}}
+                        {{--{{ date('Y-m-d H:i:s', $reminder->time) }}: {{$reminder->comment}}--}}
+                        {{ $reminder->time->format('d.m.Y') }}: {{$reminder->comment}}
                         <div style="float: right;">
                             <a href="{{ route('agent.lead.deleteReminder',$reminder->id) }}">{!! trans('Delete') !!}</a>
                         </div>
@@ -130,3 +128,6 @@
     }
     </style>
 @stop
+
+
+

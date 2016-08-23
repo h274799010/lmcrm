@@ -35,15 +35,21 @@ class SphereController extends Controller {
     {
 
         $spheres = Sphere::with('leadsFoOperator')->active()->get();
+
         return view('sphere.lead.list')->with('spheres',$spheres);
     }
+
 
     /**
      * Show the form to edit resource.
      *
+     *
+     * @param  integer  $sphere
+     * @param  integer  $id
+     *
      * @return Response
      */
-    public function edit($sphere,$id)
+    public function edit( $sphere, $id )
     {
 
 

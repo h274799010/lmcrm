@@ -12,9 +12,25 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     Route::get('lead/create', ['as' => 'agent.lead.create', 'uses' => 'Agent\LeadController@create']);
     Route::post('lead/store',['as'=>'agent.lead.store', 'uses' => 'Agent\LeadController@store']);
     Route::get('lead/showOpenedLead/{id}',['as'=>'agent.lead.showOpenedLead', 'uses' => 'Agent\LeadController@showOpenedLead']);
-    Route::get('lead/addReminder/{open_lead_id}',['as'=>'agent.lead.addReminder', 'uses' => 'Agent\LeadController@addReminder']);
+
+
+    // форма добавление комментария
+    Route::get('lead/addСomment/{lead_id}',['as'=>'agent.lead.addСomment', 'uses' => 'Agent\LeadController@addСomment']);
+
+    // форма добавление напоминания
+    Route::get('lead/addReminder/{lead_id}',['as'=>'agent.lead.addReminder', 'uses' => 'Agent\LeadController@addReminder']);
+
+
     Route::post('lead/editOpenedLead',['as'=>'agent.lead.editOpenedLead', 'uses' => 'Agent\LeadController@editOpenedLead']);
+
+    // получение записи органайзера по id
+    Route::post('lead/OrganizerItem',['as'=>'agent.lead.OrganizerItem', 'uses' => 'Agent\LeadController@getOrganizerItem']);
+
+
+    // сохранение данных органайзера в БД
     Route::post('lead/putReminder',['as'=>'agent.lead.putReminder', 'uses' => 'Agent\LeadController@putReminder']);
+
+    // удаление строки органайзера из БД
     Route::get('lead/deleteReminder/{id}',['as'=>'agent.lead.deleteReminder', 'uses' => 'Agent\LeadController@deleteReminder']);
 
     // установка статуса лида

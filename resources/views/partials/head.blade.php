@@ -25,6 +25,8 @@
     <link href="{{ asset('components/bootstrap-datepicker/css/datepicker.css')}}" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="{{ asset('assets/web/css/sb-admin.css')}}" rel="stylesheet">
+
+
     <!-- Custom Fonts -->
     <link href="{{ asset('components/font-awesome/css/font-awesome.min.css')}}" rel="stylesheet" type="text/css">
     <!-- Custom THEME -->
@@ -60,6 +62,12 @@
     <script src="{{ asset('components/datatables/media/js/jquery.dataTables.min.js')}}"></script>
     <script src="{{ asset('components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js')}}"></script>
     <script src="{{ asset('components/datatables-responsive/js/dataTables.responsive.js')}}"></script>
+
+    <!-- Красивый виджет для календаря -->
+    <link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+    <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+
 
     <!-- Custom Theme JavaScript -->
     <script src="{{ asset('assets/web/js/sb-admin.js')}}"></script>

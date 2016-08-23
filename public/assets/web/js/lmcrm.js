@@ -42,6 +42,19 @@ $(function(){
 					$(this).find('.ajax-form').ajaxForm(function(resp) {
 						dialog.modal('hide');
                         if (resp=='reload') location.reload();
+
+                        if ( resp.split(',')[0]=='OrganizerItemsaved' ){
+
+                            // получение токена
+                            var token = $('meta[name=csrf-token]').attr('content');
+
+                            $.post( getOrganizerRoute, { 'id': resp.split(',')[1], '_token': token }, function( data ){
+                                //alert( data );
+                                addOrganizerRow( data[0], data[1], data[2], data[3] );
+                            });
+
+                        }
+
 					});
 				});
 				dialog.modal("show");

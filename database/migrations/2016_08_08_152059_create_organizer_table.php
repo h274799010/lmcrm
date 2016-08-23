@@ -15,11 +15,9 @@ class CreateOrganizerTable extends Migration
         Schema::create('organizer', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('open_lead_id');
-            $table->integer('time');
+            $table->boolean('type');
+            $table->timestamp('time');
             $table->text('comment');
-            $table->boolean('is_notice');
-            $table->timestamps();
-            $table->engine = 'InnoDB';
         });
     }
 

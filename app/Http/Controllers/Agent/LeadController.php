@@ -607,11 +607,15 @@ class LeadController extends AgentController {
         // находим данные открытого лида
         $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
 
+        // получение данных органайзера
         $organizer = Organizer::where('open_lead_id', '=', $openedLead->id)->get();
 
+        // преобразуем данные чтобы получить только время и комментарии
         $organizer = $organizer->map(function( $item ){
 
-            return [ $item->time, $item->comment ];
+            // todo доделать формат времени
+//            return [ $item->time->format(trans('app.date_format')), $item->comment ];
+            return [ $item->id, $item->time->format('d.m.Y'), $item->comment, $item->type ];
 
         });
 
@@ -685,43 +689,120 @@ class LeadController extends AgentController {
 
 
 
-
+    /**
+     * Запись данных органайзера в базу данных
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return object
+     */
     public function putReminder(Request $request){
-        $openLead = OpenLeads::where(['id'=>$request->input('open_lead_id'),'agent_id'=>$this->uid])->first();
-        if ($openLead)
-        {
-            $organizer = false;
-            if ($request->input('id')){
-                $organizer = Organizer::where(['id'=>$request->input('id')])->first();
-            }
 
-            if (!$organizer)
-            {
-                $organizer = new Organizer();
-                $organizer->open_lead_id = $request->input('open_lead_id');
-            }
-            $organizer->time = strtotime($request->input('time'));
+        // пробуем найти откытого лида с такими данными в БД
+        $openLead = OpenLeads::where(['lead_id'=>$request->input('lead_id'),'agent_id'=>$this->uid])->first();
+
+        $organizer = false;
+
+        // если нету открытого лида с такими данными, выходим из метода
+        // если есть сохраняем данные, либо создаем новую запись
+        if( $openLead == true ){
+
+            // создаем новую запись в органайзере
+            $organizer = new Organizer();
+
+            // id открытого лида
+            $organizer->open_lead_id = $openLead->id;
+            // устанавливаем тип либо комментарий (1), либо напоминание (2)
+            // если нет времени - комментарий, если есть - напоминание
+            $organizer->type = $request->input('time') ? 2 : 1;
+            // временная метка создания, либо напоминания в зависимости от типа записи
+            $organizer->time = $request->input('time') ? strtotime($request->input('time')) : date("Y-m-d H:i:s");
+            // комментарий
             $organizer->comment = $request->input('comment');
+
+            // сохранение записи
             $organizer->save();
         }
+
+
+
         if($request->ajax()){
-            return 'reload';
+
+            return 'OrganizerItemsaved,' .$organizer->id;
         } else {
-            return redirect()->route('agent.lead.showOpenedLead',$request->input('open_lead_id'));
+            return 'true';
+
+//            return redirect()->route('agent.lead.showOpenedLead',$request->input('open_lead_id'));
         }
 
     }
 
+
+
+    /**
+     * Удаление записи из органайзера
+     *
+     *
+     * @param integer $id
+     *
+     * @return object
+     */
     public function deleteReminder($id){
+
+
         $organizer = Organizer::where(['id'=>$id])->first();
         if ($organizer->openLead->agent_id == $this->uid){
             $organizer->delete();
         }
-        return redirect()->route('agent.lead.showOpenedLead',$organizer->openLead->lead_id);
+
+        return response()->json(TRUE);
     }
 
-    public function addReminder($open_lead_id)
+
+    /**
+     * Страница добавления напоминания в органайзер
+     *
+     *
+     * @param  integer  $lead_id
+     *
+     * @return object
+     */
+    public function addReminder($lead_id)
     {
-        return view('agent.lead.createReminder')->with('open_lead_id',$open_lead_id);
+        return view('agent.lead.organizer.addReminder')
+            ->with('lead_id',$lead_id);
     }
+
+
+    /**
+     * Страница добавления комментария в органайзер
+     *
+     *
+     * @param  integer  $lead_id
+     *
+     * @return object
+     */
+    public function addСomment($lead_id)
+    {
+        return view('agent.lead.organizer.addComment')
+            ->with('lead_id',$lead_id);
+    }
+
+    /**
+     * Получение одного итема из органайзера
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return array
+     *
+     */
+    public function getOrganizerItem( Request $request ){
+
+        $organizer = Organizer::find($request->id);
+
+        return response()->json([ $organizer->id, $organizer->time->format('d.m.Y'), $organizer->comment, $organizer->type ]);
+    }
+
 }
