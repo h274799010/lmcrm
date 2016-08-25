@@ -64,4 +64,16 @@ class AgentBitmask extends Bitmask
         }
 
     }
+
+
+    /**
+     * Находим агента маски
+     *
+     */
+    public function user()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'user_id');
+    }
+
+
 }

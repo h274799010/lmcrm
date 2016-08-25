@@ -11,6 +11,7 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 #class Lead extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
@@ -133,6 +134,13 @@ class Lead extends EloquentUser {
         return $this->hasOne('App\Models\LeadStatus', 'id', 'status');
     }
 
+
+
+    public function user(){
+
+        return $this->hasOne('App\Models\Agent', 'id', 'agent_id')->select('id','first_name');
+
+    }
 
 
     /**

@@ -48,12 +48,17 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     #Route::match(['put','post'],'lead/{id}',['as'=>'agent.lead.update', 'uses' => 'Agent\LeadController@update']);
     //Route::resource('lead','Agent\LeadController@create');
 
-    Route::group(['middleware'=>['agent']],function() {
+    Route::group( ['middleware'=>['agent']],function() {
+
+        // страница всех масок агента по сферам
         Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
-        Route::get('sphere/create', ['as' => 'agent.sphere.create', 'uses' => 'Agent\SphereController@create']);
-        Route::post('sphere/store',['as'=>'agent.sphere.store', 'uses' => 'Agent\SphereController@store']);
-        Route::get('sphere/{id}/edit',['as'=>'agent.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
-        Route::match(['put','post'],'sphere/{id}',['as'=>'agent.sphere.update', 'uses' => 'Agent\SphereController@update']);
+
+        // страница создания/редактирования маски сферы
+        Route::get('sphere/{sphere_id}/{mask_id}/edit',['as'=>'agent.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
+
+        // сохранение данных маски сферы
+        Route::match(['put','post'],'sphere/{sphere_id}/{mask_id}',['as'=>'agent.sphere.update', 'uses' => 'Agent\SphereController@update']);
+
         //Route::resource('customer/filter','Agent\CustomerFilterController');
 
         Route::get('salesman', ['as' => 'agent.salesman.index', 'uses' => 'Agent\SalesmanController@index']);
@@ -64,4 +69,3 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
         //Route::resource('salesman','Agent\SalesmanController');
     });
 });
-?>

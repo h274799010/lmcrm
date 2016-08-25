@@ -34,9 +34,11 @@ class SphereController extends Controller {
     public function index()
     {
 
-        $spheres = Sphere::with('leadsFoOperator')->active()->get();
+        $leads = Lead::where('status', '=', 2)->orWhere('status', '=', 3)->with([ 'statusName', 'sphere', 'user'])->get();
 
-        return view('sphere.lead.list')->with('spheres',$spheres);
+//        dd($leads);
+
+        return view('sphere.lead.list')->with('leads', $leads);
     }
 
 

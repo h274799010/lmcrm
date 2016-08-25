@@ -55,12 +55,10 @@ class LeadController extends AgentController {
         $agent = $this->user;
 
         // атрибуты лида (наверное)
-//        $lead_attr = $agent->sphere()->leadAttr()->get();
         $lead_attr = $agent->sphere()->leadAttr;
 
-
+        // атрибуты фильтра (агента)
         $agent_attr = $agent->sphere()->attributes;
-
 
         return view('agent.lead.obtain')
             ->with('agent_attr', $agent_attr)
@@ -83,6 +81,9 @@ class LeadController extends AgentController {
         // маска лида
         $leadBitmask = new LeadBitmask($mask->getTableNum());
 
+//        dd($leadBitmask);
+
+        // todo изменить название метода
         // получаем данные агента из битмаска
         $agentBitmask = $mask->getStatus()->first();
 
@@ -90,10 +91,11 @@ class LeadController extends AgentController {
         if( $agentBitmask  ){
             // если у агента есть запись в битмаске
 
+            // todo добавить получение нескольких масок агента
             // получаем данные полей "fb_" агента (ключ=>значение)
             $agentBitmaskData = $mask->findFieldsMask();
 
-            // todo поменять название      проверка на статус и наличие ключей
+            // проверка на статус и наличие полей
             if( ($agentBitmask->status==0) || ($agentBitmaskData==[]) ){
                 // если статус агента=0, или массив фильтра пустой (на всякий случай)
 
@@ -102,6 +104,8 @@ class LeadController extends AgentController {
 
             }else{
                 // получаем лиды
+
+                // todo доработать, получение лидов по нескольким фильтрам
 
                 // выбираем данные лидов по маске (битмаск и лиды)
                 $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
@@ -153,7 +157,15 @@ class LeadController extends AgentController {
             })
             ->add_column('ids',function($model){
                 return view('agent.lead.datatables.obtain_open_all',['lead'=>$model]);
-            },2)
+            }, 2)
+            ->add_column('mask',function($model){
+
+                // todo доработать, добавить имя маски по которой получен этот лид
+//                return $model->id;
+
+                return 'маска';
+
+            }, 3)
             ->edit_column('customer_id',function($lead) use ($agent){
                 return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
             })
@@ -173,7 +185,7 @@ class LeadController extends AgentController {
         // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
         $fdMask = collect($leadBitmask->findFbMask());
 
-// todo поменять название индекса
+        // todo поменять название индекса
         $index = 0;
 
         // перебираем все атрибуты и выставляем значения по маске лида
@@ -195,10 +207,6 @@ class LeadController extends AgentController {
 
                 // все опции атрибута
                 $allOption = $attr->options;
-// todo удалить
-//                dd($allOption);
-
-
 
                 // переменная с отфильтрованными опциями
                 $value = '';

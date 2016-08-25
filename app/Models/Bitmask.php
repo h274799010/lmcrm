@@ -29,6 +29,7 @@ class Bitmask extends Model
     // отключаем метки времени
     public $timestamps = false;
 
+    public $fillable = ['name'];
 
     /**
      * Выбирает таблицу DB
@@ -71,7 +72,7 @@ class Bitmask extends Model
     protected function createTable()
     {
         DB::statement('CREATE TABLE IF NOT EXISTS `' . $this->table .'`' .$this->tableFields , []);
-        DB::statement('ALTER TABLE `'.$this->table.'` ADD UNIQUE (`user_id`)');
+//        DB::statement('ALTER TABLE `'.$this->table.'` ADD UNIQUE (`user_id`)');
     }
 
 
@@ -212,6 +213,39 @@ class Bitmask extends Model
 
     /**
      * Получение короткой маски
+     * похожа на findShortMask()
+     * только не делает запрос к бд, а обрабатывает уже полученные данные
+     *
+     * возвращает только значения полей маски
+     *
+     * todo доработать
+     *
+     * @return array
+     */
+    public function findShortMaskById(){
+
+        // массив короткой маски
+        $short_mask=array();
+
+        // преобразовываем данные в массив
+        $mask=$this->toArray();
+
+        // перебираем массив, выбирая только нужные данные
+        foreach($mask as $field=>$val){
+
+            if(stripos($field,'fb_')!==false){
+                $short_mask[preg_replace('/^fb_[\d]+_/','',$field)]=$val;
+            }
+        }
+
+        return $short_mask;
+    }
+
+
+
+
+    /**
+     * Получение короткой маски
      *
      * возвращает только значения полей маски
      *
@@ -324,8 +358,34 @@ class Bitmask extends Model
     }
 
 
+    /**
+     * Получение данных только fb_ полей из маски лидов
+     *
+     * аналог метода findFbMask() только не делает запрос к БД
+     *
+     *
+     * @return array
+     */
+    public function findFbMaskById(){
 
+        // возвращаемое значение
+        // либо маска одного лида
+        // либо массив с масками лидов (ключ - id лида)
+        $short_mask=array();
 
+            // перебираем все поля маски лида
+            $leadMask = collect($this->attributes);
+            $leadMask->each(function( $val, $field ) use( &$short_mask ){
+
+                // выбираем поля с префиксом 'ad_'
+                if(stripos($field,'fb_')!==false){
+                    // сохраняем значение в массиве (ключ - полное имя поля, значение - значение в поле маски)
+                    $short_mask[$field]=$val;
+                }
+            });
+
+        return $short_mask;
+    }
 
 
 
@@ -391,6 +451,7 @@ class Bitmask extends Model
      *
      *
      * @param  array  $filter
+     * @param  integer  $author
      *
      * @return object
      *
@@ -464,6 +525,71 @@ class Bitmask extends Model
         }
         return $this->tableDB;
     }
+
+
+
+    /**
+     * Установка значения опция атрибута по id маски
+     * аналог setAttr() только в отличии от него не делает
+     * запрос к бд, а работает с уже готовыми данными
+     *
+     *
+     * @param  string  $opt_index
+     *
+     * @return object
+     */
+    public function setAttrById($opt_index){
+
+        if (is_array($opt_index)) {
+
+            $attributes = $this->attributesAssoc();
+            foreach($attributes as $field=>$index) {
+                $this->$field = (in_array($index,$opt_index))?1:0;
+            }
+
+            $this->save();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Обнуляет все поля "fb_"
+     *
+     * обнуление всех полей с префиксом fb_
+     *
+     * ставит все поля fb_ в 0
+     *
+     *
+     * @return object
+     */
+    public function resetAllFb()
+    {
+
+        // получаем все поля fd_
+        $AllAdAttributes = $this->findFbMaskById();
+
+        // массив опций с присвоенными значениями
+        $values = [];
+
+        // получаем индексы всех опций заданного атрибута
+        $AllAdAttributes = collect($AllAdAttributes);
+
+        // перебираем все поля и устанавливаем в 0
+        $AllAdAttributes->each(function( $val, $key ) use( &$values ){
+
+            $this->$key = 0;
+        });
+
+        // сохраняем поля в БД
+        $this->save();
+
+        return $this;
+    }
+
+
+
 
 
 

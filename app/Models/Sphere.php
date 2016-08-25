@@ -10,7 +10,7 @@ class Sphere extends Model
 
     protected $fillable = ['name','openLead','minLead','table_name' ,'status'];
 
-    public function scopeActive($query,$status = true) {
+    public function scopeActive( $query, $status = true) {
         return $query->where('status','=',($status)?true:false);
     }
 

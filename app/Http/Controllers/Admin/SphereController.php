@@ -1261,16 +1261,29 @@ class SphereController extends AdminController {
             ->make();
     }
 
+
+    /**
+     * Вывод всех масок агентов, у которых статус = 0
+     *
+     */
     public function filtration(){
+
+        // выбираем активные сферы
         $spheres = Sphere::active()->get();
+
+        // все неактивные маски пользователей
         $collection = array();
+
+        // перебираем все сферы и находим их маски
         foreach($spheres as $sphere){
+
+            // маска по сфере
             $mask = new AgentBitmask($sphere->id);
-            $collection[$sphere->id] = $mask->query_builder()
-                ->join('users','users.id','=','user_id')
-                ->where('status','=',0)
-                ->get();
+
+            // добавляем в массив (с ключем id сферы) все неактинвые маски сферы с агентами масок
+            $collection[$sphere->id] = $mask->where('status', '=', 0)->with('user')->get();
         }
+
         return view('admin.sphere.reprice')
             ->with('collection',$collection)
             ->with('spheres',Sphere::active()->lists('name','id'));
@@ -1279,26 +1292,74 @@ class SphereController extends AdminController {
 
 
 
+    /**
+     * Страница редактирования маски пользователя администратором
+     * (на этой странице администратор задает прайс агента)
+     *
+     *
+     * @param  integer  $sphere
+     * @param  integer  $user_id
+     * @param  integer  $mask_id
+     *
+     * @return object
+     */
+    public function filtrationEdit( $sphere, $user_id, $mask_id){
 
-    public function filtrationEdit($sphere,$agent_id){
+        // находим сферу по id
         $sphere = Sphere::findOrFail($sphere);
-        $mask = new AgentBitmask($sphere->id);
-        $bitmask = $mask->findShortMask($agent_id);
+
+        // конструктор маски агента
+        $mask = new AgentBitmask($sphere->id, $user_id);
+
+        // ищем маску в таблице по ее id
+        $mask = $mask->find($mask_id);
+
+        // возвращаем номер таблицы в маску
+        $mask->changeTable($sphere->id);
+
+        // находим короткую маску
+        $bitmask = $mask->findShortMaskById();
+
 
         return view('admin.sphere.reprice_edit')
-            ->with('sphere',$sphere)
-            ->with('agent_id',$agent_id)
-            ->with('mask',$bitmask)
-            ->with('price',$mask->getStatus($agent_id));
+            ->with('sphere', $sphere)
+            ->with('mask_id', $mask_id)
+            ->with('mask', $bitmask)
+            ->with('price', $mask->status);
     }
 
-    public function filtrationUpdate(Request $request,$sphere,$id){
-        $sphere = Sphere::findOrFail($sphere);
-        $mask = new AgentBitmask($sphere->id);
-        $mask->setUserID($id);
 
-        $mask->setPrice($request->input('price',0));
-        $mask->setStatus(1);
+
+    /**
+     * Сохранение прайса агента и установка статуса
+     *
+     *
+     * @param  Request  $request
+     * @param  integer  $sphere
+     * @param  integer  $mask_id
+     *
+     * @return object
+     */
+    public function filtrationUpdate(Request $request, $sphere, $mask_id)
+    {
+
+        // конструктор битмаска агента
+        $mask = new AgentBitmask($sphere);
+
+        // выбираем маску
+        $mask = $mask->find($mask_id);
+
+        // возвращаем номер таблицы в маску
+        $mask->changeTable($sphere);
+
+        // устанавливаем прайс агента
+        $mask->lead_price = $request['price'];
+
+        // устанавливаем статус
+        $mask->status = 1;
+
+        // сохранение изменений
+        $mask->save();
 
         return redirect()->route('admin.sphere.reprice');
     }

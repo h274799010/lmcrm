@@ -28,10 +28,10 @@
             @foreach($sphere_rec as $rec)
             <tr>
                 <td>{{ $rec->id }}</td>
-                <td>{{ $rec->first_name }} {{ $rec->last_name }} ( {{ $rec->name }} )</td>
+                <td>{{ $rec->user->first_name }} {{ $rec->user->last_name }} ( {{ $rec->user->name }} )</td>
                 <td>{{ $spheres[$id] }}</td>
                 <td>{{ $rec->updated_at }}</td>
-                <td><a href="{{ route('admin.sphere.reprice.edit',['sphere'=>$id,'id'=>$rec->user_id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a></td>
+                <td><a href="{{ route('admin.sphere.reprice.edit',['sphere'=>$id, 'id'=>$rec->user->id, 'mask_id'=>$rec->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a></td>
             </tr>
             @endforeach
         @empty

@@ -40,7 +40,7 @@
 
     <div class="panel panel-default">
         <div class="panel-body">
-            {!! Form::open(array('route' => ['admin.sphere.reprice.update',$sphere->id,$agent_id], 'method' => 'put', 'class' => 'validate', 'files'=> false)) !!}
+            {!! Form::open(array('route' => ['admin.sphere.reprice.update', $sphere->id, $mask_id], 'method' => 'put', 'class' => 'validate', 'files'=> false)) !!}
                 <div class="col-xs-8">
                     <div class="form-group label-floating">
                         <label class="control-label" for="price">Price</label>

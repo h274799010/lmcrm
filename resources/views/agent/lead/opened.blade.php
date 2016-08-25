@@ -77,6 +77,34 @@
                 </div>
                 <!-- /.row -->
             <!-- /.container -->
+
+
+<div id="myModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Предупреждение</h4>
+            </div>
+
+            <div class="modal-body">
+
+                Ты уверен что хочешь это сделать?<br>
+                Восстановить статус потом нельзя будет.
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger">Change status</button>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('styles')
@@ -541,27 +569,32 @@
                 // получаем выбранное значение из списка
                 var selectData = $(this).find('.selectboxit-text').attr('data-val');
 
-                var lead_id = $(this).parent().attr('lead_id'); // todo тут должен быть id лида
+                // получение id лида
+                var lead_id = $(this).parent().attr('lead_id');
 
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
 
-                // делаем статусы неактивными до выбранного
-                $.each( $(this).find('li'), function( k, li ){
-
-                    // если доходим до активного класса - останавливаемся
-                    if( $(li).hasClass( 'selectboxit-focus' ) ){
-                        return false;
-
-                        // если опция находится до активного класса - делаем ее недоступной
-                    }else{
-                        $(li).attr( 'data-disabled', 'true').addClass('disabled');
-                    }
-                });
+                $('#myModal').modal();
 
 
-                // изменяем статусы на сервере
-                $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token });
+                // todo включить потом
+                {{--// делаем статусы неактивными до выбранного--}}
+                {{--$.each( $(this).find('li'), function( k, li ){--}}
+
+                    {{--// если доходим до активного класса - останавливаемся--}}
+                    {{--if( $(li).hasClass( 'selectboxit-focus' ) ){--}}
+                        {{--return false;--}}
+
+                        {{--// если опция находится до активного класса - делаем ее недоступной--}}
+                    {{--}else{--}}
+                        {{--$(li).attr( 'data-disabled', 'true').addClass('disabled');--}}
+                    {{--}--}}
+                {{--});--}}
+
+
+                {{--// изменяем статусы на сервере--}}
+                {{--$.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token });--}}
 
 
                 // todo отмечать запросы на фронте, только если на сервере запрос будет успешным
