@@ -8,5 +8,6 @@ return [
     'phone' => "Phone",
     'email' => "e-mail",
     'hidden' => "Closed",
+    'open.mask' => 'Mask',
 
 ];

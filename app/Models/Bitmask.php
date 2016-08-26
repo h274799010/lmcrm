@@ -149,6 +149,22 @@ class Bitmask extends Model
 
 
     /**
+     * Возвращает данные таблицы (строку) по заданному пользователю
+     *
+     * аналог getStatus() только с более адекватным названием
+     *
+     * @param  integer  $user_id
+     *
+     * @return object
+     */
+    public function getData($user_id=NULL){
+        $user_id = ( $user_id ) ? $user_id : $this->userID;
+
+        return $this->where('user_id','=',$user_id);
+    }
+
+
+    /**
      * Устанавливает статус пользователю
      *
      * @param  integer  $status

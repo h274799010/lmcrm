@@ -75,48 +75,51 @@ class LeadController extends AgentController {
      */
     public function obtainData(Request $request)
     {
+        // данные агента
         $agent = $this->user;
+
+        // конструктор маски агента
         $mask=$this->mask;
 
         // маска лида
         $leadBitmask = new LeadBitmask($mask->getTableNum());
 
-//        dd($leadBitmask);
-
-        // todo изменить название метода
-        // получаем данные агента из битмаска
-        $agentBitmask = $mask->getStatus()->first();
+        // получаем данные всех активных масок агента
+        $agentBitmask = $mask->getData()->where('status', '=', 1)->get();
 
         // ПРОВЕРКА НАЛИЧИЯ МАСКИ У АГЕНТА ПЕРЕД ПОЛУЧЕНИЕМ ЛИДОВ
-        if( $agentBitmask  ){
-            // если у агента есть запись в битмаске
+        if( $agentBitmask->count() != 0 ){
+            // если у агента есть запись в битмаске получаем лиды
 
-            // todo добавить получение нескольких масок агента
-            // получаем данные полей "fb_" агента (ключ=>значение)
-            $agentBitmaskData = $mask->findFieldsMask();
+            // коллекция содержащая все лиды прошедшие фильтр
+            $leads = collect();
 
-            // проверка на статус и наличие полей
-            if( ($agentBitmask->status==0) || ($agentBitmaskData==[]) ){
-                // если статус агента=0, или массив фильтра пустой (на всякий случай)
+            // перебираем все лиды агента и обрабатываем данные
+            $agentBitmask->each(function( $agentMask ) use ( $leadBitmask, $agent, $leads ){
 
-                // возвращаем пустую коллекцию
-                $leads = collect();
+                // короткая маска лида ("ключ"=>"значение")
+                $agentBitmaskData = $agentMask->findFbMaskById();
 
-            }else{
-                // получаем лиды
-
-                // todo доработать, получение лидов по нескольким фильтрам
-
-                // выбираем данные лидов по маске (битмаск и лиды)
+                // id всех лидов по фильтру
                 $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
 
-                // получаем все лиды по id из массива, без лидов автора
-                $leads = Lead::whereIn('id', $list)
+                // получаем все лиды, помеченные к аукциону, по id из массива, без лидов автора
+                $leadsByFilter = Lead::whereIn('id', $list)
                     ->where('status', '=', 4)
                     ->where('agent_id', '<>', $agent->id)
                     ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
-                ->get();
-            }
+                    ->get();
+
+                // перебираем все полученные лиды, добавляем имя маски и заносим данные в массив лидов
+                $leadsByFilter->each(function( $lead ) use( $leads, $agentMask ) {
+
+                    // добавление имени маски в данные лида
+                    $lead->mask = $agentMask->name;
+
+                    // добавление лида в коллекцию $leads
+                    $leads->push($lead);
+                });
+            });
 
         }else{
             // если у агента нет записи в битмаске
@@ -159,12 +162,7 @@ class LeadController extends AgentController {
                 return view('agent.lead.datatables.obtain_open_all',['lead'=>$model]);
             }, 2)
             ->add_column('mask',function($model){
-
-                // todo доработать, добавить имя маски по которой получен этот лид
-//                return $model->id;
-
-                return 'маска';
-
+                return $model->mask;
             }, 3)
             ->edit_column('customer_id',function($lead) use ($agent){
                 return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
