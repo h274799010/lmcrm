@@ -16,6 +16,7 @@
                                     <th>name </th>
                                     <th>phone </th>
                                     <th>email </th>
+                                    <th>mask name </th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -30,6 +31,7 @@
                                     <td><div>{{ $data->name }}</div></td>
                                     <td><div>{{ $data->phone->phone }}</div></td>
                                     <td><div>{{ $data->email }}</div></td>
+                                    <td><div> Имя маски </div></td>
                                     <td class="edit">
                                         <div>
                                             <a href="{{ route('agent.lead.showOpenedLead',$data->id) }}">
@@ -88,15 +90,14 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="exampleModalLabel">
                     {{-- todo {!! trans("site/lead.opened.modal.head") !!} --}}
-                    Предупреждение
+                    Change status
                 </h4>
             </div>
 
             <div class="modal-body">
 
                 {{-- todo {!! trans("site/lead.opened.modal.body") !!} --}}
-                Ты уверен что хочешь это сделать?<br>
-                Восстановить статус потом нельзя.
+                Are you sure?
 
             </div>
 
@@ -598,9 +599,10 @@
                 // событие на нажатие кнопки Cancel на модальном окне
                 $( '#statusModalCancel').bind( 'click', function(){
 
-                    // todo доделать
-//                    alert('лана');
+                    // todo вернуть начальную опцию
                 });
+
+
 
 
                 // событие на клик, по кнопке "Chenge status" (изменение статуса)
@@ -610,29 +612,12 @@
                     $('#statusModal').modal('hide');
 
 
-
-//                    // todo эта часть должна срабатывать когда пришел ответ с сервера
-//                    // делаем статусы неактивными до выбранного
-//                    $.each( self.find('li'), function( k, li ){
-//
-//                        // если доходим до активного класса - останавливаемся
-//                        if( $(li).hasClass( 'selectboxit-focus' ) ){
-//                            return false;
-//
-//                        // если опция находится до активного класса - делаем ее недоступной
-//                        }else{
-//                            $(li).attr( 'data-disabled', 'true' ).addClass('disabled');
-//                        }
-//                    });
-
-
                     // изменяем статусы на сервере
                     $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token}, function( data ){
 
                         // если статус изменен нормально
                         if( data == 'statusChanged'){
 
-                            // todo эта часть должна срабатывать когда пришел ответ с сервера
                             // делаем статусы неактивными до выбранного
                             $.each( self.find('li'), function( k, li ){
 
@@ -647,8 +632,9 @@
                             });
 
                         }else{
-//                            alert( 'облом' );
-                            alert( data );
+
+                            // todo вывести какое то сообщение об ошибке на сервере
+                            alert( 'ошибки на сервере' );
                         }
 
                     });
@@ -661,36 +647,9 @@
                 // появление модального окна
                 $('#statusModal').modal();
 
-
-                // todo включить потом
-                {{--// делаем статусы неактивными до выбранного--}}
-                {{--$.each( $(this).find('li'), function( k, li ){--}}
-
-                    {{--// если доходим до активного класса - останавливаемся--}}
-                    {{--if( $(li).hasClass( 'selectboxit-focus' ) ){--}}
-                        {{--return false;--}}
-
-                        {{--// если опция находится до активного класса - делаем ее недоступной--}}
-                    {{--}else{--}}
-                        {{--$(li).attr( 'data-disabled', 'true').addClass('disabled');--}}
-                    {{--}--}}
-                {{--});--}}
-
-
-                {{--// изменяем статусы на сервере--}}
-                {{--$.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token });--}}
-
-
-                // todo отмечать запросы на фронте, только если на сервере запрос будет успешным
-
             });
 
-
-
-
         });
-
-
 
     </script>
 @endsection

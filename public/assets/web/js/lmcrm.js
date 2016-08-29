@@ -90,10 +90,6 @@ $(function(){
         } );
 
 
-        // todo разобраться, перегрузаем select чтобы нормально отображался
-        $("select").selectBoxIt();
-
-
         /**
          * Изменяет высоту выпадающего меню на странице openLeads агента
          *
@@ -270,7 +266,7 @@ $(function(){
 
 
 
-// todo дописать функцию
+// todo доработать
 
 var source = new EventSource("/notice");
 
@@ -288,8 +284,7 @@ source.onmessage = function(event) {
 			// делаем блок уведомлений видимым
 			noteBlock.css('display', 'block');
 
-
-			// todo включить обратно
+			// выключение оповещений
 			noticeOff('note');
 		}
 
