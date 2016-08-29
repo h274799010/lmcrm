@@ -23,7 +23,7 @@ class Bitmask extends Model
     // индекс пользователя
     protected $userID = NULL;
 
-    // конструктор запросов
+    // переменная с данными конструктора запросов
     public $tableDB = NULL;
 
     // отключаем метки времени
@@ -47,20 +47,62 @@ class Bitmask extends Model
      */
     public function __construct($id = NULL, $userID = NULL, array $attributes = array(), $tablePrefix = NULL, $tableFields = NULL)
     {
+        // индекс таблицы
         $this->tableNum = $id;
+
+        // префикс таблицы
         $this->tablePrefix = $tablePrefix;
+
+        // название таблицы
         $this->table = $this->tablePrefix .(int)$id;
+
+        // поля таблицы
         $this->tableFields = $tableFields;
 
-        if ( $id && !DB::getSchemaBuilder()->hasTable( $this->table ) ) {
-            $this->createTable();
-        }
+
+                // todo добавить админу а отсюда убрать
+                if ( $id && !DB::getSchemaBuilder()->hasTable( $this->table ) ) {
+                    $this->createTable();
+                }
+
+        // сохраняем данные конструктора запросов (на будущее удалить)
         $this->tableDB = DB::table($this->table);
+
+        // если задан пользователь, сохраняем его id в переменную
         if($userID) { $this->userID=$userID; }
 
         parent::__construct($attributes);
 
         return $this->table;
+    }
+
+
+    /**
+     * Возвращает маску по id
+     *
+     *
+     * @param  integer  $id
+     *
+     * @return object
+     */
+    public function find( $id ){
+
+        // выбираем данные маски по id
+        $mask = $this->where('id', '=', $id)->first();
+
+        if( $mask ){
+
+            // возвращаем имя таблицы
+            $mask->table = $this->table;
+
+            // возвращаем индекс пользователя
+            $mask->userID = $this->userID;
+
+            // возвращаем конструктор запросов
+            $mask->tableDB = $this->tableDB;
+        }
+
+        return $mask;
     }
 
 

@@ -6,7 +6,7 @@
     </div>
 
         <div class="panel panel-default">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 <table class="table table-bordered table-striped table-hover dataTable">
                     <thead>
                     <tr>
@@ -38,4 +38,16 @@
 
         </div>
 
+@stop
+
+@section('script')
+    <script>
+
+        $.extend( true, $.fn.dataTable.defaults, {
+            "language": {
+                "url": '{!! asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') !!}'
+            }
+        });
+
+    </script>
 @stop

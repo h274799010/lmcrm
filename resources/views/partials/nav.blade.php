@@ -37,20 +37,29 @@
 
                             <br>
 
+
+                            {{-- todo временно, удалить потом --}}
                             <li>
-                                <a href="{{ route('agent.salesman.index') }}"> Salesmen</a>
+                                <a href="{{ route('agent.lead.obtain.2') }}"> obtain2 </a>
+                            </li>
+                            <hr>
+
+
+
+                            <li>
+                                <a href="{{ route('agent.salesman.index') }}"> Salesmen </a>
                             </li>
 
                             <hr>
 
                             <li>
-                                <a href="{{ route('agent.sphere.index') }}"> Filtration customer</a>
+                                <a href="{{ route('agent.sphere.index') }}"> Filtration customer </a>
                             </li>
 
                             <hr>
 
                             <li>
-                                <a href="{{ URL::to('auth/logout')}}"><i class="fa fa-sign-out"></i> Logout</a>
+                                <a href="{{ URL::to('auth/logout')}}"><i class="fa fa-sign-out"></i> Logout </a>
                             </li>
                         </ul>
 

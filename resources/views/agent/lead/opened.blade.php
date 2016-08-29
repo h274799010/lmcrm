@@ -9,6 +9,7 @@
                         <table class="table table-bordered table-striped table-hover openLeadsTable">
                             <thead>
                                 <tr>
+                                    {{-- todo {!! trans("site/lead.opened.icon") !!} --}}
                                     <th>icon </th>
                                     <th>status </th>
                                     <th>date </th>
@@ -79,25 +80,37 @@
             <!-- /.container -->
 
 
-<div id="myModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+<div id="statusModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="exampleModalLabel">Предупреждение</h4>
+                <h4 class="modal-title" id="exampleModalLabel">
+                    {{-- todo {!! trans("site/lead.opened.modal.head") !!} --}}
+                    Предупреждение
+                </h4>
             </div>
 
             <div class="modal-body">
 
+                {{-- todo {!! trans("site/lead.opened.modal.body") !!} --}}
                 Ты уверен что хочешь это сделать?<br>
-                Восстановить статус потом нельзя будет.
+                Восстановить статус потом нельзя.
 
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger">Change status</button>
+
+                <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                    {{-- todo {!! trans("site/lead.opened.modal.button.Cancel") !!} --}}
+                    Cancel
+                </button>
+
+                <button id="statusModalChange" type="button" class="btn btn-danger">
+                    {{-- todo {!! trans("site/lead.opened.modal.button.OK") !!} --}}
+                    Change status
+                </button>
             </div>
 
 
@@ -274,6 +287,14 @@
 
 @section('scripts')
     <script>
+
+        $.extend( true, $.fn.dataTable.defaults, {
+            "language": {
+                "url": '{!! asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') !!}'
+            }
+
+        });
+
 
         // путь к методу получения итема органайзера
         var getOrganizerRoute = '{{ route('agent.lead.OrganizerItem')  }}';
@@ -504,7 +525,7 @@
             /**
              * Отключаем опции в селекте (используется код с сервера)
              *
-             * данные приходят с сервера, может когда то и понядобятся
+             * данные приходят с сервера, может когда то и понадобятся
              *
              */
 
@@ -524,9 +545,6 @@
                     });
                 });
             }
-
-
-
 
 
 
@@ -575,7 +593,73 @@
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
 
-                $('#myModal').modal();
+                var self = $(this);
+
+                // событие на нажатие кнопки Cancel на модальном окне
+                $( '#statusModalCancel').bind( 'click', function(){
+
+                    // todo доделать
+//                    alert('лана');
+                });
+
+
+                // событие на клик, по кнопке "Chenge status" (изменение статуса)
+                $( '#statusModalChange' ).bind( 'click', function(){
+
+                    // спрятать модальное окно
+                    $('#statusModal').modal('hide');
+
+
+
+//                    // todo эта часть должна срабатывать когда пришел ответ с сервера
+//                    // делаем статусы неактивными до выбранного
+//                    $.each( self.find('li'), function( k, li ){
+//
+//                        // если доходим до активного класса - останавливаемся
+//                        if( $(li).hasClass( 'selectboxit-focus' ) ){
+//                            return false;
+//
+//                        // если опция находится до активного класса - делаем ее недоступной
+//                        }else{
+//                            $(li).attr( 'data-disabled', 'true' ).addClass('disabled');
+//                        }
+//                    });
+
+
+                    // изменяем статусы на сервере
+                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token}, function( data ){
+
+                        // если статус изменен нормально
+                        if( data == 'statusChanged'){
+
+                            // todo эта часть должна срабатывать когда пришел ответ с сервера
+                            // делаем статусы неактивными до выбранного
+                            $.each( self.find('li'), function( k, li ){
+
+                                // если доходим до активного класса - останавливаемся
+                                if( $(li).hasClass( 'selectboxit-focus' ) ){
+                                    return false;
+
+                                    // если опция находится до активного класса - делаем ее недоступной
+                                }else{
+                                    $(li).attr( 'data-disabled', 'true' ).addClass('disabled');
+                                }
+                            });
+
+                        }else{
+//                            alert( 'облом' );
+                            alert( data );
+                        }
+
+                    });
+
+
+                });
+
+
+
+                // появление модального окна
+                $('#statusModal').modal();
 
 
                 // todo включить потом

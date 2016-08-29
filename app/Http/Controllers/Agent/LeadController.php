@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
+use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
@@ -67,7 +68,43 @@ class LeadController extends AgentController {
 
 
     /**
+     * todo временно для демонстрации, удалить
+     * Выводит таблицу с отфильтрованными лидами
+     * (только саму таблицу, строки добавляет метод obtainData)
+     *
+     *
+     * @return object
+     */
+    public function obtain2(){
+
+        // данные агента
+        $agent = $this->user;
+
+        // сфера агента
+        $sphere = $agent->sphere();
+
+        // конструктор маски агента
+        $mask = new AgentBitmask( $sphere->id, $agent->id );
+
+        // выбираем все актинвные маски
+        $agentMasks = $mask->where( 'status', '=', 1 )->get();
+
+        // атрибуты лида
+        $lead_attr = $sphere->leadAttr;
+
+        // атрибуты фильтра (агента)
+        $agent_attr = $sphere->attributes;
+
+        return view( 'agent.lead.obtain2' )
+            ->with( 'agentMasks', $agentMasks )
+            ->with( 'agent_attr', $agent_attr )
+            ->with( 'lead_attr',$lead_attr );
+    }
+
+
+    /**
      * Заполнение строк таблицы на странице obtain
+     *
      *
      * @param Request $request
      *
@@ -172,24 +209,25 @@ class LeadController extends AgentController {
             })
         ;
 
-        /* todo ---  ЗАПОЛНЕНИЕ ПОЛЕЙ fb_ В ТАБЛИЦЕ obtain ---  */
 
-        // todo получаем все атрибуты агента
+
+        /**  ---  ЗАПОЛНЕНИЕ ПОЛЕЙ fb_ В ТАБЛИЦЕ obtain  ---  */
+
+        // получаем все атрибуты агента
         $agentAttributes = $agent->sphere()->attributes;
 
-        // todo получение маски лида полей fb
-        // маска ad полей лидов
-        // массив с ключами и значениями только ad_ полей
-        // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
+        // маска fb полей лидов
+        // массив с ключами и значениями только fb_ полей
+        // [ fb_11_2=>1, fb_2_1=>0 ]
         $fdMask = collect($leadBitmask->findFbMask());
 
-        // todo поменять название индекса
+        // индекс, столбца таблицы dataTables
         $index = 0;
 
         // перебираем все атрибуты и выставляем значения по маске лида
         foreach($agentAttributes as $attr){
 
-            // todo поменять название индекса
+            // добавляем столбец в таблицу
             $datatable->add_column( 'a_'.$index,function( $lead ) use ( $attr, $fdMask ){
 
                 // маска текущего лида
@@ -200,8 +238,8 @@ class LeadController extends AgentController {
                 $attrType = $attr->_type;
 
 
-                // опции этих атрибутов имеют тип option их всегда несколько
-                // дальше идет фильтрация по маске лида, выбираются опции которые относятся к лиду
+                /** опции этих атрибутов имеют тип option их всегда несколько
+                дальше идет фильтрация по маске лида, выбираются опции которые относятся к конкретному лиду */
 
                 // все опции атрибута
                 $allOption = $attr->options;
@@ -209,14 +247,14 @@ class LeadController extends AgentController {
                 // переменная с отфильтрованными опциями
                 $value = '';
 
-//                 фльтруем все опции атрибута по маске атрибута
+                // фльтруем все опции атрибута по маске атрибута
                 foreach($allOption as $opt){
 
-//                     полное имя поля ad в таблице маски лида
+                    // полное имя поля fb в таблице маски лида
                     $fb_attr_opt = 'fb_' .$opt->attr_id .'_' .$opt->id;
 
-//                     если в поле есть значение, добавляем его,
-//                     если нет - пропускаем
+                    // если в поле есть значение, добавляем его,
+                    // если нет - пропускаем
                     if( $leadMask[$fb_attr_opt] == 1 ){
 
                         if( $value=='' ){
@@ -240,7 +278,7 @@ class LeadController extends AgentController {
 
 
 
-        /* ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad_ В ТАБЛИЦЕ obtain ---  */
+        /**  ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad_ В ТАБЛИЦЕ obtain  ---  */
 
         // получаем все атрибуты лида
         $leadAttributes = $agent->sphere()->leadAttr;
@@ -267,14 +305,8 @@ class LeadController extends AgentController {
                    // опции этих атрибутов имеют тип field,
                    // в таблице опций должна быть только одна запись с этим атрибутом
 
-                   // строка атрибута в таблице опций (по идее должна быть только одна)
-//                   $fieldData= $attr->field;
-
-                   // полное имя поля ad в таблице маски лида
-//                   $ad_attr_opt = 'ad_' .$fieldData->attr_id .'_' .$fieldData->id;
-
+                   // получение имени поля
                    $ad_attr_opt = 'ad_' .$attr->id .'_0';
-
 
                    // присваивем значение поля записанное в мске лида
                    $value = $leadMask[$ad_attr_opt];
@@ -340,6 +372,269 @@ class LeadController extends AgentController {
 
         return $datatable->make();
     }
+
+
+    /**
+     * Заполнение строк таблицы на странице obtain
+     *
+     *
+     * @param Request $request
+     *
+     * @return object
+     */
+    public function obtain2Data( Request $request )
+    {
+
+        // id маски по которой нужно отдать лиды
+        $maskId = strval($request->maskId);
+
+        // данные агента
+        $agent = $this->user;
+
+        // конструктор маски агента
+        $mask=$this->mask;
+
+        // маска лида
+        $leadBitmask = new LeadBitmask($mask->getTableNum());
+
+        // получаем данные всех активных масок агента
+        $agentBitmask = $mask->getData()->where( 'status', '=', 1 )->find( $maskId );
+
+
+        // ПРОВЕРКА НАЛИЧИЯ МАСКИ У АГЕНТА ПЕРЕД ПОЛУЧЕНИЕМ ЛИДОВ
+        if( $agentBitmask ){
+            // если у агента есть запись в битмаске получаем лиды
+
+            // маска агента по id
+            $agentBitmaskData = $agentBitmask->findFbMaskById();
+
+            // получаем id всех лидо по маске
+            $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists( 'user_id' );
+
+            // конструктор модели Lead, заводим получение лидов по id
+            $leads = Lead::whereIn( 'id', $list );
+
+            // фильтр, если есть данные по фильтру они подключаются к конструкторв
+            if ( count( $request['filter'] ) ) {
+                $eFilter = $request->only('filter')['filter'];
+                foreach ($eFilter as $eFKey => $eFVal) {
+                    switch($eFKey) {
+                        case 'date':
+                            if($eFVal=='2d') {
+                                $date = new \DateTime();
+                                $date->sub(new \DateInterval('P2D'));
+                                $leads->where('created_at','>=', $date->format('Y-m-d'));
+                            } elseif($eFVal=='1m') {
+                                $date = new \DateTime();
+                                $date->sub(new \DateInterval('P1M'));
+                                $leads->where('created_at','>=', $date->format('Y-m-d'));
+                            } else {
+
+                            }
+                            break;
+                        default: ;
+                    }
+                }
+            }
+
+            // подключаем другие данные к конструктору и выбираем данные из БД
+            $leads
+                // лиды только со статусом 4 (это которые "к аукциону")
+                ->where( 'status', '=', 4 )
+                // исключаем лиды которые принадлежат пользователю который делает запрос
+                ->where( 'agent_id', '<>', $agent->id )
+                // получаем только те поля, которые нам нужны
+                ->select( ['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'] )
+                // делаем запрос к БД
+                ->get();
+
+        }else{
+            // если у агента нет записи в битмаске
+
+            // возвращаем пустую коллекцию
+            $leads = collect();
+        }
+
+
+        $datatable = Datatables::of( $leads )
+            ->edit_column('opened',function($model){
+                return view('agent.lead.datatables.obtain_count',['opened'=>$model->opened]);
+            })
+            ->edit_column('id',function($model){
+                return view('agent.lead.datatables.obtain_open',['lead'=>$model]);
+            })
+            ->add_column('ids',function($model){
+                return view('agent.lead.datatables.obtain_open_all',['lead'=>$model]);
+            }, 2)
+            ->edit_column('customer_id',function($lead) use ($agent){
+                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
+            })
+            ->edit_column('email',function($lead) use ($agent){
+                return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('site/lead.hidden');
+            })
+        ;
+
+
+
+        /**  ---  ЗАПОЛНЕНИЕ ПОЛЕЙ fb_ В ТАБЛИЦЕ obtain  ---  */
+
+        // получаем все атрибуты агента
+        $agentAttributes = $agent->sphere()->attributes;
+
+        // маска fb полей лидов
+        // массив с ключами и значениями только fb_ полей
+        // [ fb_11_2=>1, fb_2_1=>0 ]
+        $fdMask = collect( $leadBitmask->findFbMask() );
+
+        // индекс, столбца таблицы dataTables
+        $index = 0;
+
+        // перебираем все атрибуты и выставляем значения по маске лида
+        foreach($agentAttributes as $attr){
+
+            // добавляем столбец в таблицу
+            $datatable->add_column( 'a_'.$index, function( $lead ) use ( $attr, $fdMask ){
+
+                // маска текущего лида
+                $leadMask = $fdMask[$lead->id];
+
+                // выбираем тип текущего атрибута
+                $attrType = $attr->_type;
+
+
+                /** опции этих атрибутов имеют тип option их всегда несколько
+                    дальше идет фильтрация по маске лида, выбираются опции которые относятся к конкретному лиду */
+
+                // все опции атрибута
+                $allOption = $attr->options;
+
+                // переменная с отфильтрованными опциями
+                $value = '';
+
+                // фльтруем все опции атрибута по маске атрибута
+                foreach($allOption as $opt){
+
+                    // полное имя поля fb в таблице маски лида
+                    $fb_attr_opt = 'fb_' .$opt->attr_id .'_' .$opt->id;
+
+                    // если в поле есть значение, добавляем его,
+                    // если нет - пропускаем
+                    if( $leadMask[$fb_attr_opt] == 1 ){
+
+                        if( $value=='' ){
+                            // если переменная пустая - присваиваем значение
+                            $value = $opt->name;
+
+                        }else{
+                            // если в переменной уже есть опции - добавляем через запятую
+                            $value = $value .', ' .$opt->name;
+                        }
+                    }
+                }
+
+                return view('agent.lead.datatables.obtain_data',['data'=>$value,'type'=>$attrType]);
+            });
+
+            ++$index;
+        }
+
+
+
+        /**  ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad_ В ТАБЛИЦЕ obtain  ---  */
+
+        // получаем все атрибуты лида
+        $leadAttributes = $agent->sphere()->leadAttr;
+
+        // маска ad полей лидов
+        // массив с ключами и значениями только ad_ полей
+        // [ ad_11_2=>1, ad_2_1=>'mail@mail.com' ]
+        $adMask = collect($leadBitmask->findAdMask());
+
+
+        // перебираем все атрибуты и выставляем значения по маске лида
+        foreach($leadAttributes as $attr){
+
+            $datatable->add_column( 'a_'.$index, function( $lead ) use ( $attr, $adMask ){
+
+                // маска текущего лида
+                $leadMask = $adMask[$lead->id];
+
+                // выбираем тип текущего атрибута
+                $attrType = $attr->_type;
+
+                /* - ОБРАБОТКА ОПЦИЙ В ЗАВИСИМОСТИ ОТ ТИПА АТРИБУТА - */
+                if( $attrType=='calendar' || $attrType=='email' ){
+                    // опции этих атрибутов имеют тип field,
+                    // в таблице опций должна быть только одна запись с этим атрибутом
+
+                    // получение имени поля
+                    $ad_attr_opt = 'ad_' .$attr->id .'_0';
+
+                    // присваивем значение поля записанное в мске лида
+                    $value = $leadMask[$ad_attr_opt];
+
+                }elseif( $attrType=='radio' || $attrType=='checkbox' || $attrType=='select' ){
+                    // опции этих атрибутов имеют тип option их всегда несколько
+                    // дальше идет фильтрация по маске лида, выбираются опции которые относятся к лиду
+
+                    // все опции атрибута
+                    $allOption = $attr->options;
+
+                    // переменная с отфильтрованными опциями
+                    $value = '';
+
+                    // фльтруем все опции атрибута по маске атрибута
+                    foreach($allOption as $opt){
+
+                        // полное имя поля ad в таблице маски лида
+                        $ad_attr_opt = 'ad_' .$opt->attr_id .'_' .$opt->id;
+
+                        // если в поле есть значение, добавляем его,
+                        // если нет - пропускаем
+                        if( $leadMask[$ad_attr_opt] == 1 ){
+
+                            if( $value=='' ){
+                                // если переменная пустая - присваиваем значение
+                                $value = $opt->name;
+
+                            }else{
+                                // если в переменной уже есть опции - добавляем через запятую
+                                $value = $value .', ' .$opt->name;
+                            }
+                        }
+                    }
+
+                }elseif( $attrType=='input' || $attrType=='textarea' ){
+                    // опции этих атрибутов не имеют запись в таблице опций атрибутов
+
+
+
+                    // полное имя поля ad в таблице маски лида
+                    $ad_attr_opt = 'ad_' .$attr->id .'_0';
+
+                    // присваивем значение поля записанное в мске лида
+                    if(isset($leadMask[$ad_attr_opt])){
+                        $value = $leadMask[$ad_attr_opt];
+                    }else{
+                        $value = null;
+                    }
+
+                }else{
+                    // если не подошло ни одно значение
+                    // какие то ошибки на фронтенде
+
+                    $value = null;
+                }
+
+                return view('agent.lead.datatables.obtain_data',['data'=>$value,'type'=>$attrType]);
+            });
+
+            ++$index;
+        }
+
+        return $datatable->make();
+    }
+
 
 
 
@@ -689,7 +984,8 @@ class LeadController extends AgentController {
             $openedLead->status = $status;
             $openedLead->save();
 
-            return response()->json(TRUE);
+            // присылаем подтверждение что статус изменен
+            return response()->json('statusChanged');
         }
     }
 

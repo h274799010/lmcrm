@@ -1,12 +1,28 @@
 <?php
 
 Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], function() {
-    Route::get('/', ['as' => 'agent.index', 'uses' => 'Agent\AgentController@index']);
 
-    Route::get('lead', ['as' => 'agent.lead.index', 'uses' => 'Agent\LeadController@index']);
+    // todo эти две страницы, похоже, несуществуют, проверить и удалить
+//    Route::get('/', ['as' => 'agent.index', 'uses' => 'Agent\AgentController@index']);
+//    Route::get('lead', ['as' => 'agent.lead.index', 'uses' => 'Agent\LeadController@index']);
+
+    // страница отданых лидов агентом
     Route::get('lead/depostited', ['as' => 'agent.lead.deposited', 'uses' => 'Agent\LeadController@deposited']);
+
+    // страница фильтрации лидов
     Route::get('lead/obtain', ['as' => 'agent.lead.obtain', 'uses' => 'Agent\LeadController@obtain']);
+
+    // получение данных для таблицы на странице фильтра лидов
     Route::get('lead/obtain/data', ['as' => 'agent.lead.obtain.data', 'uses' => 'Agent\LeadController@obtainData']);
+
+    // todo страница фильтра лидов, тестовая, удалить
+    Route::get('lead/obtain2', ['as' => 'agent.lead.obtain.2', 'uses' => 'Agent\LeadController@obtain2']);
+
+    // todo получение данных для таблицы на странице фильтра лидов, удалить
+    Route::get('lead/obtain2/data', ['as' => 'agent.lead.obtain.2.data', 'uses' => 'Agent\LeadController@obtain2Data']);
+//    Route::post('lead/obtain2/data', ['as' => 'agent.lead.obtain.2.data', 'uses' => 'Agent\LeadController@obtain2Data']);
+
+
     Route::get('lead/open/{id}', ['as' => 'agent.lead.open', 'uses' => 'Agent\LeadController@openLead']);
     Route::get('lead/openAll/{id}', ['as' => 'agent.lead.openAll', 'uses' => 'Agent\LeadController@openAllLeads']);
     Route::get('lead/create', ['as' => 'agent.lead.create', 'uses' => 'Agent\LeadController@create']);
@@ -20,12 +36,11 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     // форма добавление напоминания
     Route::get('lead/addReminder/{lead_id}',['as'=>'agent.lead.addReminder', 'uses' => 'Agent\LeadController@addReminder']);
 
-
+    // todo разобраться, еще не понял где и зачем
     Route::post('lead/editOpenedLead',['as'=>'agent.lead.editOpenedLead', 'uses' => 'Agent\LeadController@editOpenedLead']);
 
     // получение записи органайзера по id
     Route::post('lead/OrganizerItem',['as'=>'agent.lead.OrganizerItem', 'uses' => 'Agent\LeadController@getOrganizerItem']);
-
 
     // сохранение данных органайзера в БД
     Route::post('lead/putReminder',['as'=>'agent.lead.putReminder', 'uses' => 'Agent\LeadController@putReminder']);
@@ -53,11 +68,15 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
         // страница всех масок агента по сферам
         Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
 
-        // страница создания/редактирования маски сферы
+        // страница создания/редактирования маски агента
         Route::get('sphere/{sphere_id}/{mask_id}/edit',['as'=>'agent.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
 
-        // сохранение данных маски сферы
+        // сохранение данных маски агента
         Route::match(['put','post'],'sphere/{sphere_id}/{mask_id}',['as'=>'agent.sphere.update', 'uses' => 'Agent\SphereController@update']);
+
+        // удаление маски агента
+        Route::post('mask/remove', ['as'=>'agent.remove.mask', 'uses' => 'Agent\SphereController@removeMask']);
+
 
         //Route::resource('customer/filter','Agent\CustomerFilterController');
 

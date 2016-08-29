@@ -52,7 +52,7 @@ class SphereController extends AgentController {
         $data->load('attributes.options');
 
         // конструктор маски
-        $mask = new AgentBitmask($data->id,$this->uid);
+        $mask = new AgentBitmask( $data->id, $this->uid );
 
         // если $mask_id = 0, значить это будет новая запись в маске
         if( $mask_id == 0 ){
@@ -160,6 +160,56 @@ class SphereController extends AgentController {
         }
     }
 
+
+    /**
+     * Уладение маски
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function removeMask( Request $request )
+    {
+        // id пользователя
+        $userId = $this->uid;
+        // id сферы
+        $sphereId = $request->sphere_id;
+        // id маски
+        $maskId = $request->mask_id;
+
+        // конструктор маски по id сферы и id агента
+        $mask = new AgentBitmask( $sphereId, $userId );
+
+        // находим маску по id маски
+        $mask = $mask->find( $maskId );
+
+        // если такая маска есть
+        if( $mask ){
+
+            // удаляем маску
+            $mask->delete();
+
+            // провераем есть ли такая маска
+            $testMask = new AgentBitmask( $sphereId, $userId );
+            $testMask = $testMask->find( $maskId );
+
+            if( $testMask ){
+                // если маска есть (т.е. неудалена)
+
+                // возвращаем 'notDeleted'
+                return 'notDeleted';
+
+            }else{
+                // если маски (т.е. маска успешно удалена)
+
+                // сообщаем что маска удалена, возвращаем 'deleted'
+                return 'deleted';
+            }
+        }
+
+        return response()->json( FALSE );
+    }
 
 
     /**
