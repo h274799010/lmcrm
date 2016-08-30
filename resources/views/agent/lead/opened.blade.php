@@ -34,7 +34,7 @@
                                     <td><div> Имя маски </div></td>
                                     <td class="edit">
                                         <div>
-                                            <a href="{{ route('agent.lead.showOpenedLead',$data->id) }}">
+                                            <a href="#">
                                                 <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
                                             </a>
                                         </div>
