@@ -441,6 +441,7 @@
 
             // добавляем id органайзера к строке таблицы
             $(tr).attr( 'organizer_id', organizerId );
+            $(tr).addClass('organizedRow');
 
 
             // кнопка удаления  итема
@@ -449,9 +450,8 @@
             // оформление кнопки удаления итема
             dellItem.attr( 'type', 'button');
             dellItem.attr( 'class', 'btn btn-danger btn-xs');
-            dellItem.css( 'float', 'right' );
+            dellItem.css( 'float', 'left' );
             dellItem.css( 'margin-top', '5px' );
-            dellItem.css( 'margin-left', '30px' );
 
             dellItem.css( 'display', 'block' );
             dellItem.text('dell');
@@ -473,6 +473,40 @@
             });
 
 
+            // кнопка редактирования итема
+            var editItem = $('<a />');
+
+            // оформление кнопки редактирования итема
+            editItem.attr( 'type', 'button');
+            editItem.attr( 'class', 'btn btn-primary btn-xs dialog');
+            editItem.css( 'float', 'left' );
+            editItem.css( 'margin-top', '5px' );
+            editItem.css( 'margin-left', '4px' );
+
+            editItem.css( 'display', 'block' );
+            editItem.text('edit');
+            editItem.attr('href', '{{ route('agent.lead.editOrganizer', '') }}' + '/' + organizerId);
+
+
+            // кнопка завершения
+            var doneItem = $('<button />');
+
+            // оформление кнопки завершения
+            doneItem.attr( 'type', 'button');
+            doneItem.attr( 'class', 'btn btn-success btn-xs');
+            doneItem.css( 'float', 'left' );
+            doneItem.css( 'margin-top', '5px' );
+            doneItem.css( 'margin-left', '4px' );
+
+            doneItem.css( 'display', 'block' );
+            doneItem.text('done');
+
+            // событие на нажатие кнопки
+            $(doneItem).bind('click', function(){
+
+            });
+
+
             td1.text( time );
             td2.text( comment );
 
@@ -480,7 +514,10 @@
                 td1.append(bell);
             }
 
-            td2.append(dellItem);
+            td2.append('<div class="button-wrap" style="display: none;"></div>');
+            td2.find('.button-wrap').append(dellItem);
+            td2.find('.button-wrap').append(editItem);
+            td2.find('.button-wrap').append(doneItem);
 
             var rowspan = $('#organizer_title').attr( 'rowspan' );
 
@@ -489,9 +526,119 @@
             tr.append(td1);
             tr.append(td2);
 
-            $('#info_table').append(tr);
+            $('#info_table .organizer_tr').after(tr);
 
         }
+
+        // обновление строки органайзера
+        function updateOrganizerRow( organizerId, time, comment, type ){
+
+            // иконка колокольчика
+            var bell = $('<i />');
+            $(bell).attr( 'class', 'glyphicon glyphicon-bell bell_icon');
+
+            // строка органайзера с данными
+            var tr = $('tr[organizer_id='+organizerId+']');
+            tr.empty();
+
+            // столбцы таблицы
+            var td1 = $('<td />');
+            var td2 = $('<td />');
+
+            // добавляем класс к ячейке органайзера
+            td1.addClass('organizerTime');
+
+
+
+            // кнопка удаления  итема
+            var dellItem = $('<button />');
+
+            // оформление кнопки удаления итема
+            dellItem.attr( 'type', 'button');
+            dellItem.attr( 'class', 'btn btn-danger btn-xs');
+            dellItem.css( 'float', 'left' );
+            dellItem.css( 'margin-top', '5px' );
+
+            dellItem.css( 'display', 'block' );
+            dellItem.text('dell');
+
+            // событие на нажатие кнопки
+            $(dellItem).bind('click', function(){
+
+                // путь к странице удаления итема
+                var deleteReminder = '{{ route('agent.lead.deleteReminder', '') }}' + '/' + organizerId;
+
+                // запрос на удаление
+                $.get( deleteReminder, function( data ){
+
+                    // при успешном запросе, строка удаляется из таблицы, на странце
+                    if( data == true ){
+                        tr.remove();
+                    }
+                });
+            });
+
+
+            // кнопка редактирования итема
+            var editItem = $('<a />');
+
+            // оформление кнопки редактирования итема
+            editItem.attr( 'type', 'button');
+            editItem.attr( 'class', 'btn btn-primary btn-xs dialog');
+            editItem.css( 'float', 'left' );
+            editItem.css( 'margin-top', '5px' );
+            editItem.css( 'margin-left', '4px' );
+
+            editItem.css( 'display', 'block' );
+            editItem.text('edit');
+            editItem.attr('href', '{{ route('agent.lead.editOrganizer', '') }}' + '/' + organizerId);
+
+            // кнопка завершения
+            var doneItem = $('<button />');
+
+            // оформление кнопки завершения
+            doneItem.attr( 'type', 'button');
+            doneItem.attr( 'class', 'btn btn-success btn-xs');
+            doneItem.css( 'float', 'left' );
+            doneItem.css( 'margin-top', '5px' );
+            doneItem.css( 'margin-left', '4px' );
+
+            doneItem.css( 'display', 'block' );
+            doneItem.text('done');
+
+            // событие на нажатие кнопки
+            $(doneItem).bind('click', function(){
+
+            });
+
+
+            td1.text( time );
+            td2.text( comment );
+
+            if( type == 2){
+                td1.append(bell);
+            }
+
+            td2.append('<div class="button-wrap" style="display: none;"></div>');
+            td2.find('.button-wrap').append(dellItem);
+            td2.find('.button-wrap').append(editItem);
+            td2.find('.button-wrap').append(doneItem);
+
+            tr.append(td1);
+            tr.append(td2);
+
+        }
+
+        /*
+        * Собитие наведения на строку органайзера
+        */
+        var organizedRow = '#info_table .organizedRow';
+        $(document).on('mouseover', organizedRow,function () {
+            $(this).find('.button-wrap').show();
+        });
+        $(document).on('mouseout', organizedRow, function () {
+            $(this).find('.button-wrap').hide();
+        });
 
 
 

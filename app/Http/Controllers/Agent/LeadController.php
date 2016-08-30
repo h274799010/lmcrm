@@ -909,7 +909,7 @@ class LeadController extends AgentController {
         $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
 
         // получение данных органайзера
-        $organizer = Organizer::where('open_lead_id', '=', $openedLead->id)->get();
+        $organizer = Organizer::where('open_lead_id', '=', $openedLead->id)->orderBy('time', 'asc')->get();
 
         // преобразуем данные чтобы получить только время и комментарии
         $organizer = $organizer->map(function( $item ){
@@ -1107,4 +1107,52 @@ class LeadController extends AgentController {
         return response()->json([ $organizer->id, $organizer->time->format('d.m.Y'), $organizer->comment, $organizer->type ]);
     }
 
+    /**
+     * Получение записи для редактирования
+     *
+     * @param $id
+     * @return $object
+     */
+    public function editOrganizer($id)
+    {
+        $organizer = Organizer::find($id);
+
+        if($organizer->type == 2) {
+            $view = 'agent.lead.organizer.editReminder';
+        } else {
+            $view = 'agent.lead.organizer.editComment';
+        }
+
+        return view($view,['organizer'=>$organizer])
+            ->with('organizer',$organizer);
+    }
+
+    /**
+     * Обновление записи органайзера
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function updateOrganizer( Request $request )
+    {
+        $organizer = Organizer::find($request->id);
+
+        // временная метка напоминания
+        if($organizer->type == 2) {
+            $organizer->time = strtotime($request->input('time'));
+        }
+        // комментарий
+        if($request->input('comment')) {
+            $organizer->comment = $request->input('comment');
+        }
+
+        // сохранение записи
+        $organizer->save();
+
+        if($request->ajax()){
+            return 'OrganizerItemUpdated,' .$organizer->id;
+        } else {
+            return 'true';
+        }
+    }
 }

@@ -31,7 +31,7 @@ $(function(){
 		$(".validate").validate();
 	}
 
-	$(".dialog").click(function(){
+	$(document).on('click', ".dialog", function(){
 		var href=$(this).attr("href");
 		$.ajax({
 			url:href,
@@ -56,6 +56,17 @@ $(function(){
                             });
 
                         }
+                        if ( resp.split(',')[0] == 'OrganizerItemUpdated' ) {
+
+							// получение токена
+							var token = $('meta[name=csrf-token]').attr('content');
+
+							$.post( getOrganizerRoute, { 'id': resp.split(',')[1], '_token': token }, function( data ){
+
+								updateOrganizerRow( data[0], data[1], data[2], data[3] );
+							});
+
+						}
 
 					});
 				});

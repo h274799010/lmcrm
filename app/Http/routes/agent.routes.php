@@ -48,6 +48,12 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     // удаление строки органайзера из БД
     Route::get('lead/deleteReminder/{id}',['as'=>'agent.lead.deleteReminder', 'uses' => 'Agent\LeadController@deleteReminder']);
 
+    // редактирование строки органайзера из БД
+    Route::get('lead/editOrganizer/{id}',['as'=>'agent.lead.editOrganizer', 'uses' => 'Agent\LeadController@editOrganizer']);
+
+    // обновление строки органайзера из БД
+    Route::post('lead/updateOrganizer',['as'=>'agent.lead.updateOrganizer', 'uses' => 'Agent\LeadController@updateOrganizer']);
+
     // установка статуса лида
     Route::post('lead/setOpenLeadStatus',['as'=>'agent.lead.setOpenLeadStatus', 'uses' => 'Agent\LeadController@setOpenLeadStatus']);
 
