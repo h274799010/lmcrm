@@ -1141,6 +1141,7 @@ class LeadController extends AgentController {
         if($organizer->type == 2) {
             $organizer->time = strtotime($request->input('time'));
         }
+
         // комментарий
         if($request->input('comment')) {
             $organizer->comment = $request->input('comment');

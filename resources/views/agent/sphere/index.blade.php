@@ -52,6 +52,40 @@
     @empty
     @endforelse
 
+
+    <div id="removeModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">
+                        Removing the mask
+                    </h4>
+                </div>
+
+                <div class="modal-body">
+
+                    Are you sure?
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button id="removeModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button id="removeModalChange" type="button" class="btn btn-danger">
+                        Remove mask
+                    </button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
 @stop
 
 
@@ -87,35 +121,49 @@
             // получение токена
             var token = $('meta[name=csrf-token]').attr('content');
 
-            // отправка поста на удаление маски
-            $.post( '{{ route('agent.remove.mask') }}', { _token: token, sphere_id: sphere_id, mask_id: mask_id }, function( data ){
+            // событие на клик, по кнопке "Remove mask" (удалить маску)
+            $('#removeModalChange').bind('click', function () {
 
-                //
-                if( data == 'deleted' ){
-                    $('tr[mask_id='+ mask_id +']').remove();
+                // спрятать модальное окно
+                $('#removeModal').modal('hide');
 
-                    var table = $('table[sphereId='+ sphere_id +']');
+                // отправка поста на удаление маски
+                $.post( '{{ route('agent.remove.mask') }}', { _token: token, sphere_id: sphere_id, mask_id: mask_id }, function( data ){
 
-                    var all_tr = table.find('tr');
+                    //
+                    if( data == 'deleted' ){
+                        $('tr[mask_id='+ mask_id +']').remove();
 
-                    if( all_tr.length==2 ){
+                        var table = $('table[sphereId='+ sphere_id +']');
 
-                        table.find('.noMaskRow').removeClass('hidden');
+                        var all_tr = table.find('tr');
 
+                        if( all_tr.length==2 ){
+
+                            table.find('.noMaskRow').removeClass('hidden');
+
+                        }
+
+                    }else if( data == 'notDeleted' ){
+
+                        // todo уточнить что тут написать
+                        alert('Сan not remove, the error on the server');
+
+                    }else{
+
+                        // todo уточнить что тут написать
+                        alert('A server error');
                     }
 
-                }else if( data == 'notDeleted' ){
+                    // отключить событие по клику
+                    $('#removeModalChange').unbind('click');
 
-                    // todo уточнить что тут написать
-                    alert('Сan not remove, the error on the server');
-
-                }else{
-
-                    // todo уточнить что тут написать
-                    alert('A server error');
-                }
+                });
 
             });
+
+            // появление модального окна
+            $('#removeModal').modal();
 
         })
 
