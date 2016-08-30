@@ -421,7 +421,6 @@
             }
         }
 
-
         // добавление строки органайзера
         function addOrganizerRow( organizerId, time, comment, type ){
 
@@ -517,7 +516,10 @@
             td2.append('<div class="button-wrap" style="display: none;"></div>');
             td2.find('.button-wrap').append(dellItem);
             td2.find('.button-wrap').append(editItem);
-            td2.find('.button-wrap').append(doneItem);
+
+            if( type == 2 ) {
+                td2.find('.button-wrap').append(doneItem);
+            }
 
             var rowspan = $('#organizer_title').attr( 'rowspan' );
 
@@ -611,7 +613,6 @@
 
             });
 
-
             td1.text( time );
             td2.text( comment );
 
@@ -622,7 +623,10 @@
             td2.append('<div class="button-wrap" style="display: none;"></div>');
             td2.find('.button-wrap').append(dellItem);
             td2.find('.button-wrap').append(editItem);
-            td2.find('.button-wrap').append(doneItem);
+
+            if( type == 2 ) {
+                td2.find('.button-wrap').append(doneItem);
+            }
 
             tr.append(td1);
             tr.append(td2);
@@ -741,15 +745,10 @@
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
 
+                // получение selectboxit
+                var selectBox = $(this).find('select').data("selectBox-selectBoxIt");
+
                 var self = $(this);
-
-                // событие на нажатие кнопки Cancel на модальном окне
-                $( '#statusModalCancel').bind( 'click', function(){
-
-                    // todo вернуть начальную опцию
-                });
-
-
 
 
                 // событие на клик, по кнопке "Chenge status" (изменение статуса)
@@ -789,7 +788,35 @@
 
                 });
 
+                // событие на нажатие кнопки Cancel на модальном окне
+                $( '#statusModalCancel').bind( 'click', function(){
 
+                    // выбераем первый активный статус
+                    $.each( self.find('li'), function (k, li) {
+
+                        // если обьект selectboxit не равен NULL
+                        if( selectBox != null ) {
+
+                            // если текущий элемент активный - выбираем его и останавливаемся
+                            if( !$(li).hasClass('disabled') && $(li).attr('data-disabled') == 'false' ) {
+                                selectBox.selectOption(k);
+                                selectBox = null;
+                                return false;
+                            }
+
+                        }
+
+                    });
+
+                    // сбрасываем значения переменных к NULL
+                    // чтоб не подхватились другим селектом
+                    selectData = lead_id = token = selectBox = self = null;
+
+                    // отключаем события клика по кнопкам отмены и сабмита
+                    $('#statusModalChange').unbind('click');
+                    $('#statusModalCancel').unbind('click');
+
+                });
 
                 // появление модального окна
                 $('#statusModal').modal();

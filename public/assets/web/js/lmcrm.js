@@ -89,6 +89,7 @@ $(function(){
 
 
         $('.openLeadsTable').DataTable({
+			autoWidth: false,
 			responsive: true,
 			"aoColumnDefs": [
 				{ "sWidth": "150px", "aTargets": [ 1 ] },
@@ -96,7 +97,7 @@ $(function(){
 			]
 		});
 
-        $('.openLeadsTable').on( 'draw.dt', function () {
+		$('.openLeadsTable').on( 'draw.dt', function () {
             $("select").selectBoxIt();
         } );
 

@@ -162,6 +162,13 @@
 
             });
 
+            $('#removeModalCancel').bind('click', function () {
+                sphere_id = mask_id = token = null;
+
+                // отключить событие по клику
+                $('#removeModalChange').unbind('click');
+            });
+
             // появление модального окна
             $('#removeModal').modal();
 
