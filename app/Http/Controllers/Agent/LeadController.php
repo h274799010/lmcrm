@@ -974,8 +974,16 @@ class LeadController extends AgentController {
         // находим данные открытого лида по id лида и id агента
         $openedLead = OpenLeads::where(['lead_id'=>$lead_id,'agent_id'=>$this->uid])->first();
 
+        // если лид отмечен как плохой
+        if($status == 'bad') {
+            $openedLead->bad = 1;
+            $openedLead->save();
+            return response()->json('setBadStatus');
+        }
+
         // если новый статус меньше уже установленного, выходим из метода
-        if( $status < $openedLead->status ){
+        // или лид отмечен как плохой
+        if( $status < $openedLead->status || $openedLead->bad == true ){
             return response()->json(FALSE);
 
         }else{
