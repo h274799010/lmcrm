@@ -25,7 +25,15 @@
                                 <tr lead_id="{{ $data->id }}">
                                     <td><div></div></td>
                                     <td class="select_cell">
-                                        {{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}
+                                        <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
+                                            @if($data->openLeadStatus->status == 0)
+                                                <option selected="selected"></option>
+                                            @endif
+                                            @foreach($data->sphereStatuses->statuses as $status)
+                                                <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                            @endforeach
+                                        </select>
+                                        {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
                                     </td>
                                     <td><div>{{ $data->date }}</div></td>
                                     <td><div>{{ $data->name }}</div></td>
