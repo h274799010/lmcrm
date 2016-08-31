@@ -44,7 +44,6 @@ $(function(){
 					$(this).find('.ajax-form').ajaxForm(function(resp) {
 						dialog.modal('hide');
                         if (resp=='reload') location.reload();
-						///{organizer:hfgj} resp.or
                         if ( resp.split(',')[0]=='OrganizerItemsaved' ){
 
                             // получение токена

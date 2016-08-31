@@ -28,6 +28,34 @@ class Credits extends Model {
         return $this->attributes['buyed']+$this->attributes['earned'];
     }
 
+    /**
+     * Возвращает всю историю по кредиту
+     *
+     * todo доработать, когда переименуется bill_id
+     *
+     */
+    public function history()
+    {
+        return $this->hasMany('App\Models\CreditHistory', 'bill_id', 'id')->with('sourceName')->orderBy('id', 'desc');
+//        return $this->hasMany('App\Models\CreditHistory', 'bill_id', 'id')->orderBy('id', 'desc');
+
+    }
+
+
+    /**
+     * Название ресурса
+     *
+     * todo доработать, когда переименуется bill_id
+     *
+     */
+    public function sourceName()
+    {
+        return $this->hasOne('App\Models\CreditTypes', 'id', 'source')->orderBy('id', 'desc');
+    }
+
+
+
+
     //сначала вычитаем стоимость из buyed. Если buyed закончилось, а стоимость ещё нет, то остаток стоимости вычитаем из earned.
     public function setPaymentAttribute($value){
         if($this->attributes['buyed'] < $value) {
@@ -41,21 +69,30 @@ class Credits extends Model {
         }
     }
 
-    public function save(array $options = []){
+//    public function save(array $options = []){
+    public function setUp( $source ){
+
         $history = new CreditHistory();
         if ($this->source < 0){
             $this->earnedChange *= -1;
             $this->buyedChange *= -1;
         }
-        $history->buyed = $this->buyed;
-        $history->earned = $this->earned;
+
+//        $history->buyed = $this->buyed;
+//        $history->earned = $this->earned;
+
+        $history->cash = $this->buyed;
+
         $history->earnedChange = $this->earnedChange;
         $history->buyedChange = $this->buyedChange;
         $history->bill_id = $this->id;
-        $history->source = $this->source;
+
+//        $history->source = $this->source;
+        $history->source = $source;
+
         $history->transaction_id = $this->transaction_id;
         $history->save();
-        unset($this->source);
-        parent::save($options);
+//        unset($this->source);
+//        parent::save($options);
     }
 }

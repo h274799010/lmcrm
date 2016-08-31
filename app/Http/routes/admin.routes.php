@@ -22,9 +22,19 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('agent/create',['as'=>'admin.agent.create', 'uses' => 'Admin\AgentController@create']);
     Route::post('agent/store',['as'=>'admin.agent.store', 'uses' => 'Admin\AgentController@store']);
     Route::get('agent/{id}/edit',['as'=>'admin.agent.edit', 'uses' => 'Admin\AgentController@edit']);
+
+    // изменение состояние счета агента
     Route::match(['put','post'],'agent/{id}/update',['as'=>'admin.agent.update', 'uses' => 'Admin\AgentController@update']);
+
+    // изменение состояние счета агента
+    Route::post('agent/{id}/changeCradits',['as'=>'admin.agent.changeCradits', 'uses' => 'Admin\AgentController@changeCradits']);
+
+
+
     Route::get('agent/{id}/destroy', ['as'=>'admin.agent.delete', 'uses' => 'Admin\AgentController@destroy']);
     //Route::resource('agent', 'Admin\AgentController');
+
+
 
     //Route::get('sphere/data', 'Admin\sphereController@data');
     Route::get('sphere/index', ['as' => 'admin.sphere.index', 'uses' => 'Admin\SphereController@index']);

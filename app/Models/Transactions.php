@@ -10,8 +10,8 @@ class Transactions extends Model {
     protected $fillable = [
         'created_at','status'
     ];
-    public static function create($attributes){
-        $attributes['created_at'] = Date('Y-m-d H:i:s');
-        self::create($attributes);
-    }
+//    public static function create($attributes){
+//        $attributes['created_at'] = Date('Y-m-d H:i:s');
+//        self::create($attributes);
+//    }
 }
