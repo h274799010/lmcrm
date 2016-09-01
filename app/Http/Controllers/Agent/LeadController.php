@@ -1031,11 +1031,10 @@ class LeadController extends AgentController {
 
         if($request->ajax()){
 
-            return 'OrganizerItemsaved,' .$organizer->id;
+            return response()->json( ['OrganizerItemsaved', $organizer->id] );
+
         } else {
             return 'true';
-
-//            return redirect()->route('agent.lead.showOpenedLead',$request->input('open_lead_id'));
         }
 
     }

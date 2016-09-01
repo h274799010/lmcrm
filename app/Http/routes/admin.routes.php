@@ -26,8 +26,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // изменение состояние счета агента
     Route::match(['put','post'],'agent/{id}/update',['as'=>'admin.agent.update', 'uses' => 'Admin\AgentController@update']);
 
-    // изменение состояние счета агента
-    Route::post('agent/{id}/changeCradits',['as'=>'admin.agent.changeCradits', 'uses' => 'Admin\AgentController@changeCradits']);
+    // todo одну из них убрать изменение состояние счета агента
+    Route::post('agent/{id}/changeCredits',['as'=>'admin.agent.changeCredits', 'uses' => 'Admin\AgentController@changeCredits']);
+
+    // todo одну из них убрать изменение состояние счета агента
+    Route::post('agent/{id}/changeCredits2',['as'=>'admin.agent.changeCredits2', 'uses' => 'Admin\AgentController@changeCredits2']);
 
 
 

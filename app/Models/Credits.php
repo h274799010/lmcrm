@@ -11,6 +11,9 @@ class Credits extends Model {
     public $earnedChange = 0;
     public $transaction_id = 0;
 
+    // отключаем метки времени
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -37,6 +40,13 @@ class Credits extends Model {
     public function history()
     {
         return $this->hasMany('App\Models\CreditHistory', 'bill_id', 'id')->with('sourceName')->orderBy('id', 'desc');
+//        return $this->hasMany('App\Models\CreditHistory', 'bill_id', 'id')->orderBy('id', 'desc');
+
+    }
+
+    public function transactionHistory()
+    {
+        return $this->hasMany('App\Models\TransactionsHistory', 'credit_id', 'id')->with('transaction')->orderBy('id', 'desc');
 //        return $this->hasMany('App\Models\CreditHistory', 'bill_id', 'id')->orderBy('id', 'desc');
 
     }

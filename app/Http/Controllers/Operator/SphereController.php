@@ -36,7 +36,6 @@ class SphereController extends Controller {
 
         $leads = Lead::where('status', '=', 2)->orWhere('status', '=', 3)->with([ 'statusName', 'sphere', 'user'])->get();
 
-//        dd($leads);
 
         return view('sphere.lead.list')->with('leads', $leads);
     }
