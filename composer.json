@@ -33,7 +33,7 @@
             "App\\": "app/"
         },
         "files": [
-            "app/helper/CreditHelper.php"
+            "app/Helper/CreditHelper.php"
         ]
     },
     "autoload-dev": {

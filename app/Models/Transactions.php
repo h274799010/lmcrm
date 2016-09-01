@@ -18,7 +18,7 @@ class Transactions extends Model {
 
     public function user()
     {
-        return $this->hasOne('App\Models\User', 'id', 'initiator_id');
+        return $this->hasOne('App\Models\User', 'id', 'initiator_user_id');
 
 
 

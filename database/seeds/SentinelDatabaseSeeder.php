@@ -30,6 +30,15 @@ class SentinelDatabaseSeeder extends Seeder
 
 
 
+        Sentinel::getUserRepository()->create(array(
+
+            'email'    => 'system@system.com',
+            'password' => 'system'
+
+        ));
+
+
+
         $admin = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'admin@admin.com',

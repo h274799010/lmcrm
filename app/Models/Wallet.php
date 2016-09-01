@@ -4,12 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Credits extends Model {
-    //todo: залочить создание updated_at
-    protected $table="credits";
-    public $buyedChange = 0;
-    public $earnedChange = 0;
-    public $transaction_id = 0;
+class Wallet extends Model {
+
+    protected $table="wallet";
+
 
     // отключаем метки времени
     public $timestamps = false;
@@ -20,7 +18,7 @@ class Credits extends Model {
      * @var array
      */
     protected $fillable = [
-        'agent_id','buyed','earned'
+        'user_id','buyed','earned','wasted'
     ];
 
     public function agent(){
@@ -37,31 +35,16 @@ class Credits extends Model {
      * todo доработать, когда переименуется bill_id
      *
      */
-    public function history()
+    public function details()
     {
-        return $this->hasMany('App\Models\CreditHistory', 'bill_id', 'id')->with('sourceName')->orderBy('id', 'desc');
-//        return $this->hasMany('App\Models\CreditHistory', 'bill_id', 'id')->orderBy('id', 'desc');
-
-    }
-
-    public function transactionHistory()
-    {
-        return $this->hasMany('App\Models\TransactionsHistory', 'credit_id', 'id')->with('transaction')->orderBy('id', 'desc');
-//        return $this->hasMany('App\Models\CreditHistory', 'bill_id', 'id')->orderBy('id', 'desc');
+         return $this->hasMany('App\Models\TransactionsDetails', 'credit_id', 'id')->with('transaction')->orderBy('id', 'desc');
 
     }
 
 
-    /**
-     * Название ресурса
-     *
-     * todo доработать, когда переименуется bill_id
-     *
-     */
-    public function sourceName()
-    {
-        return $this->hasOne('App\Models\CreditTypes', 'id', 'source')->orderBy('id', 'desc');
-    }
+
+
+
 
 
 

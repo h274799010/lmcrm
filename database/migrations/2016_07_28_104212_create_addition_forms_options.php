@@ -15,7 +15,7 @@ class CreateAdditionFormsOptions extends Migration
         Schema::create('addition_forms_options', function (Blueprint $table) {
             $table->increments('id');
             $table->string('attr_id');
-            $table->enum('_type', array('option', 'validate', 'field'));
+            $table->enum('_type', array('option', 'validate'));
             $table->string('name');
             $table->string('value');
             $table->string('position');

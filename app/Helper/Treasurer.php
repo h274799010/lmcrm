@@ -4,10 +4,22 @@ namespace App\Helper;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\Credits;
-use App\Models\TransactionsHistory;
+use App\Models\Wallet;
+use App\Models\Transactions;
+use App\Models\TransactionsDetails;
 
-class CreditManager extends Model
+
+
+
+/**
+ * Класс полностью отвечает за деньги
+ *
+ *
+ * todo удалить потом
+ * дословно переводиться как "казначей",
+ * вроде подходящее название
+ */
+class Treasurer extends Model
 {
 
     // типы транзакций
@@ -17,6 +29,15 @@ class CreditManager extends Model
         'leadBayed' => 'покупка лида'
 
     ];
+
+// todo старые типы на всякий случай
+//    const LEAD_PURCHASE = -1;
+//    const LEAD_SALE = 2;
+//    const EXTERNAL_REFILL = 3;
+//    const MANUAL_CHANGE = 4;
+//    const LEAD_BAD_INC = 5;
+//    const LEAD_BAD_DEC = -6;
+//    const OPERATOR_PAYMENT = -7;
 
 
 
@@ -44,6 +65,10 @@ class CreditManager extends Model
     /**
      * Получение всех данных пользователя по кредитам
      *
+     * id пользователя по которому нужно получить финансовые данные
+     * @param integer $user_id
+     *
+     * @return object
      */
     public static function userInfo( $user_id ){
 
@@ -52,15 +77,12 @@ class CreditManager extends Model
             // если это продавец, то нужно найти id агента
             // или это не сюда
 
-        // todo получение кошелька пользователя cо всеми данными
-        $info = Credits::where( 'agent_id', '=', $user_id )->with('transactionHistory')->first();
-
-//        $credit = TransactionsHistory::all();
+        // получение кошелька пользователя c подробными данными
+        $info = Wallet::where( 'user_id', '=', $user_id )->with('details')->first();
 
         // todo оформление данных в коллекцию для удобства
 
         return $info;
-
 
     }
 

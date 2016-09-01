@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TransactionsHistory extends Model {
+class TransactionsDetails extends Model
+{
 
-    protected $table="transactions_history";
+    protected $table = "transactions_details";
 
     // отключаем метки времени
     public $timestamps = false;
@@ -22,20 +23,5 @@ class TransactionsHistory extends Model {
         return $this->hasOne('App\Models\Transactions', 'id', 'transaction_id')->with('user');
     }
 
-
-    /**
-     * Название ресурса
-     *
-     * todo доработать, когда переименуется bill_id
-     *
-     */
-    public function sourceName()
-    {
-        return $this->hasOne('App\Models\CreditTypes', 'id', 'source');
-    }
-
-
 }
-/// event on save/update/delete - change Credit
-
 

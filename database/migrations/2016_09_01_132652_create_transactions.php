@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ManualBalanceTransactionInfo extends Migration
+class CreateTransactions extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,12 @@ class ManualBalanceTransactionInfo extends Migration
      */
     public function up()
     {
-        Schema::create('manual_balance_transaction_info', function (Blueprint $table) {
+        Schema::create('transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('initiator_id');
+            $table->integer('initiator_user_id');
+            $table->timestamp('created_at');
+            $table->string('status');
+
             $table->engine = 'InnoDB';
         });
     }
@@ -26,6 +29,6 @@ class ManualBalanceTransactionInfo extends Migration
      */
     public function down()
     {
-        Schema::drop('manual_balance_transaction_info');
+        Schema::drop('transactions');
     }
 }
