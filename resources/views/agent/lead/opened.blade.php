@@ -9,13 +9,13 @@
                         <table class="table table-bordered table-striped table-hover openLeadsTable">
                             <thead>
                                 <tr>
-                                    <th>{{ trans("site/lead.opened.icon") }}</th>
-                                    <th>{{ trans('site/lead.opened.status') }}</th>
-                                    <th>{{ trans('site/lead.opened.date') }}</th>
-                                    <th>{{ trans('site/lead.opened.name') }}</th>
-                                    <th>{{ trans('site/lead.opened.phone') }}</th>
-                                    <th>{{ trans('site/lead.opened.email') }}</th>
-                                    <th>{{ trans('site/lead.opened.maskname') }}</th>
+                                    <th>{!! trans("site/lead.opened.icon") !!}</th>
+                                    <th>{!! trans('site/lead.opened.status') !!}</th>
+                                    <th>{!! trans('site/lead.opened.date') !!}</th>
+                                    <th>{!! trans('site/lead.opened.name') !!}</th>
+                                    <th>{!! trans('site/lead.opened.phone') !!}</th>
+                                    <th>{!! trans('site/lead.opened.email') !!}</th>
+                                    <th>{!! trans('site/lead.opened.maskname') !!}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -31,7 +31,7 @@
                                         @else
                                             <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
                                                 @if($data->openLeadStatus->status == 0)
-                                                    <option selected="selected"></option>
+                                                    <option selected="selected" class="emptyOption"></option>
                                                 @endif
                                                 <option value="bad">bad lead</option>
                                                 @foreach($data->sphereStatuses->statuses as $status)
@@ -66,14 +66,14 @@
 
                             <tr class="organizer_tr">
                                 <td id="organizer_title" colspan="2" rowspan="1" >
-                                    Organizer
+                                    {!! trans("site/lead.opened.organizer.title") !!}
                                 </td>
                                 <td class="organizer_time_title">
-                                    Time
+                                    {!! trans("site/lead.opened.organizer.time") !!}
                                 </td>
                                 <td class="organizer_comments_title">
                                     <div>
-                                        Comments
+                                        {!! trans("site/lead.opened.organizer.comments") !!}
                                     </div>
                                     <span class="dropdown">
                                         <a class="dropdown-toggle" aria-expanded="true" role="button" data-toggle="dropdown" href="#">
@@ -81,8 +81,8 @@
                                         </a>
 
                                         <ul class="dropdown-menu myDropDown" role="menu">
-                                            <li> <a id="commentHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3"> Comments </a> </li>
-                                            <li> <a id="reminderHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3"> Reminder </a> </li>
+                                            <li> <a id="commentHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3">{!! trans("site/lead.opened.organizer.button.comment") !!}</a> </li>
+                                            <li> <a id="reminderHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3">{!! trans("site/lead.opened.organizer.button.reminder") !!}</a> </li>
                                         </ul>
 
                                     </span>
@@ -103,28 +103,24 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="exampleModalLabel">
-                    {{-- todo {!! trans("site/lead.opened.modal.head") !!} --}}
-                    Change status
+                     {!! trans("site/lead.opened.modal.head") !!}
                 </h4>
             </div>
 
             <div class="modal-body">
 
-                {{-- todo {!! trans("site/lead.opened.modal.body") !!} --}}
-                Are you sure?
+                {!! trans("site/lead.opened.modal.body") !!}
 
             </div>
 
             <div class="modal-footer">
 
                 <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                    {{-- todo {!! trans("site/lead.opened.modal.button.Cancel") !!} --}}
-                    Cancel
+                    {!! trans("site/lead.opened.modal.button.Cancel") !!}
                 </button>
 
                 <button id="statusModalChange" type="button" class="btn btn-danger">
-                    {{-- todo {!! trans("site/lead.opened.modal.button.OK") !!} --}}
-                    Change status
+                    {!! trans("site/lead.opened.modal.button.OK") !!}
                 </button>
             </div>
 
@@ -780,11 +776,23 @@
                         // если статус изменен нормально
                         if( data == 'statusChanged'){
 
+
+                            // удаление пустого поля
+                            var emptyOption = self.find('option.emptyOption');
+                            // если путое поле найдено
+                            if(emptyOption.length > 0) {
+                                // удаляем его
+                                emptyOption.remove();
+
+                                // обновляем select
+                                selectBox.refresh();
+                            }
+
                             // делаем статусы неактивными до выбранного
                             $.each( self.find('li'), function( k, li ){
 
                                 // если доходим до активного класса - останавливаемся
-                                if( $(li).hasClass( 'selectboxit-focus' ) ){
+                                if( $(li).hasClass( 'selectboxit-focus' ) || $(li).hasClass( 'selectboxit-selected' ) ){
                                     return false;
 
                                     // если опция находится до активного класса - делаем ее недоступной
