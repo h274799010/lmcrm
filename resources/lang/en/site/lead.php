@@ -10,4 +10,13 @@ return [
     'hidden' => "Closed",
     'open.mask' => 'Mask',
 
+    // Opened leads
+    'opened.icon' => 'Icon',
+    'opened.status' => 'Status',
+    'opened.date' => 'Date',
+    'opened.name' => 'Name',
+    'opened.phone' => 'Phone',
+    'opened.email' => 'E-Mail',
+    'opened.maskname' => 'Mask name'
+
 ];

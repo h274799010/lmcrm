@@ -9,14 +9,13 @@
                         <table class="table table-bordered table-striped table-hover openLeadsTable">
                             <thead>
                                 <tr>
-                                    {{-- todo {!! trans("site/lead.opened.icon") !!} --}}
-                                    <th>icon </th>
-                                    <th>status </th>
-                                    <th>date </th>
-                                    <th>name </th>
-                                    <th>phone </th>
-                                    <th>email </th>
-                                    <th>mask name </th>
+                                    <th>{{ trans("site/lead.opened.icon") }}</th>
+                                    <th>{{ trans('site/lead.opened.status') }}</th>
+                                    <th>{{ trans('site/lead.opened.date') }}</th>
+                                    <th>{{ trans('site/lead.opened.name') }}</th>
+                                    <th>{{ trans('site/lead.opened.phone') }}</th>
+                                    <th>{{ trans('site/lead.opened.email') }}</th>
+                                    <th>{{ trans('site/lead.opened.maskname') }}</th>
                                     <th></th>
                                 </tr>
                             </thead>
