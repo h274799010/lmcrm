@@ -15,4 +15,26 @@ class DashboardController extends AdminController {
         $title = "Dashboard";
         return redirect()->route('admin.user.index');
     }
+
+
+    /**
+     * Информация о системе
+     *
+     * todo возможно, создать отдельный контроллер для системы
+     *
+     */
+    public function systemInfo()
+    {
+        dd('ok');
+
+        // все данные агента по кредитам (кошелек, история, транзакции)
+        $system = Treasurer::userInfo(1);
+
+        return view('admin.agent.create_edit', [ 'system'=>$system ]);
+
+    }
+
+
+
+
 }

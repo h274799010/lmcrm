@@ -69,30 +69,22 @@ class AgentController extends AdminController
         return redirect()->route('admin.agent.index');
     }
 
+
     /**
-     * Форма редактирования админом агента
+     * Форма редактирования админом данных агента и его кошелька
+     *
      *
      * @param  integer  $id
+     *
      * @return object
      */
     public function edit($id)
     {
-
-        // todo убрать
-//        dd( Treasurer::userInfo($id) );
-
-
-
-
         // данные агента
         $agent = Agent::findOrFail($id);
 
         // данные сферы
         $spheres = Sphere::active()->lists('name','id');
-
-        // todo новая история кредитов
-//        $credits = $agent->credits->with('history')->first();
-
 
         // все данные агента по кредитам (кошелек, история, транзакции)
         $userInfo = Treasurer::userInfo($id);
@@ -101,99 +93,28 @@ class AgentController extends AdminController
     }
 
 
-
     /**
      * Изменение кредитов пользователя
      *
      * todo доработать
      *
+     * @param Request $request
+     * @param integer $id
+     *
+     * @return object
      */
     public function changeCredits( Request $request, $id )
     {
+        // ручное изменение средств пользователя
+        $transactionInfo =
+        Treasurer::addManual(
+            Sentinel::getUser()->id,  // пользователь которыз инициирует транзакцию
+            $id,                      // пользователь с кошельком которого происходят изменения
+            $request->wallet_type,    // тип кошелька агента ( buyed, earned, wasted )
+            $request->amount          // величина на которую изменяется сумма кошелька
+        );
 
-        $transaction = new Transactions();
-        $transaction->initiator_user_id = Sentinel::getUser()->id;
-        $transaction->created_at = Date('Y-m-d H:i:s');
-        $transaction->save();
-
-        // получаем агента по id
-        $agent = Agent::findOrFail($id);
-
-        // получаем кредиты агента
-        $wallet = $agent->wallet;
-
-        // создаем новую запись в истории кредитов
-        $details = new TransactionsDetails();
-
-        // записываем в историю кредитов id транзакции
-        $details->transaction_id = $transaction->id;
-
-        // тип хранилища кредитов
-        $details->wallet_type = $request->wallet_type;
-
-        // todo тип транзакции, поже обдумать
-        $details->type = 'manual';
-
-        // величина на которую изменена сумма кредита
-        $details->amount = $request->value;
-
-
-        if( $request->wallet_type == 'buyed' ){
-
-            $wallet->buyed += $request->value;
-
-            // начальная сумма кредита
-            $details->after = $wallet->buyed;
-
-        }else if( $request->wallet_type == 'earned' ){
-
-            $wallet->earned += $request->value;
-
-            // начальная сумма кредита
-            $details->after = $wallet->earned;
-
-        }else if( $request->wallet_type == 'wasted' ){
-
-            $wallet->wasted += $request->value;
-
-            // начальная сумма кредита
-            $details->after = $wallet->wasted;
-        }
-
-        $wallet->details()->save($details);
-        $wallet->save();
-
-        // выставляем статус нормального завершения транзакции
-        $transaction->status = 'completed';
-        $transaction->save();
-
-        $trData =
-        [
-            'time' => $transaction->created_at,
-            'amount' => $details->amount,
-            'after' => $details->after,
-            'wallet_type' => $details->wallet_type,
-            'type' => $details->type,
-            'transaction' => $transaction->id,
-            'initiator' => $transaction->user->name,
-            'status' => $transaction->status
-        ];
-
-
-        return response()->json($trData);
-
-
-        // todo обработать
-
-//        if( $request->wallet_type == 'buyed' ){
-//
-//            return response()->json($trData);
-//
-//        }else{
-//
-//            return $wallet->earned;
-//        }
-
+        return response()->json( $transactionInfo );
     }
 
 

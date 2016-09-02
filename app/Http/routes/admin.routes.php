@@ -5,6 +5,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 # Admin Dashboard
     Route::get('/', ['as' => 'admin.index', 'uses' => 'Admin\DashboardController@index']);
 
+
+# System
+
+    // страница редактирования данных агента
+    Route::get('system',['as'=>'admin.system', 'uses' => 'Admin\DashboardController@systemInfo']);
+
+
 # Users
     Route::get('/user', ['as' => 'admin.user.index', 'uses' => 'Admin\UserController@index']);
     Route::get('/credit', ['as' => 'admin.credit.index', 'uses' => 'Admin\CreditController@index']);
@@ -21,12 +28,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('agent/data', 'Admin\AgentController@data');
     Route::get('agent/create',['as'=>'admin.agent.create', 'uses' => 'Admin\AgentController@create']);
     Route::post('agent/store',['as'=>'admin.agent.store', 'uses' => 'Admin\AgentController@store']);
+
+    // страница редактирования данных агента
     Route::get('agent/{id}/edit',['as'=>'admin.agent.edit', 'uses' => 'Admin\AgentController@edit']);
 
     // изменение состояние счета агента
     Route::match(['put','post'],'agent/{id}/update',['as'=>'admin.agent.update', 'uses' => 'Admin\AgentController@update']);
 
-    // одну из них убрать изменение состояние счета агента
+    //  изменение состояние счета агента
     Route::post('agent/{id}/changeCredits',['as'=>'admin.agent.changeCredits', 'uses' => 'Admin\AgentController@changeCredits']);
 
 

@@ -357,20 +357,20 @@
 
 
             // определяем величину на которую нужно изменить сумму
-            var value = false;
+            var amount = false;
 
             // если есть значение - записываем его в переменные
             if ( plus != '' && plus != 0 ) {
 
-                value = plus;
+                amount = plus;
 
             } else if ( minus != '' && minus != 0 ) {
 
-                value = minus * (-1);
+                amount = minus * (-1);
             }
 
             // если значение есть, отправляем его на сервер
-            if (value) {
+            if (amount) {
 
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
@@ -379,7 +379,7 @@
                         '{{ route('admin.agent.changeCredits', [ 'id'=>$agent->id ]) }}',
                         {
                             _token: token,
-                            value: value,
+                            amount: amount,
                             wallet_type: wallet_type
                         },
                         function (data)

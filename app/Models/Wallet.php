@@ -49,6 +49,9 @@ class Wallet extends Model {
 
 
 
+
+
+
     //сначала вычитаем стоимость из buyed. Если buyed закончилось, а стоимость ещё нет, то остаток стоимости вычитаем из earned.
     public function setPaymentAttribute($value){
         if($this->attributes['buyed'] < $value) {
