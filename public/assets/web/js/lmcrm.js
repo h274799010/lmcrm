@@ -199,7 +199,7 @@ $(function(){
         $table.on( 'draw.dt', function(){
 
             // заносим количество строк в значек возле маски
-            $('#badge_' + mId).text( $($table).find('tr').length - 1 );
+			$('#badge_' + mId).text( tables[mId].data().length );
         });
 	});
 

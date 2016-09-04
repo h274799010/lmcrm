@@ -87,7 +87,10 @@ class LeadController extends AgentController {
         $mask = new AgentBitmask( $sphere->id, $agent->id );
 
         // выбираем все актинвные маски
-        $agentMasks = $mask->where( 'status', '=', 1 )->get();
+        $agentMasks = $mask->where( 'status', '=', 1 )->where( 'user_id', '=', $agent->id )->get();
+
+        // todo проверить вывод маски
+//        dd($agentMasks);
 
         // атрибуты лида
         $lead_attr = $sphere->leadAttr;
@@ -640,7 +643,7 @@ class LeadController extends AgentController {
 
 
     public function openLead($id){
-        $credit = $this->user->bill;
+        $credit = $this->user->wallet;
         $balance = $credit->balance;
 
         $mask=$this->mask;

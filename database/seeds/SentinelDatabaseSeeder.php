@@ -33,7 +33,8 @@ class SentinelDatabaseSeeder extends Seeder
         Sentinel::getUserRepository()->create(array(
 
             'email'    => 'system@system.com',
-            'password' => 'system'
+            'password' => 'system',
+            'name' => 'system'
 
         ));
 
@@ -42,7 +43,8 @@ class SentinelDatabaseSeeder extends Seeder
         $admin = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'admin@admin.com',
-            'password' => 'admin'
+            'password' => 'admin',
+            'name' => 'admin'
 
         ));
 
@@ -51,14 +53,16 @@ class SentinelDatabaseSeeder extends Seeder
         $agent = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'agent@agent.com',
-            'password' => 'agent'
+            'password' => 'agent',
+            'name' => 'agent'
 
         ));
 
         $operator = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'operator@operator.com',
-            'password' => 'operator'
+            'password' => 'operator',
+            'name' => 'operator'
 
         ));
 

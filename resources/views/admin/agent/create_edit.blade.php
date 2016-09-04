@@ -3,7 +3,7 @@
 @section('main')
     <div class="page-header">
         <h3>
-            {{ $agent->name }} ({!! trans("admin/agent.agent") !!})
+            @if (isset($agent)) {{ $agent->name }} @else @endif ({!! trans("admin/agent.agent") !!})
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
                     <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
@@ -24,10 +24,14 @@
                     trans("admin/modal.general") }}</a>
             </li>
 
-            <li><a href="#wallet" data-toggle="tab">
-                    {{-- посадить на trans() --}}
-                    Wallet </a>
-            </li>
+            @if (isset($agent))
+                <li><a href="#wallet" data-toggle="tab">
+                        {{-- посадить на trans() --}}
+                        Wallet </a>
+                </li>
+            @endif
+
+
         </ul>
         <!-- ./ tabs -->
 
@@ -83,6 +87,8 @@
     </div>
 
             <!-- история кредитов с возможностью добавления -->
+            @if (isset($agent))
+
             <div class="tab-pane" id="wallet">
 
                 <div class="agent_wallet">
@@ -208,7 +214,7 @@
 
             </div>
 
-
+            @endif
 
 
             <div class="form-group">
@@ -313,6 +319,9 @@
 @section('scripts')
 <script>
 
+    @if (isset($agent))
+
+
     $(function(){
 
         /**
@@ -405,6 +414,8 @@
 
 
     });
+
+    @endif
 
 </script>
 @stop

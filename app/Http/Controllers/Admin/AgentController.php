@@ -48,7 +48,7 @@ class AgentController extends AdminController
     public function create()
     {
         $spheres = Sphere::active()->lists('name','id');
-        return view('admin.agent.create_edit')->with('spheres',$spheres);
+        return view('admin.agent.create_edit')->with('spheres', $spheres);
     }
 
     /**
