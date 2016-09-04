@@ -15,7 +15,7 @@ class CreateTransactionsDetails extends Migration
 
         Schema::create('transactions_details', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('credit_id');
+            $table->integer('wallet_id');
             $table->integer('user_id'); // пользователь, которому принадлежит кошелек
             $table->integer('transaction_id');
             $table->float('amount');

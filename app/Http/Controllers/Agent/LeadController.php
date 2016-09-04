@@ -1072,7 +1072,7 @@ class LeadController extends AgentController {
     public function addReminder($lead_id)
     {
         return view('agent.lead.organizer.addReminder')
-            ->with('lead_id',$lead_id);
+            ->with( 'lead_id', $lead_id );
     }
 
 
@@ -1087,7 +1087,7 @@ class LeadController extends AgentController {
     public function addСomment($lead_id)
     {
         return view('agent.lead.organizer.addComment')
-            ->with('lead_id',$lead_id);
+            ->with( 'lead_id', $lead_id );
     }
 
     /**

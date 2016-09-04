@@ -11,6 +11,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // страница редактирования данных агента
     Route::get('system',['as'=>'admin.system', 'uses' => 'Admin\DashboardController@systemInfo']);
 
+    // изменение состояния счета пользователя
+    Route::post('manual/Wallet/{user_id}/Change',['as'=>'manual.wallet.change', 'uses' => 'Admin\TransactionController@ManualWalletChange']);
+
 
 # Users
     Route::get('/user', ['as' => 'admin.user.index', 'uses' => 'Admin\UserController@index']);
@@ -35,16 +38,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // изменение состояние счета агента
     Route::match(['put','post'],'agent/{id}/update',['as'=>'admin.agent.update', 'uses' => 'Admin\AgentController@update']);
 
-    //  изменение состояние счета агента
-    Route::post('agent/{id}/changeCredits',['as'=>'admin.agent.changeCredits', 'uses' => 'Admin\AgentController@changeCredits']);
-
 
     Route::get('agent/{id}/destroy', ['as'=>'admin.agent.delete', 'uses' => 'Admin\AgentController@destroy']);
-    //Route::resource('agent', 'Admin\AgentController');
 
 
-
-    //Route::get('sphere/data', 'Admin\sphereController@data');
     Route::get('sphere/index', ['as' => 'admin.sphere.index', 'uses' => 'Admin\SphereController@index']);
     Route::get('sphere/create', ['as' => 'admin.sphere.create', 'uses' => 'Admin\SphereController@create']);
     Route::get('sphere/{id}/edit', ['as' => 'admin.sphere.edit', 'uses' => 'Admin\SphereController@edit']);
@@ -61,6 +58,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     // сохранение прайса пользователя
     Route::match(['put','post'],'sphere/{sphere}/filters/reprice/{id}', ['as' => 'admin.sphere.reprice.update', 'uses' => 'Admin\SphereController@filtrationUpdate']);
+
     //Route::resource('sphere', 'Admin\SphereController');
 
 });

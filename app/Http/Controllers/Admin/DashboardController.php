@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
+use App\Helper\Treasurer;
 
 class DashboardController extends AdminController {
 
@@ -25,12 +26,12 @@ class DashboardController extends AdminController {
      */
     public function systemInfo()
     {
-        dd('ok');
+        $allTransactions = Treasurer::allTransactions();
 
         // все данные агента по кредитам (кошелек, история, транзакции)
-        $system = Treasurer::userInfo(1);
+        $system = Treasurer::systemInfo();
 
-        return view('admin.agent.create_edit', [ 'system'=>$system ]);
+        return view('admin.system.info', [ 'allTransactions'=>$allTransactions, 'system'=>$system ]);
 
     }
 

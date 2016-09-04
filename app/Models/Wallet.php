@@ -37,7 +37,7 @@ class Wallet extends Model {
      */
     public function details()
     {
-         return $this->hasMany('App\Models\TransactionsDetails', 'credit_id', 'id')->with('transaction')->orderBy('id', 'desc');
+         return $this->hasMany('App\Models\TransactionsDetails', 'wallet_id', 'id')->with('transaction')->orderBy('id', 'desc');
 
     }
 

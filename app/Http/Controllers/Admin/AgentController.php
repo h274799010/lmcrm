@@ -94,32 +94,6 @@ class AgentController extends AdminController
 
 
     /**
-     * Изменение кредитов пользователя
-     *
-     * todo доработать
-     *
-     * @param Request $request
-     * @param integer $id
-     *
-     * @return object
-     */
-    public function changeCredits( Request $request, $id )
-    {
-        // ручное изменение средств пользователя
-        $transactionInfo =
-        Treasurer::addManual(
-            Sentinel::getUser()->id,  // пользователь которыз инициирует транзакцию
-            $id,                      // пользователь с кошельком которого происходят изменения
-            $request->wallet_type,    // тип кошелька агента ( buyed, earned, wasted )
-            $request->amount          // величина на которую изменяется сумма кошелька
-        );
-
-        return response()->json( $transactionInfo );
-    }
-
-
-
-    /**
      * Update the specified resource in storage.
      *
      * @param Request $request
@@ -139,12 +113,8 @@ class AgentController extends AdminController
                 $agent->password = \Hash::make($request->input('password'));
             }
         }
-        $credits = $agent->bill()->first();
-
-        CreditHelper::manual( $credits, $request, $id );
 
         $agent->update($request->except('password','password_confirmation','sphere','info'));
-        //$agent->info()->update($request->only('info')['info']);
 
         $agent->spheres()->sync($request->only('sphere'));
         return redirect()->route('admin.agent.index');
