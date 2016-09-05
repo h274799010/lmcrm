@@ -33,7 +33,9 @@
                                                 @if($data->openLeadStatus->status == 0)
                                                     <option selected="selected" class="emptyOption"></option>
                                                 @endif
-                                                <option value="bad">bad lead</option>
+                                                @if(time() < strtotime($data->openLeadStatus->pending_time))
+                                                    <option value="bad">bad lead</option>
+                                                @endif
                                                 @foreach($data->sphereStatuses->statuses as $status)
                                                     <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
                                                 @endforeach
@@ -804,6 +806,12 @@
                         // если лид отмечен как плохой, убираем select
                         } else if(data == 'setBadStatus') {
                             self.closest('td').html('bad lead');
+                        } else if(data == 'pendingTimeExpire') {
+                            // Если время pending_time истекло - выводим сообщение об ошибке
+                            bootbox.dialog({
+                                message: 'The time at which it was possible to assign the status of expired',
+                                show: true
+                            });
                         }else{
 
                             // todo вывести какое то сообщение об ошибке на сервере

@@ -139,6 +139,34 @@ class SphereController extends AdminController {
                         'option'=>[['key'=>1,'value'=>'on'],['key'=>0,'value'=>'off']],
                     ]
                 ],
+                "pending_time"=>[
+                    "renderType"=>"single",
+                    'name' => 'pending_time',
+                    'values'=>'',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                        "data-integer"=>true,
+                    ],
+                    "settings"=>[
+                        "label" => 'Pending time',
+                        "type"=>'text'
+                    ]
+                ],
+                "pending_type"=>[
+                    "renderType"=>"single",
+                    'name' => 'pending_type',
+                    'values'=>'',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'Pending type',
+                        "type"=>'select',
+                        'option'=>[ ['key'=>0,'value'=>'minutes'], ['key'=>1,'value'=>'hours'], ['key'=>2,'value'=>'days'] ],
+                    ]
+                ],
 
                 "openLead"=>
                 [
@@ -200,6 +228,8 @@ class SphereController extends AdminController {
             $settings['variables']['name']['values'] = $group->name;
             $settings['variables']['status']['values'] = $group->status;
             $settings['variables']['openLead']['values'] = $group->openLead;
+            $settings['variables']['pending_time']['values'] = $group->pending_time;
+            $settings['variables']['pending_type']['values'] = $group->pending_type;
 
             foreach($group->attributes()->get() as $chrct) {
                 $arr=[];
@@ -301,6 +331,8 @@ class SphereController extends AdminController {
          *      `variables    <-- данные формы сферы
          *        |
          *        |`name    <-- название сферы
+         *        |`pending_time <-- промежуток времени, за который можно поставить статус bad lead
+         *        |`pending_type <-- тип pending_time (0 - минуты, 1 - часы, 2 - дни)
          *        |`status    <-- статус сферы (On/Off) значение соответственно (1/0)
          *         `openLead    <-- максимальное количество открытых лидов
          *
@@ -824,8 +856,6 @@ class SphereController extends AdminController {
 
         /** ----- КОНЕЦ ПРОВЕРОК НА ОШИБКИ ---------- */
 
-
-
         /**
          * Выбираем сферу по id, либо, создаем новую
          *
@@ -836,6 +866,8 @@ class SphereController extends AdminController {
             $sphere->minLead = $minLead;
             $sphere->status = $sphereData['variables']['status'];
             $sphere->openLead = $sphereData['variables']['openLead'];
+            $sphere->pending_time = $sphereData['variables']['pending_time'];
+            $sphere->pending_type = $sphereData['variables']['pending_type'];
         } else {
             $sphere = new Sphere(
             [
@@ -843,6 +875,8 @@ class SphereController extends AdminController {
                 'status' => $sphereData['variables']['status'],
                 'minLead' => $minLead,
                 'openLead' => $sphereData['variables']['openLead'],
+                'pending_time' => $sphereData['variables']['pending_time'],
+                'pending_type' => $sphereData['variables']['pending_type'],
             ]);
         }
 

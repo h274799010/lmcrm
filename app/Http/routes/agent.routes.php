@@ -70,7 +70,6 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     //Route::resource('lead','Agent\LeadController@create');
 
     Route::group( ['middleware'=>['agent']],function() {
-
         // страница всех масок агента по сферам
         Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
 

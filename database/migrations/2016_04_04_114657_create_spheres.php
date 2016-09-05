@@ -21,6 +21,7 @@ class CreateSpheres extends Migration
             $table->integer('revenue');
             $table->float('price_call_center');
             $table->integer('pending_time');
+            $table->integer('pending_type');
             $table->integer('steps');
             $table->string('table_name');
             $table->timestamps();

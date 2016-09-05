@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         // добавление пользователей
         $this->call('SentinelDatabaseSeeder');
+        $this->call('AgentDatabaseSeeder');
 
         // подключение агента к первой сфере, которая будет созданна
         DB::table('agent_sphere')->insert([

@@ -641,14 +641,14 @@ class LeadController extends AgentController {
 
     public function openLead($id){
         $credit = $this->user->bill;
-        $balance = $credit->balance;
+        //$balance = $credit->balance;
 
         $mask=$this->mask;
         $price = $mask->getStatus()->sharedLock()->first()->lead_price;
 
-        if($price > $balance) {
+        /*if($price > $balance) {
             return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
-        }
+        }*/
 
         $lead = Lead::lockForUpdate()->find($id);//lockForUpdate лочит только выбранные строки
         if($lead->sphere->openLead > $lead->opened) {
@@ -657,22 +657,41 @@ class LeadController extends AgentController {
 
             $updateCount = Lead::where('id',$lead->id)->where('opened','<',$lead->sphere->openLead)->increment('opened');
             if($updateCount){
+                /**
+                 * Высчитываем pending_time
+                 */
+                switch ($lead->sphere->pending_type) {
+                    case 0:
+                        $pending_factor = 60;
+                        break;
+                    case 1:
+                        $pending_factor = 60 * 60;
+                        break;
+                    case 2:
+                        $pending_factor = 60 * 60 * 24;
+                        break;
+                    default:
+                        $pending_factor = 60 * 60;
+                        break;
+                }
+                $pending_time = $lead->sphere->pending_time * $pending_factor;
+
                 $ol = OpenLeads::lockForUpdate()->where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
                 if (!$ol){
                     $ol = new OpenLeads();
                     $ol->lead_id = $id;
                     $ol->agent_id = $this->uid;
-                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
+                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$pending_time);
                     $ol->save();
                 }
                 else
                 {
-                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
+                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$pending_time);
                     $ol->increment('count');
                     $ol->save();
 
                 }
-                CreditHelper::leadPurchase($credit,$price,1,$lead,$this);
+                //CreditHelper::leadPurchase($credit,$price,1,$lead,$this);
 
                 return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
             }
@@ -722,6 +741,25 @@ class LeadController extends AgentController {
         $updateCount = Lead::where('id',$lead->id)->where('opened',$lead->opened)->increment('opened',$mustBeAdded);
         if ($updateCount)
         {
+            /**
+             * Высчитываем pending_time
+             */
+            switch ($lead->sphere->pending_type) {
+                case 0:
+                    $pending_factor = 60;
+                    break;
+                case 1:
+                    $pending_factor = 60 * 60;
+                    break;
+                case 2:
+                    $pending_factor = 60 * 60 * 24;
+                    break;
+                default:
+                    $pending_factor = 60 * 60;
+                    break;
+            }
+            $pending_time = $lead->sphere->pending_time * $pending_factor;
+
             //$lead->obtainedBy()->attach($this->uid);
             if (!$ol){
                 $ol = new OpenLeads();
@@ -729,7 +767,7 @@ class LeadController extends AgentController {
                 $ol->agent_id = $this->uid;
             }
             $ol->count = $lead->sphere->openLead;
-            $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
+            $ol->pending_time = Date('Y-m-d H:i:s',time()+$pending_time);
             $ol->save();
             $credit->payment=$price;
             $credit->descrHistory = $mustBeAdded;
@@ -976,9 +1014,13 @@ class LeadController extends AgentController {
 
         // если лид отмечен как плохой
         if($status == 'bad') {
-            $openedLead->bad = 1;
-            $openedLead->save();
-            return response()->json('setBadStatus');
+            if(time() < strtotime($openedLead->pending_time)) {
+                $openedLead->bad = 1;
+                $openedLead->save();
+                return response()->json('setBadStatus');
+            } else {
+                return response()->json('pendingTimeExpire');
+            }
         }
 
         // если новый статус меньше уже установленного, выходим из метода
