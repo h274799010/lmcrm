@@ -18,6 +18,7 @@ class CreateWallet extends Migration
             $table->float('buyed');
             $table->float('earned');
             $table->float('wasted');
+            $table->float('overdraft');
 
             $table->engine = 'InnoDB';
         });

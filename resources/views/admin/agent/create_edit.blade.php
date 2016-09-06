@@ -40,6 +40,15 @@
 
             <!-- General tab -->
             <div class="tab-pane active" id="tab-general">
+
+        <div class="form-group  {{ $errors->has('sphere') ? 'has-error' : '' }}">
+            {!! Form::label('sphere', trans("admin/sphere.sphere"), array('class' => 'control-label')) !!}
+            <div class="controls">
+                {!! Form::select('sphere',$spheres,(isset($agent))?$agent->sphereLink->sphere_id:NULL, array('class' => 'form-control','required'=>'required')) !!}
+                <span class="help-block">{{ $errors->first('sphere', ':message') }}</span>
+            </div>
+        </div>
+
         <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
             {!! Form::label('first_name', trans("admin/users.first_name"), array('class' => 'control-label')) !!}
             <div class="controls">

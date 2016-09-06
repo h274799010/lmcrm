@@ -58,7 +58,11 @@ class DatabaseSeeder extends Seeder
             'comment' => 'лид продан максимальное количество раз и уже небудт отображаться',
         ]);
 
-
+        DB::table('lead_statuses')->insert([
+            'id' => '6',
+            'name' => 'deal is closed',
+            'comment' => 'the client has completed a deal with one of the agents',
+        ]);
 
 
     }

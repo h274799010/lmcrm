@@ -3,13 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Builder;
 
 class Wallet extends Model {
 
+    /**
+     * Подключаем таблицу из БД
+     *
+     * @var string
+     */
     protected $table="wallet";
 
-
-    // отключаем метки времени
+    /**
+     * Отключаем метки времени
+     *
+     * @var boolean
+     */
     public $timestamps = false;
 
     /**
@@ -17,7 +26,8 @@ class Wallet extends Model {
      *
      * @var array
      */
-    protected $fillable = [
+    protected $fillable =
+    [
         'user_id','buyed','earned','wasted'
     ];
 
@@ -26,20 +36,58 @@ class Wallet extends Model {
     }
 
     public function getBalanceAttribute(){
-        return $this->attributes['buyed']+$this->attributes['earned'];
+        return $this->attributes['buyed'] + $this->attributes['earned'];
     }
 
     /**
      * Возвращает всю историю по кредиту
      *
-     * todo доработать, когда переименуется bill_id
-     *
+     * @return Builder
      */
     public function details()
     {
-         return $this->hasMany('App\Models\TransactionsDetails', 'wallet_id', 'id')->with('transaction')->orderBy('id', 'desc');
-
+         return $this
+             ->hasMany('App\Models\TransactionsDetails', 'wallet_id', 'id')  // соединяемся с таблицей деталей
+             ->with('transaction')                                           // вместе с данными по транзакциям
+             ->orderBy('id', 'desc');                                        // в обратном порядке
     }
+
+
+    /**
+     * Проверка на возможность агента оплатить цену
+     *
+     *
+     * @param  double  $price   // цена лида
+     *
+     * @return boolean
+     */
+    public function possibility( $price = null )
+    {
+
+        // если цена не указанна, возвращает false
+        if( !$price ) return false;
+
+        // суммируем все типы кошельков включая overdraft и отнимаем wasted
+        $possibility  = $this->attributes['buyed'];
+        $possibility += $this->attributes['earned'];
+        $possibility += $this->attributes['overdraft'];
+        $possibility -= $this->attributes['wasted'];
+
+        // сравниваем возможности агента с его прайсом
+        if( $possibility >= $price ){
+            // возможности превышают прайс
+            return true;
+
+        }else{
+            // возможности агента ниже прайса
+            return false;
+        }
+    }
+
+
+
+
+
 
 
 

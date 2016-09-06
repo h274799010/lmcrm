@@ -21,7 +21,7 @@ class CreateTransactionsDetails extends Migration
             $table->float('amount');
             $table->float('after');
             $table->enum('wallet_type', [ 'buyed', 'earned', 'wasted' ]);
-            $table->integer('type');
+            $table->string('type');
             $table->engine = 'InnoDB';
         });
     }

@@ -2,38 +2,63 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class TransactionsDetails extends Model
 {
 
+    /**
+     * Подключаем таблицу из БД
+     *
+     * @var string
+     */
     protected $table = "transactions_details";
 
-    // отключаем метки времени
+    /**
+     * Отключаем временные метки
+     *
+     * @var boolean
+     */
     public $timestamps = false;
 
-    protected $fillable = [
-        'transaction_id', 'wallet_id','user_id', 'wallet_type',
+    /**
+     * Атрибуты, для которых разрешено массовое назначение
+     *
+     * @var array
+     */
+    protected $fillable =
+    [
+        'transaction_id',
+        'wallet_id',
+        'user_id',
+        'wallet_type',
     ];
 
 
     /**
-     * Получаем транзакцию к которой относится строка записи
+     * Получаем транзакцию деталей платежа
      *
-     * todo доработать
+     * @return Builder
      */
     public function transaction()
     {
-        return $this->hasOne('App\Models\Transactions', 'id', 'transaction_id')->with('initiator');
+        return $this
+            ->hasOne('App\Models\Transactions', 'id', 'transaction_id')  // соединяем с таблицей транзакций
+            ->with('initiator');                                         // добавляем данные инициатора транзакции
     }
 
 
+    /**
+     * Находим пользователя который платит/получает платеж
+     *
+     * @return Builder
+     */
     public function user()
     {
-        return $this->hasOne('App\Models\User', 'id', 'user_id');
-
+        return $this
+            ->hasOne('App\Models\User', 'id', 'user_id');  // соединяем с таблицей пользователей
     }
-
 
 }
 

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Helper\Treasurer;
 use App\Http\Controllers\AgentController;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
+use Illuminate\Http\Response;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
@@ -153,6 +155,9 @@ class LeadController extends AgentController {
                 // перебираем все полученные лиды, добавляем имя маски и заносим данные в массив лидов
                 $leadsByFilter->each(function( $lead ) use( $leads, $agentMask ) {
 
+                    // todo добавление id маски в данные лида
+                    $lead->mask_id = $agentMask->id;
+
                     // добавление имени маски в данные лида
                     $lead->mask = $agentMask->name;
 
@@ -204,6 +209,7 @@ class LeadController extends AgentController {
             ->add_column('mask',function($model){
                 return $model->mask;
             }, 3)
+            ->remove_column('mask_id')
             ->edit_column('customer_id',function($lead) use ($agent){
                 return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
             })
@@ -641,63 +647,50 @@ class LeadController extends AgentController {
 
 
 
+    /**
+     * Открытие лида
+     *
+     *
+     * @param integer $lead_id
+     * @param integer $mask_id
+     *
+     * @return Response
+     */
+    public function openLead( $lead_id, $mask_id ){
 
-    public function openLead($id){
-        $credit = $this->user->wallet;
-        $balance = $credit->balance;
+        // платеж по открытию лида
+        $operation =
+        Treasurer::openLead(
+            $this->user->id, // id агента который открывает лид
+            $lead_id,        // id лида
+            $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
+        );
 
-        $mask=$this->mask;
-        $price = $mask->getStatus()->sharedLock()->first()->lead_price;
 
-        if($price > $balance) {
-            return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
+        // обработка результата занесения платежа
+        if( $operation == false ) {
+
+            return response()->json( [ trans('lead/lead.openlead.error') ] );
+
+        }elseif( $operation == 'low balance' ) {
+
+            return response()->json( [ trans('lead/lead.openlead.low_balance') ] );
+
+        }elseif( $operation == 'the maximum number of open' ) {
+
+            return response()->json( [ trans('lead/lead.openlead.maximum_number') ] );
+
+        }else {
+
+            return response()->json( [ trans('lead/lead.openlead.successfully_opened') ] );
         }
 
-        $lead = Lead::lockForUpdate()->find($id);//lockForUpdate лочит только выбранные строки
-        if($lead->sphere->openLead > $lead->opened) {
-            //$lead->opened+=1;
-            //$credit->history()->save(new CreditHistory());
-
-            $updateCount = Lead::where('id',$lead->id)->where('opened','<',$lead->sphere->openLead)->increment('opened');
-            if($updateCount){
-                $ol = OpenLeads::lockForUpdate()->where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
-                if (!$ol){
-                    $ol = new OpenLeads();
-                    $ol->lead_id = $id;
-                    $ol->agent_id = $this->uid;
-                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
-                    $ol->save();
-                }
-                else
-                {
-                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
-                    $ol->increment('count');
-                    $ol->save();
-
-                }
-                CreditHelper::leadPurchase($credit,$price,1,$lead,$this);
-
-                return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
-            }
-            else{
-                return json_encode(['msg'=>trans('lead/lead.obtainError')]);
-            }
-        }
-        else
-        {
-            return json_encode(
-                [
-                    'msg'=>trans(
-                        'lead/lead.limitExceeded',
-                        [
-                            'opened' => $lead->opened,
-                            'openLead' => $lead->sphere->openLead
-                        ]
-                    )
-                ]
-            );
-        }
     }
+
+
+
+
+
 
     public function openAllLeads($id){
         $credit = $this->user->bill;
@@ -746,8 +739,51 @@ class LeadController extends AgentController {
         else{
             return json_encode(['msg'=>trans('lead/lead.obtainError')]);
         }
-        //$credit->history()->save(new CreditHistory());
     }
+
+
+
+    /**
+     * Закрытие сделки по лиду
+     *
+     * todo доработать
+     * пока непонятно сколько стоит закрытие сделки
+     * когда станет понятно - добавить
+     *
+     *
+     * @param  integer  $lead_id
+     * @param  integer  $mask_id
+     *
+     * @return Response
+     */
+    public function closingDeal( $lead_id, $mask_id )
+    {
+
+        // платеж по закрытие сделки по лиду
+        $operation =
+        Treasurer::closingDeal(
+            $this->user->id, // id агента который закрывает сделку
+            $lead_id,        // id лида
+            $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
+        );
+
+
+        // обработка результата занесения платежа
+        if( $operation == false ) {
+
+            return response()->json( [ trans('lead/lead.closingDeal.error') ] );
+
+        }elseif( $operation == 'low balance' ) {
+
+            return response()->json( [ trans('lead/lead.closingDeal.low_balance') ] );
+
+        }else {
+
+            return response()->json( [ trans('lead/lead.closingDeal.the_deal_is_closed') ] );
+        }
+    }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -765,7 +801,7 @@ class LeadController extends AgentController {
      *
      * @return Response
      */
-    public function store(Request $request)
+    public function store( Request $request )
     {
         $validator = Validator::make($request->all(), [
             'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',

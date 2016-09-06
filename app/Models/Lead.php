@@ -144,42 +144,13 @@ class Lead extends EloquentUser {
 
 
     /**
-     * Выбор маски лида по id сферы
+     * Маска лида
      *
      * todo доработать
-     *
-     * Если id сферы не задан
-     * вернет данные лида по всем битмаскам
      *
      *
      * @return object
      */
-//    public function bitmask($sphere=NULL)
-//    {
-//
-//        // если сфера не заданна
-//        if(!$sphere){
-//
-//            // находим все сферы
-//            $spheres = Sphere::all();
-//            // получаем id юзера
-//            $userId = $this->id;
-//
-//            // перебираем все сферы и выбираем из каждой данные юзера
-//            $allMasks = $spheres->map(function($item) use ($userId){
-//                $mask = new LeadBitmask($item->id);
-//                return $mask->where('user_id', '=', $userId)->first();
-//            });
-//
-//            return $allMasks;
-//        }
-//
-//
-//        $mask = new LeadBitmask($sphere);
-//
-//        return $mask->where('user_id', '=', $this->id)->first();
-//    }
-
     public function bitmask()
     {
 
@@ -204,5 +175,102 @@ class Lead extends EloquentUser {
         return false;
     }
 
+
+    /**
+     * Цена лида по определенной маске агента
+     *
+     *
+     * @param integer $agent_mask_id
+     *
+     * @return double
+     */
+    public function price( $agent_mask_id )
+    {
+        // выбираем таблицу битмаска по id сферы
+        $mask = new AgentBitmask( $this->sphere->id );
+
+        // выбираем прайс по заданной маске агента
+        $price = $mask->find( $agent_mask_id )->lead_price;
+
+        return $price;
+    }
+
+    /**
+     * Открытие лида
+     *
+     * todo доработать пендингТайм
+     *
+     * @param integer $user_id
+     * @param string $comment
+     *
+     * @return OpenLeads
+     */
+    public function open( $user_id, $comment='' )
+    {
+
+        // максимальное количество открытия лида
+        $maxOpen = $this->sphere->openLead;
+
+        // находим открытый лид, по заданным данным
+        $openLead = OpenLeads::
+              where( 'lead_id', '=', $this->id )
+            ->where( 'agent_id', '=',  $user_id )
+            ->first();
+
+        if( $openLead ){
+            //  если лид уже есть
+
+            // инкрементим count, количество, сколько раз был открыт лид этим агентом
+            $openLead->count++;
+            $openLead->save();
+
+            // инкрементим opened у лида, (количество открытия лида)
+            $this->opened++;
+            $this->save();
+
+            // если лид открыт максимальное количество раз
+            if( $this->opened >= $maxOpen ){
+                // добавляем лиду статус "открыт максимальное количество раз"
+                $this->status = 5;
+                $this->save();
+            }
+
+        }else{
+            // если лида нет
+
+            // создаем его и записываем основные данные
+            $openLead = new OpenLeads();     // создание лида
+            $openLead->lead_id = $this->id;  // id лида
+            $openLead->agent_id = $user_id;  // id агента, который его открыл
+            $openLead->comment = $comment;   // комментарий (не обазательно)
+            $openLead->count = 1;            // количество открытий (при первом открытии = "1")
+
+            // сохраняем
+            $openLead->save();
+
+            // инкрементим opened у лида, (количество открытия лида)
+            $this->opened++;
+            $this->save();
+
+            // если лид открыт максимальное количество раз
+            if( $this->opened >= $maxOpen ){
+                // добавляем лиду статус "открыт максимальное количество раз"
+                $this->status = 5;
+                $this->save();
+            }
+        }
+
+        return $openLead;
+    }
+
+    /**
+     * Количество максимального открытия лида
+     *
+     * @return integer
+     */
+    public function MaxOpenNumber ()
+    {
+        return $this->sphere->openLead;
+    }
 
 }

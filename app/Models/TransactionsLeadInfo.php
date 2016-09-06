@@ -10,7 +10,8 @@ class TransactionsLeadInfo extends Model {
 
     public $timestamps = false;
 
-    protected $fillable = [
+    protected $fillable =
+    [
         'number','lead_id'
     ];
 
