@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
-use App\Helper\Treasurer;
+use App\Helper\PayMaster;
 
 class DashboardController extends AdminController {
 
@@ -26,10 +26,10 @@ class DashboardController extends AdminController {
      */
     public function systemInfo()
     {
-        $allTransactions = Treasurer::allTransactions();
+        $allTransactions = PayMaster::allTransactions();
 
         // все данные агента по кредитам (кошелек, история, транзакции)
-        $system = Treasurer::systemInfo();
+        $system = PayMaster::systemInfo();
 
         return view('admin.system.info', [ 'allTransactions'=>$allTransactions, 'system'=>$system ]);
 

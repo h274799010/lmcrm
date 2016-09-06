@@ -4,7 +4,7 @@ use App\Http\Controllers\AdminController;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
-use App\Helper\Treasurer;
+use App\Helper\PayMaster;
 
 class TransactionController extends AdminController {
 
@@ -15,7 +15,7 @@ class TransactionController extends AdminController {
      * todo доработать
      *
      * @param Request $request
-     * @param integer $id
+     * @param integer $user_id
      *
      * @return object
      */
@@ -23,7 +23,7 @@ class TransactionController extends AdminController {
     {
         // ручное изменение средств пользователя
         $transactionInfo =
-            Treasurer::changeManual(
+            PayMaster::changeManual(
                 Sentinel::getUser()->id,  // пользователь которыз инициирует транзакцию
                 $user_id,                 // пользователь с кошельком которого происходят изменения
                 $request->wallet_type,    // тип кошелька агента ( buyed, earned, wasted )

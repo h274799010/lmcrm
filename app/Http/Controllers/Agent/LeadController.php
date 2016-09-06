@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Agent;
 
-use App\Helper\Treasurer;
+use App\Helper\PayMaster;
 use App\Http\Controllers\AgentController;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
@@ -660,7 +660,7 @@ class LeadController extends AgentController {
 
         // платеж по открытию лида
         $operation =
-        Treasurer::openLead(
+        PayMaster::openLead(
             $this->user->id, // id агента который открывает лид
             $lead_id,        // id лида
             $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
@@ -761,7 +761,7 @@ class LeadController extends AgentController {
 
         // платеж по закрытие сделки по лиду
         $operation =
-        Treasurer::closingDeal(
+        PayMaster::closingDeal(
             $this->user->id, // id агента который закрывает сделку
             $lead_id,        // id лида
             $mask_id         // id маски, по которой получен лид (по ней же и цена лида)

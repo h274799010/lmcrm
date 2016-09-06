@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
-use App\Helper\Treasurer;
+use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
@@ -170,7 +170,7 @@ class SphereController extends Controller {
 
         // todo сделать
 
-        Treasurer::operatorPayment( Sentinel::getUser()->id, $lead_id );
+        PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
 
 
 

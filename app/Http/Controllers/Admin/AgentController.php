@@ -15,7 +15,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 //use App\Repositories\UserRepositoryInterface;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
-use App\Helper\Treasurer;
+use App\Helper\PayMaster;
 
 use Datatables;
 
@@ -87,7 +87,7 @@ class AgentController extends AdminController
         $spheres = Sphere::active()->lists('name','id');
 
         // все данные агента по кредитам (кошелек, история, транзакции)
-        $userInfo = Treasurer::userInfo($id);
+        $userInfo = PayMaster::userInfo($id);
 
         return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'userInfo'=>$userInfo]);
     }
