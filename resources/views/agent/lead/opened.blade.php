@@ -34,7 +34,7 @@
                                                     <option selected="selected" class="emptyOption"></option>
                                                 @endif
                                                 @if(time() < strtotime($data->openLeadStatus->pending_time))
-                                                    <option value="bad">bad lead</option>
+                                                    <option value="bad" class="badOption">bad lead</option>
                                                 @endif
                                                 @foreach($data->sphereStatuses->statuses as $status)
                                                     <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
@@ -765,7 +765,7 @@
                 var self = $(this);
 
 
-                // событие на клик, по кнопке "Chenge status" (изменение статуса)
+                // событие на клик, по кнопке "Change status" (изменение статуса)
                 $( '#statusModalChange' ).bind( 'click', function(){
 
                     // спрятать модальное окно
@@ -792,9 +792,9 @@
 
                             // делаем статусы неактивными до выбранного
                             $.each( self.find('li'), function( k, li ){
-
+                                console.log(li);
                                 // если доходим до активного класса - останавливаемся
-                                if( $(li).hasClass( 'selectboxit-focus' ) || $(li).hasClass( 'selectboxit-selected' ) ){
+                                if( $(li).hasClass( 'selectboxit-focus' ) || ($(li).hasClass('selectboxit-selected') && emptyOption.length > 0) ){
                                     return false;
 
                                     // если опция находится до активного класса - делаем ее недоступной
@@ -809,14 +809,33 @@
                         } else if(data == 'pendingTimeExpire') {
                             // Если время pending_time истекло - выводим сообщение об ошибке
                             bootbox.dialog({
-                                message: 'The time at which it was possible to assign the status of expired',
+                                message: '{!! trans('site/lead.opened.pending_time_expired') !!}',
                                 show: true
                             });
+
+                            // и удаляем статус bad_lead из списка
+                            var badOption = self.find('option.badOption');
+                            // если путое поле найдено
+                            if(badOption.length > 0) {
+                                // удаляем его
+                                badOption.remove();
+
+                                // обновляем select
+                                selectBox.refresh();
+                            }
                         }else{
 
                             // todo вывести какое то сообщение об ошибке на сервере
                             alert( 'ошибки на сервере' );
                         }
+
+                        // сбрасываем значения переменных к NULL
+                        // чтоб не подхватились другим селектом
+                        selectData = lead_id = token = selectBox = self = null;
+
+                        // отключаем события клика по кнопкам отмены и сабмита
+                        $('#statusModalChange').unbind('click');
+                        $('#statusModalCancel').unbind('click');
 
                     });
 
