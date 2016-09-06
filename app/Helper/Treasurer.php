@@ -613,9 +613,9 @@ class Treasurer extends Model
      * если все прошло хорошо, возвращает true
      *
      *
-     * @param  integer  $user_id   // id агента который открывает лид
-     * @param  integer  $lead_id   // id открываемого лида
-     * @param  integer  $mask_id   // id маски по которой лид открывается
+     * @param  integer  $user_id   // id агента который закрывает сделку с клиентом
+     * @param  integer  $lead_id   // id лида по которому закрывается сделка
+     * @param  integer  $mask_id   // id маски по которой был получен лид
      *
      * @return array
      */

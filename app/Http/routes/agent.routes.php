@@ -20,11 +20,13 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
 
     // todo получение данных для таблицы на странице фильтра лидов, удалить
     Route::get('lead/obtain2/data', ['as' => 'agent.lead.obtain.2.data', 'uses' => 'Agent\LeadController@obtain2Data']);
-//    Route::post('lead/obtain2/data', ['as' => 'agent.lead.obtain.2.data', 'uses' => 'Agent\LeadController@obtain2Data']);
 
-    // todo открытие лида
+    // метод обработки открытия лида агента
     Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'uses' => 'Agent\LeadController@openLead']);
 
+    // todo доработать, еще непонятно сколько будет стоить закрытие сделки
+    // метод обработки открытия лида агента
+    Route::get('lead/close/{lead_id}/{mask_id}', ['as' => 'agent.lead.closing.deal', 'uses' => 'Agent\LeadController@closingDeal']);
 
 
     Route::get('lead/openAll/{id}', ['as' => 'agent.lead.openAll', 'uses' => 'Agent\LeadController@openAllLeads']);
