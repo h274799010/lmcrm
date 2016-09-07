@@ -28,6 +28,8 @@
                                         @if($data->openLeadStatus->bad == true)
                                             bad lead
                                         {{-- впротивном случае вывод select со статусами --}}
+                                        @elseif($data->closing_deal == true)
+                                            {!! trans('site/lead.deal_closed') !!}
                                         @else
                                             <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
                                                 @if($data->openLeadStatus->status == 0)
@@ -39,6 +41,7 @@
                                                 @foreach($data->sphereStatuses->statuses as $status)
                                                     <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
                                                 @endforeach
+                                                    <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
                                             </select>
                                         @endif
                                         {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
@@ -823,6 +826,8 @@
                                 // обновляем select
                                 selectBox.refresh();
                             }
+                        } else if(data == 'setClosingDealStatus') {
+                            self.closest('td').html('{!! trans('site/lead.deal_closed') !!}');
                         }else{
 
                             // todo вывести какое то сообщение об ошибке на сервере

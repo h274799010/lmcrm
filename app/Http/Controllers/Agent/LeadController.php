@@ -144,6 +144,7 @@ class LeadController extends AgentController {
                 $leadsByFilter = Lead::whereIn('id', $list)
                     ->where('status', '=', 4)
                     ->where('agent_id', '<>', $agent->id)
+                    ->where('closing_deal', '=', 0)
                     ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
                     ->get();
 
@@ -208,6 +209,9 @@ class LeadController extends AgentController {
                 return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('site/lead.hidden');
             })
         ;
+        if(!Sentinel::hasAccess(['agent.openAll'])) {
+            $datatable->removeColumn('ids');
+        }
 
 
 
@@ -1021,6 +1025,16 @@ class LeadController extends AgentController {
             } else {
                 return response()->json('pendingTimeExpire');
             }
+        }
+
+        // Если сделка отмечается закрытой
+        if($status == 'closing_deal') {
+            // ищем лид по id
+            $lead = Lead::find($lead_id);
+            // и устанавливаем статус завершенной сделки
+            $lead->closing_deal = true;
+            $lead->save();
+            return response()->json('setClosingDealStatus');
         }
 
         // если новый статус меньше уже установленного, выходим из метода

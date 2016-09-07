@@ -23,6 +23,7 @@ class CreateLeads extends Migration
             $table->string('name')->nullable();
             $table->text('comment')->nullable();
             $table->boolean('bad')->default(false);
+            $table->boolean('closing_deal')->default(false);
             $table->boolean('checked')->default(false);
             $table->date('date')->nullable();
             $table->timestamps();
