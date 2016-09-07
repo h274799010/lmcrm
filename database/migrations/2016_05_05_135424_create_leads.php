@@ -23,7 +23,7 @@ class CreateLeads extends Migration
             $table->string('name')->nullable();
             $table->text('comment')->nullable();
             $table->timestamp('operator_processing_time');
-            $table->timestamp('expired_time');
+            $table->timestamp('expiry_time');
             $table->boolean('bad')->default(false);
             $table->boolean('checked')->default(false);
             $table->date('date')->nullable();

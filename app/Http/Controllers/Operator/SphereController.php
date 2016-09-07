@@ -137,7 +137,7 @@ class SphereController extends Controller {
         $lead->status = 4;
 
         $lead->operator_processing_time = date("Y-m-d H:i:s");
-        $lead->expired_time = $lead->expiredTime();
+        $lead->expiry_time = $lead->expiredTime();
 
 
         $lead->bad= $request->input('bad') ? $request->input('bad') : 0;

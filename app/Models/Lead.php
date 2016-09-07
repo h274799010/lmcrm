@@ -13,6 +13,8 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use MongoDB\Driver\Query;
+use PhpParser\Builder;
 
 #class Lead extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
 #    use Authenticatable, CanResetPassword;
@@ -295,5 +297,19 @@ class Lead extends EloquentUser {
         $expiredTime = $data->format("Y-m-d H:i:s");
 
         return $expiredTime;
+    }
+
+
+    /**
+     * Возвращает все просроченные к текущему времени лиды
+     *
+     *
+     * @param Query $query
+     *
+     * @return Builder
+     */
+    public function scopeExpired( $query )
+    {
+        return $query->where( 'expiry_time', '<', date("Y-m-d H:i:s") );
     }
 }
