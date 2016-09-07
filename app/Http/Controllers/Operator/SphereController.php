@@ -128,13 +128,18 @@ class SphereController extends Controller {
         $mask->setStatus(1, $lead_id);
 
 
-        /** --  выбираем лид и сохраняем в него новые данные  -- */
+        /** --  П О Л Я  лида  -- */
 
         $lead = Lead::find($lead_id);
         $lead->name=$request->input('name');
         $lead->email=$request->input('email');
         $lead->comment=$request->input('comment');
         $lead->status = 4;
+
+        $lead->operator_processing_time = date("Y-m-d H:i:s");
+        $lead->expired_time = $lead->expiredTime();
+
+
         $lead->bad= $request->input('bad') ? $request->input('bad') : 0;
         $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
         $lead->customer_id=$customer->id;

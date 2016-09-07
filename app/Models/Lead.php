@@ -273,4 +273,27 @@ class Lead extends EloquentUser {
         return $this->sphere->openLead;
     }
 
+
+
+    /**
+     * Время, после которого лид снимается с аукциона
+     *
+     * @return string
+     */
+    public function expiredTime()
+    {
+        // получение интервала "жизни" лида из сферы лида
+        $interval = $this->sphere->expirationInterval();
+
+        // текущее время ( объект DateTime )
+        $data = new \DateTime();
+
+        // добавление интервала к времени
+        $data->add($interval);
+
+        // перевод времени в формат DB
+        $expiredTime = $data->format("Y-m-d H:i:s");
+
+        return $expiredTime;
+    }
 }

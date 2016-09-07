@@ -21,11 +21,7 @@ use App\Models\AgentBitmask;
  * Класс полностью отвечает за деньги
  *
  *
- * todo удалить потом (удалить только объяснение название класса :) )
- * дословно переводиться как "казначей",
- * вроде подходящее название
  */
-
 class PayMaster extends Model
 {
 
@@ -38,12 +34,13 @@ class PayMaster extends Model
      */
     const SYSTEM_ID = 1;
 
+    // todo перенести в детали транзакций
     /**
      * Типы транзакций
      *
      * @var array
      */
-    public static $type =
+    const TYPE =
     [
         'manual' => 'ручное введение средств',
         'operatorPayment' => 'обработка лида оператором',

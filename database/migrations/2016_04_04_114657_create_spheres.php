@@ -20,6 +20,7 @@ class CreateSpheres extends Migration
             $table->integer('minLead');
             $table->integer('revenue');
             $table->float('price_call_center');
+            $table->string('expiration_interval');
             $table->integer('pending_time');
             $table->integer('steps');
             $table->string('table_name');
