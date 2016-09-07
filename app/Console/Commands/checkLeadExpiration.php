@@ -40,9 +40,6 @@ class checkLeadExpiration extends Command
     public function handle()
     {
 
-//        dd( Lead::find(100) );
-//        dd( Lead::Expired()->get() );
-
         $expiredLeads = Lead::Expired()->get();
 
         if( $expiredLeads ){
@@ -50,13 +47,17 @@ class checkLeadExpiration extends Command
             $expiredLeads->each(function( $lead ){
 
 
+//                dd( PayMaster::leadInfo( 16 ) );
+//                dd( PayMaster::leadBuyers( 11 ) );
+
+
                 // todo метод закрытия лида
-//                PayMaster::closeLead( $lead );
+//                PayMaster::finishLead( $lead );
 
-                dd( PayMaster::systemInfo() );
+                dd( PayMaster::finishLead( $lead ) );
 
+//                dd( PayMaster::systemInfo() );
 
-//                $this->info( $lead->id );
 
             });
 

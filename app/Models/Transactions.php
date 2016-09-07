@@ -64,4 +64,14 @@ class Transactions extends Model {
             ->orderBy('id', 'desc');                                               // в обратном порядке
     }
 
+
+    public function buyers()
+    {
+        return $this
+            ->hasMany( 'App\Models\TransactionsDetails', 'transaction_id', 'id' )  // соединяем с таблицей деталей
+            ->where( 'type', 'openLead' )
+            ->with('user')                                                         // вместе с пользователями
+            ->orderBy('id', 'desc');                                               // в обратном порядке
+    }
+
 }

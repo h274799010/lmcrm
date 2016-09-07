@@ -60,5 +60,14 @@ class TransactionsDetails extends Model
             ->hasOne('App\Models\User', 'id', 'user_id');  // соединяем с таблицей пользователей
     }
 
+    /**
+     * Получение лида транзакции, если он есть
+     *
+     */
+    public function lead()
+    {
+        return $this->hasOne('App\Models\TransactionsLeadInfo', 'transaction_id', 'transaction_id');
+    }
+
 }
 
