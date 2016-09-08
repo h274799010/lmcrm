@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Customer;
 use Illuminate\Console\Command;
 use App\Helper\PayMaster;
 use App\Models\Lead;
-
+use App\Lmcrm\Lead as L;
 
 class checkLeadExpiration extends Command
 {
@@ -39,6 +40,16 @@ class checkLeadExpiration extends Command
      */
     public function handle()
     {
+
+        L::seeder( 1, 9 );
+
+        return true;
+
+
+
+        $this->info('Ok');
+
+        return true;
 
         $expiredLeads = Lead::Expired()->get();
 

@@ -12,8 +12,6 @@ use Illuminate\Http\Response;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
-use App\Models\Credits;
-use App\Models\CreditTypes;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\Sphere;
