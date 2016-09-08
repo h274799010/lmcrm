@@ -27,6 +27,14 @@
                     {{-- посадить на trans() --}}
                     Transactions </a>
             </li>
+            <li><a href="#leads" data-toggle="tab">
+                    {{-- посадить на trans() --}}
+                    leads </a>
+            </li>
+            <li><a href="#transactions" data-toggle="tab">
+                    {{-- посадить на trans() --}}
+                    leads details </a>
+            </li>
         </ul>
         <!-- ./ tabs -->
 
@@ -210,6 +218,54 @@
 
             </div>
 
+            <div class="tab-pane" id="leads">
+
+
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>имя</th>
+                            <th>количество покупок</th>
+                            <th>затраченно</th>
+                            <th>полученно</th>
+                            <th>прибыль автора</th>
+                            <th>доход системы</th>
+                            <th>прибыль системы</th>
+                            <th>время завершения</th>
+                            <th>статус</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach( $leads as $lead )
+
+                            @php( $spend = App\Helper\PayMaster::leadSpend( $lead['id'] ) )
+                            @php( $received = App\Helper\PayMaster::leadReceived( $lead['id'] ) )
+                            @php( $agentPayment = App\Helper\PayMaster::agentPayment( $lead['id'] ) )
+                            @php( $systemRevenue = $spend + $received )
+                            @php( $systemPayment = $systemRevenue - $agentPayment )
+
+                            <tr>
+                                <td>{{ $lead['name'] }}</td>
+                                <td> {{ $lead['opened'] }} / {{ $lead->sphere->openLead }}</td>
+                                <td style=" color:red; " > {{ $spend  }} </td>
+                                <td style=" color:green; " > {{ $received  }} </td>
+                                <td> {{ $agentPayment  }} </td>
+                                <td> {{ $systemRevenue }} </td>
+                                <td> {{ $systemPayment }} </td>
+                                <td> {{ $lead['expiry_time'] }} </td>
+                                <td> {{ $lead->statusName->name }} </td>
+
+                            </tr>
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
     </div>

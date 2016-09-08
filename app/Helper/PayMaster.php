@@ -285,13 +285,100 @@ class PayMaster extends Model
         $byersDetails = TransactionsDetails::
               where( 'type', 'openLead' )
             ->where( 'user_id', '<>', self::SYSTEM_ID )
-            ->with('leads')
-            ->whereIn( 'transaction_id', $leads )->get();
+            ->with('lead')
+            ->whereIn( 'transaction_id', $leads )
+            ->get();
 
 
         return $byersDetails;
     }
 
+
+    /**
+     * Затраты пользователя по лиду
+     *
+     */
+    public static function leadSpend( $lead_id, $agent_id=NULL )
+    {
+
+        $user_id = ( $agent_id ) ? $agent_id : self::SYSTEM_ID ;
+
+        // todo выбираем все id транзакции из лидИнфо по лиду
+        $leads = TransactionsLeadInfo::
+            where( 'lead_id', $lead_id )
+            ->lists( 'transaction_id' );
+
+        if( !$leads ){ return '0'; }
+
+        // todo по id транзакциям выбираем все детали которые принадлежат пользователя со знаком (-)
+        $spend = TransactionsDetails::
+              where( 'amount', '<', 0 )
+            ->where( 'user_id', '=', $user_id )
+            ->whereIn( 'transaction_id', $leads )
+            ->get();
+
+
+        // todo суммируем их
+
+        return $spend->sum('amount');
+    }
+
+
+    /**
+     * Затраты пользователя по лиду
+     *
+     */
+    public static function leadReceived( $lead_id, $agent_id=NULL )
+    {
+
+        $user_id = ( $agent_id ) ? $agent_id : self::SYSTEM_ID ;
+
+        // todo выбираем все id транзакции из лидИнфо по лиду
+        $leads = TransactionsLeadInfo::
+        where( 'lead_id', $lead_id )
+            ->lists( 'transaction_id' );
+
+        if( !$leads ){ return '0'; }
+
+        // todo по id транзакциям выбираем все детали которые принадлежат пользователя со знаком (-)
+        $spend = TransactionsDetails::
+        where( 'amount', '>', 0 )
+            ->where( 'user_id', '=', $user_id )
+            ->whereIn( 'transaction_id', $leads )
+            ->get();
+
+
+        // todo суммируем их
+
+        return $spend->sum('amount');
+    }
+
+    /**
+     * Прибыль агента по лиду
+     *
+     */
+    public static function agentPayment( $lead_id )
+    {
+
+
+        // todo находим покупателей
+        $buyers =  self::leadBuyers( $lead_id );
+
+        // todo суммируем их затраты
+        $sum = $buyers->sum('amount') * (-1);
+
+        // todo находим "процент" агента
+        $lead = Lead::with('sphere')->find( $lead_id );
+        $paymentRevenueShare = $lead->paymentRevenueShare();
+
+        // todo услуги оператора
+        $callOperator = $lead['sphere']['price_call_center'];
+
+        // todo умножаем на затраты агентов
+        $payment = ($sum - $callOperator) * $paymentRevenueShare;
+
+        return $payment;
+    }
 
     /**
      * Сохранение данных о лиде при транзакции
@@ -848,6 +935,8 @@ class PayMaster extends Model
 
         return true;
     }
+
+
 
 
 }

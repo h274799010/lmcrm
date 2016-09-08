@@ -312,4 +312,15 @@ class Lead extends EloquentUser {
     {
         return $query->where( 'expiry_time', '<', date("Y-m-d H:i:s") );
     }
+
+
+
+    public function paymentRevenueShare()
+    {
+        $agentInfo = $this->hasOne( 'App\Models\AgentInfo', 'agent_id', 'agent_id')->first();
+
+        return $agentInfo->payment_revenue_share;
+    }
+
+
 }
