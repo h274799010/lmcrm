@@ -21,7 +21,11 @@ class SentinelRedirectAgent
             $agent = Sentinel::findRoleBySlug('agent');
 
             if ($user->inRole($agent)) {
-                return redirect()->intended('agent/lead/obtain');
+                if($user->hasAccess(['agent.lead.obtain'])) {
+                    return redirect()->intended('agent/lead/obtain');
+                } else {
+                    return redirect()->intended('agent/lead/depostited');
+                }
             }
         }
         return $next($request);

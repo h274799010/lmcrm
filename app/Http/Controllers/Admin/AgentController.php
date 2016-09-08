@@ -11,6 +11,7 @@ use App\Models\CreditTypes;
 use App\Models\Sphere;
 //use App\Http\Requests\Admin\UserRequest;
 use App\Http\Requests\AdminUsersEditFormRequest;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Http\Request;
 //use App\Repositories\UserRepositoryInterface;
 use Datatables;
@@ -57,6 +58,10 @@ class AgentController extends AdminController
         $user=\Sentinel::registerAndActivate($request->except('password_confirmation','sphere'));
         $user->update(['password'=>\Hash::make($request->input('password'))]);
         $role = \Sentinel::findRoleBySlug('agent');
+        $user->roles()->attach($role);
+
+        // устанавливаем дополнительную роль агенту (leadbayer or dealmaker or partner)
+        $role = Sentinel::findRoleBySlug($request->input('role'));
         $user->roles()->attach($role);
 
         $user = Agent::find($user->id);

@@ -209,7 +209,7 @@ class LeadController extends AgentController {
                 return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('site/lead.hidden');
             })
         ;
-        if(!Sentinel::hasAccess(['agent.openAll'])) {
+        if(!Sentinel::hasAccess(['agent.lead.openAll'])) {
             $datatable->removeColumn('ids');
         }
 

@@ -30,7 +30,7 @@
                         <tr>@php($i=0)
                             <th><div>{!! trans("site/lead.count") !!}</div></th>
                             <th><div>{!! trans("main.open") !!}</div></th>
-                            @if( Sentinel::hasAccess(['agent.openAll']) )
+                            @if( Sentinel::hasAccess(['agent.lead.openAll']) )
                                 <th><div>{!! trans("main.open.all") !!}</div></th>
                             @endif
                             <th><div>{!! trans("site/lead.open.mask") !!}</div></th>

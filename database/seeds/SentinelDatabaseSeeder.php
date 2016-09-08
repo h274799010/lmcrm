@@ -154,17 +154,38 @@ class SentinelDatabaseSeeder extends Seeder
         $dealmakerRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Deal maker',
             'slug' => 'dealmaker',
-            'permissions' => array()
+            'permissions' => array(
+                'lead.create' => true,
+                'lead.open' => true,
+                'lead.open_all' => false,
+                'lead.view.opened' => true,
+                'lead.view.obtained' => true,
+                'lead.view.deposited' => true
+            )
         ));
         $leadbayerRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Lead bayer',
             'slug' => 'leadbayer',
-            'permissions' => array()
+            'permissions' => array(
+                'lead.create' => true,
+                'lead.open' => true,
+                'lead.open_all' => true,
+                'lead.view.opened' => true,
+                'lead.view.obtained' => true,
+                'lead.view.deposited' => true
+            )
         ));
         $partnerRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Partner',
             'slug' => 'partner',
-            'permissions' => array()
+            'permissions' => array(
+                'lead.create' => true,
+                'lead.open' => false,
+                'lead.open_all' => false,
+                'lead.view.opened' => false,
+                'lead.view.obtained' => false,
+                'lead.view.deposited' => true
+            )
         ));
 
         // Assign Roles to Users

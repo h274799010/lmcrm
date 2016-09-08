@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], function() {
+Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman', 'permissions'] ], function() {
 
     // todo эти две страницы, похоже, несуществуют, проверить и удалить
 //    Route::get('/', ['as' => 'agent.index', 'uses' => 'Agent\AgentController@index']);
