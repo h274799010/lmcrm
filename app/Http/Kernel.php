@@ -60,7 +60,7 @@ class Kernel extends HttpKernel
         'dealmaker' => \App\Http\Middleware\SentinelDealmakerUser::class,
         'leadbayer' => \App\Http\Middleware\SentinelLeadbayerUser::class,
         'partner' => \App\Http\Middleware\SentinelPartnerUser::class,
-        'permissions' => \App\Http\Middleware\SentinelPermissons::class,
+        'permissions' => \App\Http\Middleware\SentinelPermissions::class,
 
         'operator' => \App\Http\Middleware\SentinelOperatorUser::class,
         //'notCurrentUser' => \App\Http\Middleware\SentinelNotCurrentUser::class,

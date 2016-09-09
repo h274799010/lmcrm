@@ -388,7 +388,7 @@
                 var token = $('meta[name=csrf-token]').attr('content');
 
                 // получаем поднобные данные о лиде с сервера
-                $.post('{{ route('agent.openedLeadsAjax')  }}', { 'id': id, '_token': token }, function( data ){
+                $.post('{{ route('agent.lead.openedAjax')  }}', { 'id': id, '_token': token }, function( data ){
 
                     // парсим ответ в json
                     var tableData = $.parseJSON(data);
