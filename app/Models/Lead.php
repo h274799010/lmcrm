@@ -117,27 +117,38 @@ class Lead extends EloquentUser {
         return ($agent_id)? $relation->where('agent_id','=',$agent_id) : $relation;
     }
 
-    public function ownerBill(){
-        return $this->hasOne('\App\Models\Credits','agent_id','agent_id');
-    }
 
-    // todo метод установки статуса
+    /**
+     * Установка статуса лида
+     *
+     * todo переделать, сделать статусы не по таблице, а по массиву
+     *
+     *
+     * @param integer $status
+     *
+     * @return Lead
+     */
     public function setStatus( $status )
     {
+        // устанавливаем статус
         $this->status = $status;
         $this->save();
 
         return $this;
-
     }
 
-    // todo получение имени статуса
+
+    /**
+     * Получение данных о статусе лида
+     *
+     * @return LeadStatus
+     */
     public function statusName(){
         return $this->hasOne('App\Models\LeadStatus', 'id', 'status');
     }
 
 
-
+    // todo доделать
     public function user(){
 
         return $this->hasOne('App\Models\Agent', 'id', 'agent_id')->select('id','first_name');
@@ -198,7 +209,10 @@ class Lead extends EloquentUser {
     }
 
     /**
-     * Открытие лида
+     * Открыть лид
+     *
+     *
+     * Метод делает лид открытым для агента
      *
      * todo доработать пендингТайм
      *
@@ -266,7 +280,7 @@ class Lead extends EloquentUser {
     }
 
     /**
-     * Количество максимального открытия лида
+     * Максимальное количество открытия лида
      *
      * @return integer
      */
@@ -274,7 +288,6 @@ class Lead extends EloquentUser {
     {
         return $this->sphere->openLead;
     }
-
 
 
     /**
@@ -314,11 +327,22 @@ class Lead extends EloquentUser {
     }
 
 
-
+    /**
+     * Процент выручки агента
+     *
+     * процент который агент получает с продажи лидов
+     * которые он внес в систему
+     *
+     *
+     * @return double
+     */
     public function paymentRevenueShare()
     {
-        $agentInfo = $this->hasOne( 'App\Models\AgentInfo', 'agent_id', 'agent_id')->first();
+        $agentInfo = $this    // данные агента в таблице AgentInfo
+            ->hasOne( 'App\Models\AgentInfo', 'agent_id', 'agent_id')
+            ->first();
 
+        // возвращает только саму выручку
         return $agentInfo->payment_revenue_share;
     }
 

@@ -40,5 +40,18 @@ class DashboardController extends AdminController {
 
 
 
+    /**
+     * Подробная финансовая информация о лиде
+     *
+     * todo возможно, создать отдельный контроллер для системы
+     *
+     */
+    public function leadInfo( $lead_id )
+    {
+        $leadsInfo = PayMaster::leadInfo( $lead_id );
+
+        return view('admin.system.lead', [ 'leadsInfo'=>$leadsInfo ] );
+    }
+
 
 }

@@ -6,7 +6,6 @@ use App\Models\Customer;
 use Illuminate\Console\Command;
 use App\Helper\PayMaster;
 use App\Models\Lead;
-use App\Lmcrm\Lead as L;
 
 class checkLeadExpiration extends Command
 {
@@ -41,40 +40,33 @@ class checkLeadExpiration extends Command
     public function handle()
     {
 
-        L::seeder( 1, 9 );
+        $this->info( PayMaster::finishLead( Lead::first() ) );
 
         return true;
 
-
-
-        $this->info('Ok');
-
-        return true;
-
+        // ищем просроченные лиды
         $expiredLeads = Lead::Expired()->get();
 
-        if( $expiredLeads ){
-
-            $expiredLeads->each(function( $lead ){
-
-
-//                dd( PayMaster::leadInfo( 16 ) );
-//                dd( PayMaster::leadBuyers( 11 ) );
+        // если они есть - обрабатываем
+        $expiredLeads->each(function( $lead ){
 
 
-                // todo метод закрытия лида
-//                PayMaster::finishLead( $lead );
+            // todo этот метод будет завершать лид
+            // PayMaster::finishLead( $lead );
 
-                dd( PayMaster::finishLead( $lead ) );
+//            dd( PayMaster::finishLead( $lead ) );
 
 //                dd( PayMaster::systemInfo() );
 
+            $this->info('Завершен ' .$lead->id. ' ' .$lead->name );
 
-            });
 
-        }
+        });
+
+        // todo сделать это на логах или на БД (пока что на логах)
+        // если завершенных лидов нет, сообщаем об этом
+        if( !$expiredLeads ) $this->info('Просроченных лидов нет');
 
         return true;
-
     }
 }

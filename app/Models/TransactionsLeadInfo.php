@@ -33,6 +33,30 @@ class TransactionsLeadInfo extends Model {
     }
 
 
+    /**
+     * Получаем транзакцию деталей платежа
+     *
+     * @return Builder
+     */
+    public function details()
+    {
+        return $this
+            ->hasMany('App\Models\TransactionsDetails', 'transaction_id', 'transaction_id')  // соединяем с таблицей транзакций
+            ->with('user');
+    }
+
+
+    /**
+     * Получаем пользователя платежа
+     *
+     * @return Builder
+     */
+    public function user()
+    {
+        return $this
+            ->hasMany('App\Models\User', 'id', 'user_id');
+    }
+
 
     /**
      * Получаем транзакцию деталей платежа

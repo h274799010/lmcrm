@@ -36,14 +36,14 @@ class DatabaseSeeder extends Seeder
 
         DB::table('lead_statuses')->insert([
             'id' => '2',
-            'name' => 'ожидание проверки оператором',
-            'comment' => 'Лид только что добавлен пользователем и ожидает проверки оператором',
+            'name' => 'ждет обработки оператором',
+            'comment' => 'Лид добавлен пользователем и ожидает обработки оператором',
         ]);
 
         DB::table('lead_statuses')->insert([
             'id' => '3',
-            'name' => 'ждет редактирования оператором',
-            'comment' => 'Лид был изменен по каким то причинам и ждет проверки оператором',
+            'name' => 'ждет повторной обработки оператором',
+            'comment' => 'Лид был изменен по каким то причинам и ждет повторной обработки',
         ]);
 
         DB::table('lead_statuses')->insert([
@@ -62,6 +62,12 @@ class DatabaseSeeder extends Seeder
             'id' => '6',
             'name' => 'deal is closed',
             'comment' => 'the client has completed a deal with one of the agents',
+        ]);
+
+        DB::table('lead_statuses')->insert([
+            'id' => '7',
+            'name' => 'expiration of Lead',
+            'comment' => 'the completion time of stay of the Lead at auction',
         ]);
 
 

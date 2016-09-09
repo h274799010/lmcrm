@@ -46,7 +46,8 @@ class PayMaster extends Model
         'operatorPayment' => 'обработка лида оператором',
         'openLead' => 'открытие лида',
         'closingDeal' => 'закрытие сделки',
-        'repaymentForLead ' => 'возврат средств за bad lead'
+        'repaymentForLead ' => 'возврат средств за bad lead',
+        'operatorRepayment' => 'refund for operator handling',
     ];
 
 
@@ -260,6 +261,7 @@ class PayMaster extends Model
         // todo делаю
         $leads = TransactionsLeadInfo::
               where( 'lead_id', $lead_id )
+            ->with( 'details' )
             ->with( 'transaction' )
             ->get();
 
@@ -275,7 +277,7 @@ class PayMaster extends Model
      *
      * @return TransactionsLeadInfo
      */
-    public static function leadBuyers( $lead_id )
+    public static function leadBuyersDetails( $lead_id )
     {
         // todo делаю
         $leads = TransactionsLeadInfo::
@@ -291,6 +293,34 @@ class PayMaster extends Model
 
 
         return $byersDetails;
+    }
+
+    /**
+     * Затраты системы по лиду за обработку оператором
+     *
+     *
+     * @param integer $lead_id
+     *
+     * @return double
+     */
+    public static function leadOperatorSpend( $lead_id )
+    {
+        // ищем все транзакции по лиду в таблице информации по лидам
+        $leads = TransactionsLeadInfo::
+              where( 'lead_id', $lead_id )
+            ->lists( 'transaction_id' );
+
+        // если лид ненайден
+        if( !$leads ){ return '0'; }
+
+        // todo по id транзакций выбираем все детали которые принадлежат системе с типом 'operatorPayment'
+        $spend = TransactionsDetails::
+              where( 'type', '=', 'operatorPayment' )
+            ->where( 'user_id', '=', self::SYSTEM_ID )
+            ->whereIn( 'transaction_id', $leads )
+            ->first();
+
+        return $spend->amount;
     }
 
 
@@ -317,16 +347,15 @@ class PayMaster extends Model
             ->whereIn( 'transaction_id', $leads )
             ->get();
 
-
         // todo суммируем их
-
         return $spend->sum('amount');
     }
 
 
     /**
-     * Затраты пользователя по лиду
+     * Доход пользователя по лиду (если пользователь не указан, возвращается по системе)
      *
+     * todo дописать
      */
     public static function leadReceived( $lead_id, $agent_id=NULL )
     {
@@ -353,32 +382,45 @@ class PayMaster extends Model
         return $spend->sum('amount');
     }
 
+
     /**
      * Прибыль агента по лиду
      *
+     *
+     * @param  integer  $lead_id
+     *
+     * @return double|integer
      */
-    public static function agentPayment( $lead_id )
+    public static function agentProfit( $lead_id )
     {
 
+        // все покупатели лида
+        $buyers =  self::leadBuyersDetails( $lead_id );
 
-        // todo находим покупателей
-        $buyers =  self::leadBuyers( $lead_id );
-
-        // todo суммируем их затраты
+        // суммируем их затраты по лиду и приводим к натуральному числу
         $sum = $buyers->sum('amount') * (-1);
 
-        // todo находим "процент" агента
+        //  "процент" агента
         $lead = Lead::with('sphere')->find( $lead_id );
         $paymentRevenueShare = $lead->paymentRevenueShare();
 
-        // todo услуги оператора
+        // услуги оператора
         $callOperator = $lead['sphere']['price_call_center'];
 
-        // todo умножаем на затраты агентов
-        $payment = ($sum - $callOperator) * $paymentRevenueShare;
+        if( $sum <= 0 ){
+            // если сумма меньше нуля или 0 ничего не отнимаем
+            // прибыль агента равна нулю в этом случае, минуса нет
+            $payment = 0;
+
+        }else{
+            // если сумма больше нуля
+            // отнимаем от суммы услуги оператора и умножаем на процент прибыли агента
+            $payment = ($sum - $callOperator) * $paymentRevenueShare;
+        }
 
         return $payment;
     }
+
 
     /**
      * Сохранение данных о лиде при транзакции
@@ -792,7 +834,7 @@ class PayMaster extends Model
 
         $payer = false;   // агент (который платит)
         $payee = false;   // система (получает платеж)
-
+        $leadInfo = false; // данные лида
 
         // вычитание платежа с кошелька агента (если транзакция созданна ормально)
         if( $transaction ) {
@@ -818,10 +860,24 @@ class PayMaster extends Model
         }
 
 
+        // todo фиксируем данные лида
+
+        // фиксируем данные о лиде при транзакции (если деньги зачислились агенту)
+        if( $payee ) {
+            $leadInfo = self::saveLeadInfo(
+            [
+                'transaction' => $transaction->id,
+                'user_id' => $user_id,
+                'number' => 1,
+                'lead_id' => $lead_id
+            ]);
+        }
+
+
         // если платеж прошел нормально
         if( $payee ){
 
-            // открытие лида
+            // устанавливаем статус
             $lead->status = 6;
             $lead->save();
 
@@ -837,6 +893,7 @@ class PayMaster extends Model
                 'status' => $transaction->status,
                 'payer' => $payer,
                 'payee' => $payee,
+                'leadInfo' => $leadInfo,
             ];
 
             return $transactionInfo;
@@ -849,73 +906,179 @@ class PayMaster extends Model
     /**
      * Завершение лида
      *
+     * можно задавать как int, так и объект Lead
+     *
+     *
+     * @param  integer|Lead  $givenLead
+     *
+     * @return array
      */
-    public static function finishLead( $lead )
+    public static function finishLead( $givenLead )
     {
 
-        // todo проверка заданного параметра на тип, чтобы можно было добавлять и обьект и id
+        // проверка заданного параметра,
+        // если это id, выбирается лид
+        // если это Lead работаем с ним
+        // если ни то, ни другое, или такого лида нет - завершаем метод
+        if( is_int( $givenLead ) ) {
+            // если это id лида
 
-        // todo удалить потом, временно
-        $lead['bad'] = 1;
+            // выбираем лид
+            $lead = Lead::find( $givenLead );
 
+            // если такого лида нет - выходим
+            if( !$lead ){ return false; }
+
+        }elseif( is_object( $givenLead ) ){
+            // если это объект
+
+            // проверяем является ли он Lead
+            if( get_class( $givenLead ) == 'App\Models\Lead' ){
+                // если это Lead - работаем с ним дальше
+                $lead = $givenLead;
+
+            }else{
+                // если нет - выходим
+                return false;
+            }
+
+        }else{
+            // если параметр неподходит ни под один параметр выше - выходим
+            return false;
+        }
+
+
+
+        // присваивание лиду статуса завершения
+        $lead->setStatus( 7 );
+
+
+        // обработка расчета по лиду в зависимости от типа лида (хороший/плохой)
 
         if( $lead['bad'] == 1 ){
-            // если лид плохой
+            // если лид bad
+            // возвращаем деньги всем агентам которые за него заплатили
+            // и заносим сумму за обработку лида на счет 'wasted' автора лида
 
-            // todo возврат денег всем агентам
+            // получение всех транзакций по лиду
+            $buyers = self::leadBuyersDetails( $lead['id'] );
 
-                // todo получение всех транзакций по лиду
-                $buyers = self::leadBuyers( $lead['id'] );
+            // все данные по операции
+            $operationDetails = [];
+
+            // возврат потраченных на лид средств каждому агенту, который купил этот лид
+            $buyers->each(function( $buyer ) use ( &$operationDetails ) {
+
+                // сумма которую агент потратил на лид
+                $amount = $buyer['amount'] * (-1);
+
+                // открытие транзакции (инициатор система)
+                $transaction = self::transaction( self::SYSTEM_ID );
+
+                $system   = false;  // Средства снятые с системы
+                $agent    = false;  // Средства занесенные агенту
+                $leadInfo = false;  // Фиксация данных о лиде
 
 
-                // todo вернуть каждому денег сколько кто заплатил
-                $buyers->each(function( $buyer ){
-
-                    $transaction = self::transaction( self::SYSTEM_ID );
-
-                    // снимаем деньги с системы
+                // снимаем деньги с системы (если транзакция открылась нормально)
+                if( $transaction ) {
                     $system = self::payment(
                     [
                         'transaction' => $transaction->id,
                         'user_id' => self::SYSTEM_ID,
                         'wallet_type' => 'earned',
                         'type' => 'repaymentForLead',
-                        'amount' => $buyer['amount']
+                        'amount' => $amount * (-1),
                     ]);
+                }
 
-                    // заносим деньги агенту
-                    $system = self::payment(
+                // заносим деньги агенту (если деньги с системного кошелька снялись нормально)
+                if( $system ) {
+                    $agent = self::payment(
                     [
                         'transaction' => $transaction->id,
                         'user_id' => $buyer['id'],
                         'wallet_type' => 'earned',
                         'type' => 'repaymentForLead',
-                        'amount' => $buyer['amount'] * (-1)
+                        'amount' => $amount,
                     ]);
+                }
 
+                // фиксируем данные о лиде при транзакции (если деньги зачислились агенту)
+                if( $agent ) {
+                    $leadInfo = self::saveLeadInfo(
+                    [
+                        'transaction' => $transaction->id,
+                        'user_id' => $buyer['id'],
+                        'number' => 1,
+                        'lead_id' => $buyer['lead']['id']
+                    ]);
+                }
 
-                    $agent = self::saveLeadInfo(
-                        [
-                            'transaction' => $transaction->id,
-                            'user_id' => $buyer['id'],
-                            'number' => 1,
-                            'lead_id' => $buyer['lead']['id']
-
-                        ]);
-
+                // если нет ошибок, помечаем транзакцию как успешно завершенную
+                if( $leadInfo ) {
                     $transaction->completed();
+                }
 
-                    return $buyer;
+                // собираем все данные по операции
+                $operationDetails['buyers'][ $buyer['id'] ] =
+                [
+                    'buyer'     => $buyer,
+                    'system'    => $system,
+                    'agent'     => $agent,
+                    'leadInfo'  => $leadInfo
+                ];
 
-                });
+                return true;
+            });
 
-            // todo добавить wasted автору лида за коллцентр
+            // автору добавляется счет за оператора на счет wasted
 
-            return 'плохой лид';
+            // открываем транзакцию
+            $transaction = self::transaction( self::SYSTEM_ID );
+
+            // находим сумму которая снялась с системы за обработку лида оператором
+            // переводим ее в целое число
+            $amount = (-1) * ( self::leadOperatorSpend( $lead['id'] ) );
+
+            $leadDepositer = false; // транзакция агента который внес лид в систему
+
+            // добавляем wasted агенту, который внес лида в систему
+            if( $transaction ) {
+                $leadDepositer = self::payment(
+                [
+                    'transaction' => $transaction->id,
+                    'user_id' => $lead['user_id'],
+                    'wallet_type' => 'wasted',
+                    'type' => 'operatorRepayment',
+                    'amount' => $amount,
+                ]);
+            }
+
+            // если все прошло нормально - помечаем транзакцию как успешно завершенную
+            if( $leadDepositer ) {
+                $transaction->completed();
+            }
+
+            // сохраняем в массиве данные о агенте внесшем лид в систему
+            $operationDetails['depositer'] = $leadDepositer;
+
+            return $operationDetails;
+
 
         }elseif( $lead['bad'] == 0 ){
             // если лид хороший
 
+            // проверяем доход по лиду
+            $received = self::leadReceived( $lead['id'] );
+
+            if( $received <= 0 ){
+                // если доход меньше, либо равен нулю
+
+            }else{
+                // если доход положительный
+
+            }
             // todo подсчитываем доход агента
             //    user-seller += ( leadPrice1+leadPrice2+leadPrice3+leadPrice4-callOperator ) * userSellerRevShare
 

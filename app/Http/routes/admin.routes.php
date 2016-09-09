@@ -8,11 +8,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
 # System
 
-    // страница редактирования данных агента
+    // страница редактирования данных кошелька системы
     Route::get('system',['as'=>'admin.system', 'uses' => 'Admin\DashboardController@systemInfo']);
 
-    // изменение состояния счета пользователя
+    // изменение состояния счета системы
     Route::post('manual/Wallet/{user_id}/Change',['as'=>'manual.wallet.change', 'uses' => 'Admin\TransactionController@ManualWalletChange']);
+
+    // страница подробных финансовых данных о лиде
+    Route::get('system/lead/{lead_id}',['as'=>'admin.system.lead', 'uses' => 'Admin\DashboardController@leadInfo']);
 
 
 # Users
