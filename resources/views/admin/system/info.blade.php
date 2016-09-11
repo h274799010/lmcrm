@@ -226,7 +226,6 @@
                             <th>количество покупок</th>
                             <th>затраченно</th>
                             <th>полученно</th>
-                            <th>доход</th>
                             <th>прибыль агента</th>
                             <th>прибыль системы</th>
                             <th>время завершения</th>
@@ -242,15 +241,13 @@
                             @php( $spend = App\Helper\PayMaster::leadSpend( $lead['id'] ) )
                             @php( $received = App\Helper\PayMaster::leadReceived( $lead['id'] ) )
                             @php( $agentPayment = App\Helper\PayMaster::agentProfit( $lead['id'] ) )
-                            @php( $systemRevenue = $spend + $received )
-                            @php( $systemPayment = $systemRevenue - $agentPayment )
+                            @php( $systemPayment = $spend + $received - $agentPayment )
 
                             <tr>
                                 <td>{{ $lead['name'] }}</td>
                                 <td> {{ $lead['opened'] }} / {{ $lead->sphere->openLead }}</td>
                                 <td style=" color:red; " > {{ $spend  }} </td>
                                 <td style=" color:green; " > {{ $received  }} </td>
-                                <td> {{ $systemRevenue }} </td>
                                 <td> {{ $agentPayment  }} </td>
                                 <td> {{ $systemPayment }} </td>
                                 <td> {{ $lead['expiry_time'] }} </td>
