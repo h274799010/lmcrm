@@ -19,7 +19,7 @@ class CreateOpenLeads extends Migration
             $table->integer('count');
             $table->integer('status');
             $table->text('comment');
-            $table->boolean('bad');
+            $table->boolean('bad')->default(false);
             $table->timestamp('pending_time');
             $table->timestamps();
             $table->engine = 'InnoDB';

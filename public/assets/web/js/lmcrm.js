@@ -31,7 +31,7 @@ $(function(){
 		$(".validate").validate();
 	}
 
-	$(".dialog").click(function(){
+	$(document).on('click', ".dialog", function(){
 		var href=$(this).attr("href");
 		$.ajax({
 			url:href,
@@ -57,6 +57,17 @@ $(function(){
                             });
 
                         }
+                        if ( resp[0] == 'OrganizerItemUpdated' ) {
+
+							// получение токена
+							var token = $('meta[name=csrf-token]').attr('content');
+
+							$.post( getOrganizerRoute, { 'id': resp[1], '_token': token }, function( data ){
+
+								updateOrganizerRow( data[0], data[1], data[2], data[3] );
+							});
+
+						}
 
 					});
 				});
@@ -79,6 +90,7 @@ $(function(){
 
 
         $('.openLeadsTable').DataTable({
+			autoWidth: false,
 			responsive: true,
 			"aoColumnDefs": [
 				{ "sWidth": "150px", "aTargets": [ 1 ] },
@@ -86,7 +98,7 @@ $(function(){
 			]
 		});
 
-        $('.openLeadsTable').on( 'draw.dt', function () {
+		$('.openLeadsTable').on( 'draw.dt', function () {
             $("select").selectBoxIt();
         } );
 

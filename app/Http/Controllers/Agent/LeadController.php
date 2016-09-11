@@ -52,11 +52,6 @@ class LeadController extends AgentController {
      */
     public function obtain(){
 
-        $l = Lead::find(1);
-        $l->finish();
-
-        dd($l);
-
         // данные агента
         $agent = $this->user;
 
@@ -152,6 +147,7 @@ class LeadController extends AgentController {
                 $leadsByFilter = Lead::whereIn('id', $list)
                     ->where('status', '=', 4)
                     ->where('agent_id', '<>', $agent->id)
+                    ->where('closing_deal', '=', 0)
                     ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
                     ->get();
 
@@ -220,6 +216,9 @@ class LeadController extends AgentController {
                 return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('site/lead.hidden');
             })
         ;
+        if(!Sentinel::hasAccess(['agent.lead.openAll'])) {
+            $datatable->removeColumn('ids');
+        }
 
 
 
@@ -721,6 +720,25 @@ class LeadController extends AgentController {
         $updateCount = Lead::where('id',$lead->id)->where('opened',$lead->opened)->increment('opened',$mustBeAdded);
         if ($updateCount)
         {
+            /**
+             * Высчитываем pending_time
+             */
+            switch ($lead->sphere->pending_type) {
+                case 0:
+                    $pending_factor = 60;
+                    break;
+                case 1:
+                    $pending_factor = 60 * 60;
+                    break;
+                case 2:
+                    $pending_factor = 60 * 60 * 24;
+                    break;
+                default:
+                    $pending_factor = 60 * 60;
+                    break;
+            }
+            $pending_time = $lead->sphere->pending_time * $pending_factor;
+
             //$lead->obtainedBy()->attach($this->uid);
             if (!$ol){
                 $ol = new OpenLeads();
@@ -728,7 +746,7 @@ class LeadController extends AgentController {
                 $ol->agent_id = $this->uid;
             }
             $ol->count = $lead->sphere->openLead;
-            $ol->pending_time = Date('Y-m-d H:i:s',time()+$lead->sphere->pending_time);
+            $ol->pending_time = Date('Y-m-d H:i:s',time()+$pending_time);
             $ol->save();
             $credit->payment=$price;
             $credit->descrHistory = $mustBeAdded;
@@ -951,7 +969,7 @@ class LeadController extends AgentController {
         $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
 
         // получение данных органайзера
-        $organizer = Organizer::where('open_lead_id', '=', $openedLead->id)->get();
+        $organizer = Organizer::where('open_lead_id', '=', $openedLead->id)->orderBy('time', 'asc')->get();
 
         // преобразуем данные чтобы получить только время и комментарии
         $organizer = $organizer->map(function( $item ){
@@ -1016,8 +1034,30 @@ class LeadController extends AgentController {
         // находим данные открытого лида по id лида и id агента
         $openedLead = OpenLeads::where(['lead_id'=>$lead_id,'agent_id'=>$this->uid])->first();
 
+        // если лид отмечен как плохой
+        if($status == 'bad') {
+            if(time() < strtotime($openedLead->pending_time)) {
+                $openedLead->bad = 1;
+                $openedLead->save();
+                return response()->json('setBadStatus');
+            } else {
+                return response()->json('pendingTimeExpire');
+            }
+        }
+
+        // Если сделка отмечается закрытой
+        if($status == 'closing_deal') {
+            // ищем лид по id
+            $lead = Lead::find($lead_id);
+            // и устанавливаем статус завершенной сделки
+            $lead->closing_deal = true;
+            $lead->save();
+            return response()->json('setClosingDealStatus');
+        }
+
         // если новый статус меньше уже установленного, выходим из метода
-        if( $status < $openedLead->status ){
+        // или лид отмечен как плохой
+        if( $status < $openedLead->status || $openedLead->bad == true ){
             return response()->json(FALSE);
 
         }else{
@@ -1148,4 +1188,53 @@ class LeadController extends AgentController {
         return response()->json([ $organizer->id, $organizer->time->format('d.m.Y'), $organizer->comment, $organizer->type ]);
     }
 
+    /**
+     * Получение записи для редактирования
+     *
+     * @param $id
+     * @return $object
+     */
+    public function editOrganizer($id)
+    {
+        $organizer = Organizer::find($id);
+
+        if($organizer->type == 2) {
+            $view = 'agent.lead.organizer.editReminder';
+        } else {
+            $view = 'agent.lead.organizer.editComment';
+        }
+
+        return view($view,['organizer'=>$organizer])
+            ->with('organizer',$organizer);
+    }
+
+    /**
+     * Обновление записи органайзера
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function updateOrganizer( Request $request )
+    {
+        $organizer = Organizer::find($request->id);
+
+        // временная метка напоминания
+        if($organizer->type == 2) {
+            $organizer->time = strtotime($request->input('time'));
+        }
+
+        // комментарий
+        if($request->input('comment')) {
+            $organizer->comment = $request->input('comment');
+        }
+
+        // сохранение записи
+        $organizer->save();
+
+        if($request->ajax()){
+            return 'OrganizerItemUpdated,' .$organizer->id;
+        } else {
+            return 'true';
+        }
+    }
 }

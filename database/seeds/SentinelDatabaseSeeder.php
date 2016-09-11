@@ -66,6 +66,26 @@ class SentinelDatabaseSeeder extends Seeder
 
         ));
 
+        // agents
+        $dealmaker = Sentinel::getUserRepository()->create(array(
+
+            'email'    => 'dealmaker@dealmaker.com',
+            'password' => 'dealmaker'
+
+        ));
+        $leadbayer = Sentinel::getUserRepository()->create(array(
+
+            'email'    => 'leadbayer@leadbayer.com',
+            'password' => 'leadbayer'
+
+        ));
+        $partner = Sentinel::getUserRepository()->create(array(
+
+            'email'    => 'partner@partner.com',
+            'password' => 'partner'
+
+        ));
+
 
         // Create Activations
 
@@ -82,6 +102,19 @@ class SentinelDatabaseSeeder extends Seeder
         $code = Activation::create($operator)->code;
 
         Activation::complete($operator, $code);
+
+        // agents activate
+        $code = Activation::create($dealmaker)->code;
+
+        Activation::complete($dealmaker, $code);
+
+        $code = Activation::create($leadbayer)->code;
+
+        Activation::complete($leadbayer, $code);
+
+        $code = Activation::create($partner)->code;
+
+        Activation::complete($partner, $code);
 
 
         // Create Roles
@@ -132,6 +165,46 @@ class SentinelDatabaseSeeder extends Seeder
             'permissions' => array()
         ));
 
+        // agents roles
+        $dealmakerRole = Sentinel::getRoleRepository()->create(array(
+            'name' => 'Deal maker',
+            'slug' => 'dealmaker',
+            'permissions' => array(
+                "agent.lead.deposited" => true,
+                "agent.lead.create" => true,
+                "agent.lead.store" => true,
+                "agent.lead.obtain" => true,
+                "agent.lead.opened" => true,
+                "agent.lead.open" => true,
+                "agent.lead.openAll" => false
+            )
+        ));
+        $leadbayerRole = Sentinel::getRoleRepository()->create(array(
+            'name' => 'Lead bayer',
+            'slug' => 'leadbayer',
+            'permissions' => array(
+                "agent.lead.deposited" => true,
+                "agent.lead.create" => true,
+                "agent.lead.store" => true,
+                "agent.lead.obtain" => true,
+                "agent.lead.opened" => true,
+                "agent.lead.open" => true,
+                "agent.lead.openAll" => true
+            )
+        ));
+        $partnerRole = Sentinel::getRoleRepository()->create(array(
+            'name' => 'Partner',
+            'slug' => 'partner',
+            'permissions' => array(
+                "agent.lead.deposited" => true,
+                "agent.lead.create" => true,
+                "agent.lead.store" => true,
+                "agent.lead.obtain" => false,
+                "agent.lead.opened" => false,
+                "agent.lead.open" => false,
+                "agent.lead.openAll" => false
+            )
+        ));
 
         // Assign Roles to Users
 
@@ -140,6 +213,16 @@ class SentinelDatabaseSeeder extends Seeder
         $agentRole->users()->attach($agent);
 
         $operatorRole->users()->attach($operator);
+
+        // set agents roles
+        $dealmakerRole->users()->attach($dealmaker);
+        $dealmakerRole->users()->attach($agent);
+
+        $leadbayerRole->users()->attach($leadbayer);
+        $leadbayerRole->users()->attach($agent);
+
+        $partnerRole->users()->attach($partner);
+        $partnerRole->users()->attach($agent);
 
     }
 

@@ -63,6 +63,10 @@ class AgentController extends AdminController
         $role = \Sentinel::findRoleBySlug('agent');
         $user->roles()->attach($role);
 
+        // устанавливаем дополнительную роль агенту (leadbayer or dealmaker or partner)
+        $role = Sentinel::findRoleBySlug($request->input('role'));
+        $user->roles()->attach($role);
+
         $user = Agent::find($user->id);
         $user->spheres()->sync($request->only('sphere'));
 

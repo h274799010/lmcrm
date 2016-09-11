@@ -68,6 +68,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $this->hasOne('\App\Models\Wallet','user_id','id');
     }
 
+
     /**
      * Выбор маски пользователя по id сферы
      *

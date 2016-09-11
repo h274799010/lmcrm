@@ -56,6 +56,12 @@ class Kernel extends HttpKernel
         'agent' => \App\Http\Middleware\SentinelAgentUser::class,
         'salesman' => \App\Http\Middleware\SentinelSalesmanUser::class,
         'agent|salesman' => \App\Http\Middleware\SentinelAgentOrSalesmanUser::class,
+
+        'dealmaker' => \App\Http\Middleware\SentinelDealmakerUser::class,
+        'leadbayer' => \App\Http\Middleware\SentinelLeadbayerUser::class,
+        'partner' => \App\Http\Middleware\SentinelPartnerUser::class,
+        'permissions' => \App\Http\Middleware\SentinelPermissions::class,
+
         'operator' => \App\Http\Middleware\SentinelOperatorUser::class,
         //'notCurrentUser' => \App\Http\Middleware\SentinelNotCurrentUser::class,
         'redirectAdmin' => \App\Http\Middleware\SentinelRedirectAdmin::class,

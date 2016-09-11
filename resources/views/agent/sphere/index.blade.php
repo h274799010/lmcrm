@@ -17,6 +17,7 @@
                         <th>{!! trans("main.status") !!}</th>
                         <th>{!! trans("main.updated_at") !!}</th>
                         <th>{!! trans("main.action") !!}</th>
+                        <th>{!! trans("main.active") !!}</th>
                         <th>{!! trans("main.dell") !!}</th>
 
                     </tr>
@@ -31,6 +32,12 @@
                                 @if(isset($mask->status) && $mask->status) <span class="label label-success">@lang('site/sphere.status_1')</span> @else <span class="label label-danger">@lang('site/sphere.status_0')</span> @endif</td>
                             <td>{!! $mask->updated_at !!}</td>
                             <td><a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                            <td>
+                                <div class="material-switch">
+                                    <input id="someSwitchOptionDanger_{{ $mask->id }}" name="" type="checkbox" checked="checked"/>
+                                    <label for="someSwitchOptionDanger_{{ $mask->id }}" class="label-success"></label>
+                                </div>
+                            </td>
                             <td><button sphere_id="{{ $sphere->id }}" mask_id="{{ $mask->id }}" type="button" class="btn btn-xs btn-danger remove_mask" > <i class="glyphicon glyphicon-remove"></i> </button></td>
                         </tr>
 
@@ -52,6 +59,40 @@
     @empty
     @endforelse
 
+
+    <div id="removeModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">
+                        Removing the mask
+                    </h4>
+                </div>
+
+                <div class="modal-body">
+
+                    Are you sure?
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button id="removeModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button id="removeModalChange" type="button" class="btn btn-danger">
+                        Remove mask
+                    </button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
 @stop
 
 
@@ -66,6 +107,57 @@
         .add_mask{
             margin-bottom: 20px;
         }
+
+        /*
+        * Стили переключателя
+        */
+        .material-switch > input[type="checkbox"] {
+            display: none;
+        }
+
+        .material-switch > label {
+            cursor: pointer;
+            height: 0px;
+            position: relative;
+            width: 40px;
+        }
+
+        .material-switch > label::before {
+            background: #d9534f;
+            box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            content: '';
+            height: 16px;
+            margin-top: -8px;
+            position:absolute;
+            opacity: 0.3;
+            transition: all 0.3s ease-in-out;
+            width: 40px;
+        }
+        .material-switch > label::after {
+            background: #d9534f;
+            border-radius: 16px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+            content: '';
+            height: 24px;
+            left: -4px;
+            margin-top: -8px;
+            position: absolute;
+            top: -4px;
+            transition: all 0.2s ease-in-out;
+            width: 24px;
+        }
+        .material-switch > input[type="checkbox"]:checked + label::before {
+            background: inherit;
+            opacity: 0.5;
+        }
+        .material-switch > input[type="checkbox"]:checked + label::after {
+            background: inherit;
+            left: 20px;
+        }
+        /*
+        * END Стили переключателя
+        */
 
     </style>
 @stop
@@ -87,35 +179,56 @@
             // получение токена
             var token = $('meta[name=csrf-token]').attr('content');
 
-            // отправка поста на удаление маски
-            $.post( '{{ route('agent.remove.mask') }}', { _token: token, sphere_id: sphere_id, mask_id: mask_id }, function( data ){
+            // событие на клик, по кнопке "Remove mask" (удалить маску)
+            $('#removeModalChange').bind('click', function () {
 
-                //
-                if( data == 'deleted' ){
-                    $('tr[mask_id='+ mask_id +']').remove();
+                // спрятать модальное окно
+                $('#removeModal').modal('hide');
 
-                    var table = $('table[sphereId='+ sphere_id +']');
+                // отправка поста на удаление маски
+                $.post( '{{ route('agent.remove.mask') }}', { _token: token, sphere_id: sphere_id, mask_id: mask_id }, function( data ){
 
-                    var all_tr = table.find('tr');
+                    //
+                    if( data == 'deleted' ){
+                        $('tr[mask_id='+ mask_id +']').remove();
 
-                    if( all_tr.length==2 ){
+                        var table = $('table[sphereId='+ sphere_id +']');
 
-                        table.find('.noMaskRow').removeClass('hidden');
+                        var all_tr = table.find('tr');
 
+                        if( all_tr.length==2 ){
+
+                            table.find('.noMaskRow').removeClass('hidden');
+
+                        }
+
+                    }else if( data == 'notDeleted' ){
+
+                        // todo уточнить что тут написать
+                        alert('Сan not remove, the error on the server');
+
+                    }else{
+
+                        // todo уточнить что тут написать
+                        alert('A server error');
                     }
 
-                }else if( data == 'notDeleted' ){
+                    // отключить событие по клику
+                    $('#removeModalChange').unbind('click');
 
-                    // todo уточнить что тут написать
-                    alert('Сan not remove, the error on the server');
-
-                }else{
-
-                    // todo уточнить что тут написать
-                    alert('A server error');
-                }
+                });
 
             });
+
+            $('#removeModalCancel').bind('click', function () {
+                sphere_id = mask_id = token = null;
+
+                // отключить событие по клику
+                $('#removeModalChange').unbind('click');
+            });
+
+            // появление модального окна
+            $('#removeModal').modal();
 
         })
 

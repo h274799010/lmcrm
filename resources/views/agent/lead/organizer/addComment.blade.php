@@ -1,12 +1,12 @@
 @extends('layouts.master')
 {{-- Content --}}
 @section('content')
-    <h3>Add comment</h3>
+    <h3>{!! trans("site/lead.opened.modal.comment.add.title") !!}</h3>
     {!! Form::open(array('route' => ['agent.lead.putReminder'], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) !!}
     <input type="hidden" name="lead_id" value="{{$lead_id}}">
     <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
         <div class="col-xs-12">
-            Text:
+            {!! trans("site/lead.opened.modal.comment.body") !!}
             {!! Form::textarea('comment', null, array('class' => 'form-control','placeholder'=>trans('lead/form.comments'))) !!}
             <span class="help-block">{{ $errors->first('comment', ':message') }}</span>
         </div>

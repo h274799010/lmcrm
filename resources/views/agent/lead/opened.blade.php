@@ -9,14 +9,13 @@
                         <table class="table table-bordered table-striped table-hover openLeadsTable">
                             <thead>
                                 <tr>
-                                    {{-- todo {!! trans("site/lead.opened.icon") !!} --}}
-                                    <th>icon </th>
-                                    <th>status </th>
-                                    <th>date </th>
-                                    <th>name </th>
-                                    <th>phone </th>
-                                    <th>email </th>
-                                    <th>mask name </th>
+                                    <th>{!! trans("site/lead.opened.icon") !!}</th>
+                                    <th>{!! trans('site/lead.opened.status') !!}</th>
+                                    <th>{!! trans('site/lead.opened.date') !!}</th>
+                                    <th>{!! trans('site/lead.opened.name') !!}</th>
+                                    <th>{!! trans('site/lead.opened.phone') !!}</th>
+                                    <th>{!! trans('site/lead.opened.email') !!}</th>
+                                    <th>{!! trans('site/lead.opened.maskname') !!}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -25,7 +24,27 @@
                                 <tr lead_id="{{ $data->id }}">
                                     <td><div></div></td>
                                     <td class="select_cell">
-                                        {{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}
+                                        {{-- Если лид был отмечен как плохой --}}
+                                        @if($data->openLeadStatus->bad == true)
+                                            bad lead
+                                        {{-- впротивном случае вывод select со статусами --}}
+                                        @elseif($data->closing_deal == true)
+                                            {!! trans('site/lead.deal_closed') !!}
+                                        @else
+                                            <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
+                                                @if($data->openLeadStatus->status == 0)
+                                                    <option selected="selected" class="emptyOption"></option>
+                                                @endif
+                                                @if(time() < strtotime($data->openLeadStatus->pending_time))
+                                                    <option value="bad" class="badOption">bad lead</option>
+                                                @endif
+                                                @foreach($data->sphereStatuses->statuses as $status)
+                                                    <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                                @endforeach
+                                                    <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
+                                            </select>
+                                        @endif
+                                        {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
                                     </td>
                                     <td><div>{{ $data->date }}</div></td>
                                     <td><div>{{ $data->name }}</div></td>
@@ -34,7 +53,7 @@
                                     <td><div> Имя маски </div></td>
                                     <td class="edit">
                                         <div>
-                                            <a href="{{ route('agent.lead.showOpenedLead',$data->id) }}">
+                                            <a href="#">
                                                 <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
                                             </a>
                                         </div>
@@ -52,14 +71,14 @@
 
                             <tr class="organizer_tr">
                                 <td id="organizer_title" colspan="2" rowspan="1" >
-                                    Organizer
+                                    {!! trans("site/lead.opened.organizer.title") !!}
                                 </td>
                                 <td class="organizer_time_title">
-                                    Time
+                                    {!! trans("site/lead.opened.organizer.time") !!}
                                 </td>
                                 <td class="organizer_comments_title">
                                     <div>
-                                        Comments
+                                        {!! trans("site/lead.opened.organizer.comments") !!}
                                     </div>
                                     <span class="dropdown">
                                         <a class="dropdown-toggle" aria-expanded="true" role="button" data-toggle="dropdown" href="#">
@@ -67,8 +86,8 @@
                                         </a>
 
                                         <ul class="dropdown-menu myDropDown" role="menu">
-                                            <li> <a id="commentHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3"> Comments </a> </li>
-                                            <li> <a id="reminderHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3"> Reminder </a> </li>
+                                            <li> <a id="commentHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3">{!! trans("site/lead.opened.organizer.button.comment") !!}</a> </li>
+                                            <li> <a id="reminderHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3">{!! trans("site/lead.opened.organizer.button.reminder") !!}</a> </li>
                                         </ul>
 
                                     </span>
@@ -89,28 +108,24 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="exampleModalLabel">
-                    {{-- todo {!! trans("site/lead.opened.modal.head") !!} --}}
-                    Change status
+                     {!! trans("site/lead.opened.modal.head") !!}
                 </h4>
             </div>
 
             <div class="modal-body">
 
-                {{-- todo {!! trans("site/lead.opened.modal.body") !!} --}}
-                Are you sure?
+                {!! trans("site/lead.opened.modal.body") !!}
 
             </div>
 
             <div class="modal-footer">
 
                 <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                    {{-- todo {!! trans("site/lead.opened.modal.button.Cancel") !!} --}}
-                    Cancel
+                    {!! trans("site/lead.opened.modal.button.Cancel") !!}
                 </button>
 
                 <button id="statusModalChange" type="button" class="btn btn-danger">
-                    {{-- todo {!! trans("site/lead.opened.modal.button.OK") !!} --}}
-                    Change status
+                    {!! trans("site/lead.opened.modal.button.OK") !!}
                 </button>
             </div>
 
@@ -131,6 +146,8 @@
         table.table.openLeadsTable > tbody > tr > td.select_cell{
             padding: 0 !important;
             margin: 0;
+            vertical-align: middle;
+            text-align: center;
         }
 
 
@@ -371,7 +388,7 @@
                 var token = $('meta[name=csrf-token]').attr('content');
 
                 // получаем поднобные данные о лиде с сервера
-                $.post('{{ route('agent.openedLeadsAjax')  }}', { 'id': id, '_token': token }, function( data ){
+                $.post('{{ route('agent.lead.openedAjax')  }}', { 'id': id, '_token': token }, function( data ){
 
                     // парсим ответ в json
                     var tableData = $.parseJSON(data);
@@ -441,6 +458,7 @@
 
             // добавляем id органайзера к строке таблицы
             $(tr).attr( 'organizer_id', organizerId );
+            $(tr).addClass('organizedRow');
 
 
             // кнопка удаления  итема
@@ -449,7 +467,7 @@
             // оформление кнопки удаления итема
             dellItem.attr( 'type', 'button');
             dellItem.attr( 'class', 'btn btn-danger btn-xs');
-            dellItem.css( 'float', 'right' );
+            dellItem.css( 'float', 'left' );
             dellItem.css( 'margin-top', '5px' );
             dellItem.css( 'margin-left', '30px' );
 
@@ -473,6 +491,40 @@
             });
 
 
+            // кнопка редактирования итема
+            var editItem = $('<a />');
+
+            // оформление кнопки редактирования итема
+            editItem.attr( 'type', 'button');
+            editItem.attr( 'class', 'btn btn-primary btn-xs dialog');
+            editItem.css( 'float', 'left' );
+            editItem.css( 'margin-top', '5px' );
+            editItem.css( 'margin-left', '4px' );
+
+            editItem.css( 'display', 'block' );
+            editItem.text('edit');
+            editItem.attr('href', '{{ route('agent.lead.editOrganizer', '') }}' + '/' + organizerId);
+
+
+            // кнопка завершения
+            var doneItem = $('<button />');
+
+            // оформление кнопки завершения
+            doneItem.attr( 'type', 'button');
+            doneItem.attr( 'class', 'btn btn-success btn-xs');
+            doneItem.css( 'float', 'left' );
+            doneItem.css( 'margin-top', '5px' );
+            doneItem.css( 'margin-left', '4px' );
+
+            doneItem.css( 'display', 'block' );
+            doneItem.text('done');
+
+            // событие на нажатие кнопки
+            $(doneItem).bind('click', function(){
+
+            });
+
+
             td1.text( time );
             td2.text( comment );
 
@@ -480,7 +532,13 @@
                 td1.append(bell);
             }
 
-            td2.append(dellItem);
+            td2.append('<div class="button-wrap" style="display: none;"></div>');
+            td2.find('.button-wrap').append(dellItem);
+            td2.find('.button-wrap').append(editItem);
+
+            if( type == 2 ) {
+                td2.find('.button-wrap').append(doneItem);
+            }
 
             var rowspan = $('#organizer_title').attr( 'rowspan' );
 
@@ -489,9 +547,121 @@
             tr.append(td1);
             tr.append(td2);
 
-            $('#info_table').append(tr);
+            $('#info_table .organizer_tr').after(tr);
 
         }
+
+        // обновление строки органайзера
+        function updateOrganizerRow( organizerId, time, comment, type ){
+
+            // иконка колокольчика
+            var bell = $('<i />');
+            $(bell).attr( 'class', 'glyphicon glyphicon-bell bell_icon');
+
+            // строка органайзера с данными
+            var tr = $('tr[organizer_id='+organizerId+']');
+            tr.empty();
+
+            // столбцы таблицы
+            var td1 = $('<td />');
+            var td2 = $('<td />');
+
+            // добавляем класс к ячейке органайзера
+            td1.addClass('organizerTime');
+
+
+
+            // кнопка удаления  итема
+            var dellItem = $('<button />');
+
+            // оформление кнопки удаления итема
+            dellItem.attr( 'type', 'button');
+            dellItem.attr( 'class', 'btn btn-danger btn-xs');
+            dellItem.css( 'float', 'left' );
+            dellItem.css( 'margin-top', '5px' );
+
+            dellItem.css( 'display', 'block' );
+            dellItem.text('dell');
+
+            // событие на нажатие кнопки
+            $(dellItem).bind('click', function(){
+
+                // путь к странице удаления итема
+                var deleteReminder = '{{ route('agent.lead.deleteReminder', '') }}' + '/' + organizerId;
+
+                // запрос на удаление
+                $.get( deleteReminder, function( data ){
+
+                    // при успешном запросе, строка удаляется из таблицы, на странце
+                    if( data == true ){
+                        tr.remove();
+                    }
+                });
+            });
+
+
+            // кнопка редактирования итема
+            var editItem = $('<a />');
+
+            // оформление кнопки редактирования итема
+            editItem.attr( 'type', 'button');
+            editItem.attr( 'class', 'btn btn-primary btn-xs dialog');
+            editItem.css( 'float', 'left' );
+            editItem.css( 'margin-top', '5px' );
+            editItem.css( 'margin-left', '4px' );
+
+            editItem.css( 'display', 'block' );
+            editItem.text('edit');
+            editItem.attr('href', '{{ route('agent.lead.editOrganizer', '') }}' + '/' + organizerId);
+
+            // кнопка завершения
+            var doneItem = $('<button />');
+
+            // оформление кнопки завершения
+            doneItem.attr( 'type', 'button');
+            doneItem.attr( 'class', 'btn btn-success btn-xs');
+            doneItem.css( 'float', 'left' );
+            doneItem.css( 'margin-top', '5px' );
+            doneItem.css( 'margin-left', '4px' );
+
+            doneItem.css( 'display', 'block' );
+            doneItem.text('done');
+
+            // событие на нажатие кнопки
+            $(doneItem).bind('click', function(){
+
+            });
+
+            td1.text( time );
+            td2.text( comment );
+
+            if( type == 2){
+                td1.append(bell);
+            }
+
+            td2.append('<div class="button-wrap" style="display: none;"></div>');
+            td2.find('.button-wrap').append(dellItem);
+            td2.find('.button-wrap').append(editItem);
+
+            if( type == 2 ) {
+                td2.find('.button-wrap').append(doneItem);
+            }
+
+            tr.append(td1);
+            tr.append(td2);
+
+        }
+
+        /*
+        * Собитие наведения на строку органайзера
+        */
+        var organizedRow = '#info_table .organizedRow';
+        $(document).on('mouseover', organizedRow,function () {
+            $(this).find('.button-wrap').show();
+        });
+        $(document).on('mouseout', organizedRow, function () {
+            $(this).find('.button-wrap').hide();
+        });
 
 
 
@@ -594,18 +764,13 @@
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
 
+                // получение selectboxit
+                var selectBox = $(this).find('select').data("selectBox-selectBoxIt");
+
                 var self = $(this);
 
-                // событие на нажатие кнопки Cancel на модальном окне
-                $( '#statusModalCancel').bind( 'click', function(){
 
-                    // todo вернуть начальную опцию
-                });
-
-
-
-
-                // событие на клик, по кнопке "Chenge status" (изменение статуса)
+                // событие на клик, по кнопке "Change status" (изменение статуса)
                 $( '#statusModalChange' ).bind( 'click', function(){
 
                     // спрятать модальное окно
@@ -618,11 +783,23 @@
                         // если статус изменен нормально
                         if( data == 'statusChanged'){
 
+
+                            // удаление пустого поля
+                            var emptyOption = self.find('option.emptyOption');
+                            // если путое поле найдено
+                            if(emptyOption.length > 0) {
+                                // удаляем его
+                                emptyOption.remove();
+
+                                // обновляем select
+                                selectBox.refresh();
+                            }
+
                             // делаем статусы неактивными до выбранного
                             $.each( self.find('li'), function( k, li ){
-
+                                console.log(li);
                                 // если доходим до активного класса - останавливаемся
-                                if( $(li).hasClass( 'selectboxit-focus' ) ){
+                                if( $(li).hasClass( 'selectboxit-focus' ) || ($(li).hasClass('selectboxit-selected') && emptyOption.length > 0) ){
                                     return false;
 
                                     // если опция находится до активного класса - делаем ее недоступной
@@ -631,18 +808,76 @@
                                 }
                             });
 
+                        // если лид отмечен как плохой, убираем select
+                        } else if(data == 'setBadStatus') {
+                            self.closest('td').html('bad lead');
+                        } else if(data == 'pendingTimeExpire') {
+                            // Если время pending_time истекло - выводим сообщение об ошибке
+                            bootbox.dialog({
+                                message: '{!! trans('site/lead.opened.pending_time_expired') !!}',
+                                show: true
+                            });
+
+                            // и удаляем статус bad_lead из списка
+                            var badOption = self.find('option.badOption');
+                            // если путое поле найдено
+                            if(badOption.length > 0) {
+                                // удаляем его
+                                badOption.remove();
+
+                                // обновляем select
+                                selectBox.refresh();
+                            }
+                        } else if(data == 'setClosingDealStatus') {
+                            self.closest('td').html('{!! trans('site/lead.deal_closed') !!}');
                         }else{
 
                             // todo вывести какое то сообщение об ошибке на сервере
                             alert( 'ошибки на сервере' );
                         }
 
+                        // сбрасываем значения переменных к NULL
+                        // чтоб не подхватились другим селектом
+                        selectData = lead_id = token = selectBox = self = null;
+
+                        // отключаем события клика по кнопкам отмены и сабмита
+                        $('#statusModalChange').unbind('click');
+                        $('#statusModalCancel').unbind('click');
+
                     });
 
 
                 });
 
+                // событие на нажатие кнопки Cancel на модальном окне
+                $( '#statusModalCancel').bind( 'click', function(){
 
+                    // выбераем первый активный статус
+                    $.each( self.find('li'), function (k, li) {
+
+                        // если обьект selectboxit не равен NULL
+                        if( selectBox != null ) {
+
+                            // если текущий элемент активный - выбираем его и останавливаемся
+                            if( !$(li).hasClass('disabled') && $(li).attr('data-disabled') == 'false' ) {
+                                selectBox.selectOption(k);
+                                selectBox = null;
+                                return false;
+                            }
+
+                        }
+
+                    });
+
+                    // сбрасываем значения переменных к NULL
+                    // чтоб не подхватились другим селектом
+                    selectData = lead_id = token = selectBox = self = null;
+
+                    // отключаем события клика по кнопкам отмены и сабмита
+                    $('#statusModalChange').unbind('click');
+                    $('#statusModalCancel').unbind('click');
+
+                });
 
                 // появление модального окна
                 $('#statusModal').modal();
