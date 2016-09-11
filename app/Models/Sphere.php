@@ -103,7 +103,7 @@ class Sphere extends Model
         $time = explode( ':', $intervalArray[1] );
 
         // Преобразование полученных данных в интервал для объекта DateInterval
-        $intervalString = 'P' .$data[0] .'M' .$data[1] .'DT' .$time[0] .'H' .$time[1] .'M' .$time[2] .'S';
+        $intervalString = 'P' .$data[0] .'M' .$data[1] .'DT' .$time[0] .'H' .$time[1] .'M';
 
         // вычисление интервала
         $interval = new \DateInterval( $intervalString );

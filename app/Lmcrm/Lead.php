@@ -24,7 +24,6 @@ class Lead extends Model
 
         $lead = new LeadModel();
         $lead->customer_id = $customer->id;
-        $lead->date = date('Y-m-d');
         $lead->sphere_id = $agent->sphere()->id;
         $lead->status = 2;
         $lead->name = $name;

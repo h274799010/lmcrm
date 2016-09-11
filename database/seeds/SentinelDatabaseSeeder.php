@@ -211,18 +211,20 @@ class SentinelDatabaseSeeder extends Seeder
         $administratorRole->users()->attach($admin);
 
         $agentRole->users()->attach($agent);
+        $partnerRole->users()->attach($agent);
+
 
         $operatorRole->users()->attach($operator);
 
         // set agents roles
         $dealmakerRole->users()->attach($dealmaker);
-        $dealmakerRole->users()->attach($agent);
+        $agentRole->users()->attach($dealmaker);
 
         $leadbayerRole->users()->attach($leadbayer);
-        $leadbayerRole->users()->attach($agent);
+        $agentRole->users()->attach($leadbayer);
 
         $partnerRole->users()->attach($partner);
-        $partnerRole->users()->attach($agent);
+        $agentRole->users()->attach($partner);
 
     }
 

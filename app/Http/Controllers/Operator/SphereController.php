@@ -134,13 +134,13 @@ class SphereController extends Controller {
         $lead->name=$request->input('name');
         $lead->email=$request->input('email');
         $lead->comment=$request->input('comment');
-        $lead->status = 4;
+        $lead->status = $request->input('bad') ? 1 : 4;
 
         $lead->operator_processing_time = date("Y-m-d H:i:s");
         $lead->expiry_time = $lead->expiredTime();
 
 
-        $lead->bad= $request->input('bad') ? $request->input('bad') : 0;
+//        $lead->status= $request->input('bad') ? $request->input('bad') : 0;
         $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
         $lead->customer_id=$customer->id;
         $lead->save();

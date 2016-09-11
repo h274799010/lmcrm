@@ -250,7 +250,7 @@
                                 <td style=" color:green; " > {{ $received  }} </td>
                                 <td> {{ $agentPayment  }} </td>
                                 <td> {{ $systemPayment }} </td>
-                                <td> {{ $lead['expiry_time'] }} </td>
+                                <td> @if( $lead['finished'] == 1) Завершен @elseif( $lead['expired'] == 1 ) Время вышло @else {{ $lead['expiry_time'] }} @endif</td>
                                 <td> {{ $lead->statusName->name }} </td>
                                 <td>
 

@@ -52,6 +52,9 @@ class LeadController extends AgentController {
      */
     public function obtain(){
 
+        PayMaster::finishLead(19);
+
+
         // данные агента
         $agent = $this->user;
 
@@ -147,7 +150,6 @@ class LeadController extends AgentController {
                 $leadsByFilter = Lead::whereIn('id', $list)
                     ->where('status', '=', 4)
                     ->where('agent_id', '<>', $agent->id)
-                    ->where('closing_deal', '=', 0)
                     ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
                     ->get();
 
@@ -843,7 +845,7 @@ class LeadController extends AgentController {
 
         $lead = new Lead($request->except('phone'));
         $lead->customer_id=$customer->id;
-        $lead->date=date('Y-m-d');
+//        $lead->date=date('Y-m-d');
         $lead->sphere_id = $agent->sphere()->id;
         $lead->status = 2;
 

@@ -28,7 +28,7 @@ class Lead extends EloquentUser {
      * @var array
      */
     protected $fillable = [
-        'agent_id','sphere_id','name', 'customer_id', 'comment', 'date', 'bad'
+        'agent_id','sphere_id','name', 'customer_id', 'comment', 'bad'
     ];
 
     /**
@@ -323,7 +323,11 @@ class Lead extends EloquentUser {
      */
     public function scopeExpired( $query )
     {
-        return $query->where( 'expiry_time', '<', date("Y-m-d H:i:s") );
+        return $query
+            ->where( 'status', '<>', 2)
+            ->where( 'expired', '=', 0)
+            ->where( 'finished', '=', 0)
+            ->where( 'expiry_time', '<', date("Y-m-d H:i:s") );
     }
 
 

@@ -50,6 +50,8 @@ class DashboardController extends AdminController {
     {
         $leadsInfo = PayMaster::leadInfo( $lead_id );
 
+//        dd($leadsInfo);
+
         return view('admin.system.lead', [ 'leadsInfo'=>$leadsInfo ] );
     }
 

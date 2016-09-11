@@ -40,7 +40,7 @@ class checkLeadExpiration extends Command
     public function handle()
     {
 
-//        $this->info( PayMaster::finishLead( Lead::first() ) );
+//        $this->info( PayMaster::finishLead( 4 ) );
 //
 //        return true;
 
@@ -59,14 +59,14 @@ class checkLeadExpiration extends Command
 
 //                dd( PayMaster::systemInfo() );
 
-            $this->info('Завершен ' .$lead->id. ' ' .$lead->name );
+            $this->info('Просрочен лид с id ' .$lead->id. ' - ' .$lead->name );
 
 
         });
 
         // todo сделать это на логах или на БД (пока что на логах)
         // если завершенных лидов нет, сообщаем об этом
-        if( !$expiredLeads ) $this->info('Просроченных лидов нет');
+        if( $expiredLeads->count() == 0 ) $this->info('Просроченных лидов нет');
 
         return true;
     }

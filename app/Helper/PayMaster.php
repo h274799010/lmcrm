@@ -961,7 +961,7 @@ class PayMaster extends Model
 
         // обработка расчета по лиду в зависимости от типа лида (хороший/плохой)
 
-        if( $lead['bad'] == 1 ){
+        if( $lead['status'] == 1 ){
             // если лид bad
             // возвращаем деньги всем агентам которые за него заплатили
             // и заносим сумму за обработку лида на счет 'wasted' автора лида
@@ -1003,7 +1003,7 @@ class PayMaster extends Model
                     $agent = self::payment(
                     [
                         'transaction' => $transaction->id,
-                        'user_id' => $buyer['id'],
+                        'user_id' => $buyer['user_id'],
                         'wallet_type' => 'earned',
                         'type' => 'repaymentForLead',
                         'amount' => $amount,
@@ -1016,7 +1016,7 @@ class PayMaster extends Model
                     [
                         'transaction' => $transaction->id,
                         'number' => 1,
-                        'lead_id' => $buyer['lead']['id']
+                        'lead_id' => $buyer['lead']['lead_id']
                     ]);
                 }
 
@@ -1054,7 +1054,7 @@ class PayMaster extends Model
                 $leadDepositor = self::payment(
                 [
                     'transaction' => $transaction->id,
-                    'user_id' => $lead['user_id'],
+                    'user_id' => $lead['agent_id'],
                     'wallet_type' => 'wasted',
                     'type' => 'operatorRepayment',
                     'amount' => $amount,
@@ -1088,7 +1088,7 @@ class PayMaster extends Model
             return $operationDetails;
 
 
-        }elseif( $lead['bad'] == 0 ){
+        }else{
             // если лид хороший
 
             // доход по лиду, суммы всех покупок лида
@@ -1113,7 +1113,7 @@ class PayMaster extends Model
                     $leadDepositor = self::payment(
                     [
                         'transaction' => $transaction->id,
-                        'user_id' => $lead['user_id'],
+                        'user_id' => $lead['agent_id'],
                         'wallet_type' => 'wasted',
                         'type' => 'operatorRepayment',
                         'amount' => $amount,
@@ -1152,7 +1152,6 @@ class PayMaster extends Model
                 // находим сумму вознаграждения автора
                 $amount = self::agentProfit( $lead['id'] );
 
-                // todo вычитаем эту сумму с системы и прибавляем автору
 
                 // todo проверить и доработать
 
@@ -1175,13 +1174,12 @@ class PayMaster extends Model
                         'amount' => $amount * (-1),
                     ]);
                 }
-
                 // заносим деньги агенту (если деньги с системного кошелька снялись нормально)
                 if( $system ) {
                     $agent = self::payment(
                     [
                         'transaction' => $transaction->id,
-                        'user_id' => $lead['user_id'],
+                        'user_id' => $lead['agent_id'],
                         'wallet_type' => 'earned',
                         'type' => 'rewardForLead',
                         'amount' => $amount,
@@ -1217,7 +1215,6 @@ class PayMaster extends Model
 
         }
 
-        return true;
     }
 
 

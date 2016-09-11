@@ -3,7 +3,7 @@
 @section('main')
     <div class="page-header">
         <h3>
-            Таблица с подробностями по лиду
+            Таблица с подробностями по лиду (id {{ $leadsInfo[0]['lead_id'] }})
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
                     <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
