@@ -34,7 +34,6 @@
 
 <!-- Scripts -->
 @yield('scripts')
-@include('partials.scripts')
 
 </body>
 </html>

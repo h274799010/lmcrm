@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Http\Requests\AdminUsersEditFormRequest;
 //use App\Repositories\UserRepositoryInterface;
 use Datatables;
+
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
 class UserController extends AdminController
@@ -56,7 +58,7 @@ class UserController extends AdminController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param $user
+     * @param $id
      * @return Response
      */
     public function edit($id)

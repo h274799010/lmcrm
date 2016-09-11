@@ -16,7 +16,7 @@
         </div>
         </h3>
     </div>
-    <div class="container" id="content">
+    <div id="content">
         <div class="wizard">
             <ul class="flexbox flex-justify">
                 <li class="flex-item step"><a href="#tab1" data-toggle="tab" class="btn btn-circle">1</a></li>

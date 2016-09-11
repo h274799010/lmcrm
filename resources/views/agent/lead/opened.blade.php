@@ -438,6 +438,7 @@
             }
         }
 
+
         // добавление строки органайзера
         function addOrganizerRow( organizerId, time, comment, type ){
 
@@ -767,6 +768,8 @@
 
                 var self = $(this);
 
+                // событие на нажатие кнопки Cancel на модальном окне
+                $( '#statusModalCancel').bind( 'click', function(){
 
                 // событие на клик, по кнопке "Change status" (изменение статуса)
                 $( '#statusModalChange' ).bind( 'click', function(){

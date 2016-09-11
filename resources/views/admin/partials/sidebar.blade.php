@@ -21,6 +21,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('admin.system') }}">
+                    <i class="glyphicon glyphicon-flash"></i> System
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('admin.user.index') }}">
                     <i class="glyphicon glyphicon-user"></i> Users
                     <span class="fa arrow"></span>

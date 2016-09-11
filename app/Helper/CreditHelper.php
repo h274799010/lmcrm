@@ -1,10 +1,14 @@
 <?php
 
-namespace App;
+namespace App\Helper;
 
 use App\Models\CreditHistory;
 use App\Models\LeadTransactionInfo;
-use App\Models\ManualTransactions;
+//use App\Models\ManualTransactions;
+
+use App\Models\ManualBalanceTransactionInfo;
+
+
 use Illuminate\Database\Eloquent\Model;
 use App\Models\CreditTypes;
 use App\Models\Credits;
@@ -84,15 +88,29 @@ class CreditHelper extends Model
         $credits->save();
     }
 
-    public static function manual($credits,$request,$id){
-        $manualTransaction = ManualTransactions::create(['initiator_id'=>Sentinel::getUser()->id]);
+    public static function manual($credits, $request, $id){
+        $manualTransaction = ManualBalanceTransactionInfo::create(['initiator_id'=>Sentinel::getUser()->id]);
+
         if (!$credits)
             $credits = new Credits();
+
+
+
         $credits->buyed = $request->buyed;
         $credits->earned = $request->earned;
         $credits->agent_id = $id;
-        $credits->source = CreditTypes::MANUAL_CHANGE;
+
+//        $credits->source = CreditTypes::MANUAL_CHANGE;
         $credits->transaction_id = $manualTransaction->id;
+//
+//        dd($credits);
+
         $credits->save();
+
+//        dd($credits);
+
+        $credits->setUp( CreditTypes::MANUAL_CHANGE );
+
+
     }
 }

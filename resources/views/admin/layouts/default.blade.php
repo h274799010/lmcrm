@@ -37,14 +37,25 @@
 <body>
 <div id="wrapper">
     @include('admin.partials.nav')
-        <div class="col-xs-2 sidebar-wrapper">
-            @include('admin.partials.sidebar')
-        </div>
-        <div class="col-xs-10" >
-            <div id="page-wrapper">
-            @yield('main')
+
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class="col-xs-2 sidebar-wrapper">
+                @include('admin.partials.sidebar')
             </div>
+            <div class="col-xs-10 main_content">
+
+                <div id="page-wrapper">
+                    @yield('main')
+                </div>
+
+            </div>
+
         </div>
+
+    </div>
 </div>
 
 <script type="text/javascript">

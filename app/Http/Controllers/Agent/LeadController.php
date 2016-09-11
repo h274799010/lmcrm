@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Helper\PayMaster;
 use App\Http\Controllers\AgentController;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
+use Illuminate\Http\Response;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
-use App\Models\Credits;
-use App\Models\CreditTypes;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\Sphere;
@@ -87,7 +87,10 @@ class LeadController extends AgentController {
         $mask = new AgentBitmask( $sphere->id, $agent->id );
 
         // выбираем все актинвные маски
-        $agentMasks = $mask->where( 'status', '=', 1 )->get();
+        $agentMasks = $mask->where( 'status', '=', 1 )->where( 'user_id', '=', $agent->id )->get();
+
+        // todo проверить вывод маски
+//        dd($agentMasks);
 
         // атрибуты лида
         $lead_attr = $sphere->leadAttr;
@@ -151,6 +154,9 @@ class LeadController extends AgentController {
                 // перебираем все полученные лиды, добавляем имя маски и заносим данные в массив лидов
                 $leadsByFilter->each(function( $lead ) use( $leads, $agentMask ) {
 
+                    // todo добавление id маски в данные лида
+                    $lead->mask_id = $agentMask->id;
+
                     // добавление имени маски в данные лида
                     $lead->mask = $agentMask->name;
 
@@ -202,6 +208,7 @@ class LeadController extends AgentController {
             ->add_column('mask',function($model){
                 return $model->mask;
             }, 3)
+            ->remove_column('mask_id')
             ->edit_column('customer_id',function($lead) use ($agent){
                 return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
             })
@@ -642,82 +649,50 @@ class LeadController extends AgentController {
 
 
 
+    /**
+     * Открытие лида
+     *
+     *
+     * @param integer $lead_id
+     * @param integer $mask_id
+     *
+     * @return Response
+     */
+    public function openLead( $lead_id, $mask_id ){
 
-    public function openLead($id){
-        $credit = $this->user->bill;
-        //$balance = $credit->balance;
+        // платеж по открытию лида
+        $operation =
+        PayMaster::openLead(
+            $this->user->id, // id агента который открывает лид
+            $lead_id,        // id лида
+            $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
+        );
 
-        $mask=$this->mask;
-        $price = $mask->getStatus()->sharedLock()->first()->lead_price;
 
-        /*if($price > $balance) {
-            return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
-        }*/
+        // обработка результата занесения платежа
+        if( $operation == false ) {
 
-        $lead = Lead::lockForUpdate()->find($id);//lockForUpdate лочит только выбранные строки
-        if($lead->sphere->openLead > $lead->opened) {
-            //$lead->opened+=1;
-            //$credit->history()->save(new CreditHistory());
+            return response()->json( [ trans('lead/lead.openlead.error') ] );
 
-            $updateCount = Lead::where('id',$lead->id)->where('opened','<',$lead->sphere->openLead)->increment('opened');
-            if($updateCount){
-                /**
-                 * Высчитываем pending_time
-                 */
-                switch ($lead->sphere->pending_type) {
-                    case 0:
-                        $pending_factor = 60;
-                        break;
-                    case 1:
-                        $pending_factor = 60 * 60;
-                        break;
-                    case 2:
-                        $pending_factor = 60 * 60 * 24;
-                        break;
-                    default:
-                        $pending_factor = 60 * 60;
-                        break;
-                }
-                $pending_time = $lead->sphere->pending_time * $pending_factor;
+        }elseif( $operation == 'low balance' ) {
 
-                $ol = OpenLeads::lockForUpdate()->where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
-                if (!$ol){
-                    $ol = new OpenLeads();
-                    $ol->lead_id = $id;
-                    $ol->agent_id = $this->uid;
-                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$pending_time);
-                    $ol->save();
-                }
-                else
-                {
-                    $ol->pending_time = Date('Y-m-d H:i:s',time()+$pending_time);
-                    $ol->increment('count');
-                    $ol->save();
+            return response()->json( [ trans('lead/lead.openlead.low_balance') ] );
 
-                }
-                //CreditHelper::leadPurchase($credit,$price,1,$lead,$this);
+        }elseif( $operation == 'the maximum number of open' ) {
 
-                return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
-            }
-            else{
-                return json_encode(['msg'=>trans('lead/lead.obtainError')]);
-            }
+            return response()->json( [ trans('lead/lead.openlead.maximum_number') ] );
+
+        }else {
+
+            return response()->json( [ trans('lead/lead.openlead.successfully_opened') ] );
         }
-        else
-        {
-            return json_encode(
-                [
-                    'msg'=>trans(
-                        'lead/lead.limitExceeded',
-                        [
-                            'opened' => $lead->opened,
-                            'openLead' => $lead->sphere->openLead
-                        ]
-                    )
-                ]
-            );
-        }
+
     }
+
+
+
+
+
 
     public function openAllLeads($id){
         $credit = $this->user->bill;
@@ -785,8 +760,51 @@ class LeadController extends AgentController {
         else{
             return json_encode(['msg'=>trans('lead/lead.obtainError')]);
         }
-        //$credit->history()->save(new CreditHistory());
     }
+
+
+
+    /**
+     * Закрытие сделки по лиду
+     *
+     * todo доработать
+     * пока непонятно сколько стоит закрытие сделки
+     * когда станет понятно - добавить
+     *
+     *
+     * @param  integer  $lead_id
+     * @param  integer  $mask_id
+     *
+     * @return Response
+     */
+    public function closingDeal( $lead_id, $mask_id )
+    {
+
+        // платеж по закрытие сделки по лиду
+        $operation =
+        PayMaster::closingDeal(
+            $this->user->id, // id агента который закрывает сделку
+            $lead_id,        // id лида
+            $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
+        );
+
+
+        // обработка результата занесения платежа
+        if( $operation == false ) {
+
+            return response()->json( [ trans('lead/lead.closingDeal.error') ] );
+
+        }elseif( $operation == 'low balance' ) {
+
+            return response()->json( [ trans('lead/lead.closingDeal.low_balance') ] );
+
+        }else {
+
+            return response()->json( [ trans('lead/lead.closingDeal.the_deal_is_closed') ] );
+        }
+    }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -804,7 +822,7 @@ class LeadController extends AgentController {
      *
      * @return Response
      */
-    public function store(Request $request)
+    public function store( Request $request )
     {
         $validator = Validator::make($request->all(), [
             'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
@@ -1095,11 +1113,10 @@ class LeadController extends AgentController {
 
         if($request->ajax()){
 
-            return 'OrganizerItemsaved,' .$organizer->id;
+            return response()->json( ['OrganizerItemsaved', $organizer->id] );
+
         } else {
             return 'true';
-
-//            return redirect()->route('agent.lead.showOpenedLead',$request->input('open_lead_id'));
         }
 
     }
@@ -1137,7 +1154,7 @@ class LeadController extends AgentController {
     public function addReminder($lead_id)
     {
         return view('agent.lead.organizer.addReminder')
-            ->with('lead_id',$lead_id);
+            ->with( 'lead_id', $lead_id );
     }
 
 
@@ -1152,7 +1169,7 @@ class LeadController extends AgentController {
     public function addСomment($lead_id)
     {
         return view('agent.lead.organizer.addComment')
-            ->with('lead_id',$lead_id);
+            ->with( 'lead_id', $lead_id );
     }
 
     /**
