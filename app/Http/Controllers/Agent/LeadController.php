@@ -52,9 +52,6 @@ class LeadController extends AgentController {
      */
     public function obtain(){
 
-        PayMaster::finishLead(19);
-
-
         // данные агента
         $agent = $this->user;
 

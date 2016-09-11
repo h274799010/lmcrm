@@ -40,33 +40,17 @@ class checkLeadExpiration extends Command
     public function handle()
     {
 
-//        $this->info( PayMaster::finishLead( 4 ) );
-//
-//        return true;
-
-        // todo добавить, только те, которые не завершены и "открытые"
         // ищем просроченные лиды
         $expiredLeads = Lead::Expired()->get();
 
         // если они есть - обрабатываем
         $expiredLeads->each(function( $lead ){
 
-
-            // todo этот метод будет завершать лид
-//             PayMaster::finishLead( $lead );
-
-//            dd( PayMaster::finishLead( $lead ) );
-
-//                dd( PayMaster::systemInfo() );
-
-            $this->info('Просрочен лид с id ' .$lead->id. ' - ' .$lead->name );
-
-
+            // метод завершает лид
+             PayMaster::finishLead( $lead );
         });
 
-        // todo сделать это на логах или на БД (пока что на логах)
-        // если завершенных лидов нет, сообщаем об этом
-        if( $expiredLeads->count() == 0 ) $this->info('Просроченных лидов нет');
+        // todo сделать на логах
 
         return true;
     }
