@@ -52,6 +52,11 @@ class LeadController extends AgentController {
      */
     public function obtain(){
 
+        $l = Lead::find(1);
+        $l->finish();
+
+        dd($l);
+
         // данные агента
         $agent = $this->user;
 

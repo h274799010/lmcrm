@@ -40,10 +40,11 @@ class checkLeadExpiration extends Command
     public function handle()
     {
 
-        $this->info( PayMaster::finishLead( Lead::first() ) );
+//        $this->info( PayMaster::finishLead( Lead::first() ) );
+//
+//        return true;
 
-        return true;
-
+        // todo добавить, только те, которые не завершены и "открытые"
         // ищем просроченные лиды
         $expiredLeads = Lead::Expired()->get();
 
@@ -52,7 +53,7 @@ class checkLeadExpiration extends Command
 
 
             // todo этот метод будет завершать лид
-            // PayMaster::finishLead( $lead );
+//             PayMaster::finishLead( $lead );
 
 //            dd( PayMaster::finishLead( $lead ) );
 

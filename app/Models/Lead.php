@@ -346,5 +346,15 @@ class Lead extends EloquentUser {
         return $agentInfo->payment_revenue_share;
     }
 
+    /**
+     * Помечает лид как завершенный
+     */
+    public function finish()
+    {
+        $this->finished = 1;
+        $this->save();
+
+        return $this;
+    }
 
 }
