@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCreditTypes extends Migration
+class CreateTransactions extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,12 @@ class CreateCreditTypes extends Migration
      */
     public function up()
     {
-        Schema::create('credit_types', function (Blueprint $table) {
+        Schema::create('transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table->char('descr',255);
+            $table->integer('initiator_user_id');
+            $table->timestamp('created_at');
+            $table->string('status');
+
             $table->engine = 'InnoDB';
         });
     }
@@ -26,6 +29,6 @@ class CreateCreditTypes extends Migration
      */
     public function down()
     {
-        Schema::drop('credit_types');
+        Schema::drop('transactions');
     }
 }

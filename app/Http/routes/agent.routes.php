@@ -31,7 +31,13 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
 
     // todo получение данных для таблицы на странице фильтра лидов, удалить
     Route::get('lead/obtain2/data', ['as' => 'agent.lead.obtain.2.data', 'uses' => 'Agent\LeadController@obtain2Data']);
-//    Route::post('lead/obtain2/data', ['as' => 'agent.lead.obtain.2.data', 'uses' => 'Agent\LeadController@obtain2Data']);
+
+    // метод обработки открытия лида агента
+    Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'uses' => 'Agent\LeadController@openLead']);
+
+    // todo доработать, еще непонятно сколько будет стоить закрытие сделки
+    // метод обработки открытия лида агента
+    Route::get('lead/close/{lead_id}/{mask_id}', ['as' => 'agent.lead.closing.deal', 'uses' => 'Agent\LeadController@closingDeal']);
 
 
     Route::get('lead/showOpenedLead/{id}',['as'=>'agent.lead.showOpenedLead', 'uses' => 'Agent\LeadController@showOpenedLead']);
@@ -64,7 +70,7 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     // установка статуса лида
     Route::post('lead/setOpenLeadStatus',['as'=>'agent.lead.setOpenLeadStatus', 'uses' => 'Agent\LeadController@setOpenLeadStatus']);
 
-    // установка следующего по счету статуса лида
+    // todo удалить, установка следующего по счету статуса лида
     Route::get('lead/nextStatus/{id}',['as'=>'agent.lead.nextStatus', 'uses' => 'Agent\LeadController@nextStatus']);
 
 

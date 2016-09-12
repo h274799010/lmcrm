@@ -25,7 +25,7 @@ class AgentController extends BaseController
             $agent = Agent::findOrFail($this->uid);
             $this->user = $agent;
             $this->userClass = 'Agent';
-            $bill=$agent->bill()->first();
+            $wallet=$agent->wallet()->first();
 
             $sphere = $agent->sphere();
             $sphere_id=$sphere->id;
@@ -34,7 +34,7 @@ class AgentController extends BaseController
             $salesman = Salesman::findOrFail($this->uid);
             $this->user = $salesman;
             $this->userClass = 'Salesman';
-            $bill=$salesman->bill()->first();
+            $wallet=$salesman->wallet()->first();
             $sphere_id=$salesman->sphere()->id;
         } else {
             return redirect()->route('login');
@@ -43,8 +43,10 @@ class AgentController extends BaseController
         $this->mask = new AgentBitmask($sphere_id,$this->uid);
         $price = $this->mask->getStatus()->first();
 
-        $price = ( $price && $price->lead_price && $bill )?floor($bill->balance/$price->lead_price):0;
+        $balance = ( $price && $price->lead_price && $wallet )?floor($wallet->balance/$price->lead_price):0;
 
-        view()->share('balance', [0,$price]);
+
+
+        view()->share('balance', [0, $balance]);
     }
 }

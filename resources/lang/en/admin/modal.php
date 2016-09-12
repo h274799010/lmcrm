@@ -5,6 +5,7 @@ return [
     'close' => 'Close',
     'create' => 'Create',
     'edit' => 'Edit',
+    'update' => 'Update',
     'reset' => 'Reset',
     'cancel' => 'Cancel',
     'general' => 'General',

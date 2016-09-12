@@ -1,19 +1,22 @@
 <?php namespace App\Http\Controllers\Admin;
 
-use App\CreditHelper;
+use App\Helper\CreditHelper;
 use App\Http\Controllers\AdminController;
 use App\Models\Agent;
+use App\Models\Transactions;
 use App\Models\AgentInfo;
 use App\Models\AgentSphere;
-use App\Models\CreditHistory;
-use App\Models\Credits;
-use App\Models\CreditTypes;
+use App\Models\TransactionsDetails;
+use App\Models\Wallet;
 use App\Models\Sphere;
 //use App\Http\Requests\Admin\UserRequest;
 use App\Http\Requests\AdminUsersEditFormRequest;
-use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 //use App\Repositories\UserRepositoryInterface;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use App\Helper\PayMaster;
+
 use Datatables;
 
 
@@ -45,7 +48,7 @@ class AgentController extends AdminController
     public function create()
     {
         $spheres = Sphere::active()->lists('name','id');
-        return view('admin.agent.create_edit')->with('spheres',$spheres);
+        return view('admin.agent.create_edit')->with('spheres', $spheres);
     }
 
     /**
@@ -70,16 +73,23 @@ class AgentController extends AdminController
         return redirect()->route('admin.agent.index');
     }
 
+
     /**
-     * Show the form for editing the specified resource.
+     * Форма редактирования админом данных агента и его кошелька
      *
-     * @param $user
-     * @return Response
+     *
+     * @param  integer  $id
+     *
+     * @return object
      */
     public function edit($id)
     {
-        $agent = Agent::/*with('sphereLink','info')->*/findOrFail($id);
+        // данные агента
+        $agent = Agent::findOrFail($id);
+
+        // данные сферы
         $spheres = Sphere::active()->lists('name','id');
+<<<<<<< HEAD
         $user = Sentinel::findById($agent->id);
         $roles = array('leadbayer', 'partner', 'dealmaker');
         $role = '';
@@ -92,15 +102,24 @@ class AgentController extends AdminController
             $role = null;
         }
         return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role]);
+=======
+
+        // все данные агента по кредитам (кошелек, история, транзакции)
+        $userInfo = PayMaster::userInfo($id);
+
+        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'userInfo'=>$userInfo]);
+>>>>>>> 6e773a8d0ea5d7bc1e1c62132b8ce265440a59b6
     }
+
 
     /**
      * Update the specified resource in storage.
      *
-     * @param $user
+     * @param Request $request
+     * @param integer $id
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update( Request $request, $id )
     {
         $agent=Agent::findOrFail($id);
         //var_dump($request->info['agent']['bill']);exit;
@@ -113,21 +132,21 @@ class AgentController extends AdminController
                 $agent->password = \Hash::make($request->input('password'));
             }
         }
-        $credits = $agent->bill()->first();
-
-        CreditHelper::manual($credits,$request,$id);
 
         $agent->update($request->except('password','password_confirmation','sphere','info'));
-        //$agent->info()->update($request->only('info')['info']);
 
         $agent->spheres()->sync($request->only('sphere'));
         return redirect()->route('admin.agent.index');
     }
 
+
+
+
+
     /**
      * Remove the specified resource from storage.
      *
-     * @param $user
+     * @param integer $id
      * @return Response
      */
     public function destroy($id)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
@@ -35,8 +36,6 @@ class SphereController extends Controller {
     {
 
         $leads = Lead::where('status', '=', 2)->orWhere('status', '=', 3)->with([ 'statusName', 'sphere', 'user'])->get();
-
-//        dd($leads);
 
         return view('sphere.lead.list')->with('leads', $leads);
     }
@@ -92,7 +91,7 @@ class SphereController extends Controller {
     {
 
 
-    /** --  проверка данных на валидность  -- */
+        /** --  проверка данных на валидность  -- */
 
         $validator = Validator::make($request->except('info'), [
             'options.*' => 'integer',
@@ -107,7 +106,7 @@ class SphereController extends Controller {
         }
 
 
-    /** --  П О Л Я  fb_  =====  сохранение данных опций атрибутов лида  -- */
+        /** --  П О Л Я  fb_  =====  сохранение данных опций атрибутов лида  -- */
 
         // находим сферу по id
         $sphere = Sphere::findOrFail($sphere_id);
@@ -129,21 +128,26 @@ class SphereController extends Controller {
         $mask->setStatus(1, $lead_id);
 
 
-    /** --  выбираем лид и сохраняем в него новые данные  -- */
+        /** --  П О Л Я  лида  -- */
 
         $lead = Lead::find($lead_id);
         $lead->name=$request->input('name');
         $lead->email=$request->input('email');
         $lead->comment=$request->input('comment');
-        $lead->status = 4;
-        $lead->bad= $request->input('bad') ? $request->input('bad') : 0;
+        $lead->status = $request->input('bad') ? 1 : 4;
+
+        $lead->operator_processing_time = date("Y-m-d H:i:s");
+        $lead->expiry_time = $lead->expiredTime();
+
+
+//        $lead->status= $request->input('bad') ? $request->input('bad') : 0;
         $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
         $lead->customer_id=$customer->id;
         $lead->save();
 
 
 
-    /** --  П О Л Я  ad_  =====  "additional data"  ===== обработка и сохранение  -- */
+        /** --  П О Л Я  ad_  =====  "additional data"  ===== обработка и сохранение  -- */
 
         // заводим данные ad в переменную и преобразовываем в коллекцию
         $additData = collect($request->only('addit_data')['addit_data']);
@@ -167,7 +171,15 @@ class SphereController extends Controller {
         });
 
 
-    /** --  уведомление Агентов которым этот лид подходит  -- */
+        /** --  вычитание из системы стоимость обслуживание лида  -- */
+
+        // todo сделать
+
+        PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
+
+
+
+        /** --  уведомление Агентов которым этот лид подходит  -- */
 
         // выбираем маску лида
         $leadBitmaskData = $mask->findFbMask($lead_id);

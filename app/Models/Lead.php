@@ -13,6 +13,8 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use MongoDB\Driver\Query;
+use PhpParser\Builder;
 
 #class Lead extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
 #    use Authenticatable, CanResetPassword;
@@ -26,7 +28,7 @@ class Lead extends EloquentUser {
      * @var array
      */
     protected $fillable = [
-        'agent_id','sphere_id','name', 'customer_id', 'comment', 'date', 'bad'
+        'agent_id','sphere_id','name', 'customer_id', 'comment', 'bad'
     ];
 
     /**
@@ -115,27 +117,38 @@ class Lead extends EloquentUser {
         return ($agent_id)? $relation->where('agent_id','=',$agent_id) : $relation;
     }
 
-    public function ownerBill(){
-        return $this->hasOne('\App\Models\Credits','agent_id','agent_id');
-    }
 
-    // todo метод установки статуса
+    /**
+     * Установка статуса лида
+     *
+     * todo переделать, сделать статусы не по таблице, а по массиву
+     *
+     *
+     * @param integer $status
+     *
+     * @return Lead
+     */
     public function setStatus( $status )
     {
+        // устанавливаем статус
         $this->status = $status;
         $this->save();
 
         return $this;
-
     }
 
-    // todo получение имени статуса
+
+    /**
+     * Получение данных о статусе лида
+     *
+     * @return LeadStatus
+     */
     public function statusName(){
         return $this->hasOne('App\Models\LeadStatus', 'id', 'status');
     }
 
 
-
+    // todo доделать
     public function user(){
 
         return $this->hasOne('App\Models\Agent', 'id', 'agent_id')->select('id','first_name');
@@ -144,42 +157,13 @@ class Lead extends EloquentUser {
 
 
     /**
-     * Выбор маски лида по id сферы
+     * Маска лида
      *
      * todo доработать
-     *
-     * Если id сферы не задан
-     * вернет данные лида по всем битмаскам
      *
      *
      * @return object
      */
-//    public function bitmask($sphere=NULL)
-//    {
-//
-//        // если сфера не заданна
-//        if(!$sphere){
-//
-//            // находим все сферы
-//            $spheres = Sphere::all();
-//            // получаем id юзера
-//            $userId = $this->id;
-//
-//            // перебираем все сферы и выбираем из каждой данные юзера
-//            $allMasks = $spheres->map(function($item) use ($userId){
-//                $mask = new LeadBitmask($item->id);
-//                return $mask->where('user_id', '=', $userId)->first();
-//            });
-//
-//            return $allMasks;
-//        }
-//
-//
-//        $mask = new LeadBitmask($sphere);
-//
-//        return $mask->where('user_id', '=', $this->id)->first();
-//    }
-
     public function bitmask()
     {
 
@@ -204,5 +188,177 @@ class Lead extends EloquentUser {
         return false;
     }
 
+
+    /**
+     * Цена лида по определенной маске агента
+     *
+     *
+     * @param integer $agent_mask_id
+     *
+     * @return double
+     */
+    public function price( $agent_mask_id )
+    {
+        // выбираем таблицу битмаска по id сферы
+        $mask = new AgentBitmask( $this->sphere->id );
+
+        // выбираем прайс по заданной маске агента
+        $price = $mask->find( $agent_mask_id )->lead_price;
+
+        return $price;
+    }
+
+    /**
+     * Открыть лид
+     *
+     *
+     * Метод делает лид открытым для агента
+     *
+     * todo доработать пендингТайм
+     *
+     * @param integer $user_id
+     * @param string $comment
+     *
+     * @return OpenLeads
+     */
+    public function open( $user_id, $comment='' )
+    {
+
+        // максимальное количество открытия лида
+        $maxOpen = $this->sphere->openLead;
+
+        // находим открытый лид, по заданным данным
+        $openLead = OpenLeads::
+              where( 'lead_id', '=', $this->id )
+            ->where( 'agent_id', '=',  $user_id )
+            ->first();
+
+        if( $openLead ){
+            //  если лид уже есть
+
+            // инкрементим count, количество, сколько раз был открыт лид этим агентом
+            $openLead->count++;
+            $openLead->save();
+
+            // инкрементим opened у лида, (количество открытия лида)
+            $this->opened++;
+            $this->save();
+
+            // если лид открыт максимальное количество раз
+            if( $this->opened >= $maxOpen ){
+                // добавляем лиду статус "открыт максимальное количество раз"
+                $this->status = 5;
+                $this->save();
+            }
+
+        }else{
+            // если лида нет
+
+            // создаем его и записываем основные данные
+            $openLead = new OpenLeads();     // создание лида
+            $openLead->lead_id = $this->id;  // id лида
+            $openLead->agent_id = $user_id;  // id агента, который его открыл
+            $openLead->comment = $comment;   // комментарий (не обазательно)
+            $openLead->count = 1;            // количество открытий (при первом открытии = "1")
+
+            // сохраняем
+            $openLead->save();
+
+            // инкрементим opened у лида, (количество открытия лида)
+            $this->opened++;
+            $this->save();
+
+            // если лид открыт максимальное количество раз
+            if( $this->opened >= $maxOpen ){
+                // добавляем лиду статус "открыт максимальное количество раз"
+                $this->status = 5;
+                $this->save();
+            }
+        }
+
+        return $openLead;
+    }
+
+    /**
+     * Максимальное количество открытия лида
+     *
+     * @return integer
+     */
+    public function MaxOpenNumber ()
+    {
+        return $this->sphere->openLead;
+    }
+
+
+    /**
+     * Время, после которого лид снимается с аукциона
+     *
+     * @return string
+     */
+    public function expiredTime()
+    {
+        // получение интервала "жизни" лида из сферы лида
+        $interval = $this->sphere->expirationInterval();
+
+        // текущее время ( объект DateTime )
+        $data = new \DateTime();
+
+        // добавление интервала к времени
+        $data->add($interval);
+
+        // перевод времени в формат DB
+        $expiredTime = $data->format("Y-m-d H:i:s");
+
+        return $expiredTime;
+    }
+
+
+    /**
+     * Возвращает все просроченные к текущему времени лиды
+     *
+     *
+     * @param Query $query
+     *
+     * @return Builder
+     */
+    public function scopeExpired( $query )
+    {
+        return $query
+            ->where( 'status', '<>', 2)
+            ->where( 'expired', '=', 0)
+            ->where( 'finished', '=', 0)
+            ->where( 'expiry_time', '<', date("Y-m-d H:i:s") );
+    }
+
+
+    /**
+     * Процент выручки агента
+     *
+     * процент который агент получает с продажи лидов
+     * которые он внес в систему
+     *
+     *
+     * @return double
+     */
+    public function paymentRevenueShare()
+    {
+        $agentInfo = $this    // данные агента в таблице AgentInfo
+            ->hasOne( 'App\Models\AgentInfo', 'agent_id', 'agent_id')
+            ->first();
+
+        // возвращает только саму выручку
+        return $agentInfo->payment_revenue_share;
+    }
+
+    /**
+     * Помечает лид как завершенный
+     */
+    public function finish()
+    {
+        $this->finished = 1;
+        $this->save();
+
+        return $this;
+    }
 
 }

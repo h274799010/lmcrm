@@ -15,8 +15,8 @@ class CreateAgentInfo extends Migration
         Schema::create('agent_info', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('agent_id');
-            $table->float('lead_revenue');
-            $table->float('payment_revenue');
+            $table->float('lead_revenue_share');
+            $table->float('payment_revenue_share');
             $table->integer('pending_time');
             $table->timestamps();
             $table->engine = 'InnoDB';

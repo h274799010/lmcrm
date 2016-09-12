@@ -71,4 +71,44 @@ class Sphere extends Model
 
         });
     }
+
+
+    /**
+     * Временной интервал, после которого лид снимается с аукциона
+     *
+     * метод преобразует интервал из DB в объект DateInterval
+     *
+     *
+     * сам период храниты в DB в формате string
+     * в поле "expiration_interval"
+     *
+     * Формат периода:
+     *      09-10 2:35:00
+     *      month-day hour:min:sec
+     *
+     *
+     * @return \DateInterval
+     */
+    public function expirationInterval()
+    {
+        // данные поля из БД
+        $intervalFromDB = $this->expiration_interval;
+
+        // преобразование интервала в массив [ дата, время ]
+        $intervalArray = explode( ' ', $intervalFromDB );
+
+        // преобразование даты в массив [ месяц, день ]
+        $data = explode( '-', $intervalArray[0] );
+        // преобразование времени в массив [ час, минуты, секунды ]
+        $time = explode( ':', $intervalArray[1] );
+
+        // Преобразование полученных данных в интервал для объекта DateInterval
+        $intervalString = 'P' .$data[0] .'M' .$data[1] .'DT' .$time[0] .'H' .$time[1] .'M';
+
+        // вычисление интервала
+        $interval = new \DateInterval( $intervalString );
+
+        return $interval;
+    }
+
 }

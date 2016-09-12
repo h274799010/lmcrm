@@ -43,25 +43,26 @@ $(function(){
 				dialog.on("show.bs.modal", function() {
 					$(this).find('.ajax-form').ajaxForm(function(resp) {
 						dialog.modal('hide');
+
                         if (resp=='reload') location.reload();
-						///{organizer:hfgj} resp.or
-                        if ( resp.split(',')[0]=='OrganizerItemsaved' ){
+
+						if ( resp[0]=='OrganizerItemsaved' ){
 
                             // получение токена
                             var token = $('meta[name=csrf-token]').attr('content');
 
-                            $.post( getOrganizerRoute, { 'id': resp.split(',')[1], '_token': token }, function( data ){
+                            $.post( getOrganizerRoute, { 'id': resp[1], '_token': token }, function( data ){
 
                                 addOrganizerRow( data[0], data[1], data[2], data[3] );
                             });
 
                         }
-                        if ( resp.split(',')[0] == 'OrganizerItemUpdated' ) {
+                        if ( resp[0] == 'OrganizerItemUpdated' ) {
 
 							// получение токена
 							var token = $('meta[name=csrf-token]').attr('content');
 
-							$.post( getOrganizerRoute, { 'id': resp.split(',')[1], '_token': token }, function( data ){
+							$.post( getOrganizerRoute, { 'id': resp[1], '_token': token }, function( data ){
 
 								updateOrganizerRow( data[0], data[1], data[2], data[3] );
 							});
@@ -210,7 +211,7 @@ $(function(){
         $table.on( 'draw.dt', function(){
 
             // заносим количество строк в значек возле маски
-            $('#badge_' + mId).text( $($table).find('tr').length - 1 );
+			$('#badge_' + mId).text( tables[mId].data().length );
         });
 	});
 
@@ -301,6 +302,14 @@ source.onmessage = function(event) {
 		}
 
 	});
+
+    function noticeOff ( event ){
+
+        var token = $('meta[name=csrf-token]').attr('content');
+
+
+        $.post('/notified', {'event': event, '_token': token});
+    }
 
 
 	$('.removeNoticeIcon').bind('click', function(){

@@ -5,6 +5,19 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 # Admin Dashboard
     Route::get('/', ['as' => 'admin.index', 'uses' => 'Admin\DashboardController@index']);
 
+
+# System
+
+    // страница редактирования данных кошелька системы
+    Route::get('system',['as'=>'admin.system', 'uses' => 'Admin\DashboardController@systemInfo']);
+
+    // изменение состояния счета системы
+    Route::post('manual/Wallet/{user_id}/Change',['as'=>'manual.wallet.change', 'uses' => 'Admin\TransactionController@ManualWalletChange']);
+
+    // страница подробных финансовых данных о лиде
+    Route::get('system/lead/{lead_id}',['as'=>'admin.system.lead', 'uses' => 'Admin\DashboardController@leadInfo']);
+
+
 # Users
     Route::get('/user', ['as' => 'admin.user.index', 'uses' => 'Admin\UserController@index']);
     Route::get('/credit', ['as' => 'admin.credit.index', 'uses' => 'Admin\CreditController@index']);
@@ -21,12 +34,17 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('agent/data', 'Admin\AgentController@data');
     Route::get('agent/create',['as'=>'admin.agent.create', 'uses' => 'Admin\AgentController@create']);
     Route::post('agent/store',['as'=>'admin.agent.store', 'uses' => 'Admin\AgentController@store']);
-    Route::get('agent/{id}/edit',['as'=>'admin.agent.edit', 'uses' => 'Admin\AgentController@edit']);
-    Route::match(['put','post'],'agent/{id}/update',['as'=>'admin.agent.update', 'uses' => 'Admin\AgentController@update']);
-    Route::get('agent/{id}/destroy', ['as'=>'admin.agent.delete', 'uses' => 'Admin\AgentController@destroy']);
-    //Route::resource('agent', 'Admin\AgentController');
 
-    //Route::get('sphere/data', 'Admin\sphereController@data');
+    // страница редактирования данных агента
+    Route::get('agent/{id}/edit',['as'=>'admin.agent.edit', 'uses' => 'Admin\AgentController@edit']);
+
+    // изменение состояние счета агента
+    Route::match(['put','post'],'agent/{id}/update',['as'=>'admin.agent.update', 'uses' => 'Admin\AgentController@update']);
+
+
+    Route::get('agent/{id}/destroy', ['as'=>'admin.agent.delete', 'uses' => 'Admin\AgentController@destroy']);
+
+
     Route::get('sphere/index', ['as' => 'admin.sphere.index', 'uses' => 'Admin\SphereController@index']);
     Route::get('sphere/create', ['as' => 'admin.sphere.create', 'uses' => 'Admin\SphereController@create']);
     Route::get('sphere/{id}/edit', ['as' => 'admin.sphere.edit', 'uses' => 'Admin\SphereController@edit']);
@@ -43,6 +61,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     // сохранение прайса пользователя
     Route::match(['put','post'],'sphere/{sphere}/filters/reprice/{id}', ['as' => 'admin.sphere.reprice.update', 'uses' => 'Admin\SphereController@filtrationUpdate']);
+
     //Route::resource('sphere', 'Admin\SphereController');
 
 });
