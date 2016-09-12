@@ -40,16 +40,16 @@ class PayMaster extends Model
      *
      * @var array
      */
-    const TYPE =
-    [
-        'manual' => 'ручное введение средств',
-        'operatorPayment' => 'обработка лида оператором',
-        'openLead' => 'открытие лида',
-        'closingDeal' => 'закрытие сделки',
-        'repaymentForLead ' => 'возврат средств за bad lead',
-        'operatorRepayment' => 'refund for operator handling',
-        'rewardForLead' => 'Agent reward for the Lead',
-    ];
+//    const TYPE =
+//    [
+//        'manual' => 'ручное введение средств',
+//        'operatorPayment' => 'обработка лида оператором',
+//        'openLead' => 'открытие лида',
+//        'closingDeal' => 'закрытие сделки',
+//        'repaymentForLead ' => 'возврат средств за bad lead',
+//        'operatorRepayment' => 'refund for operator handling',
+//        'rewardForLead' => 'Agent reward for the Lead',
+//    ];
 
 
     /**
