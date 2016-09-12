@@ -91,6 +91,13 @@
                 <span class="help-block">{{ $errors->first('password_confirmation', ':message') }}</span>
             </div>
         </div>
+        <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
+            {!! Form::label('role', trans("admin/users.role"), array('class' => 'control-label')) !!}
+            <div class="controls">
+                {!! Form::select('role', ['leadbayer' => 'Lead bayer', 'partner' => 'Partner', 'dealmaker' => 'Deal maker'], null, array('class' => 'form-control')) !!}
+                <span class="help-block">{{ $errors->first('role', ':message') }}</span>
+            </div>
+        </div>
                 {!! Form::close() !!}
 
     </div>

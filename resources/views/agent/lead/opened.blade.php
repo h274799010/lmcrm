@@ -689,7 +689,7 @@
         });
 
 
-        $(function(){
+        $(function() {
 
 
             /**
@@ -699,23 +699,22 @@
              *
              */
 
-            function disabledOptionFromServer(){
+            function disabledOptionFromServer() {
 
-                $.each( $('.select_cell'), function( k, cell ){
+                $.each($('.select_cell'), function (k, cell) {
 
                     // номера опций которые нужно заблокировать
                     var disabled_data = $(cell).find('select').attr('disabled_opt').split(',');
 
 
-                    $.each( disabled_data, function( k, disabled ){
+                    $.each(disabled_data, function (k, disabled) {
 
                         $(cell).find('li[data-val="' + disabled + '"]')
-                                .attr( 'data-disabled', 'true')
+                                .attr('data-disabled', 'true')
                                 .addClass('disabled');
                     });
                 });
             }
-
 
 
             /**
@@ -725,21 +724,21 @@
              *
              */
 
-            function disabledSelectOption(){
+            function disabledSelectOption() {
 
                 // выбираем все ячейки с селектом в таблице
-                $.each( $('.select_cell'), function( k, cell ){
+                $.each($('.select_cell'), function (k, cell) {
 
                     // перебираем все опции в ячейке
-                    $.each( $(cell).find('li'), function( k, li ){
+                    $.each($(cell).find('li'), function (k, li) {
 
                         // если доходим до активного класса - останавливаемся
-                        if( $(li).hasClass( 'selectboxit-selected' ) ){
+                        if ($(li).hasClass('selectboxit-selected')) {
                             return false;
 
-                        // если опция находится до активного класса - делаем ее недоступной
-                        }else{
-                            $(li).attr( 'data-disabled', 'true').addClass('disabled');
+                            // если опция находится до активного класса - делаем ее недоступной
+                        } else {
+                            $(li).attr('data-disabled', 'true').addClass('disabled');
                         }
                     });
                 });
@@ -751,7 +750,7 @@
 
 
             /** реакция на изменение выпадающего списка на openLeads */
-            $('.select_cell').change(function(){
+            $('.select_cell').change(function () {
 
 
                 // получаем выбранное значение из списка
@@ -769,73 +768,110 @@
                 var self = $(this);
 
                 // событие на нажатие кнопки Cancel на модальном окне
-                $( '#statusModalCancel').bind( 'click', function(){
+                $('#statusModalCancel').bind('click', function () {
 
-                // событие на клик, по кнопке "Change status" (изменение статуса)
-                $( '#statusModalChange' ).bind( 'click', function(){
+                    // событие на клик, по кнопке "Change status" (изменение статуса)
+                    $('#statusModalChange').bind('click', function () {
 
-                    // спрятать модальное окно
-                    $('#statusModal').modal('hide');
-
-
-                    // изменяем статусы на сервере
-                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token}, function( data ){
-
-                        // если статус изменен нормально
-                        if( data == 'statusChanged'){
+                        // спрятать модальное окно
+                        $('#statusModal').modal('hide');
 
 
-                            // удаление пустого поля
-                            var emptyOption = self.find('option.emptyOption');
-                            // если путое поле найдено
-                            if(emptyOption.length > 0) {
-                                // удаляем его
-                                emptyOption.remove();
+                        // изменяем статусы на сервере
+                        $.post('{{  route('agent.lead.setOpenLeadStatus') }}', {
+                            'status': selectData,
+                            'lead_id': lead_id,
+                            '_token': token
+                        }, function (data) {
 
-                                // обновляем select
-                                selectBox.refresh();
-                            }
+                            // если статус изменен нормально
+                            if (data == 'statusChanged') {
 
-                            // делаем статусы неактивными до выбранного
-                            $.each( self.find('li'), function( k, li ){
-                                console.log(li);
-                                // если доходим до активного класса - останавливаемся
-                                if( $(li).hasClass( 'selectboxit-focus' ) || ($(li).hasClass('selectboxit-selected') && emptyOption.length > 0) ){
-                                    return false;
 
-                                    // если опция находится до активного класса - делаем ее недоступной
-                                }else{
-                                    $(li).attr( 'data-disabled', 'true' ).addClass('disabled');
+                                // удаление пустого поля
+                                var emptyOption = self.find('option.emptyOption');
+                                // если путое поле найдено
+                                if (emptyOption.length > 0) {
+                                    // удаляем его
+                                    emptyOption.remove();
+
+                                    // обновляем select
+                                    selectBox.refresh();
                                 }
-                            });
 
-                        // если лид отмечен как плохой, убираем select
-                        } else if(data == 'setBadStatus') {
-                            self.closest('td').html('bad lead');
-                        } else if(data == 'pendingTimeExpire') {
-                            // Если время pending_time истекло - выводим сообщение об ошибке
-                            bootbox.dialog({
-                                message: '{!! trans('site/lead.opened.pending_time_expired') !!}',
-                                show: true
-                            });
+                                // делаем статусы неактивными до выбранного
+                                $.each(self.find('li'), function (k, li) {
+                                    console.log(li);
+                                    // если доходим до активного класса - останавливаемся
+                                    if ($(li).hasClass('selectboxit-focus') || ($(li).hasClass('selectboxit-selected') && emptyOption.length > 0)) {
+                                        return false;
 
-                            // и удаляем статус bad_lead из списка
-                            var badOption = self.find('option.badOption');
-                            // если путое поле найдено
-                            if(badOption.length > 0) {
-                                // удаляем его
-                                badOption.remove();
+                                        // если опция находится до активного класса - делаем ее недоступной
+                                    } else {
+                                        $(li).attr('data-disabled', 'true').addClass('disabled');
+                                    }
+                                });
 
-                                // обновляем select
-                                selectBox.refresh();
+                                // если лид отмечен как плохой, убираем select
+                            } else if (data == 'setBadStatus') {
+                                self.closest('td').html('bad lead');
+                            } else if (data == 'pendingTimeExpire') {
+                                // Если время pending_time истекло - выводим сообщение об ошибке
+                                bootbox.dialog({
+                                    message: '{!! trans('site/lead.opened.pending_time_expired') !!}',
+                                    show: true
+                                });
+
+                                // и удаляем статус bad_lead из списка
+                                var badOption = self.find('option.badOption');
+                                // если путое поле найдено
+                                if (badOption.length > 0) {
+                                    // удаляем его
+                                    badOption.remove();
+
+                                    // обновляем select
+                                    selectBox.refresh();
+                                }
+                            } else if (data == 'setClosingDealStatus') {
+                                self.closest('td').html('{!! trans('site/lead.deal_closed') !!}');
+                            } else {
+
+                                // todo вывести какое то сообщение об ошибке на сервере
+                                alert('ошибки на сервере');
                             }
-                        } else if(data == 'setClosingDealStatus') {
-                            self.closest('td').html('{!! trans('site/lead.deal_closed') !!}');
-                        }else{
 
-                            // todo вывести какое то сообщение об ошибке на сервере
-                            alert( 'ошибки на сервере' );
-                        }
+                            // сбрасываем значения переменных к NULL
+                            // чтоб не подхватились другим селектом
+                            selectData = lead_id = token = selectBox = self = null;
+
+                            // отключаем события клика по кнопкам отмены и сабмита
+                            $('#statusModalChange').unbind('click');
+                            $('#statusModalCancel').unbind('click');
+
+                        });
+
+
+                    });
+
+                    // событие на нажатие кнопки Cancel на модальном окне
+                    $('#statusModalCancel').bind('click', function () {
+
+                        // выбераем первый активный статус
+                        $.each(self.find('li'), function (k, li) {
+
+                            // если обьект selectboxit не равен NULL
+                            if (selectBox != null) {
+
+                                // если текущий элемент активный - выбираем его и останавливаемся
+                                if (!$(li).hasClass('disabled') && $(li).attr('data-disabled') == 'false') {
+                                    selectBox.selectOption(k);
+                                    selectBox = null;
+                                    return false;
+                                }
+
+                            }
+
+                        });
 
                         // сбрасываем значения переменных к NULL
                         // чтоб не подхватились другим селектом
@@ -847,44 +883,12 @@
 
                     });
 
+                    // появление модального окна
+                    $('#statusModal').modal();
 
                 });
-
-                // событие на нажатие кнопки Cancel на модальном окне
-                $( '#statusModalCancel').bind( 'click', function(){
-
-                    // выбераем первый активный статус
-                    $.each( self.find('li'), function (k, li) {
-
-                        // если обьект selectboxit не равен NULL
-                        if( selectBox != null ) {
-
-                            // если текущий элемент активный - выбираем его и останавливаемся
-                            if( !$(li).hasClass('disabled') && $(li).attr('data-disabled') == 'false' ) {
-                                selectBox.selectOption(k);
-                                selectBox = null;
-                                return false;
-                            }
-
-                        }
-
-                    });
-
-                    // сбрасываем значения переменных к NULL
-                    // чтоб не подхватились другим селектом
-                    selectData = lead_id = token = selectBox = self = null;
-
-                    // отключаем события клика по кнопкам отмены и сабмита
-                    $('#statusModalChange').unbind('click');
-                    $('#statusModalCancel').unbind('click');
-
-                });
-
-                // появление модального окна
-                $('#statusModal').modal();
 
             });
-
         });
 
     </script>
