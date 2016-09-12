@@ -9,6 +9,7 @@ use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
@@ -22,7 +23,6 @@ use Illuminate\Support\Facades\Input;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
 use App\Http\Controllers\Notice;
-use App\CreditHelper;
 
 class LeadController extends AgentController {
      /*
@@ -51,6 +51,22 @@ class LeadController extends AgentController {
      * @return object
      */
     public function obtain(){
+
+        $a = Lead::find(22);
+
+
+        // Преобразование полученных данных в интервал для объекта DateInterval
+        $intervalString = 'P' .'12' .'M' .'3' .'DT' .'2' .'H' .'32' .'M';
+
+        // вычисление интервала
+        $interval = new \DateInterval( $intervalString );
+
+        dd($interval);
+
+        // todo удалить потом
+        dd($a->sphere->lead_bad_status_interval);
+
+        dd($a->open( 3, 1 ));
 
         // данные агента
         $agent = $this->user;

@@ -216,13 +216,24 @@ class Lead extends EloquentUser {
      *
      * todo доработать пендингТайм
      *
-     * @param integer $user_id
-     * @param string $comment
+     * todo добавить маску
+     * todo добавить плату за открытие
+     *
+     * @param  integer  $user_id
+     * @param  string  $comment
      *
      * @return OpenLeads
      */
-    public function open( $user_id, $comment='' )
+    public function open( $user_id, $mask_id, $comment='' )
     {
+
+        $openLead = OpenLeads::make( $this, $user_id, $mask_id );
+
+        return $openLead;
+
+
+
+
 
         // максимальное количество открытия лида
         $maxOpen = $this->sphere->openLead;
@@ -233,7 +244,7 @@ class Lead extends EloquentUser {
             ->where( 'agent_id', '=',  $user_id )
             ->first();
 
-        if( $openLead ){
+        if( $openLead->count() > 0 ){
             //  если лид уже есть
 
             // инкрементим count, количество, сколько раз был открыт лид этим агентом
@@ -255,14 +266,16 @@ class Lead extends EloquentUser {
             // если лида нет
 
             // создаем его и записываем основные данные
-            $openLead = new OpenLeads();     // создание лида
-            $openLead->lead_id = $this->id;  // id лида
-            $openLead->agent_id = $user_id;  // id агента, который его открыл
-            $openLead->comment = $comment;   // комментарий (не обазательно)
-            $openLead->count = 1;            // количество открытий (при первом открытии = "1")
+            $openLead = OpenLeads::make( $this, $user_id, $mask_id );
 
-            // сохраняем
-            $openLead->save();
+//            $openLead = new OpenLeads();     // создание лида
+//            $openLead->lead_id = $this->id;  // id лида
+//            $openLead->agent_id = $user_id;  // id агента, который его открыл
+//            $openLead->comment = $comment;   // комментарий (не обазательно)
+//            $openLead->count = 1;            // количество открытий (при первом открытии = "1")
+//
+//            // сохраняем
+//            $openLead->save();
 
             // инкрементим opened у лида, (количество открытия лида)
             $this->opened++;

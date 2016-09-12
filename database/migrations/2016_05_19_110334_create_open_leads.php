@@ -16,6 +16,7 @@ class CreateOpenLeads extends Migration
             $table->increments('id');
             $table->integer('lead_id');
             $table->integer('agent_id');
+            $table->integer('mask_id');
             $table->integer('count');
             $table->integer('status');
             $table->text('comment');
