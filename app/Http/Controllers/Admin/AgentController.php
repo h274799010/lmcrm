@@ -89,7 +89,7 @@ class AgentController extends AdminController
 
         // данные сферы
         $spheres = Sphere::active()->lists('name','id');
-<<<<<<< HEAD
+
         $user = Sentinel::findById($agent->id);
         $roles = array('leadbayer', 'partner', 'dealmaker');
         $role = '';
@@ -101,14 +101,12 @@ class AgentController extends AdminController
         if(!$role) {
             $role = null;
         }
-        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role]);
-=======
+
 
         // все данные агента по кредитам (кошелек, история, транзакции)
         $userInfo = PayMaster::userInfo($id);
 
-        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'userInfo'=>$userInfo]);
->>>>>>> 6e773a8d0ea5d7bc1e1c62132b8ce265440a59b6
+        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role, 'userInfo'=>$userInfo]);
     }
 
 
