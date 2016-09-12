@@ -80,7 +80,18 @@ class AgentController extends AdminController
     {
         $agent = Agent::/*with('sphereLink','info')->*/findOrFail($id);
         $spheres = Sphere::active()->lists('name','id');
-        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres]);
+        $user = Sentinel::findById($agent->id);
+        $roles = array('leadbayer', 'partner', 'dealmaker');
+        $role = '';
+        foreach ($roles as $v) {
+            if($user->inRole($v)) {
+                $role = $v;
+            }
+        }
+        if(!$role) {
+            $role = null;
+        }
+        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role]);
     }
 
     /**
