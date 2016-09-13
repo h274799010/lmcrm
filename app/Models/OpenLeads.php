@@ -50,26 +50,55 @@ class OpenLeads extends Model {
      *
      * @return OpenLeads
      */
-    public static function make( $lead, $agent_id, $mask_id, $comment=NULL, $count=1 )
+    public static function makeOrIncrement( $lead, $agent_id, $mask_id, $comment=NULL, $count=1 )
     {
 
+        // интервал гарантированный агентом на работу с лидом, который он октрыл
+        // после этого интервала агент не сможет ставить bad_lead
+        $interval = $lead->sphere->lead_bad_status_interval;
 
-        return "open";
+        // время (дата) после которого bad_lead будет блокирован
+        $expiration_time = date('Y-m-d H:i:s', time()+$interval);
 
+        // проверяем есть ли такой лид
+        $openLead = OpenLeads::
+              where( 'lead_id', $lead->id )
+            ->where( 'agent_id', $agent_id )
+            ->where( 'mask_id', $mask_id )
+            ->first();
 
-        $openLead = new OpenLeads();
-        $openLead->lead_id = $lead->id;   // id лида
-        $openLead->agent_id = $agent_id;  // id агента, который его открыл
-        $openLead->mask_id = $mask_id;    // комментарий (не обазательно)
+        if( $openLead ){
+            // если ЕСТЬ открытый лид с такими параметрами
+            // обновляем счетчики и время гарантированное на bad_lead
 
-        // todo добавить время окончания лида
-        $openLead->expiration_time = '';
+            // инкрементим счетчик у открытого лида
+            $openLead->count++;
+            // добавляем время на bad_lead
+            $openLead->expiration_time = $expiration_time;
+            $openLead->save();
 
+            // инкрементим opened у лида, (количество открытия лида)
+            $lead->opened++;
+            $lead->save();
 
-        $openLead->comment = $comment;    // комментарий (не обазательно)
-        $openLead->count = $count;        // количество открытий (при первом открытии = "1")
+        }else{
+            // если НЕТ открытого лида с такими параметрами
+            // создаем его
 
-        $openLead->save();
+            $openLead = new OpenLeads();
+            $openLead->lead_id = $lead->id;                 // id лида
+            $openLead->agent_id = $agent_id;                // id агента, который его открыл
+            $openLead->mask_id = $mask_id;                  // комментарий (не обазательно)
+            $openLead->expiration_time = $expiration_time;  // время истечения лида
+            $openLead->comment = $comment;                  // комментарий (не обазательно)
+            $openLead->count = $count;                      // количество открытий (при первом открытии = "1")
+
+            $openLead->save();
+
+            // инкрементим opened у лида, (количество открытия лида)
+            $lead->opened++;
+            $lead->save();
+        }
 
         return $openLead;
     }

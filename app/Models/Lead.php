@@ -220,6 +220,7 @@ class Lead extends EloquentUser {
      * todo добавить плату за открытие
      *
      * @param  integer  $user_id
+     * @param  integer  $mask_id
      * @param  string  $comment
      *
      * @return OpenLeads
@@ -227,70 +228,25 @@ class Lead extends EloquentUser {
     public function open( $user_id, $mask_id, $comment='' )
     {
 
-        $openLead = OpenLeads::make( $this, $user_id, $mask_id );
+        // заносим лид в таблицу открытых лидов
+        $openLead = OpenLeads::makeOrIncrement( $this, $user_id, $mask_id, $comment );
 
-        return $openLead;
-
-
-
+        // todo если лид открыт успешно, снимаем за это оплату
 
 
-        // максимальное количество открытия лида
-        $maxOpen = $this->sphere->openLead;
 
-        // находим открытый лид, по заданным данным
-        $openLead = OpenLeads::
-              where( 'lead_id', '=', $this->id )
-            ->where( 'agent_id', '=',  $user_id )
-            ->first();
+        // если лид открыт максимальное количество раз
+        if( $this->opened >= $this->MaxOpenNumber() ){
+            // добавляем лиду статус "открыт максимальное количество раз"
+            $this->setStatus(5);
 
-        if( $openLead->count() > 0 ){
-            //  если лид уже есть
-
-            // инкрементим count, количество, сколько раз был открыт лид этим агентом
-            $openLead->count++;
-            $openLead->save();
-
-            // инкрементим opened у лида, (количество открытия лида)
-            $this->opened++;
-            $this->save();
-
-            // если лид открыт максимальное количество раз
-            if( $this->opened >= $maxOpen ){
-                // добавляем лиду статус "открыт максимальное количество раз"
-                $this->status = 5;
-                $this->save();
-            }
-
-        }else{
-            // если лида нет
-
-            // создаем его и записываем основные данные
-            $openLead = OpenLeads::make( $this, $user_id, $mask_id );
-
-//            $openLead = new OpenLeads();     // создание лида
-//            $openLead->lead_id = $this->id;  // id лида
-//            $openLead->agent_id = $user_id;  // id агента, который его открыл
-//            $openLead->comment = $comment;   // комментарий (не обазательно)
-//            $openLead->count = 1;            // количество открытий (при первом открытии = "1")
-//
-//            // сохраняем
-//            $openLead->save();
-
-            // инкрементим opened у лида, (количество открытия лида)
-            $this->opened++;
-            $this->save();
-
-            // если лид открыт максимальное количество раз
-            if( $this->opened >= $maxOpen ){
-                // добавляем лиду статус "открыт максимальное количество раз"
-                $this->status = 5;
-                $this->save();
-            }
+            // todo сделать рачет по лиду
         }
 
         return $openLead;
     }
+
+
 
     /**
      * Максимальное количество открытия лида

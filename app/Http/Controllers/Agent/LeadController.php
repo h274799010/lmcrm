@@ -54,18 +54,6 @@ class LeadController extends AgentController {
 
         $a = Lead::find(22);
 
-
-        // Преобразование полученных данных в интервал для объекта DateInterval
-        $intervalString = 'P' .'12' .'M' .'3' .'DT' .'2' .'H' .'32' .'M';
-
-        // вычисление интервала
-        $interval = new \DateInterval( $intervalString );
-
-        dd($interval);
-
-        // todo удалить потом
-        dd($a->sphere->lead_bad_status_interval);
-
         dd($a->open( 3, 1 ));
 
         // данные агента
