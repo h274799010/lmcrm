@@ -227,20 +227,26 @@ class Lead extends EloquentUser {
      */
     public function open( $user_id, $mask_id, $comment='' )
     {
+        $openLead = false;  // открытый лид
 
-        // заносим лид в таблицу открытых лидов
-        $openLead = OpenLeads::makeOrIncrement( $this, $user_id, $mask_id, $comment );
+        // todo снимаем оплату за открытие лида
+        $payment = Pay::openLead( $this, $user_id, $mask_id );
 
-        // todo если лид открыт успешно, снимаем за это оплату
-
-
+        // если деньги сняты нормально
+        if( $payment ){
+            // заносим лид в таблицу открытых лидов
+            $openLead = OpenLeads::makeOrIncrement( $this, $user_id, $mask_id, $comment );
+        }
 
         // если лид открыт максимальное количество раз
         if( $this->opened >= $this->MaxOpenNumber() ){
+
             // добавляем лиду статус "открыт максимальное количество раз"
+            // чем убираем с аункцона
             $this->setStatus(5);
 
             // todo сделать рачет по лиду
+//            $this->finish();
         }
 
         return $openLead;
@@ -324,6 +330,9 @@ class Lead extends EloquentUser {
      */
     public function finish()
     {
+
+        // todo тут будет полный расчет по лиду
+        // todo если нету ожиданий по открытым лидам
         $this->finished = 1;
         $this->save();
 
