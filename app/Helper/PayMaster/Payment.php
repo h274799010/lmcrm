@@ -11,8 +11,8 @@ use App\Models\TransactionsLeadInfo;
 
 use App\Models\Transactions;
 use App\Models\TransactionsDetails;
-use App\Helper\PayMaster\Calculation;
-
+use App\Helper\PayMaster\PayCalculation;
+use App\Helper\PayMaster\PayData;
 
 
 /**
@@ -104,6 +104,7 @@ class Payment
 
         $out =
         [
+            'user_id' => $data['user_id'],
             'amount' => $details->amount,
             'after' => $details->after,
             'wallet_type' => $details->wallet_type,
@@ -175,7 +176,7 @@ class Payment
             // если на buyed достаточно средств, снимаем средства только от туда
 
             // снимаем деньги с агента
-            $payment['buyed'] = self::walletOperation(
+            $payment['buyed'] = self::walletDirectOperation(
             [
                 'transaction' => $data['transaction'],
                 'user_id'     => $data['user_id'],
@@ -188,7 +189,7 @@ class Payment
             // если на buyed нет средств, снимаем средства только с earned
 
             // снимаем деньги с агента
-            $payment['earned'] = self::walletOperation(
+            $payment['earned'] = self::walletDirectOperation(
                 [
                     'transaction' => $data['transaction'],
                     'user_id'     => $data['user_id'],
@@ -204,7 +205,7 @@ class Payment
             $buyed = $wallet['buyed'];
 
             // с начала снимаем деньги с buyed
-            $payment['buyed'] = self::walletOperation(
+            $payment['buyed'] = self::walletDirectOperation(
                 [
                     'transaction' => $data['transaction'],
                     'user_id'     => $data['user_id'],
@@ -217,7 +218,7 @@ class Payment
             $rest = $amount - $buyed;
 
             // затем снимаем оставшуюся сумму с earned
-            $payment['earned'] = self::walletOperation(
+            $payment['earned'] = self::walletDirectOperation(
                 [
                     'transaction' => $data['transaction'],
                     'user_id'     => $data['user_id'],
@@ -292,13 +293,13 @@ class Payment
      *
      *    'donor'         =>            // плательщик (с которого снимаются деньги)
      *       [
-     *          'user'              => ''   // пользователь с которого снимаются деньги
+     *          'user_id'              => ''   // пользователь с которого снимаются деньги
      *          'wallet_type'       => ''   // тип хранилища кошелька
      *       ]
      *
      *    'recipient'     => ''    // получатель платежа (которому деньги зачисляются)
      *       [
-     *          'user'         => ''   // пользователь с которого снимаются деньги
+     *          'user_id'         => ''   // пользователь с которого снимаются деньги
      *          'wallet_type'  => ''   // тип хранилища кошелька
      *       ]
      *
@@ -328,7 +329,12 @@ class Payment
         $amount = ( $data['amount'] > 0 )? $data['amount'] : $data['amount'] * (-1);
 
         // данные по транзакции
-        $transactionInfo = [];
+        $transactionInfo =
+        [
+            'time' => $transaction->created_at,
+            'transaction' => $transaction->id,
+            'initiator' => $transaction->initiator->name,
+        ];
 
 
         /** ---- Снятие денег с указанного пользователя если задан донор ---- */
@@ -352,7 +358,7 @@ class Payment
                         'transaction'  => $transaction->id,              // id транзакции
                         'user_id'      => $data['donor']['user_id'],     // id пользователя
                         'wallet_type'  => $data['donor']['wallet_type'], // тип хранилища кошелька
-                        'type'         => $data['donor']['type'],        // тип самой транзакции
+                        'type'         => $data['type'],                 // тип самой транзакции
                         'amount'       => $amount * (-1),                // прибавляемая сумма
                     ]
                 );
@@ -366,7 +372,7 @@ class Payment
                     [
                         'transaction'  => $transaction->id,              // id транзакции
                         'user_id'      => $data['donor']['user_id'],     // id пользователя
-                        'type'         => $data['donor']['type'],        // тип самой транзакции
+                        'type'         => $data['type'],        // тип самой транзакции
                         'amount'       => $amount * (-1),                // прибавляемая сумма
                     ]
                 );
@@ -377,17 +383,17 @@ class Payment
         /** ---- Занесение денег на указанный счет пользователя если задан реципиент ---- */
 
         // если задан реципиент (пользователь К которому должны прийти средства)
-        if( isset($data['recipient']) ){
+        if( isset($data['recipient']) && $transactionInfo['donor'] ){
 
             // выполняем прямую операцию занесения денег
             $transactionInfo['recipient'] =
             self::walletDirectOperation(
                 [
-                    'transaction'  => $transaction->id,              // id транзакции
-                    'user_id'      => $data['donor']['user_id'],     // id пользователя
-                    'wallet_type'  => $data['donor']['wallet_type'], // тип хранилища кошелька
-                    'type'         => $data['donor']['type'],        // тип самой транзакции
-                    'amount'       => $amount,                // прибавляемая сумма
+                    'transaction'  => $transaction->id,                  // id транзакции
+                    'user_id'      => $data['recipient']['user_id'],     // id пользователя
+                    'wallet_type'  => $data['recipient']['wallet_type'], // тип хранилища кошелька
+                    'type'         => $data['type'],        // тип самой транзакции
+                    'amount'       => $amount,                           // прибавляемая сумма
                 ]
             );
 
@@ -397,7 +403,7 @@ class Payment
         /** ---- Фиксирование данных о лиде ---- */
 
         // если задан лид
-        if( isset($data['lead']) ){
+        if( isset($data['lead_id']) ){
 
             // если незаданно количество лидов, ставиться 1
             $lead_number = (isset( $data['lead_number'] )) ? $data['lead_number'] : 1;
@@ -416,13 +422,7 @@ class Payment
         // успешное завершение транзакции
         $transaction->completed();
 
-        $transactionInfo =
-        [
-            'time' => $transaction->created_at,
-            'transaction' => $transaction->id,
-            'initiator' => $transaction->initiator->name,
-            'status' => $transaction->status,
-        ];
+        $transactionInfo['status'] = $transaction->status;
 
         // возвращаем массив данных по транзакции
         return $transactionInfo;
@@ -430,29 +430,228 @@ class Payment
 
 
     /**
-     * Платеж системе
+     * Платеж К системе от пользователя
      *
      */
-    public static function toSystem( $p )
+    public static function toSystem( $data )
     {
 
-        return true;
+
+        /*
+
+        $data=
+        [
+            'initiator_id'  => '',  // id инициатора платежа
+            'user_id'       => '',  // id пользователя, с кошелька которого снимается сумма
+            'wallet_type'   => '',  // (не обязательно) тип кошелька с которого снимается сумма
+            'type'          => '',  // тип транзакции
+            'amount'        => '',  // снимаемая с пользователя сумма
+            'lead_id'       => '',  // (не обязательно) id лида если он учавствует в платеже
+            'lead_number'   => '',  // (не обязательно) количество лидов, если их несколько
+        ];
+
+        */
+
+
+        // выставляем данные по платежу
+        $paymentData =
+        [
+            'initiator_id'  => $data['initiator_id'],  // инициатор платежа
+
+            'donor'         =>            // плательщик (с которого снимаются деньги)
+                [
+                    'user_id'      => $data['user_id'],   // пользователь с которого снимаются деньги
+                ],
+
+            'recipient'     =>     // получатель платежа (которому деньги зачисляются)
+                [
+                    'user_id'      => PayData::SYSTEM_ID,   // пользователь с которого снимаются деньги
+                    'wallet_type'  => 'earned',   // тип хранилища кошелька
+                ],
+
+            'type'          => $data['type'],       // тип самой транзакции
+
+            'amount'        => $data['amount'],       // прибавляемая сумма
+        ];
+
+        // если задан тип кошелька - передаем его в данные массива
+        if( isset($data['wallet_type']) ){
+            // указываем тип кошелька
+            $paymentData['donor']['wallet_type'] = $data['wallet_type'];
+        }
+
+        // если задан тип кошелька - передаем его в данные массива
+        if( isset($data['lead_id']) ){
+            // указываем тип кошелька
+            $paymentData['lead_id'] = $data['lead_id'];
+        }
+
+        // если задан тип кошелька - передаем его в данные массива
+        if( isset($data['lead_number']) ){
+            // указываем тип кошелька
+            $paymentData['lead_number'] = $data['lead_number'];
+        }
+
+        // выполняем платеж
+        $paymentInfo =
+        self::payment( $paymentData );
+
+        return $paymentInfo;
     }
 
 
 
     /**
-     * Платеж агенту
+     * Платеж ОТ системы к пользователю
      *
      */
-    public static function toAgent( $p )
+    public static function fromSystem( $p )
     {
+
+
+
+        self::payment(
+            [
+                'initiator_id'  => '',  // инициатор платежа
+
+                'donor'         =>            // плательщик (с которого снимаются деньги)
+                    [
+                        'user_id'              => '',   // пользователь с которого снимаются деньги
+                        'wallet_type'       => '',   // тип хранилища кошелька
+                    ],
+
+                'recipient'     =>     // получатель платежа (которому деньги зачисляются)
+                    [
+                        'user_id'         => '',   // пользователь с которого снимаются деньги
+                        'wallet_type'  => '',   // тип хранилища кошелька
+                    ],
+
+                'lead_id'       => '',       // лид, который учавствует в трнзакции
+
+                'lead_number'   => '',       // количество открытых лидов
+
+                'type'          => '',       // тип самой транзакции
+
+                'amount'        => '',       // прибавляемая сумма
+            ]
+        );
+
+
+        return true;
+    }
+
+
+    /**
+     * Единичный платеж
+     *
+     * не от "кого-то" - "кому-то"
+     * а именно единичный платеж
+     *
+     * это может быть ручное пополнение
+     * либо - оплата обработки лида оператором
+     *
+     */
+    public static function single( $p )
+    {
+
+
+
+        self::payment(
+            [
+                'initiator_id'  => '',  // инициатор платежа
+
+                'donor'         =>            // плательщик (с которого снимаются деньги)
+                    [
+                        'user_id'              => '',   // пользователь с которого снимаются деньги
+                        'wallet_type'       => '',   // тип хранилища кошелька
+                    ],
+
+                'recipient'     =>     // получатель платежа (которому деньги зачисляются)
+                    [
+                        'user_id'         => '',   // пользователь с которого снимаются деньги
+                        'wallet_type'  => '',   // тип хранилища кошелька
+                    ],
+
+                'lead_id'       => '',       // лид, который учавствует в трнзакции
+
+                'lead_number'   => '',       // количество открытых лидов
+
+                'type'          => '',       // тип самой транзакции
+
+                'amount'        => '',       // прибавляемая сумма
+            ]
+        );
+
+
+
+
+
+
+
+
+        self::payment(
+            [
+                'initiator_id'  => '',  // инициатор платежа
+
+                'donor'         =>            // плательщик (с которого снимаются деньги)
+                    [
+                        'user_id'              => '',   // пользователь с которого снимаются деньги
+                        'wallet_type'       => '',   // тип хранилища кошелька
+                    ],
+
+                'recipient'     =>     // получатель платежа (которому деньги зачисляются)
+                    [
+                        'user_id'         => '',   // пользователь с которого снимаются деньги
+                        'wallet_type'  => '',   // тип хранилища кошелька
+                    ],
+
+                'lead_id'       => '',       // лид, который учавствует в трнзакции
+
+                'lead_number'   => '',       // количество открытых лидов
+
+                'type'          => '',       // тип самой транзакции
+
+                'amount'        => '',       // прибавляемая сумма
+            ]
+        );
+
+
+
+
+
 
         return true;
     }
 
 
 
+
+
+//self::payment(
+//[
+//'initiator_id'  => '',  // инициатор платежа
+//
+//'donor'         =>            // плательщик (с которого снимаются деньги)
+//[
+//'user_id'              => '',   // пользователь с которого снимаются деньги
+//'wallet_type'       => '',   // тип хранилища кошелька
+//],
+//
+//'recipient'     =>     // получатель платежа (которому деньги зачисляются)
+//[
+//'user_id'         => '',   // пользователь с которого снимаются деньги
+//'wallet_type'  => '',   // тип хранилища кошелька
+//],
+//
+//'lead_id'       => '',       // лид, который учавствует в трнзакции
+//
+//'lead_number'   => '',       // количество открытых лидов
+//
+//'type'          => '',       // тип самой транзакции
+//
+//'amount'        => '',       // прибавляемая сумма
+//]
+//);
 
 
 }

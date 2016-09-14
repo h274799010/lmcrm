@@ -34,25 +34,47 @@ class Pay
     /**
      * Оплата за открытие лида
      *
+     *
+     * @param  Lead  $lead
+     * @param  Agent  $agent
+     * @param  integer  $mask_id
+     *
+     * @return array
      */
-    public static function openLead( $user_id, $lead_id, $mask_id )
+    public static function openLead( $lead, $agent, $mask_id )
     {
 
-        // todo получаем цену лида
+        // получаем цену лида
+        $price = $lead->price( $mask_id );
 
-        // todo возможность пользователя заплатить за лид
+        // проверка, может ли агент оплатить открытие лида
+        if( !$agent->wallet->isPossible($price) ){
 
-        // todo оплачиваем лид
+            // отмена платежа из-за низкого баланса
+            return [ 'status' => false, 'description' => trans('lead/lead.openlead.low_balance')];
+        }
+
+        // оплачиваем лид
+        $paymentStatus =
         Payment::toSystem(
             [
-                'user_id' => 1
-
+                'initiator_id'  => $agent->id,  // id инициатора платежа
+                'user_id'       => $agent->id,  // id пользователя, с кошелька которого снимается сумма
+                'type'          => 'openLead',  // тип транзакции
+                'amount'        => $price,      // снимаемая с пользователя сумма
+                'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
             ]
         );
 
-        return true;
+        // если возникли ошибки при платеже
+        if( !$paymentStatus ){
+            // Ошибки при попытке сделать платеж
+            return [ 'status' => false, 'description' => trans('lead/lead.openlead.error')];
+        }
 
+        return [ 'status' => true ];
     }
+
 
 
 }

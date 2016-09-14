@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Builder;
-use App\Helper\PayMaster\Calculation;
+use App\Helper\PayMaster\PayCalculation;
 
 class Wallet extends Model {
 
@@ -65,7 +65,7 @@ class Wallet extends Model {
     public function isPossible( $price )
     {
 
-        $possibility = Calculation::possibilityPayment( $this );
+        $possibility = PayCalculation::possibilityPayment( $this );
 
         // сравниваем возможности кошелька агента с его прайсом
         if( $possibility >= $price ){

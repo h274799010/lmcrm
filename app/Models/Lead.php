@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use MongoDB\Driver\Query;
 use PhpParser\Builder;
 use App\Helper\PayMaster\Pay;
+use App\Helper\PayMaster\Price;
 
 #class Lead extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
 #    use Authenticatable, CanResetPassword;
@@ -191,7 +192,7 @@ class Lead extends EloquentUser {
 
 
     /**
-     * Цена лида по определенной маске агента
+     * Цена за открытие лида по маске агента
      *
      *
      * @param integer $agent_mask_id
@@ -200,14 +201,10 @@ class Lead extends EloquentUser {
      */
     public function price( $agent_mask_id )
     {
-        // выбираем таблицу битмаска по id сферы
-        $mask = new AgentBitmask( $this->sphere->id );
-
-        // выбираем прайс по заданной маске агента
-        $price = $mask->find( $agent_mask_id )->lead_price;
-
-        return $price;
+        // находим цену за открытие лида
+        return Price::openLead( $this, $agent_mask_id );
     }
+
 
     /**
      * Открыть лид
@@ -220,37 +217,34 @@ class Lead extends EloquentUser {
      * todo добавить маску
      * todo добавить плату за открытие
      *
-     * @param  integer  $user_id
+     * @param  Agent  $agent
      * @param  integer  $mask_id
      * @param  string  $comment
      *
      * @return OpenLeads
      */
-    public function open( $user_id, $mask_id, $comment='' )
+    public function open( $agent, $mask_id, $comment='' )
     {
-        $openLead = false;  // открытый лид
 
-        // todo снимаем оплату за открытие лида
-        $payment = Pay::openLead( $this, $user_id, $mask_id );
+        // снимаем оплату за открытие лида
+        $payment = Pay::openLead( $this, $agent, $mask_id );
 
-        // если деньги сняты нормально
-        if( $payment ){
-            // заносим лид в таблицу открытых лидов
-            $openLead = OpenLeads::makeOrIncrement( $this, $user_id, $mask_id, $comment );
+        // выход если платеж не произведен
+        if( !$payment['status'] ){
+            return $payment['description'];
         }
+
+        // заносим лид в таблицу открытых лидов
+        OpenLeads::makeOrIncrement( $this, $agent->id, $mask_id, $comment );
 
         // если лид открыт максимальное количество раз
         if( $this->opened >= $this->MaxOpenNumber() ){
-
             // добавляем лиду статус "открыт максимальное количество раз"
             // чем убираем с аункцона
             $this->setStatus(5);
-
-            // todo сделать рачет по лиду, подумать, может и нестоит
-//            $this->finish();
         }
 
-        return $openLead;
+        return trans('lead/lead.openlead.successfully_opened');
     }
 
 

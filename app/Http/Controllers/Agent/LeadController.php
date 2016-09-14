@@ -52,46 +52,7 @@ class LeadController extends AgentController {
      */
     public function obtain(){
 
-        $u = Agent::find(3);
-
-
-        $dArr =
-            [
-                'initiator_id'  => 0,  // инициатор платежа
-
-                'donor'  =>            // плательщик (с которого снимаются деньги)
-                    [
-                        'user'              => '',   // пользователь с которого снимаются деньги
-                        'wallet_type'       => '',   // тип хранилища кошелька
-                        'wallet_operation'  => '',   // тип операции с кошельком
-                    ],
-
-                'recipient'  =>     // получатель платежа (которому деньги зачисляются)
-                    [
-                        'user'         => '',   // пользователь с которого снимаются деньги
-                        'wallet_type'  => '',   // тип хранилища кошелька
-                    ],
-
-                'lead'   => '',       // лид, который учавствует в трнзакции
-
-                'type'   => '',       // тип самой транзакции
-
-                'amount' => '',       // прибавляемая сумма
-            ];
-
-
-
-//        $r = \App\Helper\PayMaster\Calculation::isPossiblePayment( $u );
-
-//        $u->wallet->isPossible;
-
-        dd( $u->wallet->isPossible( 4000000 ) );
-
-        dd($u->wallet);
-
-//        $a = Lead::find(22);
-
-//        dd($a->open( 3, 1 ));
+        // todo подчистить
 
         // данные агента
         $agent = $this->user;
@@ -700,32 +661,16 @@ class LeadController extends AgentController {
      */
     public function openLead( $lead_id, $mask_id ){
 
-        // платеж по открытию лида
-        $operation =
-        PayMaster::openLead(
-            $this->user->id, // id агента который открывает лид
-            $lead_id,        // id лида
-            $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
-        );
+        // находим лид
+        $lead = Lead::find( $lead_id );
 
+        // пробуем открыть лид, статус записываем в переменную
+        $openResult = $lead->open( $this->user, $mask_id );
 
-        // обработка результата занесения платежа
-        if( $operation == false ) {
+        return response()->json( $openResult );
 
-            return response()->json( [ trans('lead/lead.openlead.error') ] );
+//      return response()->json( [ trans('lead/lead.openlead.error') ] );
 
-        }elseif( $operation == 'low balance' ) {
-
-            return response()->json( [ trans('lead/lead.openlead.low_balance') ] );
-
-        }elseif( $operation == 'the maximum number of open' ) {
-
-            return response()->json( [ trans('lead/lead.openlead.maximum_number') ] );
-
-        }else {
-
-            return response()->json( [ trans('lead/lead.openlead.successfully_opened') ] );
-        }
 
     }
 
@@ -927,6 +872,8 @@ class LeadController extends AgentController {
 
         // открытые лиды пользователя
         $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->get();
+
+//        dd($leads);
 
         return view('agent.lead.opened',['dataArray'=>$leads]);
     }

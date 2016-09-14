@@ -50,7 +50,7 @@
                                     <td><div>{{ $data->name }}</div></td>
                                     <td><div>{{ $data->phone->phone }}</div></td>
                                     <td><div>{{ $data->email }}</div></td>
-                                    <td><div> Имя маски </div></td>
+                                    <td><div> {{ $data['openLeadStatus']['mask_id'] }} </div></td>
                                     <td class="edit">
                                         <div>
                                             <a href="#">
