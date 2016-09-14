@@ -79,6 +79,8 @@ class OpenLeads extends Model {
 
             // инкрементим opened у лида, (количество открытия лида)
             $lead->opened++;
+            // время истечения открытых лидов
+            $lead->open_lead_expired  = $expiration_time;
             $lead->save();
 
         }else{
@@ -97,6 +99,8 @@ class OpenLeads extends Model {
 
             // инкрементим opened у лида, (количество открытия лида)
             $lead->opened++;
+            // время истечения открытых лидов
+            $lead->open_lead_expired  = $expiration_time;
             $lead->save();
         }
 

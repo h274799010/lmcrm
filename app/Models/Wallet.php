@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Builder;
+use App\Helper\PayMaster\Calculation;
 
 class Wallet extends Model {
 
@@ -61,19 +62,12 @@ class Wallet extends Model {
      *
      * @return boolean
      */
-    public function possibility( $price = null )
+    public function isPossible( $price )
     {
 
-        // если цена не указанна, возвращает false
-        if( !$price ) return false;
+        $possibility = Calculation::possibilityPayment( $this );
 
-        // суммируем все типы кошельков включая overdraft и отнимаем wasted
-        $possibility  = $this->attributes['buyed'];
-        $possibility += $this->attributes['earned'];
-        $possibility += $this->attributes['overdraft'];
-        $possibility -= $this->attributes['wasted'];
-
-        // сравниваем возможности агента с его прайсом
+        // сравниваем возможности кошелька агента с его прайсом
         if( $possibility >= $price ){
             // возможности превышают прайс
             return true;

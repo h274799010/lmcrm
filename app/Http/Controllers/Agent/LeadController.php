@@ -52,9 +52,46 @@ class LeadController extends AgentController {
      */
     public function obtain(){
 
-        $a = Lead::find(22);
+        $u = Agent::find(3);
 
-        dd($a->open( 3, 1 ));
+
+        $dArr =
+            [
+                'initiator_id'  => 0,  // инициатор платежа
+
+                'donor'  =>            // плательщик (с которого снимаются деньги)
+                    [
+                        'user'              => '',   // пользователь с которого снимаются деньги
+                        'wallet_type'       => '',   // тип хранилища кошелька
+                        'wallet_operation'  => '',   // тип операции с кошельком
+                    ],
+
+                'recipient'  =>     // получатель платежа (которому деньги зачисляются)
+                    [
+                        'user'         => '',   // пользователь с которого снимаются деньги
+                        'wallet_type'  => '',   // тип хранилища кошелька
+                    ],
+
+                'lead'   => '',       // лид, который учавствует в трнзакции
+
+                'type'   => '',       // тип самой транзакции
+
+                'amount' => '',       // прибавляемая сумма
+            ];
+
+
+
+//        $r = \App\Helper\PayMaster\Calculation::isPossiblePayment( $u );
+
+//        $u->wallet->isPossible;
+
+        dd( $u->wallet->isPossible( 4000000 ) );
+
+        dd($u->wallet);
+
+//        $a = Lead::find(22);
+
+//        dd($a->open( 3, 1 ));
 
         // данные агента
         $agent = $this->user;

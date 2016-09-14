@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use MongoDB\Driver\Query;
 use PhpParser\Builder;
+use App\Helper\PayMaster\Pay;
 
 #class Lead extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
 #    use Authenticatable, CanResetPassword;
@@ -245,7 +246,7 @@ class Lead extends EloquentUser {
             // чем убираем с аункцона
             $this->setStatus(5);
 
-            // todo сделать рачет по лиду
+            // todo сделать рачет по лиду, подумать, может и нестоит
 //            $this->finish();
         }
 
@@ -303,6 +304,38 @@ class Lead extends EloquentUser {
             ->where( 'expired', '=', 0)
             ->where( 'finished', '=', 0)
             ->where( 'expiry_time', '<', date("Y-m-d H:i:s") );
+    }
+
+
+    /**
+     * Ставит пометку об ситекшем сроке
+     *
+     * @return Lead
+     */
+    public function markExpired()
+    {
+        $this->expired = 1;
+        $this->save();
+
+        return $this;
+    }
+
+
+    /**
+     * Возвращает все просроченные к текущему времени лиды
+     *
+     *
+     * @param Query $query
+     *
+     * @return Builder
+     */
+    public function scopeOpenLeadExpired( $query )
+    {
+        return $query
+            ->where( 'status', '<>', 2)
+            ->where( 'expired', '=', 1)
+            ->where( 'finished', '=', 0)
+            ->where( 'open_lead_expired', '<', date("Y-m-d H:i:s") );
     }
 
 
