@@ -1035,11 +1035,10 @@ class LeadController extends AgentController {
         }
 
 
-        // todo поставить обработчик на закрытие сделки
         // Если сделка отмечается закрытой
         if($status == 'closing_deal') {
 
-            // помечаем его как плохой
+            // закрываем сделку
             $openedLead->closeDeal();
 
             return response()->json('setClosingDealStatus');
