@@ -82,9 +82,9 @@ class Pay
      * todo доработать
      *
      */
-    public static function ReturnsToAgentForLead(){
+    public static function ReturnsToAgentsForLead(){
 
-        // todo узнать сколько агент сделал покупок по лиду
+        // todo найти всех покупателей лида
 
         // todo вернуть по каждой покупке
 
@@ -97,7 +97,11 @@ class Pay
      * todo
      *
      */
+    public static function forBadLead()
+    {
 
+    }
+    
 
     /**
      * Платеж за хороший лид
@@ -105,5 +109,10 @@ class Pay
      * todo
      *
      */
+    public static function forGoodLead()
+    {
+
+    }
+
 
 }

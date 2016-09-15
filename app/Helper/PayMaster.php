@@ -292,7 +292,6 @@ class PayMaster extends Model
             ->whereIn( 'transaction_id', $leads )
             ->get();
 
-
         return $byersDetails;
     }
 
