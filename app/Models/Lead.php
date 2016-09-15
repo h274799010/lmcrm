@@ -271,7 +271,7 @@ class Lead extends EloquentUser {
      *
      * @return boolean
      */
-    public function CheckOnBad()
+    public function checkOnBad()
     {
         // проверяем количество плохих открытых лидов по лиду
         $BadLeadCount = OpenLeads::
@@ -279,7 +279,7 @@ class Lead extends EloquentUser {
             ->where( 'state', 1)
             ->count();
 
-        // если плохих лидов нет, возвращаем fasle
+        // если плохих лидов нет, возвращаем false
         if( $BadLeadCount==0 ){ return false; }
 
         // находим количество макс. открытия лидов
@@ -289,7 +289,7 @@ class Lead extends EloquentUser {
         if( ($MaxOpenNumber/2) < $BadLeadCount ){
             // если плохих больше половины от максимально возможного
 
-            // помечаем как плохой
+            // меняем статус на "bad_lead"
             $this->setStatus(1);
 
             // todo добавить метод финиширования как плохого
@@ -304,7 +304,49 @@ class Lead extends EloquentUser {
     }
 
 
+    /**
+     * Закрытие сделки по лиду
+     *
+     * Если в открытых лидах по этому лиду
+     * больше половины закрытых (из максимально возможных)
+     * лид помечается как закрытый, убирается с аукциона
+     * и по нему делается полный расчет
+     * как по "хорошему" лиду
+     *
+     *
+     * @return boolean
+     */
+    public function checkOnCloseDeal()
+    {
+        // проверяем количество закрытых сделок в открытых лидах по лиду
+        $BadLeadCount = OpenLeads::
+              where( 'lead_id', $this['id'] )
+            ->where( 'state', 2)
+            ->count();
 
+        // если закрытых лидов нет, возвращаем false
+        if( $BadLeadCount==0 ){ return false; }
+
+        // находим количество макс. открытия лидов
+        $MaxOpenNumber = $this->MaxOpenNumber();
+
+        // сравниваем количество закрытых и макс/2
+        if( ($MaxOpenNumber/2) < $BadLeadCount ){
+            // если закрытых больше половины от максимально возможного
+
+            // меняем статус на "закрытый лид"
+            $this->setStatus(6);
+
+            // todo добавить метод финиширования как хорошего лида
+            // финишируем лид (полный финансовый расчет по лиду)
+            $this->finish();
+
+            return true;
+        }
+
+        // если лидов с закрытыми сделками не больше половины максимального открытия - возвращается false
+        return false;
+    }
 
 
     /**

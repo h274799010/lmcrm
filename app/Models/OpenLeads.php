@@ -149,18 +149,32 @@ class OpenLeads extends Model {
      */
     public function setBadLead()
     {
-
         // помечаем открытый лид как как bad
         $this->state = 1;
         $this->save();
 
         // поверяем лид, помечать его как плохой или нет
         $lead = Lead::find( $this['lead_id'] );
-        $lead->CheckOnBad();
+        $lead->checkOnBad();
 
         return true;
     }
 
+    /**
+     * Закрытие сделки по открытому лиду
+     *
+     */
+    public function closeDeal()
+    {
+        // помечаем открытый лид как как bad
+        $this->state = 2;
+        $this->save();
 
+        // поверяем лид, помечать его как плохой или нет
+        $lead = Lead::find( $this['lead_id'] );
+        $lead->checkOnCloseDeal();
+
+        return true;
+    }
 
 }
