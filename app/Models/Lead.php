@@ -219,11 +219,10 @@ class Lead extends EloquentUser {
      *
      * @param  Agent  $agent
      * @param  integer  $mask_id
-     * @param  string  $comment
      *
      * @return OpenLeads
      */
-    public function open( $agent, $mask_id, $comment='' )
+    public function open( $agent, $mask_id )
     {
 
         // снимаем оплату за открытие лида
@@ -235,7 +234,7 @@ class Lead extends EloquentUser {
         }
 
         // заносим лид в таблицу открытых лидов
-        OpenLeads::makeOrIncrement( $this, $agent->id, $mask_id, $comment );
+        OpenLeads::makeOrIncrement( $this, $agent->id, $mask_id );
 
         // если лид открыт максимальное количество раз
         if( $this->opened >= $this->MaxOpenNumber() ){
@@ -261,7 +260,57 @@ class Lead extends EloquentUser {
 
 
     /**
+     * Проверка на плохих лидов
+     *
+     * Если в открытых лидах по этому лиду
+     * больше половины плохих (из максимально возможных)
+     * лид помечается как плохой
+     * и по нему делается полный расчет
+     * как по плохому лиду
+     *
+     *
+     * @return boolean
+     */
+    public function CheckOnBad()
+    {
+        // проверяем количество плохих открытых лидов по лиду
+        $BadLeadCount = OpenLeads::
+              where( 'lead_id', $this['id'] )
+            ->where( 'state', 1)
+            ->count();
+
+        // если плохих лидов нет, возвращаем fasle
+        if( $BadLeadCount==0 ){ return false; }
+
+        // находим количество макс. открытия лидов
+        $MaxOpenNumber = $this->MaxOpenNumber();
+
+        // сравниваем количество плохих и макс/2
+        if( ($MaxOpenNumber/2) < $BadLeadCount ){
+            // если плохих больше половины от максимально возможного
+
+            // помечаем как плохой
+            $this->setStatus(1);
+
+            // todo добавить метод финиширования как плохого
+            // финишируем лид (полный финансовый расчет по лиду)
+            $this->finish();
+
+            return true;
+        }
+
+        // если плохих не больше половины максимального открытия - возвращается false
+        return false;
+    }
+
+
+
+
+
+    /**
      * Время, после которого лид снимается с аукциона
+     *
+     * todo переделать по другому интервалу
      *
      * @return string
      */

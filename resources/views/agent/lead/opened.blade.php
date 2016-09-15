@@ -19,14 +19,14 @@
                             </thead>
                             <tbody>
                             @foreach ($openLeads as $openLead)
-                                <tr lead_id="{{ $openLead['lead']['id'] }}">
+                                <tr lead_id="{{ $openLead['lead']['id'] }}"  opened_Lead_Id="{{ $openLead['id'] }}">
                                     <td><div></div></td>
                                     <td class="select_cell">
                                         {{-- Если лид был отмечен как плохой --}}
-                                        @if($openLead->bad == true)
+                                        @if( $openLead->state == 1 || ($openLead['lead']['status'] == 1) )
                                             bad lead
                                         {{-- впротивном случае вывод select со статусами --}}
-                                        @elseif( /*todo */ $openLead->closing_deal == true)
+                                        @elseif( $openLead->state == 2 )
                                             {!! trans('site/lead.deal_closed') !!}
                                         @else
                                             <select name="status" class="form">
@@ -649,7 +649,7 @@
         }
 
         /*
-        * Собитие наведения на строку органайзера
+        * Событие наведения на строку органайзера
         */
         var organizedRow = '#info_table .organizedRow';
         $(document).on('mouseover', organizedRow,function () {
@@ -756,6 +756,9 @@
                 // получение id лида
                 var lead_id = $(this).parent().attr('lead_id');
 
+                // получение id лида
+                var openedLeadId = $(this).parent().attr('opened_Lead_Id');
+
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
 
@@ -773,7 +776,7 @@
 
 
                     // изменяем статусы на сервере
-                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token}, function( data ){
+                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'openedLeadId': openedLeadId, 'lead_id': lead_id, '_token': token}, function( data ){
 
                             // если статус изменен нормально
                             if (data == 'statusChanged') {

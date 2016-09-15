@@ -878,8 +878,6 @@ class LeadController extends AgentController {
      *
      *
      * @param  Request  $request
-     *
-     *
      */
     public function openedLeadsAjax( Request $request ){
         $id = $request->id;
@@ -1011,34 +1009,44 @@ class LeadController extends AgentController {
      */
     public function setOpenLeadStatus( Request $request ){
 
-        $lead_id = $request->lead_id;
-        $status = $request->status;
+        $openedLeadId  = $request->openedLeadId;
+        $status   = $request->status;
 
         // находим данные открытого лида по id лида и id агента
-        $openedLead = OpenLeads::where(['lead_id'=>$lead_id,'agent_id'=>$this->uid])->first();
+        $openedLead = OpenLeads::find( $openedLeadId );
 
-        // если лид отмечен как плохой
+        // если открытый лид отмечен как плохой
         if($status == 'bad') {
+
             if(time() < strtotime($openedLead->expiration_time)) {
-                $openedLead->bad = 1;
-                $openedLead->save();
+                // если время открытого лида еще не вышло
+
+                // помечаем его как плохой
+                $openedLead->setBadLead();
+
                 return response()->json('setBadStatus');
+
             } else {
+                // если время открытого лида уже вышло
+
+                // отменяем всю ничего не делаем, выходим
                 return response()->json('pendingTimeExpire');
             }
         }
 
+
+
         // todo поставить обработчик на закрытие сделки
         // Если сделка отмечается закрытой
         if($status == 'closing_deal') {
-            // ищем лид по id
-            $lead = Lead::find($lead_id);
-            // и устанавливаем статус завершенной сделки
-            $lead->closing_deal = true;
-            $lead->save();
+
+            $openedLead->state = 2;
+            $openedLead->save();
+
             return response()->json('setClosingDealStatus');
         }
 
+        // todo доработать
         // если новый статус меньше уже установленного, выходим из метода
         // или лид отмечен как плохой
         if( $status < $openedLead->status || $openedLead->bad == true ){

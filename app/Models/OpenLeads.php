@@ -14,6 +14,22 @@ class OpenLeads extends Model {
         'comment',
     ];
 
+    /**
+     * Состояния открытого лида
+     *
+     * На странице открытых лидов отображаются как
+     * дополнительные статусы
+     *
+     * по этим параметрам, в итоге будет проходить расчет за лид
+     */
+    public static $state =
+    [
+        0 => 'default',      // значение по умолчанию, означает good_lead
+        1 => 'bad_lead',     // плохой лид
+        2 => 'deal_closed',  // сделка закрыта
+    ];
+
+
     public function lead(){
         return $this->hasOne('App\Models\Lead','id', 'lead_id');
     }
@@ -59,12 +75,11 @@ class OpenLeads extends Model {
      * @param  Lead  $lead
      * @param  integer  $agent_id
      * @param  integer  $mask_id
-     * @param  string  $comment
      * @param  integer  $count
      *
      * @return OpenLeads
      */
-    public static function makeOrIncrement( $lead, $agent_id, $mask_id, $comment=NULL, $count=1 )
+    public static function makeOrIncrement( $lead, $agent_id, $mask_id, $count=1 )
     {
 
         // интервал гарантированный агентом на работу с лидом, который он октрыл
@@ -106,7 +121,6 @@ class OpenLeads extends Model {
             $openLead->agent_id = $agent_id;                // id агента, который его открыл
             $openLead->mask_id = $mask_id;                  // комментарий (не обазательно)
             $openLead->expiration_time = $expiration_time;  // время истечения лида
-            $openLead->comment = $comment;                  // комментарий (не обазательно)
             $openLead->count = $count;                      // количество открытий (при первом открытии = "1")
 
             $openLead->save();
@@ -120,5 +134,33 @@ class OpenLeads extends Model {
 
         return $openLead;
     }
+
+
+    /**
+     * Установка отметки что лид плохой
+     *
+     * в том числе идет проверка лида
+     * если больше половины (от максимального открытия) открытых лидов
+     * помечены как bad
+     * лид помечается как bad  и идет полный расчет по лиду
+     *
+     *
+     * @return boolean
+     */
+    public function setBadLead()
+    {
+
+        // помечаем открытый лид как как bad
+        $this->state = 1;
+        $this->save();
+
+        // поверяем лид, помечать его как плохой или нет
+        $lead = Lead::find( $this['lead_id'] );
+        $lead->CheckOnBad();
+
+        return true;
+    }
+
+
 
 }
