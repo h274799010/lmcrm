@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Lead;
+use App\Models\AgentBitmask;
 
 class OpenLeads extends Model {
 
@@ -35,6 +36,14 @@ class OpenLeads extends Model {
             return true;
         }
         return false;
+    }
+
+
+    public function maskName()
+    {
+        $lead = Lead::find( $this['lead_id'] );
+        $mask = new AgentBitmask( $lead->sphere['id'] );
+        return $mask->find( $this['mask_id'] )->name;
     }
 
 

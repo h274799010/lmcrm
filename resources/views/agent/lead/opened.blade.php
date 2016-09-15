@@ -5,13 +5,11 @@
                 <div class="row">
                     <div id="main_table" class="col-md-12">
 
-                        {{--<table class="table table-bordered table-striped table-hover openLeadsTable">--}}
                         <table class="table table-bordered table-striped table-hover openLeadsTable">
                             <thead>
                                 <tr>
                                     <th>{!! trans("site/lead.opened.icon") !!}</th>
                                     <th>{!! trans('site/lead.opened.status') !!}</th>
-                                    <th>{!! trans('site/lead.opened.date') !!}</th>
                                     <th>{!! trans('site/lead.opened.name') !!}</th>
                                     <th>{!! trans('site/lead.opened.phone') !!}</th>
                                     <th>{!! trans('site/lead.opened.email') !!}</th>
@@ -20,37 +18,36 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @foreach ($dataArray as $data)
-                                <tr lead_id="{{ $data->id }}">
+                            @foreach ($openLeads as $openLead)
+                                <tr lead_id="{{ $openLead['lead']['id'] }}">
                                     <td><div></div></td>
                                     <td class="select_cell">
                                         {{-- Если лид был отмечен как плохой --}}
-                                        @if($data->openLeadStatus->bad == true)
+                                        @if($openLead->bad == true)
                                             bad lead
                                         {{-- впротивном случае вывод select со статусами --}}
-                                        @elseif($data->closing_deal == true)
+                                        @elseif( /*todo */ $openLead->closing_deal == true)
                                             {!! trans('site/lead.deal_closed') !!}
                                         @else
-                                            <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
-                                                @if($data->openLeadStatus->status == 0)
+                                            <select name="status" class="form">
+                                                @if( $openLead->status == 0 )
                                                     <option selected="selected" class="emptyOption"></option>
                                                 @endif
-                                                @if(time() < strtotime($data->openLeadStatus->pending_time))
+                                                @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
                                                     <option value="bad" class="badOption">bad lead</option>
                                                 @endif
-                                                @foreach($data->sphereStatuses->statuses as $status)
-                                                    <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
+                                                    <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
                                                 @endforeach
                                                     <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
                                             </select>
                                         @endif
                                         {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
                                     </td>
-                                    <td><div>{{ $data->date }}</div></td>
-                                    <td><div>{{ $data->name }}</div></td>
-                                    <td><div>{{ $data->phone->phone }}</div></td>
-                                    <td><div>{{ $data->email }}</div></td>
-                                    <td><div> {{ $data['openLeadStatus']['mask_id'] }} </div></td>
+                                    <td><div>{{ $openLead['lead']['name'] }}</div></td>
+                                    <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
+                                    <td><div>{{ $openLead['lead']['email'] }}</div></td>
+                                    <td><div> {{ $openLead->maskName() }} </div></td>
                                     <td class="edit">
                                         <div>
                                             <a href="#">
@@ -767,8 +764,6 @@
 
                 var self = $(this);
 
-                // событие на нажатие кнопки Cancel на модальном окне
-                $('#statusModalCancel').bind('click', function () {
 
                     // событие на клик, по кнопке "Change status" (изменение статуса)
                     $('#statusModalChange').bind('click', function () {
@@ -777,101 +772,64 @@
                         $('#statusModal').modal('hide');
 
 
-                        // изменяем статусы на сервере
-                        $.post('{{  route('agent.lead.setOpenLeadStatus') }}', {
-                            'status': selectData,
-                            'lead_id': lead_id,
-                            '_token': token
-                        }, function (data) {
+                    // изменяем статусы на сервере
+                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token}, function( data ){
 
                             // если статус изменен нормально
                             if (data == 'statusChanged') {
 
 
-                                // удаление пустого поля
-                                var emptyOption = self.find('option.emptyOption');
-                                // если путое поле найдено
-                                if (emptyOption.length > 0) {
-                                    // удаляем его
-                                    emptyOption.remove();
+                            // удаление пустого поля
+                            var emptyOption = self.find('option.emptyOption');
+                            // если путое поле найдено
+                            if(emptyOption.length > 0) {
+                                // удаляем его
+                                emptyOption.remove();
 
-                                    // обновляем select
-                                    selectBox.refresh();
-                                }
-
-                                // делаем статусы неактивными до выбранного
-                                $.each(self.find('li'), function (k, li) {
-                                    console.log(li);
-                                    // если доходим до активного класса - останавливаемся
-                                    if ($(li).hasClass('selectboxit-focus') || ($(li).hasClass('selectboxit-selected') && emptyOption.length > 0)) {
-                                        return false;
-
-                                        // если опция находится до активного класса - делаем ее недоступной
-                                    } else {
-                                        $(li).attr('data-disabled', 'true').addClass('disabled');
-                                    }
-                                });
-
-                                // если лид отмечен как плохой, убираем select
-                            } else if (data == 'setBadStatus') {
-                                self.closest('td').html('bad lead');
-                            } else if (data == 'pendingTimeExpire') {
-                                // Если время pending_time истекло - выводим сообщение об ошибке
-                                bootbox.dialog({
-                                    message: '{!! trans('site/lead.opened.pending_time_expired') !!}',
-                                    show: true
-                                });
-
-                                // и удаляем статус bad_lead из списка
-                                var badOption = self.find('option.badOption');
-                                // если путое поле найдено
-                                if (badOption.length > 0) {
-                                    // удаляем его
-                                    badOption.remove();
-
-                                    // обновляем select
-                                    selectBox.refresh();
-                                }
-                            } else if (data == 'setClosingDealStatus') {
-                                self.closest('td').html('{!! trans('site/lead.deal_closed') !!}');
-                            } else {
-
-                                // todo вывести какое то сообщение об ошибке на сервере
-                                alert('ошибки на сервере');
+                                // обновляем select
+                                selectBox.refresh();
                             }
 
-                            // сбрасываем значения переменных к NULL
-                            // чтоб не подхватились другим селектом
-                            selectData = lead_id = token = selectBox = self = null;
-
-                            // отключаем события клика по кнопкам отмены и сабмита
-                            $('#statusModalChange').unbind('click');
-                            $('#statusModalCancel').unbind('click');
-
-                        });
-
-
-                    });
-
-                    // событие на нажатие кнопки Cancel на модальном окне
-                    $('#statusModalCancel').bind('click', function () {
-
-                        // выбераем первый активный статус
-                        $.each(self.find('li'), function (k, li) {
-
-                            // если обьект selectboxit не равен NULL
-                            if (selectBox != null) {
-
-                                // если текущий элемент активный - выбираем его и останавливаемся
-                                if (!$(li).hasClass('disabled') && $(li).attr('data-disabled') == 'false') {
-                                    selectBox.selectOption(k);
-                                    selectBox = null;
+                            // делаем статусы неактивными до выбранного
+                            $.each( self.find('li'), function( k, li ){
+                                console.log(li);
+                                // если доходим до активного класса - останавливаемся
+                                if( $(li).hasClass( 'selectboxit-focus' ) || ($(li).hasClass('selectboxit-selected') && emptyOption.length > 0) ){
                                     return false;
+
+                                    // если опция находится до активного класса - делаем ее недоступной
+                                }else{
+                                    $(li).attr( 'data-disabled', 'true' ).addClass('disabled');
                                 }
+                            });
 
+                        // если лид отмечен как плохой, убираем select
+                        } else if(data == 'setBadStatus') {
+                            self.closest('td').html('bad lead');
+                        } else if(data == 'pendingTimeExpire') {
+                            // Если время pending_time истекло - выводим сообщение об ошибке
+                            bootbox.dialog({
+                                message: '{!! trans('site/lead.opened.pending_time_expired') !!}',
+                                show: true
+                            });
+
+                            // и удаляем статус bad_lead из списка
+                            var badOption = self.find('option.badOption');
+                            // если путое поле найдено
+                            if(badOption.length > 0) {
+                                // удаляем его
+                                badOption.remove();
+
+                                // обновляем select
+                                selectBox.refresh();
                             }
+                        } else if(data == 'setClosingDealStatus') {
+                            self.closest('td').html('{!! trans('site/lead.deal_closed') !!}');
+                        }else{
 
-                        });
+                            // todo вывести какое то сообщение об ошибке на сервере
+                            alert( 'ошибки на сервере' );
+                        }
 
                         // сбрасываем значения переменных к NULL
                         // чтоб не подхватились другим селектом
@@ -883,12 +841,44 @@
 
                     });
 
-                    // появление модального окна
-                    $('#statusModal').modal();
 
                 });
 
+                // событие на нажатие кнопки Cancel на модальном окне
+                $( '#statusModalCancel').bind( 'click', function(){
+
+                    // выбераем первый активный статус
+                    $.each( self.find('li'), function (k, li) {
+
+                        // если обьект selectboxit не равен NULL
+                        if( selectBox != null ) {
+
+                            // если текущий элемент активный - выбираем его и останавливаемся
+                            if( !$(li).hasClass('disabled') && $(li).attr('data-disabled') == 'false' ) {
+                                selectBox.selectOption(k);
+                                selectBox = null;
+                                return false;
+                            }
+
+                        }
+
+                    });
+
+                    // сбрасываем значения переменных к NULL
+                    // чтоб не подхватились другим селектом
+                    selectData = lead_id = token = selectBox = self = null;
+
+                    // отключаем события клика по кнопкам отмены и сабмита
+                    $('#statusModalChange').unbind('click');
+                    $('#statusModalCancel').unbind('click');
+
+                });
+
+                // появление модального окна
+                $('#statusModal').modal();
+
             });
+
         });
 
     </script>

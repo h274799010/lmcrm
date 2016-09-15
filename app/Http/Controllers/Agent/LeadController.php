@@ -52,8 +52,6 @@ class LeadController extends AgentController {
      */
     public function obtain(){
 
-        // todo подчистить
-
         // данные агента
         $agent = $this->user;
 
@@ -90,9 +88,6 @@ class LeadController extends AgentController {
 
         // выбираем все актинвные маски
         $agentMasks = $mask->where( 'status', '=', 1 )->where( 'user_id', '=', $agent->id )->get();
-
-        // todo проверить вывод маски
-//        dd($agentMasks);
 
         // атрибуты лида
         $lead_attr = $sphere->leadAttr;
@@ -155,7 +150,7 @@ class LeadController extends AgentController {
                 // перебираем все полученные лиды, добавляем имя маски и заносим данные в массив лидов
                 $leadsByFilter->each(function( $lead ) use( $leads, $agentMask ) {
 
-                    // todo добавление id маски в данные лида
+                    // добавление id маски в данные лида
                     $lead->mask_id = $agentMask->id;
 
                     // добавление имени маски в данные лида
@@ -805,6 +800,9 @@ class LeadController extends AgentController {
     /**
      * Store a newly created resource in storage.
      *
+     *
+     * @param  Request  $request
+     *
      * @return Response
      */
     public function store( Request $request )
@@ -824,11 +822,10 @@ class LeadController extends AgentController {
         }
 
 
-        $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
 
         $lead = new Lead($request->except('phone'));
         $lead->customer_id=$customer->id;
-//        $lead->date=date('Y-m-d');
         $lead->sphere_id = $agent->sphere()->id;
         $lead->status = 2;
 
@@ -842,10 +839,12 @@ class LeadController extends AgentController {
         }
     }
 
+
     /**
      * Remove the specified resource from storage.
      *
      * @param $id
+     *
      * @return Response
      */
     public function destroy($id)
@@ -854,41 +853,37 @@ class LeadController extends AgentController {
         return response()->route('agent.lead.index');
     }
 
+
     /**
-     * Показывает всех открытых лидов для пользователя
-     *
-     * по идее возвращает лиды по таблице open_leads
+     * Выводит все открытые лиды агента
      *
      * @return object
-     *
      */
     public function openedLeads(){
 
-        // id пользователя
-        $userId = Sentinel::getUser()->id;
+        // Выбираем все открытые лиды агента с дополнительными данными
+        $openLeads = OpenLeads::
+                  where( 'agent_id', $this->user->id )
+                ->with( ['lead' => function( $query ){
+                    $query->with('sphereStatuses');
+                  }])
+                ->get();
 
-        // id открытых лидов пользователя
-        $openLeads = OpenLeads::where('agent_id', '=', $userId)->lists('lead_id');
-
-        // открытые лиды пользователя
-        $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->get();
-
-//        dd($leads);
-
-        return view('agent.lead.opened',['dataArray'=>$leads]);
+        return view( 'agent.lead.opened', ['openLeads'=>$openLeads] );
     }
-
 
 
     /**
      * Данные для заполлнения подробной таблице на странице открытых лидов
      *
      *
+     * @param  Request  $request
+     *
+     *
      */
     public function openedLeadsAjax( Request $request ){
         $id = $request->id;
-        $data = Lead::has('obtainedBy')->find($id);
-        $arr[] = [ 'date',$data->date ];
+        $data = Lead::has('obtainedBy')->find( $id );
         $arr[] = [ 'name',$data->name ];
         $arr[] = [ 'phone',$data->phone->phone ];
         $arr[] = [ 'email',$data->email ];
@@ -921,7 +916,6 @@ class LeadController extends AgentController {
 
             $str = '';
 
-//            $resp = $mask->where('ad_5_3',1)->where('user_id',$id)->first();
             $mask = new LeadBitmask($data->sphere_id,$data->id);
             $AdMask = $mask->findAdMask($id);
 
@@ -1009,6 +1003,8 @@ class LeadController extends AgentController {
     /**
      * метод устанавливает статус
      *
+     * todo поставить обработчик на bad_lead
+     *
      * @param  Request  $request
      *
      * @return object
@@ -1023,7 +1019,7 @@ class LeadController extends AgentController {
 
         // если лид отмечен как плохой
         if($status == 'bad') {
-            if(time() < strtotime($openedLead->pending_time)) {
+            if(time() < strtotime($openedLead->expiration_time)) {
                 $openedLead->bad = 1;
                 $openedLead->save();
                 return response()->json('setBadStatus');
@@ -1032,6 +1028,7 @@ class LeadController extends AgentController {
             }
         }
 
+        // todo поставить обработчик на закрытие сделки
         // Если сделка отмечается закрытой
         if($status == 'closing_deal') {
             // ищем лид по id
@@ -1179,7 +1176,8 @@ class LeadController extends AgentController {
      * Получение записи для редактирования
      *
      * @param $id
-     * @return $object
+     *
+     * @return object
      */
     public function editOrganizer($id)
     {
