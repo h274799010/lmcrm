@@ -2,6 +2,7 @@
 
 namespace App\Helper\PayMaster;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Wallet;
@@ -79,17 +80,26 @@ class Pay
     /**
      * Возвращает агенту все его платежи по лиду
      *
-     * todo доработать
+     * Находит все транзакции по лиду с типом openLeads
+     * которые принадлежат агентам
+     * Делает возврат на те же суммы и на те же кошельки
      *
+     *
+     * @param  integer  $lead_id
+     *
+     * @return Collection
      */
     public static function ReturnsToAgentsForLead( $lead_id ){
 
         // находим всех покупателей лида
         $buyers = PayInfo::LeadBuyers( $lead_id );
 
-        // возврат средств обратно
-        $buyers->each(function( $buyer ){
+        $buyersStatus = [];
 
+        // возврат средств обратно
+        $buyers->each(function( $buyer ) use ( &$buyersStatus){
+
+            $buyersStatus[ $buyer['id'] ] =
             Payment::fromSystem(
                 [
                     'initiator_id'  => PayData::SYSTEM_ID,         // id инициатора платежа
@@ -103,24 +113,70 @@ class Pay
             );
         });
 
-        return $buyers;
+        return $buyersStatus;
+    }
+
+
+    /**
+     * Возврат "штраф" за обработку оператором автору лида
+     *
+     * Прибавление суммы, которую система затратила на обработку лида,
+     * кошельку с типом wasted агента
+     *
+     *
+     * @param  integer  $lead_id
+     *
+     * @return array
+     */
+    public static function OperatorRepayment( $lead_id )
+    {
+        // сумма, которая была затрачена на обработку лида оператором
+        $amount = PayInfo::OperatorPayment( $lead_id ) * (-1);
+
+        // автор лида
+        $author_id = Lead::find( $lead_id )->agent_id;
+
+        // todo залепить прямой платеж на wasted в сумме платежа за лид
+        $paymentStatus =
+        Payment::single(
+            [
+                'initiator_id'  => PayData::SYSTEM_ID,  // id инициатора платежа
+                'user_id'       => $author_id,          // id пользователя, на кошелек которого будет зачисленна сумма
+                'wallet_type'   => 'wasted',            // тип кошелька с которого снимается сумма
+                'type'          => 'operatorRepayment', // тип транзакции
+                'amount'        => $amount,             // снимаемая с пользователя сумма
+                'lead_id'       => $lead_id,            // (не обязательно) id лида если он учавствует в платеже
+            ]
+        );
+
+
+        return $paymentStatus;
     }
 
 
     /**
      * Платеж за плохой лид
      *
-     * todo
+     * Возврат денег агентам которые его купили
+     * Зачисление "штрафа" на wasted агенту который занес этот лид в систему
      *
+     *
+     * @param  integer  $lead_id
+     *
+     * @return array
      */
     public static function forBadLead( $lead_id )
     {
 
-        // todo вернуть платежи всем агентам которые купили лид
+        // возвращаем всем агентам, которые купили лид, их платежи
+        $transactionStatus['buyers'] =
         self::ReturnsToAgentsForLead( $lead_id );
 
-        // todo залепить wasted автору лида
+        // зачисляем цену обработки оператором на wasted автору лида
+        $transactionStatus['author'] =
+        self::OperatorRepayment( $lead_id );
 
+        return $transactionStatus;
     }
 
 

@@ -64,4 +64,32 @@ class PayInfo
         return $byersDetails;
     }
 
+
+    /**
+     * Средства, которые были затрачены на обработку лида оператором
+     *
+     *
+     * @param  integer  $lead_id
+     *
+     * @return double
+     */
+    public static function OperatorPayment( $lead_id )
+    {
+        // все транзакции в которых учавствовал лид
+        $leads = TransactionsLeadInfo::
+              where( 'lead_id', $lead_id )                 // только те данные в которых учавствовал лид
+            ->lists( 'transaction_id' );                   // только список id транзакций
+
+        // данные покупателей лида
+        $operatorPayment = TransactionsDetails::
+              whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям
+            ->where( 'type', 'operatorPayment' )            // только с типом "оплата за оператора"
+            ->first();
+
+        return $operatorPayment->amount;
+    }
+
+
+    
+
 }

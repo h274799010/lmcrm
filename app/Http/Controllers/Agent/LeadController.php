@@ -865,13 +865,14 @@ class LeadController extends AgentController {
 
         // todo удалить
 
-        $p = PayMaster::leadBuyersDetails(6);
+//        $p = PayMaster::leadBuyersDetails(6);
 
-        $p2 = PayInfo::LeadBuyers(6);
+//        $p2 = PayInfo::OperatorPayment(6);
 
-        $p3 = Pay::ReturnsToAgentsForLead(6);
+//        $p3 = Pay::ReturnsToAgentsForLead(6);
+//        $p3 = Pay::forBadLead(6);
 
-        dd($p3);
+//        dd($p3);
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
