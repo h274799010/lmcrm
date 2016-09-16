@@ -82,26 +82,36 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     //Route::resource('lead','Agent\LeadController@create');
 
     Route::group( ['middleware'=>['agent']],function() {
-        // страница всех масок агента по сферам
-        Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
+        // Группа роутов для которых проверяются разрешения
+        Route::group([ 'middleware' => ['permissions'] ], function () {
+            // страница всех масок агента по сферам
+            Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
 
-        // страница создания/редактирования маски агента
-        Route::get('sphere/{sphere_id}/{mask_id}/edit',['as'=>'agent.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
+            // страница создания/редактирования маски агента
+            Route::get('sphere/{sphere_id}/{mask_id}/edit',['as'=>'agent.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
 
-        // сохранение данных маски агента
-        Route::match(['put','post'],'sphere/{sphere_id}/{mask_id}',['as'=>'agent.sphere.update', 'uses' => 'Agent\SphereController@update']);
+            // сохранение данных маски агента
+            Route::match(['put','post'],'sphere/{sphere_id}/{mask_id}',['as'=>'agent.sphere.update', 'uses' => 'Agent\SphereController@update']);
 
-        // удаление маски агента
-        Route::post('mask/remove', ['as'=>'agent.remove.mask', 'uses' => 'Agent\SphereController@removeMask']);
+            // удаление маски агента
+            Route::post('mask/remove', ['as'=>'agent.sphere.removeMask', 'uses' => 'Agent\SphereController@removeMask']);
 
 
-        //Route::resource('customer/filter','Agent\CustomerFilterController');
+            //Route::resource('customer/filter','Agent\CustomerFilterController');
 
-        Route::get('salesman', ['as' => 'agent.salesman.index', 'uses' => 'Agent\SalesmanController@index']);
-        Route::get('salesman/create', ['as' => 'agent.salesman.create', 'uses' => 'Agent\SalesmanController@create']);
-        Route::post('salesman/store', ['as' => 'agent.salesman.store', 'uses' => 'Agent\SalesmanController@store']);
-        Route::get('salesman/{id}/edit', ['as' => 'agent.salesman.edit', 'uses' => 'Agent\SalesmanController@edit']);
-        Route::match(['put', 'post'], 'salesman/{id}', ['as' => 'agent.salesman.update', 'uses' => 'Agent\SalesmanController@update']);
-        //Route::resource('salesman','Agent\SalesmanController');
+            Route::get('salesman', ['as' => 'agent.salesman.index', 'uses' => 'Agent\SalesmanController@index']);
+            Route::get('salesman/create', ['as' => 'agent.salesman.create', 'uses' => 'Agent\SalesmanController@create']);
+            Route::post('salesman/store', ['as' => 'agent.salesman.store', 'uses' => 'Agent\SalesmanController@store']);
+            Route::get('salesman/{id}/edit', ['as' => 'agent.salesman.edit', 'uses' => 'Agent\SalesmanController@edit']);
+            //Route::match(['put', 'post'], 'salesman/{id}', ['as' => 'agent.salesman.update', 'uses' => 'Agent\SalesmanController@update']);
+            //Route::resource('salesman','Agent\SalesmanController');
+        });
+
+        Route::get('salesman/depositedLead/{id}', ['as' => 'agent.salesman.depositedLead', 'uses' => 'Agent\SalesmanController@salesmanDepositedLead']);
+
+        Route::get('salesman/openedLeads/{id}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\SalesmanController@salesmanOpenedLeads']);
+        Route::post('salesman/openedLeadAjax', ['as' => 'agent.salesman.openedLeadAjax', 'uses' => 'Agent\SalesmanController@salesmanOpenedLeadAjax']);
+
+        Route::get('salesman/obtainedLead/{id}', ['as' => 'agent.salesman.obtainedLead', 'uses' => 'Agent\SalesmanController@salesmanObtainedLead']);
     });
 });

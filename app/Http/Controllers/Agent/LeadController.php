@@ -1035,7 +1035,7 @@ class LeadController extends AgentController {
 
         // если лид отмечен как плохой
         if($status == 'bad') {
-            if(time() < strtotime($openedLead->pending_time)) {
+            if(time() < strtotime($openedLead->expiration_time)) {
                 $openedLead->bad = 1;
                 $openedLead->save();
                 return response()->json('setBadStatus');

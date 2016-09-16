@@ -14,6 +14,7 @@
                         <th>{!! trans("site/salesman.updated") !!}</th>
                         <th>{!! trans("site/salesman.name") !!}</th>
                         <th>{!! trans("site/salesman.email") !!}</th>
+                        <th>login</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -23,6 +24,11 @@
                             <td>{!! $salesman->updated_at !!}</td>
                             <td>{!! $salesman->name !!}</td>
                             <td>{!! $salesman->email !!}</td>
+                            <td class="agent-buttons">
+                                <a href="{{route('agent.salesman.depositedLead',[$salesman->id])}}" class="ajax-link" title="Salesman leads deposited"><i class="icon icon-sell"></i></a>
+                                <a href="{{route('agent.salesman.openedLeads',[$salesman->id])}}" class="ajax-link" title="Salesman opened leads"><i class="icon icon-document"></i></a>
+                                <a href="{{route('agent.salesman.obtainedLead',[$salesman->id])}}" class="ajax-link" title="Salesman obtained leads"><i class="icon icon-buy"></i></a>
+                            </td>
                         </tr>
                     @empty
                     @endforelse
@@ -31,4 +37,20 @@
         </div>
     </div>
 
+@stop
+
+@section('styles')
+    <style>
+        .agent-buttons .icon {
+            width: 20px;
+            height: 20px;
+            background-size: 100% 200%;
+            display: inline-block;
+        }
+        .agent-buttons .icon:hover {
+            width: 20px;
+            height: 20px;
+            background-position: 0 100%;
+        }
+    </style>
 @stop

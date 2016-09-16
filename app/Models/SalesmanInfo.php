@@ -14,7 +14,7 @@ class SalesmanInfo extends Model {
      * @var array
      */
     protected $fillable = [
-        'lead_revenue','payment_revenue','sphere_id','agent_id','bill_id'
+        'lead_revenue','payment_revenue','sphere_id','agent_id','wallet_id'
     ];
 
 

@@ -151,13 +151,33 @@ class SentinelDatabaseSeeder extends Seeder
         $agentRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Agent',
             'slug' => 'agent',
-            'permissions' => array()
+            'permissions' => array(
+                'agent.sphere.index' => true,
+                'agent.sphere.edit' => true,
+                'agent.sphere.update' => true,
+                'agent.sphere.removeMask' => true,
+                'agent.salesman.index' => true,
+                'agent.salesman.create' => true,
+                'agent.salesman.store' => true,
+                'agent.salesman.edit' => true,
+                'agent.salesman.update' => true
+            )
         ));
 
         $salesmanRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Salesman',
             'slug' => 'salesman',
-            'permissions' => array()
+            'permissions' => array(
+                'agent.sphere.index' => false,
+                'agent.sphere.edit' => false,
+                'agent.sphere.update' => false,
+                'agent.sphere.removeMask' => false,
+                'agent.salesman.index' => false,
+                'agent.salesman.create' => false,
+                'agent.salesman.store' => false,
+                'agent.salesman.edit' => false,
+                'agent.salesman.update' => false
+            )
         ));
 
         $operatorRole = Sentinel::getRoleRepository()->create(array(

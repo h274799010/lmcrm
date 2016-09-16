@@ -1,86 +1,86 @@
 @extends('layouts.master')
 
 @section('content')
-        <!-- Page Content -->
-                <div class="row">
-                    <div id="main_table" class="col-md-12">
+    <!-- Page Content -->
+    <div class="row">
+        <div id="main_table" class="col-md-12">
 
-                        {{--<table class="table table-bordered table-striped table-hover openLeadsTable">--}}
-                        <table class="table table-bordered table-striped table-hover openLeadsTable">
-                            <thead>
-                                <tr>
-                                    <th>{!! trans("site/lead.opened.icon") !!}</th>
-                                    <th>{!! trans('site/lead.opened.status') !!}</th>
-                                    <th>{!! trans('site/lead.opened.date') !!}</th>
-                                    <th>{!! trans('site/lead.opened.name') !!}</th>
-                                    <th>{!! trans('site/lead.opened.phone') !!}</th>
-                                    <th>{!! trans('site/lead.opened.email') !!}</th>
-                                    <th>{!! trans('site/lead.opened.maskname') !!}</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ($dataArray as $data)
-                                <tr lead_id="{{ $data->id }}">
-                                    <td><div></div></td>
-                                    <td class="select_cell">
-                                        {{-- Если лид был отмечен как плохой --}}
-                                        @if($data->openLeadStatus->bad == true)
-                                            bad lead
-                                        {{-- впротивном случае вывод select со статусами --}}
-                                        @elseif($data->closing_deal == true)
-                                            {!! trans('site/lead.deal_closed') !!}
-                                        @else
-                                            <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
-                                                @if($data->openLeadStatus->status == 0)
-                                                    <option selected="selected" class="emptyOption"></option>
-                                                @endif
-                                                @if(time() < strtotime($data->openLeadStatus->expiration_time))
-                                                    <option value="bad" class="badOption">bad lead</option>
-                                                @endif
-                                                @foreach($data->sphereStatuses->statuses as $status)
-                                                    <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                                                @endforeach
-                                                    <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
-                                            </select>
-                                        @endif
-                                        {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
-                                    </td>
-                                    <td><div>{{ $data->date }}</div></td>
-                                    <td><div>{{ $data->name }}</div></td>
-                                    <td><div>{{ $data->phone->phone }}</div></td>
-                                    <td><div>{{ $data->email }}</div></td>
-                                    <td><div> Имя маски </div></td>
-                                    <td class="edit">
-                                        <div>
-                                            <a href="#">
-                                                <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+            {{--<table class="table table-bordered table-striped table-hover openLeadsTable">--}}
+            <table class="table table-bordered table-striped table-hover openLeadsTable">
+                <thead>
+                <tr>
+                    <th>{!! trans("site/lead.opened.icon") !!}</th>
+                    <th>{!! trans('site/lead.opened.status') !!}</th>
+                    <th>{!! trans('site/lead.opened.date') !!}</th>
+                    <th>{!! trans('site/lead.opened.name') !!}</th>
+                    <th>{!! trans('site/lead.opened.phone') !!}</th>
+                    <th>{!! trans('site/lead.opened.email') !!}</th>
+                    <th>{!! trans('site/lead.opened.maskname') !!}</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach ($dataArray as $data)
+                    <tr lead_id="{{ $data->id }}">
+                        <td><div></div></td>
+                        <td class="select_cell">
+                            {{-- Если лид был отмечен как плохой --}}
+                            @if($data->openLeadStatus->bad == true)
+                                bad lead
+                                {{-- впротивном случае вывод select со статусами --}}
+                            @elseif($data->closing_deal == true)
+                                {!! trans('site/lead.deal_closed') !!}
+                            @else
+                                <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
+                                    @if($data->openLeadStatus->status == 0)
+                                        <option selected="selected" class="emptyOption"></option>
+                                    @endif
+                                    @if(time() < strtotime($data->openLeadStatus->expiration_time))
+                                        <option value="bad" class="badOption">bad lead</option>
+                                    @endif
+                                    @foreach($data->sphereStatuses->statuses as $status)
+                                        <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                    @endforeach
+                                    <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
+                                </select>
+                            @endif
+                            {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
+                        </td>
+                        <td><div>{{ $data->date }}</div></td>
+                        <td><div>{{ $data->name }}</div></td>
+                        <td><div>{{ $data->phone->phone }}</div></td>
+                        <td><div>{{ $data->email }}</div></td>
+                        <td><div> Имя маски </div></td>
+                        <td class="edit">
+                            <div>
+                                <a href="#">
+                                    <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
 
-                    </div>
+        </div>
 
-                    <div id="info_table_block" class="col-md-3 hidden">
+        <div id="info_table_block" class="col-md-3 hidden">
 
-                        <table id="info_table" class="table table-bordered table-striped table-hover"  cellspacing="0" width="100%">
+            <table id="info_table" class="table table-bordered table-striped table-hover"  cellspacing="0" width="100%">
 
-                            <tr class="organizer_tr">
-                                <td id="organizer_title" colspan="2" rowspan="1" >
-                                    {!! trans("site/lead.opened.organizer.title") !!}
-                                </td>
-                                <td class="organizer_time_title">
-                                    {!! trans("site/lead.opened.organizer.time") !!}
-                                </td>
-                                <td class="organizer_comments_title">
-                                    <div>
-                                        {!! trans("site/lead.opened.organizer.comments") !!}
-                                    </div>
-                                    <span class="dropdown">
+                <tr class="organizer_tr">
+                    <td id="organizer_title" colspan="2" rowspan="1" >
+                        {!! trans("site/lead.opened.organizer.title") !!}
+                    </td>
+                    <td class="organizer_time_title">
+                        {!! trans("site/lead.opened.organizer.time") !!}
+                    </td>
+                    <td class="organizer_comments_title">
+                        <div>
+                            {!! trans("site/lead.opened.organizer.comments") !!}
+                        </div>
+                        <span class="dropdown">
                                         <a class="dropdown-toggle" aria-expanded="true" role="button" data-toggle="dropdown" href="#">
                                             <i class="glyphicon glyphicon-plus"></i>
                                         </a>
@@ -91,48 +91,48 @@
                                         </ul>
 
                                     </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <!-- /.col-lg-10 -->
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- /.col-lg-10 -->
+    </div>
+    <!-- /.row -->
+    <!-- /.container -->
+
+
+    <div id="statusModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">
+                        {!! trans("site/lead.opened.modal.head") !!}
+                    </h4>
                 </div>
-                <!-- /.row -->
-            <!-- /.container -->
+
+                <div class="modal-body">
+
+                    {!! trans("site/lead.opened.modal.body") !!}
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                        {!! trans("site/lead.opened.modal.button.Cancel") !!}
+                    </button>
+
+                    <button id="statusModalChange" type="button" class="btn btn-danger">
+                        {!! trans("site/lead.opened.modal.button.OK") !!}
+                    </button>
+                </div>
 
 
-<div id="statusModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="exampleModalLabel">
-                     {!! trans("site/lead.opened.modal.head") !!}
-                </h4>
             </div>
-
-            <div class="modal-body">
-
-                {!! trans("site/lead.opened.modal.body") !!}
-
-            </div>
-
-            <div class="modal-footer">
-
-                <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                    {!! trans("site/lead.opened.modal.button.Cancel") !!}
-                </button>
-
-                <button id="statusModalChange" type="button" class="btn btn-danger">
-                    {!! trans("site/lead.opened.modal.button.OK") !!}
-                </button>
-            </div>
-
-
         </div>
     </div>
-</div>
 
 @endsection
 
@@ -388,7 +388,7 @@
                 var token = $('meta[name=csrf-token]').attr('content');
 
                 // получаем поднобные данные о лиде с сервера
-                $.post('{{ route('agent.lead.openedAjax')  }}', { 'id': id, '_token': token }, function( data ){
+                $.post('{{ route('agent.salesman.openedLeadAjax') }}', { 'id': id, 'salesman_id': '{{ $salesmanId }}', '_token': token }, function( data ){
 
                     // парсим ответ в json
                     var tableData = $.parseJSON(data);
@@ -651,8 +651,8 @@
         }
 
         /*
-        * Собитие наведения на строку органайзера
-        */
+         * Собитие наведения на строку органайзера
+         */
         var organizedRow = '#info_table .organizedRow';
         $(document).on('mouseover', organizedRow,function () {
             $(this).find('.button-wrap').show();
@@ -674,7 +674,7 @@
          *
          */
 
-        // выбираем все ячейки таблицы кроме выпадающего меню и кнопки редактирования
+                // выбираем все ячейки таблицы кроме выпадающего меню и кнопки редактирования
         var openLeadsTable = $('table.openLeadsTable tbody tr td').not( ".select_cell,.edit " );
 
         // привязываем функцию на клик, которая будет прорисовывать таблицу
@@ -736,7 +736,7 @@
                         if( $(li).hasClass( 'selectboxit-selected' ) ){
                             return false;
 
-                        // если опция находится до активного класса - делаем ее недоступной
+                            // если опция находится до активного класса - делаем ее недоступной
                         }else{
                             $(li).attr( 'data-disabled', 'true').addClass('disabled');
                         }
@@ -806,7 +806,7 @@
                                 }
                             });
 
-                        // если лид отмечен как плохой, убираем select
+                            // если лид отмечен как плохой, убираем select
                         } else if(data == 'setBadStatus') {
                             self.closest('td').html('bad lead');
                         } else if(data == 'pendingTimeExpire') {
