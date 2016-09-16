@@ -12,7 +12,7 @@ use App\Models\TransactionsLeadInfo;
 use App\Models\Transactions;
 use App\Models\TransactionsDetails;
 use App\Models\AgentBitmask;
-
+use App\Helper\PayMaster\PayInfo;
 
 
 
@@ -82,12 +82,28 @@ class Pay
      * todo доработать
      *
      */
-    public static function ReturnsToAgentsForLead(){
+    public static function ReturnsToAgentsForLead( $lead_id ){
 
-        // todo найти всех покупателей лида
+        // находим всех покупателей лида
+        $buyers = PayInfo::LeadBuyers( $lead_id );
 
-        // todo вернуть по каждой покупке
+        // возврат средств обратно
+        $buyers->each(function( $buyer ){
 
+            Payment::fromSystem(
+                [
+                    'initiator_id'  => PayData::SYSTEM_ID,         // id инициатора платежа
+                    'user_id'       => $buyer['user_id'],          // id пользователя, на кошелек которого будет зачисленна сумма
+                    'wallet_type'   => $buyer['wallet_type'],      // тип кошелька с которого снимается сумма
+                    'type'          => 'repaymentForLead',         // тип транзакции
+                    'amount'        => $buyer['amount'],           // снимаемая с пользователя сумма
+                    'lead_id'       => $buyer['lead']['lead_id'],  // (не обязательно) id лида если он учавствует в платеже
+                    'lead_number'   => $buyer['lead']['number'],   // (не обязательно) количество лидов, если их несколько
+                ]
+            );
+        });
+
+        return $buyers;
     }
 
 
@@ -97,11 +113,16 @@ class Pay
      * todo
      *
      */
-    public static function forBadLead()
+    public static function forBadLead( $lead_id )
     {
 
+        // todo вернуть платежи всем агентам которые купили лид
+        self::ReturnsToAgentsForLead( $lead_id );
+
+        // todo залепить wasted автору лида
+
     }
-    
+
 
     /**
      * Платеж за хороший лид

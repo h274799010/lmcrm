@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Agent;
 
 use App\Helper\PayMaster;
 use App\Helper\PayMaster\PayInfo;
+use App\Helper\PayMaster\Pay;
 use App\Http\Controllers\AgentController;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
@@ -868,7 +869,9 @@ class LeadController extends AgentController {
 
         $p2 = PayInfo::LeadBuyers(6);
 
-        dd($p2);
+        $p3 = Pay::ReturnsToAgentsForLead(6);
+
+        dd($p3);
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
