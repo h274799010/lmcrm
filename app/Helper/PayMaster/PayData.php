@@ -53,7 +53,8 @@ class PayData
         'closingDeal' => 'закрытие сделки',
         'repaymentForLead ' => 'возврат средств за bad lead',  // возврат средств за bad_lead агентам которые его купили
         'operatorRepayment' => 'refund for operator handling', // "штраф" за оператора автору "плохого" лида
-        'rewardForLead' => 'Agent reward for the Lead',        // "награждение" агента за "хороший" лид
+        'rewardForOpenLead' => 'Agent reward for the Lead',        // "награждение" агента за открытие лида
+        'rewardForClosingDeal' => 'Agent reward for the Lead',        // "награждение" агента за сделки по лиду
     ];
 
 

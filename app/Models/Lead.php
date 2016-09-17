@@ -443,10 +443,27 @@ class Lead extends EloquentUser {
     public function finish()
     {
 
-        // todo тут будет полный расчет по лиду
+        // проверить хороший/плохой
+        if( $this->status == 1 ){
+            // если плохой
+
+            // полный расчет по лиду как по плохомму
+            $payStatus =
+            Pay::forBadLead( $this->id );
+
+        }else{
+            // если хороший
+
+            // полный расчет по лиду как по хорошему
+            $payStatus =
+            Pay::forGoodLead( $this->id );
+        }
+
         // todo если нету ожиданий по открытым лидам
-        $this->finished = 1;
-        $this->save();
+        if( $payStatus ) {
+            $this->finished = 1;
+            $this->save();
+        }
 
         return $this;
     }

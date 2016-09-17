@@ -863,6 +863,25 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
+//        $a = Lead::find(3);
+
+        dd( Pay::forGoodLead(12) );
+
+
+
+
+
+//        $a = \App\Models\AgentInfo::where( 'agent_id', 3 )->first();
+
+
+//        "lead_revenue_share"
+//    "payment_revenue_share"
+
+//        dd( $a->lead_revenue_share );
+//        dd( $a->payment_revenue_share );
+
+
+
         // todo удалить
 
 //        $p = PayMaster::leadBuyersDetails(6);
@@ -871,6 +890,10 @@ class LeadController extends AgentController {
 
 //        $p3 = Pay::ReturnsToAgentsForLead(6);
 //        $p3 = Pay::forBadLead(6);
+
+//        $p3 = PayInfo::SystemRevenueFromLead( 6 );
+        $p3 = PayInfo::SystemRevenueFromLeadSum( 14, 'closeDeal' );
+
 
 //        dd($p3);
 

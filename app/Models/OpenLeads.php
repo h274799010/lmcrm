@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helper\PayMaster\Pay;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Lead;
 use App\Models\AgentBitmask;
@@ -166,12 +167,24 @@ class OpenLeads extends Model {
      */
     public function closeDeal()
     {
-        // помечаем открытый лид как как bad
-        $this->state = 2;
-        $this->save();
 
-        // поверяем лид, помечать его как плохой или нет
         $lead = Lead::find( $this['lead_id'] );
+        $agent = Agent::find( $this['agent_id'] );
+
+        $paymentStatus =
+        Pay::closingDeal(
+            $lead,
+            $agent,
+            $this['mask_id']
+        );
+
+        // помечаем что по лиду была закрыта сделка
+        if( $paymentStatus ){
+            $this->state = 2;
+            $this->save();
+        }
+
+        // поверяем лид, помечать его как "закритие сделки" или нет
         $lead->checkOnCloseDeal();
 
         return true;
