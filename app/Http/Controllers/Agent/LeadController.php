@@ -143,10 +143,23 @@ class LeadController extends AgentController {
                 $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
 
                 // получаем все лиды, помеченные к аукциону, по id из массива, без лидов автора
-                $leadsByFilter = Lead::whereIn('id', $list)
-                    ->where('status', '=', 4)
-                    ->where('agent_id', '<>', $agent->id)
-                    ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
+                $leadsByFilter =
+                    Lead::
+                      whereIn('id', $list)                   // все лиды полученыые по маске агента
+                    ->where('status', '=', 4)                // котрые помеченнык аукциону
+                    ->where('expired', '=', 0)               // у которых время еще не вышло
+                    ->where('finished', '=', 0)              // не финишированные
+                    ->where('agent_id', '<>', $agent->id)    // без лидов, которые занес агент
+                    ->select(
+                        [
+                            'opened',
+                            'id',
+                            'updated_at',
+                            'name',
+                            'customer_id',
+                            'email'
+                        ]
+                    )
                     ->get();
 
                 // перебираем все полученные лиды, добавляем имя маски и заносим данные в массив лидов
@@ -195,13 +208,13 @@ class LeadController extends AgentController {
 
         $datatable = Datatables::of($leads)
             ->edit_column('opened',function($model){
-                return view('agent.lead.datatables.obtain_count',['opened'=>$model->opened]);
+                return view('agent.lead.datatables.obtain_count', [ 'opened'=>$model->opened ]);
             })
             ->edit_column('id',function($model){
-                return view('agent.lead.datatables.obtain_open',['lead'=>$model]);
+                return view('agent.lead.datatables.obtain_open', [ 'lead'=>$model ]);
             })
             ->add_column('ids',function($model){
-                return view('agent.lead.datatables.obtain_open_all',['lead'=>$model]);
+                return view('agent.lead.datatables.obtain_open_all', [ 'lead'=>$model ]);
             }, 2)
             ->add_column('mask',function($model){
                 return $model->mask;
@@ -862,40 +875,6 @@ class LeadController extends AgentController {
      * @return object
      */
     public function openedLeads(){
-
-//        $a = Lead::find(3);
-
-        dd( Pay::forGoodLead(12) );
-
-
-
-
-
-//        $a = \App\Models\AgentInfo::where( 'agent_id', 3 )->first();
-
-
-//        "lead_revenue_share"
-//    "payment_revenue_share"
-
-//        dd( $a->lead_revenue_share );
-//        dd( $a->payment_revenue_share );
-
-
-
-        // todo удалить
-
-//        $p = PayMaster::leadBuyersDetails(6);
-
-//        $p2 = PayInfo::OperatorPayment(6);
-
-//        $p3 = Pay::ReturnsToAgentsForLead(6);
-//        $p3 = Pay::forBadLead(6);
-
-//        $p3 = PayInfo::SystemRevenueFromLead( 6 );
-        $p3 = PayInfo::SystemRevenueFromLeadSum( 14, 'closeDeal' );
-
-
-//        dd($p3);
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::

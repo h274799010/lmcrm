@@ -18,12 +18,10 @@ class CreateSpheres extends Migration
             $table->string('name');
             $table->integer('openLead')->default(3);
             $table->integer('minLead');
-            $table->integer('revenue');
             $table->float('price_call_center');
-            $table->string('expiration_interval');
+            $table->integer('lead_auction_expiration_interval');
             $table->integer('lead_bad_status_interval');
             $table->integer('steps');
-            $table->string('table_name');
             $table->timestamps();
         });
     }
