@@ -37,18 +37,26 @@
 
                 @foreach( $leads as $lead )
 
-                    @php( $spend = App\Helper\PayMaster::leadSpend( $lead['id'] ) )
-                    @php( $received = App\Helper\PayMaster::leadReceived( $lead['id'] ) )
+                        @php( $spend = App\Helper\PayMaster::leadSpend( $lead['id'] ) )
+
+                        @php( $received = App\Helper\PayMaster::leadReceived( $lead['id'] ) )
+
+
                     @php( $agentPayment = App\Helper\PayMaster::agentProfit( $lead['id'] ) )
-                    @php( $systemPayment = $spend + $received + $agentPayment )
+                    @php( $systemPayment = $received - $agentPayment + $lead->systemSpend() )
 
                     <tr>
                         <td>{{ $lead['name'] }}</td>
                         <td> {{ $lead['opened'] }} / {{ $lead->sphere->openLead }}</td>
-                        <td style=" color:red; " > {{ $spend  }} </td>
-                        <td style=" color:green; " > {{ $received  }} </td>
-                        <td> {{ $agentPayment  }} </td>
-                        <td> {{ $systemPayment }} </td>
+                        <td style=" color:red; " > {{ $lead->systemSpend()  }} </td>
+                        <td style=" color:green; " > {{ $lead->systemRevenue()  }} </td>
+                        <td> {{ $lead->depositorProfit()  }} </td>
+
+
+                        {{--<td> {{ $systemPayment }} </td>--}}
+                        <td> {{ $lead->systemProfit() }} </td>
+
+
                         <td> @if( $lead['finished'] == 1) Завершен @elseif( $lead['expired'] == 1 ) Время вышло @else {{ $lead['expiry_time'] }} @endif</td>
                         <td> {{ $lead->statusName->name }} </td>
                         <td>

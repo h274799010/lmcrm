@@ -271,7 +271,7 @@ class Pay
             // если доход положительный
 
             // находим депозитора лида
-            $agent_id = Lead::find(3)->agent_id;
+            $agent_id = Lead::find( $lead['agent_id'] )->agent_id;
 
             // результат расчета по платежу
             $paymentStatus = [];

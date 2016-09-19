@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Helper\PayMaster\PayCalculation;
+use App\Helper\PayMaster\PayInfo;
 use Cartalyst\Sentinel\Users\EloquentUser;
 
 use App\Models\Sphere;
@@ -292,7 +294,6 @@ class Lead extends EloquentUser {
             // меняем статус на "bad_lead"
             $this->setStatus(1);
 
-            // todo добавить метод финиширования как плохого
             // финишируем лид (полный финансовый расчет по лиду)
             $this->finish();
 
@@ -337,7 +338,6 @@ class Lead extends EloquentUser {
             // меняем статус на "закрытый лид"
             $this->setStatus(6);
 
-            // todo добавить метод финиширования как хорошего лида
             // финишируем лид (полный финансовый расчет по лиду)
             $this->finish();
 
@@ -419,6 +419,43 @@ class Lead extends EloquentUser {
 
 
     /**
+     * Цена обработки лида оператором
+     *
+     *
+     * @return double
+     */
+    public function systemSpend()
+    {
+       return PayInfo::LeadSpend( $this->id );
+    }
+
+
+    /**
+     * Доходы системы по лиду
+     *
+     *
+     * @return double
+     */
+    public function systemRevenue()
+    {
+        return PayInfo::SystemRevenueFromLeadSum( $this->id );
+    }
+
+
+
+    /**
+     * Прибыль системы по лиду
+     *
+     *
+     * @return double
+     */
+    public function systemProfit()
+    {
+        return PayCalculation::systemProfit( $this );
+    }
+
+
+    /**
      * Процент выручки агента
      *
      * процент который агент получает с продажи лидов
@@ -435,6 +472,12 @@ class Lead extends EloquentUser {
 
         // возвращает только саму выручку
         return $agentInfo->payment_revenue_share;
+    }
+
+
+    public function depositorProfit()
+    {
+        return PayCalculation::depositorProfit( $this );
     }
 
     /**
@@ -459,7 +502,7 @@ class Lead extends EloquentUser {
             Pay::forGoodLead( $this->id );
         }
 
-        // todo если нету ожиданий по открытым лидам
+
         if( $payStatus ) {
             $this->finished = 1;
             $this->save();

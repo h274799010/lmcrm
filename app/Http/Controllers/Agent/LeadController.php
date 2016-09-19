@@ -876,6 +876,10 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
+//        $l = Lead::find(29);
+//
+//        dd($l->depositorProfit());
+
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
                   where( 'agent_id', $this->user->id )

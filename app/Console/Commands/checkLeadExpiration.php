@@ -40,9 +40,9 @@ class checkLeadExpiration extends Command
     public function handle()
     {
 
-        $this->info('Метод пока отключен, нужно дописать финиш и проверить в целом');
-
-        exit();
+//        $this->info('Метод пока отключен, нужно дописать финиш и проверить в целом');
+//
+//        exit();
 
 
 
@@ -53,7 +53,7 @@ class checkLeadExpiration extends Command
         $expiredLeads->each(function( $lead ){
 
             // помечаем как завершенные
-            $lead->markExpired;
+            $lead->markExpired();
         });
 
         // ищем просроченность по открытым лидам

@@ -33,6 +33,100 @@
 
                         @foreach( $lead['transaction']['details'] as $detail )
 
+                            @if( $detail->type == 'openLead' )
+
+                                @if( $detail->user->name != 'system' )
+
+                                    <tr style="color: darkblue  ">
+
+                                        <td>{{ $lead['transaction']->created_at  }} </td>
+                                        <td>{{ $detail->user->name  }} </td>
+                                        <td>{{ $detail->amount  }} </td>
+                                        <td>{{ $detail->type  }} </td>
+
+                                    </tr>
+
+                                @endif
+
+                            @elseif( $detail->type == 'closingDeal' )
+
+                                @if( $detail->user->name != 'system' )
+
+                                    <tr style="color: #0066bb  ">
+
+                                        <td>{{ $lead['transaction']->created_at  }} </td>
+                                        <td>{{ $detail->user->name  }} </td>
+                                        <td>{{ $detail->amount  }} </td>
+                                        <td>{{ $detail->type  }} </td>
+
+                                    </tr>
+
+                                @endif
+
+
+                            @elseif( $detail->type == 'rewardForOpenLead' )
+
+                                @if( $detail->user->name != 'system' )
+
+                                    <tr style="color: @if( $detail->amount < 0) red @else green @endif  ">
+
+                                        <td>{{ $lead['transaction']->created_at  }} </td>
+                                        <td>{{ $detail->user->name  }} </td>
+                                        <td>{{ $detail->amount  }} </td>
+                                        <td>{{ $detail->type  }} </td>
+
+                                    </tr>
+
+                                @endif
+
+                            @elseif( $detail->type == 'rewardForClosingDeal' )
+
+                                @if( $detail->user->name != 'system' )
+
+                                    <tr style="color: @if( $detail->amount < 0) red @else green @endif  ">
+
+                                        <td>{{ $lead['transaction']->created_at  }} </td>
+                                        <td>{{ $detail->user->name  }} </td>
+                                        <td>{{ $detail->amount  }} </td>
+                                        <td>{{ $detail->type  }} </td>
+
+                                    </tr>
+
+                                @endif
+
+                            @elseif( $detail->type == 'repaymentForLead' )
+
+                                @if( $detail->user->name != 'system' )
+
+                                    <tr style="color: dimgrey  ">
+
+                                        <td>{{ $lead['transaction']->created_at  }} </td>
+                                        <td>{{ $detail->user->name  }} </td>
+                                        <td>{{ $detail->amount  }} </td>
+                                        <td>{{ $detail->type  }} </td>
+
+                                    </tr>
+
+                                @endif
+
+
+                            @elseif( $detail->type == 'operatorRepayment' )
+
+                                @if( $detail->user->name != 'system' )
+
+                                    <tr style="color: darkslategray  ">
+
+                                        <td>{{ $lead['transaction']->created_at  }} </td>
+                                        <td>{{ $detail->user->name  }} </td>
+                                        <td>{{ $detail->amount  }} </td>
+                                        <td>{{ $detail->type  }} </td>
+
+                                    </tr>
+
+                                @endif
+
+                            @else
+
                             <tr style="color: @if( $detail->amount < 0) red @else green @endif  ">
 
                                 <td>{{ $lead['transaction']->created_at  }} </td>
@@ -41,6 +135,8 @@
                                 <td>{{ $detail->type  }} </td>
 
                             </tr>
+
+                            @endif
 
                         @endforeach
 

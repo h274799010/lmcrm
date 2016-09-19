@@ -91,6 +91,71 @@ class PayInfo
 
 
     /**
+     * Средства, которые были потраченны системой на лид
+     *
+     *
+     * @param  integer  $lead_id
+     *
+     * @return double
+     */
+    public static function LeadSpend( $lead_id )
+    {
+        // все транзакции в которых учавствовал лид
+        $leads = TransactionsLeadInfo::
+        where( 'lead_id', $lead_id )                 // только те данные в которых учавствовал лид
+        ->lists( 'transaction_id' );                   // только список id транзакций
+
+        // данные покупателей лида
+        $operatorPayment = TransactionsDetails::
+          whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям
+        ->where( 'user_id', PayData::SYSTEM_ID )
+        ->sum('amount');
+
+        return $operatorPayment<0 ? $operatorPayment : 0;
+    }
+
+
+    /**
+     * Доход системы по лиду
+     *
+     * --- Если задан агент ---
+     * находятся все отрицательные суммы по лиду,
+     * с его участием
+     *
+     * --- Если агент НЕзадан ---
+     * выбирается система как пользователь
+     * все положительные цифры по лиду к системе
+     *
+     *
+     * todo дописать
+     */
+    public static function leadSystemReceived( $lead_id )
+    {
+
+        // выбираем все id транзакции из лидИнфо по лиду
+        $leads = TransactionsLeadInfo::
+        where( 'lead_id', $lead_id )  // данные только по заданному лиду
+        ->lists( 'transaction_id' );    // возвращается только массив из id транзакций
+
+        if( !$leads ){ return '0'; }
+
+        // по id транзакциям выбираем все детали которые принадлежат пользователя со знаком (+)
+        $received = TransactionsDetails::
+        where( 'amount', '>', 0 )            // платежи только со знаком +
+        ->where( 'user_id', '=', PayData::SYSTEM_ID )    // только платежи пользователя
+        ->whereIn( 'transaction_id', $leads )  //
+        ->get();
+
+        // todo попробовать так, вроде так должно быть проще
+//        sum('amount')
+
+
+        // суммируем их
+        return $received->sum('amount');
+    }
+
+
+    /**
      * Метод возвращает платежные данные по лиду
      *
      * Источники доходов (по умолчанию возвращает их):
@@ -143,7 +208,7 @@ class PayInfo
      *
      * @return double
      */
-    public static function SystemRevenueFromLeadSum( $lead_id, $type=['openLead', 'closingDeal'] )
+    public static function SystemRevenueFromLeadSum( $lead_id, $type=['openLead', 'closingDeal', 'repaymentForLead'] )
     {
 
         $systemRevenue =
