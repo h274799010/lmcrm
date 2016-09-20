@@ -35,7 +35,7 @@ class SphereController extends Controller {
     public function index()
     {
 
-        $leads = Lead::where('status', '=', 2)->orWhere('status', '=', 3)->with([ 'statusName', 'sphere', 'user'])->get();
+        $leads = Lead::where('status', 0)->with([ 'sphere', 'user'])->get();
 
         return view('sphere.lead.list')->with('leads', $leads);
     }
@@ -74,7 +74,7 @@ class SphereController extends Controller {
 
 
     /**
-     * Сохранение данных лида и уведомление о нем агентов
+     * Сохранение данных лида и уведомление о нем агентов которым этот лид подходит
      *
      * поля лида
      * маска лида
@@ -134,11 +134,11 @@ class SphereController extends Controller {
         $lead->name=$request->input('name');
         $lead->email=$request->input('email');
         $lead->comment=$request->input('comment');
-        $lead->status = $request->input('bad') ? 1 : 4;
+        $lead->status = $request->input('bad') ? 2 : 3;
         $lead->operator_processing_time = date("Y-m-d H:i:s");
         $lead->expiry_time = $lead->expiredTime();
-        $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
-        $lead->customer_id=$customer->id;
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
+        $lead->customer_id = $customer->id;
         $lead->save();
 
 
@@ -169,7 +169,7 @@ class SphereController extends Controller {
 
         /** --  вычитание из системы стоимость обслуживание лида  -- */
 
-        // todo сделать
+        // todo переделать по новой системе
 
         PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
 

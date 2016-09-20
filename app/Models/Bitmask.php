@@ -60,7 +60,7 @@ class Bitmask extends Model
         $this->tableFields = $tableFields;
 
 
-                // todo добавить админу а отсюда убрать
+                // todo добавить админу при создании сферы, а отсюда убрать
                 if ( $id && !DB::getSchemaBuilder()->hasTable( $this->table ) ) {
                     $this->createTable();
                 }
@@ -444,9 +444,6 @@ class Bitmask extends Model
 
         return $short_mask;
     }
-
-
-
 
 
     /**

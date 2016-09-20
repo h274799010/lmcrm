@@ -53,9 +53,14 @@ class PayInfo
               where( 'lead_id', $lead_id )                 // только те данные в которых учавствовал лид
             ->lists( 'transaction_id' );                   // только список id транзакций
 
+
+        // todo подумать
+//        with('TransactionsLeadInfo')
+//            ->
+
         // данные покупателей лида
         $byersDetails = TransactionsDetails::
-              whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям
+        whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям
             ->where( 'type', 'openLead' )                   // только с типом "открытие лида"
             ->where( 'user_id', '<>', PayData::SYSTEM_ID )  // убираем из выборки данные системы
             ->with('lead')                                  // добавляем в выборку данные лида

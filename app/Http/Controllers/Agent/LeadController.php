@@ -146,9 +146,7 @@ class LeadController extends AgentController {
                 $leadsByFilter =
                     Lead::
                       whereIn('id', $list)                   // все лиды полученыые по маске агента
-                    ->where('status', '=', 4)                // котрые помеченнык аукциону
-                    ->where('expired', '=', 0)               // у которых время еще не вышло
-                    ->where('finished', '=', 0)              // не финишированные
+                    ->where('status', '=', 3)                // котрые помеченнык аукциону
                     ->where('agent_id', '<>', $agent->id)    // без лидов, которые занес агент
                     ->select(
                         [
@@ -462,7 +460,7 @@ class LeadController extends AgentController {
             // подключаем другие данные к конструктору и выбираем данные из БД
             $leads
                 // лиды только со статусом 4 (это которые "к аукциону")
-                ->where( 'status', '=', 4 )
+                ->where( 'status', '=', 3 )
                 // исключаем лиды которые принадлежат пользователю который делает запрос
                 ->where( 'agent_id', '<>', $agent->id )
                 // получаем только те поля, которые нам нужны
@@ -678,10 +676,6 @@ class LeadController extends AgentController {
         $openResult = $lead->open( $this->user, $mask_id );
 
         return response()->json( $openResult );
-
-//      return response()->json( [ trans('lead/lead.openlead.error') ] );
-
-
     }
 
 
@@ -758,49 +752,6 @@ class LeadController extends AgentController {
     }
 
 
-
-    /**
-     * Закрытие сделки по лиду
-     *
-     * todo доработать
-     * пока непонятно сколько стоит закрытие сделки
-     * когда станет понятно - добавить
-     *
-     *
-     * @param  integer  $lead_id
-     * @param  integer  $mask_id
-     *
-     * @return Response
-     */
-    public function closingDeal( $lead_id, $mask_id )
-    {
-
-        // платеж по закрытие сделки по лиду
-        $operation =
-        PayMaster::closingDeal(
-            $this->user->id, // id агента который закрывает сделку
-            $lead_id,        // id лида
-            $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
-        );
-
-
-        // обработка результата занесения платежа
-        if( $operation == false ) {
-
-            return response()->json( [ trans('lead/lead.closingDeal.error') ] );
-
-        }elseif( $operation == 'low balance' ) {
-
-            return response()->json( [ trans('lead/lead.closingDeal.low_balance') ] );
-
-        }else {
-
-            return response()->json( [ trans('lead/lead.closingDeal.the_deal_is_closed') ] );
-        }
-    }
-
-
-
     /**
      * Show the form for creating a new resource.
      *
@@ -842,7 +793,7 @@ class LeadController extends AgentController {
         $lead = new Lead($request->except('phone'));
         $lead->customer_id=$customer->id;
         $lead->sphere_id = $agent->sphere()->id;
-        $lead->status = 2;
+        $lead->status = 0;
 
 
         $agent->leads()->save($lead);
@@ -998,29 +949,8 @@ class LeadController extends AgentController {
 
 
     /**
-     * Установка следующего статуса
-     *
-     * метод получает id лида
-     * находит пользователя у которого этот лид
-     * и прибавлает его статусу 1
-     *
-     *
-     * @param  integer  $id
-     *
-     * @return object
-     */
-    public function nextStatus($id){
-        $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
-        $status = $openedLead->status+1;
-        if ($openedLead->lead->sphere->statuses->where('position',$status)->first())
-            $openedLead->increment('status');
-        return redirect()->route('agent.lead.showOpenedLead',[$id]);
-    }
-
-    /**
      * метод устанавливает статус
      *
-     * todo поставить обработчик на bad_lead
      *
      * @param  Request  $request
      *

@@ -161,6 +161,7 @@ class OpenLeads extends Model {
         return true;
     }
 
+
     /**
      * Закрытие сделки по открытому лиду
      *
@@ -178,7 +179,7 @@ class OpenLeads extends Model {
             $this['mask_id']
         );
 
-        // помечаем что по лиду была закрыта сделка
+        // помечаем что по открытому лиду была закрыта сделка
         if( $paymentStatus ){
             $this->state = 2;
             $this->save();

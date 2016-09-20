@@ -87,11 +87,8 @@ class TransactionController extends AdminController {
     {
         $leads =
             Lead::
-                  where( 'status', '<>', 2 )
-                ->where( 'status', '<>', 3 )
+                  where( 'status', '>', 1 )
                 ->paginate(10);
-
-//                ->get();
 
         return view('admin.system.leadsInfo', [ 'leads'=>$leads ]);
     }

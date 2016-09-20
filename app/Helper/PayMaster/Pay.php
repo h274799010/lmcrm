@@ -220,7 +220,7 @@ class Pay
         $lead = Lead::find( $lead_id );
 
         // если лид уже финиширован - выходим
-        if( $lead['finished'] == 1 ){ return false; }
+        if( $lead['payment_status'] != 0 ){ return false; }
 
         // возвращаем всем агентам, которые купили лид, их платежи
         $transactionStatus['buyers'] =
@@ -249,7 +249,7 @@ class Pay
         $lead = Lead::find( $lead_id );
 
         // если лид уже финиширован - выходим
-        if( $lead['finished'] == 1 ){ return false; }
+        if( $lead['payment_status'] != 0 ){ return false; }
 
         // деньги за обработку лида оператором
         $callOperator = PayInfo::OperatorPayment( $lead_id );
@@ -260,21 +260,27 @@ class Pay
         // сумма доходов по заключенным сделкам
         $revenueClosingDeal = PayInfo::SystemRevenueFromLeadSum( $lead_id, 'closingDeal' );
 
+        // результат расчета по платежу
+        $paymentStatus = [];
+
         // обработка лида в зависимости от доходов по нему
         if( $revenueOpenLead <= 0 || ( $revenueOpenLead - $callOperator) <= 0 ){
             // если доход отрицательный, либо 0
 
             // расчитываем его как плохой лид
-            return self::forBadLead( $lead_id );
+            $paymentStatus['paymentDetails'] =
+            self::forBadLead( $lead_id );
+
+            // помечаем что лид ниразу не продан
+            $paymentStatus['status'] = 2;
+
+            return $paymentStatus;
 
         }else{
             // если доход положительный
 
             // находим депозитора лида
             $agent_id = Lead::find( $lead['agent_id'] )->agent_id;
-
-            // результат расчета по платежу
-            $paymentStatus = [];
 
             // находим платежные данные агента
             $agentInfo = AgentInfo::where( 'agent_id', $agent_id )->first();
@@ -329,6 +335,9 @@ class Pay
                     ]
                 );
             }
+
+            // помечаем что лид ниразу не продан
+            $paymentStatus['status'] = 1;
 
             return $paymentStatus;
         }

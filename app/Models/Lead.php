@@ -45,6 +45,59 @@ class Lead extends EloquentUser {
     #];
 
 
+    /**
+     * Статус лида на аукционе
+     *
+     * @var array
+     */
+    public static $status =
+    [
+        0 => 'new lead',       // новый лид в системе
+        1 => 'operator',       // лид обрабатывается оператором todo подумать над этим
+        2 => 'operator bad',   // оператор отметил лид как bad
+        3 => 'auction',        // лид на аукционе
+        4 => 'close auction',  // лид снят с аукциона
+
+        // todo думаю что ненужно:
+        5 => 'agent bad',      // агент пометил лид как bad
+        6 => 'closed_deal',    // закрытие сделки по лиду
+    ];
+
+
+    /**
+     * Статус лида снятого с аукциона
+     *
+     * @var array
+     */
+    public static $auctionStatus =
+    [
+        // todo вместо этих двух достаточно просто "no status"
+        0 => 'not at auction',          // не на аукциоа
+        1 => 'auction',                 // на аукционе
+
+
+        2 => 'closed by max open',      // снят с аукциона по причине максимального открытия лидов
+        3 => 'closed by time expired',  // снят с аукциона по причине истечения времени по лиду
+        4 => 'closed by agent bad',     // снят с аукциона, большая часть агентов пометили его как bad
+        5 => 'closed by close deal',    // снят с аукциона по закрытию сделки по лиду
+    ];
+
+
+    /**
+     * Статус платежа по лиду
+     *
+     * @var array
+     */
+    public static $paymentStatus =
+    [
+        0 => 'expects payment',          // ожидание платежа по лиду
+        1 => 'payment to depositor',     // оплата депозитору его доли по лиду
+        2 => 'payment for unsold lead',  // "штраф" депозитору за непроданный лид
+        3 => 'payment for bad lead',     // оплата агентам по плохому лиду (возврат покупателям, штраф депозитору)
+    ];
+
+
+
     public function SphereFormFilters($sphere_id=NULL){
         $relation = $this->hasMany('App\Models\SphereFormFilters', 'sphere_id', 'sphere_id');
 
@@ -125,8 +178,6 @@ class Lead extends EloquentUser {
     /**
      * Установка статуса лида
      *
-     * todo переделать, сделать статусы не по таблице, а по массиву
-     *
      *
      * @param integer $status
      *
@@ -143,20 +194,93 @@ class Lead extends EloquentUser {
 
 
     /**
-     * Получение данных о статусе лида
+     * Установка причины по которой лид убран с аукциона
      *
-     * @return LeadStatus
+     *
+     * @param integer $auctionStatus
+     *
+     * @return Lead
      */
-    public function statusName(){
-        return $this->hasOne('App\Models\LeadStatus', 'id', 'status');
+    public function setAuctionStatus( $auctionStatus )
+    {
+        // устанавливаем статус
+        $this->auction_status = $auctionStatus;
+        $this->save();
+
+        return $this;
     }
 
 
-    // todo доделать
-    public function user(){
+    /**
+     * Установка причины по которой лид убран с аукциона
+     *
+     *
+     * @param integer $paymentStatus
+     *
+     * @return Lead
+     */
+    public function setPaymentStatus( $paymentStatus )
+    {
+        // устанавливаем статус
+        $this->payment_status = $paymentStatus;
+        $this->save();
+
+        return $this;
+    }
+
+
+    /**
+     * Получение имя статуса лида
+     *
+     * todo проверить в работе
+     *
+     * @return string
+     */
+    public function statusName()
+    {
+        // выбираем значение из переменной статуса лида
+        return self::$status[ $this['status'] ];
+    }
+
+
+
+    /**
+     * Название индекса по которому лид был убран с аукциона
+     *
+     * todo проверить в работе
+     *
+     * @return string
+     */
+    public function auctionStatusName()
+    {
+        // выбираем значение из переменной статуса лида на аукционе
+        return self::$auctionStatus[ $this['auction_status'] ];
+    }
+
+
+    /**
+     * Название индекса статуса по оплате
+     *
+     * todo проверить в работе
+     *
+     * @return string
+     */
+    public function paymentStatusName()
+    {
+        // выбираем значение из переменной статуса лида по оплате
+        return self::$paymentStatus[ $this['payment_status'] ];
+    }
+
+
+    /**
+     * Данные автора лида
+     *
+     * @return Builder
+     */
+    public function user()
+    {
 
         return $this->hasOne('App\Models\Agent', 'id', 'agent_id')->select('id','first_name');
-
     }
 
 
@@ -180,7 +304,7 @@ class Lead extends EloquentUser {
 
     public function getIsBadAttribute(){
         $outOfPending = $this->openLeads()->where('pending_time','>',date('Y-m-d H:i:s'))->count();
-        $badOPenLeads = $this->openLeads()->where('bad','=',1)->count();
+        $badOPenLeads = $this->openLeads()->where('status','=', 5)->count();
         //$goodOPenLeads = $this->openLeads()->where('bad','=',0)->count();
         //if ($badOPenLeads > $goodOPenLeads)
         if ($this->opened && !$outOfPending) {
@@ -203,21 +327,19 @@ class Lead extends EloquentUser {
      */
     public function price( $agent_mask_id )
     {
+        $lead = $this;
+
         // находим цену за открытие лида
-        return Price::openLead( $this, $agent_mask_id );
+        return Price::openLead( $lead, $agent_mask_id );
     }
 
 
     /**
-     * Открыть лид
+     * Открыть лид для агента
      *
      *
      * Метод делает лид открытым для агента
      *
-     * todo доработать пендингТайм
-     *
-     * todo добавить маску
-     * todo добавить плату за открытие
      *
      * @param  Agent  $agent
      * @param  integer  $mask_id
@@ -227,8 +349,10 @@ class Lead extends EloquentUser {
     public function open( $agent, $mask_id )
     {
 
+        $lead = $this;
+
         // снимаем оплату за открытие лида
-        $payment = Pay::openLead( $this, $agent, $mask_id );
+        $payment = Pay::openLead( $lead, $agent, $mask_id );
 
         // выход если платеж не произведен
         if( !$payment['status'] ){
@@ -236,13 +360,14 @@ class Lead extends EloquentUser {
         }
 
         // заносим лид в таблицу открытых лидов
-        OpenLeads::makeOrIncrement( $this, $agent->id, $mask_id );
+        OpenLeads::makeOrIncrement( $lead, $agent->id, $mask_id );
 
         // если лид открыт максимальное количество раз
-        if( $this->opened >= $this->MaxOpenNumber() ){
-            // добавляем лиду статус "открыт максимальное количество раз"
-            // чем убираем с аункцона
-            $this->setStatus(5);
+        if( $lead->opened >= $lead->MaxOpenNumber() ){
+            // убираем лид с аукциона
+            $lead->setStatus(4);
+            // помечаем что он буран по причине максимального открытия
+            $lead->setAuctionStatus(2);
         }
 
         return trans('lead/lead.openlead.successfully_opened');
@@ -292,7 +417,8 @@ class Lead extends EloquentUser {
             // если плохих больше половины от максимально возможного
 
             // меняем статус на "bad_lead"
-            $this->setStatus(1);
+            $this->setStatus(5);
+            $this->setAuctionStatus(4);
 
             // финишируем лид (полный финансовый расчет по лиду)
             $this->finish();
@@ -314,6 +440,7 @@ class Lead extends EloquentUser {
      * и по нему делается полный расчет
      * как по "хорошему" лиду
      *
+     * todo доработать, закрытие идет после первой сделки
      *
      * @return boolean
      */
@@ -335,8 +462,11 @@ class Lead extends EloquentUser {
         if( ($MaxOpenNumber/2) < $BadLeadCount ){
             // если закрытых больше половины от максимально возможного
 
-            // меняем статус на "закрытый лид"
-            $this->setStatus(6);
+            // убираем лид с аукциона
+            $this->setStatus(4);
+
+            // фиксируем что он убран по причине закрытия сделки
+            $this->setAuctionStatus(5);
 
             // финишируем лид (полный финансовый расчет по лиду)
             $this->finish();
@@ -379,29 +509,29 @@ class Lead extends EloquentUser {
     public function scopeExpired( $query )
     {
         return $query
-            ->where( 'status', '<>', 2)
-            ->where( 'expired', '=', 0)
-            ->where( 'finished', '=', 0)
+            ->where( 'status', 3)
             ->where( 'expiry_time', '<', date("Y-m-d H:i:s") );
     }
 
 
     /**
-     * Ставит пометку об ситекшем сроке
+     * Ставит пометку об истекшем сроке
      *
      * @return Lead
      */
     public function markExpired()
     {
-        $this->expired = 1;
-        $this->save();
+        // убираем с аукциона
+        $this->setStatus(4);
+        // помечаем что убрана по причине истекшего времени лида
+        $this->setAuctionStatus(3);
 
         return $this;
     }
 
 
     /**
-     * Возвращает все просроченные к текущему времени лиды
+     * Возвращает все просроченные к текущему времени лиды по открытым лидам
      *
      *
      * @param Query $query
@@ -411,9 +541,8 @@ class Lead extends EloquentUser {
     public function scopeOpenLeadExpired( $query )
     {
         return $query
-            ->where( 'status', '<>', 2)
-            ->where( 'expired', '=', 1)
-            ->where( 'finished', '=', 0)
+            ->where( 'status', 4)
+            ->where( 'payment_status', 0)
             ->where( 'open_lead_expired', '<', date("Y-m-d H:i:s") );
     }
 
@@ -451,7 +580,9 @@ class Lead extends EloquentUser {
      */
     public function systemProfit()
     {
-        return PayCalculation::systemProfit( $this );
+        $lead = $this;
+
+        return PayCalculation::systemProfit( $lead );
     }
 
 
@@ -477,7 +608,10 @@ class Lead extends EloquentUser {
 
     public function depositorProfit()
     {
-        return PayCalculation::depositorProfit( $this );
+
+        $lead = $this;
+
+        return PayCalculation::depositorProfit( $lead );
     }
 
     /**
@@ -487,12 +621,16 @@ class Lead extends EloquentUser {
     {
 
         // проверить хороший/плохой
-        if( $this->status == 1 ){
+        if( $this->status == 2 || $this->status == 5 ){
             // если плохой
 
             // полный расчет по лиду как по плохомму
             $payStatus =
             Pay::forBadLead( $this->id );
+
+            if( $payStatus ) {
+                $this->setPaymentStatus(3);
+            }
 
         }else{
             // если хороший
@@ -500,6 +638,10 @@ class Lead extends EloquentUser {
             // полный расчет по лиду как по хорошему
             $payStatus =
             Pay::forGoodLead( $this->id );
+
+            if( $payStatus ) {
+                $this->setPaymentStatus( $payStatus['status'] );
+            }
         }
 
 
