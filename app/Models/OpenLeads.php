@@ -183,10 +183,13 @@ class OpenLeads extends Model {
         if( $paymentStatus ){
             $this->state = 2;
             $this->save();
-        }
 
-        // поверяем лид, помечать его как "закритие сделки" или нет
-        $lead->checkOnCloseDeal();
+            // проверяем лид,
+            // если сделак по нему небыло - расчитываем и закрываем
+            // если были - игнорим этот жаг
+            $lead->checkCloseDeal();
+
+        }
 
         return true;
     }

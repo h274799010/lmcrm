@@ -53,11 +53,6 @@ class PayInfo
               where( 'lead_id', $lead_id )                 // только те данные в которых учавствовал лид
             ->lists( 'transaction_id' );                   // только список id транзакций
 
-
-        // todo подумать
-//        with('TransactionsLeadInfo')
-//            ->
-
         // данные покупателей лида
         $byersDetails = TransactionsDetails::
         whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям

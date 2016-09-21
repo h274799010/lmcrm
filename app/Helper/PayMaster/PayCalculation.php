@@ -79,7 +79,7 @@ class PayCalculation
 
             return 0;
 
-        }elseif( $lead['status'] == 1 ){
+        }elseif( $lead['status'] == 2 || $lead['status'] == 5 ){
 
             return 0;
 
@@ -120,6 +120,57 @@ class PayCalculation
      *
      * @return double
      */
+    public static function depositorLeadRevenueShare( $lead )
+    {
+
+        // сумма дохода по открытым лидам
+        $revenueOpenLead = PayInfo::SystemRevenueFromLeadSum( $lead->id, 'openLead' );
+
+
+        /** ----------------- доход агента 0 если:  ----------------- */
+
+        // доход по лиду 0 или меньше 0
+        if( $revenueOpenLead <= 0 ){ return 0; }
+
+        // статусы лида "new lead", "operator" и "operator bad"
+        if( $lead['status'] < 3 ){ return 0; }
+
+        // статус лида "agent bad"
+        if( $lead['status'] == 5 ){ return 0; }
+
+        /** ---------------------------------------------------------- */
+
+
+        /** ----------------- доход агента по лиду если лид продан если:  ----------------- */
+
+        // цена обработки лида оператором
+        $callOperator = PayInfo::OperatorPayment( $lead->id ) * (-1);
+
+        // находим платежные данные агента
+        $agentInfo = AgentInfo::where( 'agent_id', $lead['agent_id'] )->first();
+
+        // процент агента за открытые лиды
+        $leadRevenueShare = $agentInfo->lead_revenue_share;
+
+        // выручка депозитора по продажам лида
+        $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare;
+
+        return $agentRevenueOpenLead;
+
+        /** ------------------------------------------------------- */
+
+
+    }
+
+
+    /**
+     * Прибыль прибыль системы
+     *
+     *
+     * @param Lead $lead
+     *
+     * @return double
+     */
     public static function systemProfit( $lead )
     {
 
@@ -129,11 +180,11 @@ class PayCalculation
         // прибыль депозитора лида
         $depositorProfit = self::depositorProfit( $lead );
 
-        if( $lead['status']==1 ){
+        if( $lead['status']==2 || $lead['status']==5 ){
 
             return 0;
         }else{
-            return $systemRevenue - $depositorProfit;
+            return $systemRevenue - $depositorProfit + PayInfo::OperatorPayment( $lead->id ) ;
         }
 
     }

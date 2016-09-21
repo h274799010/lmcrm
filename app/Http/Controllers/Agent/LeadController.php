@@ -827,9 +827,17 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
-//        $l = Lead::find(29);
-//
-//        dd($l->depositorProfit());
+//        $l = Lead::find( 43 );
+
+//        dd( $l->closeDeal() );
+
+//        dd( PayInfo::LeadBuyers( 35 ) );
+
+//        dd( Lead::OpenLeadExpired()->get() );
+
+//        dd( \App\Helper\PayMaster\Price::closeDeal( $this->user ) );
+
+//        dd( $l->finish() );
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::

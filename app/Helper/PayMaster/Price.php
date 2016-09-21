@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Wallet;
 use App\Models\Agent;
+use App\Models\AgentInfo;
 use App\Models\Lead;
 use App\Models\TransactionsLeadInfo;
 
@@ -51,7 +52,26 @@ class Price
         return $price;
     }
 
+    /**
+     * Цена за закрытие сделки агентом по лиду
+     *
+     *
+     * @param  Agent  $agent
+     *
+     * @return double
+     */
+    public static function closeDeal( $agent )
+    {
 
+        // находим платежные данные агента
+        $agentInfo = AgentInfo::where( 'agent_id', $agent->id )->first();
+
+        // процент агента за закрытие сделки по лиду
+        $paymentRevenueShare = $agentInfo->payment_revenue_share * 20;
+
+        return $paymentRevenueShare;
+
+    }
 
 
 

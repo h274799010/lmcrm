@@ -23,7 +23,7 @@
                                     <td><div></div></td>
                                     <td class="select_cell">
                                         {{-- Если лид был отмечен как плохой --}}
-                                        @if( $openLead->state == 1 || ($openLead['lead']['status'] == 1) )
+                                        @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
                                             bad lead
                                         {{-- впротивном случае вывод select со статусами --}}
                                         @elseif( $openLead->state == 2 )

@@ -57,10 +57,8 @@ class Lead extends EloquentUser {
         2 => 'operator bad',   // оператор отметил лид как bad
         3 => 'auction',        // лид на аукционе
         4 => 'close auction',  // лид снят с аукциона
-
-        // todo думаю что ненужно:
         5 => 'agent bad',      // агент пометил лид как bad
-        6 => 'closed_deal',    // закрытие сделки по лиду
+        6 => 'closed deal',    // закрытие сделки по лиду
     ];
 
 
@@ -74,7 +72,6 @@ class Lead extends EloquentUser {
         // todo вместо этих двух достаточно просто "no status"
         0 => 'not at auction',          // не на аукциоа
         1 => 'auction',                 // на аукционе
-
 
         2 => 'closed by max open',      // снят с аукциона по причине максимального открытия лидов
         3 => 'closed by time expired',  // снят с аукциона по причине истечения времени по лиду
@@ -96,6 +93,7 @@ class Lead extends EloquentUser {
         3 => 'payment for bad lead',     // оплата агентам по плохому лиду (возврат покупателям, штраф депозитору)
     ];
 
+    // todo ? payment for operator bad lead
 
 
     public function SphereFormFilters($sphere_id=NULL){
@@ -228,6 +226,56 @@ class Lead extends EloquentUser {
         return $this;
     }
 
+
+    /**
+     * Состояние лида
+     *
+     * установка всех трех статусов
+     *
+     * Структура данных
+     * [
+     *    'status'  => 0,
+     *    'auction' => 0,
+     *    'payment' => 0
+     * ]
+     *
+     * @param  array  $statuses
+     *
+     * @return Lead
+     */
+    public function state( $statuses )
+    {
+
+        /**
+         $statuses =
+            [
+                'status'  => 0,
+                'auction' => 0,
+                'payment' => 0
+            ]
+        */
+
+        // если задан статус
+        if( isset($statuses['status']) ){
+            // устанавливаем статус
+            $this->status = $statuses['status'];
+        }
+
+        // если задан статус по аукциону
+        if( isset($statuses['auction']) ) {
+            // устанавливаем статус по аукциону
+            $this->auction_status = $statuses['auction'];
+        }
+
+        // если задан статус по платежу
+        if( isset($statuses['payment']) ) {
+            // устанавливаем статус по платежу
+            $this->payment_status = $statuses['payment'];
+        }
+
+        $this->save();
+
+    }
 
     /**
      * Получение имя статуса лида
@@ -364,15 +412,18 @@ class Lead extends EloquentUser {
 
         // если лид открыт максимальное количество раз
         if( $lead->opened >= $lead->MaxOpenNumber() ){
-            // убираем лид с аукциона
-            $lead->setStatus(4);
-            // помечаем что он буран по причине максимального открытия
-            $lead->setAuctionStatus(2);
+
+            // устанавливаем статусы
+            $lead->state(
+                [
+                    'status'  => 4,  // close auction
+                    'auction' => 2,  // closed by max open
+                ]
+            );
         }
 
         return trans('lead/lead.openlead.successfully_opened');
     }
-
 
 
     /**
@@ -416,12 +467,34 @@ class Lead extends EloquentUser {
         if( ($MaxOpenNumber/2) < $BadLeadCount ){
             // если плохих больше половины от максимально возможного
 
-            // меняем статус на "bad_lead"
-            $this->setStatus(5);
-            $this->setAuctionStatus(4);
+            // возврат средств агентам, которые купили лид
+            Pay::ReturnsToAgentsForLead( $this->id );
 
-            // финишируем лид (полный финансовый расчет по лиду)
-            $this->finish();
+            // зачисление денег за оператора депозитору лида
+            Pay::OperatorRepayment( $this->id );
+
+
+            if( $this->status == 3 ){
+                // если лид на аукционе
+
+                $this->state(
+                    [
+                        'status'  => 5,  // agent bad
+                        'auction' => 4,  // closed by agent bad
+                        'payment' => 3   // payment for bad lead
+                    ]
+                );
+
+            }else{
+                // если лид уже снят с аукциона
+
+                $this->state(
+                    [
+                        'status'  => 5,  // agent bad
+                        'payment' => 3   // payment for bad lead
+                    ]
+                );
+            }
 
             return true;
         }
@@ -434,47 +507,41 @@ class Lead extends EloquentUser {
     /**
      * Закрытие сделки по лиду
      *
-     * Если в открытых лидах по этому лиду
-     * больше половины закрытых (из максимально возможных)
-     * лид помечается как закрытый, убирается с аукциона
-     * и по нему делается полный расчет
-     * как по "хорошему" лиду
+     * если лид еще на аукционе
+     *    делается полный расчет по лиду
+     *    и смена статусов
      *
-     * todo доработать, закрытие идет после первой сделки
+     * если лида нет на аукционе
+     *    ничего не делаем, просто выходим
      *
-     * @return boolean
+     *
+     * @return boolean|array
      */
-    public function checkOnCloseDeal()
+    public function checkCloseDeal()
     {
-        // проверяем количество закрытых сделок в открытых лидах по лиду
-        $BadLeadCount = OpenLeads::
-              where( 'lead_id', $this['id'] )
-            ->where( 'state', 2)
-            ->count();
 
-        // если закрытых лидов нет, возвращаем false
-        if( $BadLeadCount==0 ){ return false; }
+        /** проверяем статус лида */
+        if( $this['status'] == 3 ){
+            // если лид еще на аукционе
 
-        // находим количество макс. открытия лидов
-        $MaxOpenNumber = $this->MaxOpenNumber();
+            // расчет с депозитором лида
+            $paymentStatus =
+            Pay::rewardForOpenLeads( $this->id );
 
-        // сравниваем количество закрытых и макс/2
-        if( ($MaxOpenNumber/2) < $BadLeadCount ){
-            // если закрытых больше половины от максимально возможного
+            // простовляем состояние лида
+            if( $paymentStatus ) {
+                $this->state(
+                    [
+                        'status'  => 6,  // closed deal
+                        'auction' => 5,  // closed by close deal
+                        'payment' => 1   // payment for bad lead
+                    ]
+                );
+            }
 
-            // убираем лид с аукциона
-            $this->setStatus(4);
-
-            // фиксируем что он убран по причине закрытия сделки
-            $this->setAuctionStatus(5);
-
-            // финишируем лид (полный финансовый расчет по лиду)
-            $this->finish();
-
-            return true;
+            return $paymentStatus;
         }
 
-        // если лидов с закрытыми сделками не больше половины максимального открытия - возвращается false
         return false;
     }
 
@@ -521,10 +588,35 @@ class Lead extends EloquentUser {
      */
     public function markExpired()
     {
-        // убираем с аукциона
-        $this->setStatus(4);
-        // помечаем что убрана по причине истекшего времени лида
-        $this->setAuctionStatus(3);
+
+        /** проверяем, открывался лид или нет */
+        if( $this->opened == 0 ){
+            // если лид ни разу не открывался
+
+            // делаем расчет по лиду
+            Pay::OperatorRepayment( $this->id );
+
+            // проставляем статусы
+            $this->state(
+                [
+                    'status'  => 4,  // close auction
+                    'auction' => 3,  // closed by time expired
+                    'payment' => 2   // payment for unsold lead
+                ]
+            );
+
+
+        }else{
+            // если лид открывался хотя бы один раз
+
+            // проставляем статусы
+            $this->state(
+                [
+                    'status'  => 4,  // close auction
+                    'auction' => 3,  // closed by time expired
+                ]
+            );
+        }
 
         return $this;
     }
@@ -571,7 +663,6 @@ class Lead extends EloquentUser {
     }
 
 
-
     /**
      * Прибыль системы по лиду
      *
@@ -606,6 +697,10 @@ class Lead extends EloquentUser {
     }
 
 
+    /**
+     * доход депозитора лида
+     *
+     */
     public function depositorProfit()
     {
 
@@ -613,6 +708,52 @@ class Lead extends EloquentUser {
 
         return PayCalculation::depositorProfit( $lead );
     }
+
+
+    /**
+     * Обработка лида когда оператор отметил его как bad
+     *
+     * @return Lead
+     */
+    public function operatorBad()
+    {
+
+        // возврат денег за обработку оператора
+        $paymentStatus =
+        Pay::OperatorRepayment( $this->id );
+
+        // если платеж нормальный, выставляем статусы лида
+        if( isset( $paymentStatus['status'] ) ){
+
+            $this->state(
+                [
+                    'status'  => 2,  // operator bad
+                    'payment' => 3,  // payment for bad lead
+                ]
+            );
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Выплата депозитору за открытия его лида
+     *
+     */
+    public function rewardForOpenLeads()
+    {
+
+        Pay::rewardForOpenLeads( $this->id );
+
+        // проставляем статусы
+        $this->state(
+            [
+                'payment' => 1,  //  payment to depositor
+            ]
+        );
+    }
+
 
     /**
      * Помечает лид как завершенный
@@ -642,12 +783,6 @@ class Lead extends EloquentUser {
             if( $payStatus ) {
                 $this->setPaymentStatus( $payStatus['status'] );
             }
-        }
-
-
-        if( $payStatus ) {
-            $this->finished = 1;
-            $this->save();
         }
 
         return $this;

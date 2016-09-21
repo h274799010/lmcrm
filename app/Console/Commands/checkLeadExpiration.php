@@ -53,6 +53,8 @@ class checkLeadExpiration extends Command
         $expiredLeads->each(function( $lead ){
 
             // помечаем как завершенные
+            // убираем с аукционе
+            // ожидаем закрытие открытых лидов
             $lead->markExpired();
         });
 
@@ -63,8 +65,9 @@ class checkLeadExpiration extends Command
         // если они есть - обрабатываем
         $expiredOpenLeads->each(function( $lead ){
 
-            // помечаем как завершенные
-            $lead->finish();
+            // делаем расчет по открытым лидам
+            // и проставляем статусы
+            $lead->rewardForOpenLeads();
         });
 
         // todo сделать на логах

@@ -91,19 +91,17 @@ class Pay
     public static function closingDeal( $lead, $agent, $mask_id  )
     {
 
-        // todo вынести в данные
-        // todo пока что сделка закрывается по цене лида
-        // получаем цену лида
-        $price = $lead->price( $mask_id );
+        // получаем цену за закрытие сделки по лиду
+        $price = Price::closeDeal( $agent );
 
         // проверка, может ли агент оплатить сделку
-        if( !$agent->wallet->isPossible($price) ){
+        if( !$agent->wallet->isPossible( $price ) ){
 
             // отмена платежа из-за низкого баланса
             return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
         }
 
-        // оплачиваем лид
+        // оплачиваем закрытие сделки
         $paymentStatus =
             Payment::toSystem(
                 [
@@ -126,7 +124,7 @@ class Pay
 
 
     /**
-     * Возвращает агенту все его платежи по лиду
+     * Возвращает платежи по лиду всем агентам, которые его купили
      *
      * Находит все транзакции по лиду с типом openLeads
      * которые принадлежат агентам
@@ -184,22 +182,59 @@ class Pay
         // автор лида
         $author_id = Lead::find( $lead_id )->agent_id;
 
-        // todo залепить прямой платеж на wasted в сумме платежа за лид
+        // снимаем платеж за оператора с депозитора лида, с кошелька wasted
         $paymentStatus =
-        Payment::single(
+        Payment::toSystem(
             [
                 'initiator_id'  => PayData::SYSTEM_ID,  // id инициатора платежа
-                'user_id'       => $author_id,          // id пользователя, на кошелек которого будет зачисленна сумма
-                'wallet_type'   => 'wasted',            // тип кошелька с которого снимается сумма
+                'user_id'       => $author_id,          // id депозитора которому будет зачислен wasted
+                'wallet_type'   => 'wasted',            // тип кошелька c которого будет снята сумма
                 'type'          => 'operatorRepayment', // тип транзакции
-                'amount'        => $amount,             // снимаемая с пользователя сумма
-                'lead_id'       => $lead_id,            // (не обязательно) id лида если он учавствует в платеже
+                'amount'        => $amount,             // снимаемая с депозитора сумма
+                'lead_id'       => $lead_id,            // id лида по которому идет транзакция
             ]
         );
 
+        $paymentStatus['status'] = true;
 
         return $paymentStatus;
     }
+
+
+    /** Выплаты агенту за лид за открытия лида */
+    public static function rewardForOpenLeads( $lead_id )
+    {
+        $lead = Lead::find( $lead_id );
+
+        // находим депозитора лида
+        $agent_id = Lead::find( $lead['agent_id'] )->agent_id;
+
+        // выручка агента по продажам лида
+        // отнимаем от суммы всех продаж по лиду цену за оператора и умножаем на процент от выручки
+        $agentRevenueOpenLead = PayCalculation::depositorLeadRevenueShare( $lead );
+
+        // записываем для отчетности
+        $paymentStatus['openLeads'] = $agentRevenueOpenLead;
+
+        // todo обработать инициатора, сделать что если его нет, то инициатор - система
+        // зачисляем на счет автора и снимаем с системы
+        $paymentStatus['openLeadsDetails'] =
+            Payment::fromSystem(
+                [
+                    'initiator_id'  => PayData::SYSTEM_ID,    // id инициатора платежа
+                    'user_id'       => $agent_id,             // id пользователя, на кошелек которого будет зачисленна сумма
+                    'wallet_type'   => 'earned',              // тип кошелька агента на который будет зачисленна сумма
+                    'type'          => 'rewardForOpenLead',   // тип транзакции
+                    'amount'        => $agentRevenueOpenLead, // снимаемая сумма с системы
+                    'lead_id'       => $lead_id,              // id лида по которому идет транзакция
+                ]
+            );
+
+        return $paymentStatus;
+    }
+
+
+
 
 
     /**
@@ -252,7 +287,7 @@ class Pay
         if( $lead['payment_status'] != 0 ){ return false; }
 
         // деньги за обработку лида оператором
-        $callOperator = PayInfo::OperatorPayment( $lead_id );
+        $callOperator = PayInfo::OperatorPayment( $lead_id )  * (-1);
 
         // сумма дохода по открытым лидам
         $revenueOpenLead = PayInfo::SystemRevenueFromLeadSum( $lead_id, 'openLead' );
@@ -326,12 +361,12 @@ class Pay
                 $paymentStatus['closingDealDetails'] =
                 Payment::fromSystem(
                     [
-                        'initiator_id'  => PayData::SYSTEM_ID,  // id инициатора платежа
-                        'user_id'       => $agent_id,  // id пользователя, на кошелек которого будет зачисленна сумма
-                        'wallet_type'   => 'earned',  // тип кошелька с которого снимается сумма
-                        'type'          => 'rewardForClosingDeal',  // тип транзакции
+                        'initiator_id'  => PayData::SYSTEM_ID,        // id инициатора платежа
+                        'user_id'       => $agent_id,                 // id пользователя, на кошелек которого будет зачисленна сумма
+                        'wallet_type'   => 'earned',                  // тип кошелька с которого снимается сумма
+                        'type'          => 'rewardForClosingDeal',    // тип транзакции
                         'amount'        => $agentRevenueClosingDeal,  // снимаемая с пользователя сумма
-                        'lead_id'       => $lead_id,  // (не обязательно) id лида если он учавствует в платеже
+                        'lead_id'       => $lead_id,                  // (не обязательно) id лида если он учавствует в платеже
                     ]
                 );
             }

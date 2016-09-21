@@ -37,7 +37,7 @@ class SphereController extends Controller {
 
         $leads = Lead::where('status', 0)->with([ 'sphere', 'user'])->get();
 
-        return view('sphere.lead.list')->with('leads', $leads);
+        return view('sphere.lead.list')->with( 'leads', $leads );
     }
 
 
@@ -98,12 +98,47 @@ class SphereController extends Controller {
         ]);
 
         if ($validator->fails()) {
-            if($request->ajax()){
+            if( $request->ajax() ){
                 return response()->json($validator);
             } else {
                 return redirect()->back()->withErrors($validator)->withInput();
             }
         }
+
+
+        /** --  Находим лид и проверяем на bad/good  -- */
+
+        // находим лид
+        $lead = Lead::find( $lead_id );
+
+        // если оператор отметил лид как плохой
+        if( $request->input('bad') ){
+
+            // расчитываем лид
+            $lead->operatorBad();
+
+            // выходим из метода
+            if( $request->ajax() ){
+                return response()->json($validator);
+            } else {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+        }
+
+        /** --  П О Л Я  лида  -- */
+
+        $lead->name=$request->input('name');
+        $lead->email=$request->input('email');
+        $lead->comment=$request->input('comment');
+
+        $lead->status = 3;
+
+        $lead->operator_processing_time = date("Y-m-d H:i:s");
+        $lead->expiry_time = $lead->expiredTime();
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
+        $lead->customer_id = $customer->id;
+        $lead->save();
+
 
 
         /** --  П О Л Я  fb_  =====  сохранение данных опций атрибутов лида  -- */
@@ -126,20 +161,6 @@ class SphereController extends Controller {
         // в маске лида выставляется статус 1,
         // где и зачем используется - непонятно
         $mask->setStatus(1, $lead_id);
-
-
-        /** --  П О Л Я  лида  -- */
-
-        $lead = Lead::find($lead_id);
-        $lead->name=$request->input('name');
-        $lead->email=$request->input('email');
-        $lead->comment=$request->input('comment');
-        $lead->status = $request->input('bad') ? 2 : 3;
-        $lead->operator_processing_time = date("Y-m-d H:i:s");
-        $lead->expiry_time = $lead->expiredTime();
-        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
-        $lead->customer_id = $customer->id;
-        $lead->save();
 
 
 
@@ -201,7 +222,7 @@ class SphereController extends Controller {
         }
 
 
-        if($request->ajax()){
+        if( $request->ajax() ){
             return response()->json();
         } else {
             return redirect()->route('operator.sphere.index');
