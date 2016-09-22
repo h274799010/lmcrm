@@ -38,14 +38,6 @@
                             <br>
 
 
-                            {{-- todo временно, удалить потом --}}
-                            <li>
-                                <a href="{{ route('agent.lead.obtain.2') }}"> obtain2 </a>
-                            </li>
-                            <hr>
-
-
-
                             <li>
                                 <a href="{{ route('agent.salesman.index') }}"> Salesmen </a>
                             </li>

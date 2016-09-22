@@ -29,17 +29,9 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
         Route::get('lead/openAll/{lead_id}/{mask_id}', ['as' => 'agent.lead.openAll', 'uses' => 'Agent\LeadController@openAllLeads']);
     });
 
-
-
-
     // получение данных для таблицы на странице фильтра лидов
     Route::get('lead/obtain/data', ['as' => 'agent.lead.obtain.data', 'uses' => 'Agent\LeadController@obtainData']);
 
-    // todo страница фильтра лидов, тестовая, удалить
-    Route::get('lead/obtain2', ['as' => 'agent.lead.obtain.2', 'uses' => 'Agent\LeadController@obtain2']);
-
-    // todo получение данных для таблицы на странице фильтра лидов, удалить
-    Route::get('lead/obtain2/data', ['as' => 'agent.lead.obtain.2.data', 'uses' => 'Agent\LeadController@obtain2Data']);
 
     Route::get('lead/showOpenedLead/{id}',['as'=>'agent.lead.showOpenedLead', 'uses' => 'Agent\LeadController@showOpenedLead']);
 
