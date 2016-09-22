@@ -80,7 +80,7 @@ class OpenLeads extends Model {
      *
      * @return OpenLeads
      */
-    public static function makeOrIncrement( $lead, $agent_id, $mask_id, $count=1 )
+    public static function makeOpen( $lead, $agent_id, $mask_id, $count=1 )
     {
 
         // интервал гарантированный агентом на работу с лидом, который он октрыл
@@ -94,24 +94,13 @@ class OpenLeads extends Model {
         $openLead = OpenLeads::
               where( 'lead_id', $lead->id )
             ->where( 'agent_id', $agent_id )
-            ->where( 'mask_id', $mask_id )
             ->first();
 
         if( $openLead ){
             // если ЕСТЬ открытый лид с такими параметрами
             // обновляем счетчики и время гарантированное на bad_lead
 
-            // инкрементим счетчик у открытого лида
-            $openLead->count++;
-            // добавляем время на bad_lead
-            $openLead->expiration_time = $expiration_time;
-            $openLead->save();
-
-            // инкрементим opened у лида, (количество открытия лида)
-            $lead->opened++;
-            // время истечения открытых лидов
-            $lead->open_lead_expired  = $expiration_time;
-            $lead->save();
+            return false;
 
         }else{
             // если НЕТ открытого лида с такими параметрами

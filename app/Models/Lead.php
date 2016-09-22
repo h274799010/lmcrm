@@ -399,30 +399,39 @@ class Lead extends EloquentUser {
 
         $lead = $this;
 
-        // снимаем оплату за открытие лида
-        $payment = Pay::openLead( $lead, $agent, $mask_id );
-
-        // выход если платеж не произведен
-        if( !$payment['status'] ){
-            return $payment['description'];
-        }
-
         // заносим лид в таблицу открытых лидов
-        OpenLeads::makeOrIncrement( $lead, $agent->id, $mask_id );
+        $openLead =
+        OpenLeads::makeOpen( $lead, $agent->id, $mask_id );
 
-        // если лид открыт максимальное количество раз
-        if( $lead->opened >= $lead->MaxOpenNumber() ){
+        if( $openLead ) {
 
-            // устанавливаем статусы
-            $lead->state(
-                [
-                    'status'  => 4,  // close auction
-                    'auction' => 2,  // closed by max open
-                ]
-            );
+            // снимаем оплату за открытие лида
+            $payment = Pay::openLead($lead, $agent, $mask_id);
+
+            // выход если платеж не произведен
+            if (!$payment['status']) {
+                return $payment['description'];
+            }
+
+
+            // если лид открыт максимальное количество раз
+            if ($lead->opened >= $lead->MaxOpenNumber()) {
+
+                // устанавливаем статусы
+                $lead->state(
+                    [
+                        'status'  => 4,  // close auction
+                        'auction' => 2,  // closed by max open
+                    ]
+                );
+            }
+
+            return trans('lead/lead.openlead.successfully_opened');
+        }else{
+
+            return trans('lead/lead.openlead.already_open');
         }
 
-        return trans('lead/lead.openlead.successfully_opened');
     }
 
 

@@ -32,6 +32,7 @@ use App\Models\AgentBitmask;
 class Price
 {
 
+
     /**
      * Цена за открытие лида
      *
@@ -51,6 +52,7 @@ class Price
 
         return $price;
     }
+
 
     /**
      * Цена за закрытие сделки агентом по лиду
