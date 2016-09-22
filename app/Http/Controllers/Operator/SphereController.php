@@ -119,9 +119,9 @@ class SphereController extends Controller {
 
             // выходим из метода
             if( $request->ajax() ){
-                return response()->json($validator);
+                return response()->json();
             } else {
-                return redirect()->back()->withErrors($validator)->withInput();
+                return redirect()->route('operator.sphere.index');
             }
         }
 

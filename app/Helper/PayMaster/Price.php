@@ -74,6 +74,21 @@ class Price
     }
 
 
+    /**
+     * Цена за обработку оператором
+     *
+     *
+     * @param integer $lead_id
+     *
+     * @return double
+     */
+    public static function processingOperator( $lead_id )
+    {
+        // данные лида вместе с сферой
+        $lead = Lead::with('sphere')->find($lead_id);
+
+        return $lead['sphere']['price_call_center'] * (-1);
+    }
 
 
 }

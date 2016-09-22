@@ -86,7 +86,11 @@ class PayInfo
             ->where( 'type', 'operatorPayment' )            // только с типом "оплата за оператора"
             ->first();
 
-        return $operatorPayment->amount;
+        if( $operatorPayment ){
+            return $operatorPayment->amount;
+        }else{
+            return Price::processingOperator( $lead_id );
+        }
     }
 
 
