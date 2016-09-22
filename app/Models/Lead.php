@@ -847,6 +847,20 @@ class Lead extends EloquentUser {
 
 
     /**
+     * Получение имени маски по которой был открыт лид
+     *
+     *
+     * @param  integer  $mask_id
+     *
+     * @return string
+     */
+    public function maskName( $mask_id )
+    {
+        $mask = new AgentBitmask( $this->sphere['id'] );
+        return $mask->find( $mask_id )->name;
+    }
+
+    /**
      * Помечает лид как завершенный
      */
     public function finish()

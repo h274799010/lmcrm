@@ -55,7 +55,11 @@ class OpenLeads extends Model {
         return false;
     }
 
-
+    /**
+     * Получение имени маски по которой был открыт лид
+     *
+     * @return string
+     */
     public function maskName()
     {
         $lead = Lead::find( $this['lead_id'] );
