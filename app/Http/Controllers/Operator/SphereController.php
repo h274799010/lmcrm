@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Operator;
 use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
+use App\Models\Auction;
 use App\Models\LeadBitmask;
 use Validator;
 use App\Models\Agent;
@@ -219,6 +220,9 @@ class SphereController extends Controller {
             // todo подобрать название к этому уведомлению
             // рассылаем уведомления всем агентам которым подходит этот лид
             Notice::toMany( $senderId, $agents, 'note');
+
+            // метод добавляющий лид в таблицу аукциона агентам, которым он подходит
+            Auction::addFromBitmask( $agents, $sphere_id, $lead_id );
         }
 
 

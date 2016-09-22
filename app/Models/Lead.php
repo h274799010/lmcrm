@@ -400,7 +400,10 @@ class Lead extends EloquentUser {
         // лид
         $lead = $this;
 
-        // todo переделать, в начале платеж   !!!!
+        // если лид уже снят с аукциона, сообщаем об этом и выходим
+        if( $lead->status != 3 ){
+            return trans('lead/lead.Lead.not_at_auction');
+        }
 
         // заносим лид в таблицу открытых лидов
         $openLead =
@@ -455,6 +458,11 @@ class Lead extends EloquentUser {
         // лид
         $lead = $this;
 
+        // если лид уже снят с аукциона, сообщаем об этом и выходим
+        if( $lead->status != 3 ){
+            return trans('lead/lead.Lead.not_at_auction');
+        }
+
         // Ищем этот лид у других агентов
         $openLead =
         OpenLeads::
@@ -506,14 +514,6 @@ class Lead extends EloquentUser {
             // возвращаем причину по которой платеж не прошел
             return $payment['description'];
         }
-
-
-
-
-
-        // todo открываем лиды
-
-        // todo убираем с аукциона
 
     }
 

@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Input;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
 use App\Http\Controllers\Notice;
+use App\Models\Auction;
 
 class LeadController extends AgentController {
 
@@ -221,22 +222,27 @@ class LeadController extends AgentController {
             })
             ->edit_column('id',function($model) use ($agent){
 
+                // проверяем открыт ли этот лид у агента
                 $openLead = OpenLeads::where( 'lead_id', $model->id )->where( 'agent_id', $agent->id )->first();
 
                 if( $openLead ){
+                    // если открыт - блокируем возможность открытия
                     return view('agent.lead.datatables.obtain_already_open');
                 }else {
-
+                    // если не открыт - отдаем ссылку на открытия
                     return view('agent.lead.datatables.obtain_open', ['lead' => $model]);
                 }
             })
             ->add_column('ids',function($model)  use ($agent){
 
+                // проверяем открыт ли этот лид у других агентов
                 $openLead = OpenLeads::where( 'lead_id', $model->id )->where( 'agent_id', '<>', $agent->id )->first();
 
                 if( $openLead ){
+                    // если открыт - блокируем ссылку
                     return view('agent.lead.datatables.obtain_already_open');
                 }else {
+                    // если не открыт - отдаем ссылку на открытие всех лидов
                     return view('agent.lead.datatables.obtain_open_all', ['lead' => $model]);
                 }
             }, 2)
@@ -803,17 +809,36 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
-//        $l = Lead::find( 43 );
 
-//        dd( $l->closeDeal() );
+        $mask = new LeadBitmask( 1 );
 
-//        dd( PayInfo::LeadBuyers( 35 ) );
+        $lead = Lead::find( 44 );
 
-//        dd( Lead::OpenLeadExpired()->get() );
+        // выбираем маску лида
+        $leadBitmaskData = $mask->findFbMask( $lead->id );
 
-//        dd( \App\Helper\PayMaster\Price::closeDeal( $this->user ) );
+        // выбираем маски всех агентов
+        $agentBitmasks = new AgentBitmask(1);
 
-//        dd( $l->finish() );
+        // находим всех агентов которым подходит этот лид по фильтру
+        // исключаем агента добавившего лид
+        $agents = $agentBitmasks
+            ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
+            ->get();
+
+        dd( $agents );
+
+
+
+//        dd( Auction::
+//            insert(
+//            [
+//                [ 'sphere_id'=>1, 'user_id'=>1, 'lead_id'=>1, 'mask_id'=>1 ],
+//                [ 'sphere_id'=>2, 'user_id'=>2, 'lead_id'=>2, 'mask_id'=>2 ],
+//                [ 'sphere_id'=>3, 'user_id'=>3, 'lead_id'=>3, 'mask_id'=>3 ]
+//            ]
+//        ) );
+
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
