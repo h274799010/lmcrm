@@ -40,17 +40,18 @@ class Pay
      * @param  Lead  $lead
      * @param  Agent  $agent
      * @param  integer  $mask_id
+     * @param  integer  $leadNumber
      *
      * @return array
      */
-    public static function openLead( $lead, $agent, $mask_id )
+    public static function openLead( $lead, $agent, $mask_id, $leadNumber=1 )
     {
 
         // получаем цену лида
-        $price = $lead->price( $mask_id );
+        $price = $lead->price( $mask_id ) * $leadNumber;
 
         // проверка, может ли агент оплатить открытие лида
-        if( !$agent->wallet->isPossible($price) ){
+        if( !$agent->wallet->isPossible( $price ) ){
 
             // отмена платежа из-за низкого баланса
             return [ 'status' => false, 'description' => trans('lead/lead.openlead.low_balance')];
@@ -64,7 +65,8 @@ class Pay
                 'user_id'       => $agent->id,  // id пользователя, с кошелька которого снимается сумма
                 'type'          => 'openLead',  // тип транзакции
                 'amount'        => $price,      // снимаемая с пользователя сумма
-                'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
+                'lead_id'       => $lead->id,   // id лида если он учавствует в платеже
+                'lead_number'   => $leadNumber  // количество лидов
             ]
         );
 

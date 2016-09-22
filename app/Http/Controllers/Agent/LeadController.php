@@ -698,10 +698,29 @@ class LeadController extends AgentController {
 
 
     /**
+     * Открытие максимальное количество лидов по лиду
      *
      *
+     * @param integer $lead_id
+     * @param integer $mask_id
+     *
+     * @return Response
      */
-    public function openAllLeads( $id ){
+    public function openAllLeads( $lead_id, $mask_id ){
+
+        // находим лид
+        $lead = Lead::find( $lead_id );
+
+        // агент
+        $agent = $this->user;
+
+        // пробуем открыть лид, статус записываем в переменную
+        $openResult = $lead->openAll( $agent, $mask_id );
+
+        return response()->json( $openResult );
+
+
+
         $credit = $this->user->bill;
         $balance = $credit->balance;
 

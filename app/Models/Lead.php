@@ -397,7 +397,10 @@ class Lead extends EloquentUser {
     public function open( $agent, $mask_id )
     {
 
+        // лид
         $lead = $this;
+
+        // todo переделать, в начале платеж   !!!!
 
         // заносим лид в таблицу открытых лидов
         $openLead =
@@ -426,30 +429,91 @@ class Lead extends EloquentUser {
                 );
             }
 
+            // сообщаем что лид открыт нормально
             return trans('lead/lead.openlead.successfully_opened');
+
         }else{
 
+            // сообщаем что лид уже открыт (нельзя открыть больше одного раза)
             return trans('lead/lead.openlead.already_open');
         }
-
     }
 
 
     /**
      * Открыть лид максимальное количество раз
      *
+     *
+     * @param  Agent  $agent
+     * @param  integer  $mask_id
+     *
+     * @return OpenLeads
      */
-    public function openAll()
+    public function openAll( $agent, $mask_id )
     {
 
-        // todo если лид уже открывался другими агентами то его открыть уже нельзя
+        // лид
+        $lead = $this;
+
+        // Ищем этот лид у других агентов
+        $openLead =
+        OpenLeads::
+              where( 'lead_id', $lead->id )
+            ->where( 'agent_id', '<>', $agent->id )
+            ->first();
+
+        // если другие агенты уже открывали этот лид - сообщаем об этом и выходим
+        if( $openLead ){
+            return trans('lead/lead.openAllLead.already_open_other_agents');
+        }
+
+        // проверяем, открывал ли агент этот лид
+        $agentOpenLead =
+            OpenLeads::
+            where( 'lead_id', $lead->id )
+                ->where( 'agent_id', $agent->id )
+                ->first();
+
+        // узнаем количество максимального открытия
+        $leadMaxOpen = $lead->MaxOpenNumber();
+
+        // количество покупаемых лидов
+        $amountLeads = $agentOpenLead ? $leadMaxOpen - 1 : $leadMaxOpen ;
+
+        // снимаем плату за покупаемые лиды
+        $payment = Pay::openLead($lead, $agent, $mask_id, $amountLeads);
+
+        // проверяем прошел ли платеж
+        if( $payment['status'] ){
+            // если платеж прошел нормально
+
+            // заносим лид в таблицу открытых лидов
+            OpenLeads::maxOpen( $lead, $agent->id, $mask_id, $amountLeads );
+
+            $lead->state(
+                [
+                    'status'  => 4,  // close auction
+                    'auction' => 2,  // closed by max open
+                ]
+            );
 
 
-        // todo узнаем количество
+            return trans('lead/lead.openlead.AllLead_successfully_opened');
 
-        // todo снимаем плату за все оставшиеся лиды
+        }else{
+            // если платеж не прошел
+
+            // возвращаем причину по которой платеж не прошел
+            return $payment['description'];
+        }
+
+
+
+
 
         // todo открываем лиды
+
+        // todo убираем с аукциона
 
     }
 

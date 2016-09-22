@@ -7,17 +7,26 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
 //    Route::get('lead', ['as' => 'agent.lead.index', 'uses' => 'Agent\LeadController@index']);
 
 
-    // Группа роутов для ролей агентов
+    /** Группа роутов для ролей агентов */
     Route::group([ 'middleware' => ['permissions'] ], function () {
-        // страница отданых лидов агентом
+
+        /** страница отданых лидов агентом */
+        // страница с отданными лидами
         Route::get('lead/depostited', ['as' => 'agent.lead.deposited', 'uses' => 'Agent\LeadController@deposited']);
+        // форма создания нового лида
         Route::get('lead/create', ['as' => 'agent.lead.create', 'uses' => 'Agent\LeadController@create']);
+        // сохранение нового лида
         Route::post('lead/store',['as'=>'agent.lead.store', 'uses' => 'Agent\LeadController@store']);
-        // страница фильтрации лидов
+
+        /** страница фильтрации лидов */
+        // страница с отфильтрованными лидами
         Route::get('lead/obtain', ['as' => 'agent.lead.obtain', 'uses' => 'Agent\LeadController@obtain']);
+        // страница с открытыми лидами
         Route::get('openedLeads', ['as'=>'agent.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
-        Route::get('lead/open/{id}', ['as' => 'agent.lead.open', 'uses' => 'Agent\LeadController@openLead']);
-        Route::get('lead/openAll/{id}', ['as' => 'agent.lead.openAll', 'uses' => 'Agent\LeadController@openAllLeads']);
+        // открытие лида
+        Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'uses' => 'Agent\LeadController@openLead']);
+        // максимальное открытие лида
+        Route::get('lead/openAll/{lead_id}/{mask_id}', ['as' => 'agent.lead.openAll', 'uses' => 'Agent\LeadController@openAllLeads']);
     });
 
 
@@ -31,10 +40,6 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
 
     // todo получение данных для таблицы на странице фильтра лидов, удалить
     Route::get('lead/obtain2/data', ['as' => 'agent.lead.obtain.2.data', 'uses' => 'Agent\LeadController@obtain2Data']);
-
-    // метод обработки открытия лида агента
-    Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'uses' => 'Agent\LeadController@openLead']);
-
 
     Route::get('lead/showOpenedLead/{id}',['as'=>'agent.lead.showOpenedLead', 'uses' => 'Agent\LeadController@showOpenedLead']);
 
