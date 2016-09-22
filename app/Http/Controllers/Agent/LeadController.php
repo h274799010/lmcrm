@@ -27,17 +27,28 @@ use Datatables;
 use App\Http\Controllers\Notice;
 
 class LeadController extends AgentController {
-     /*
-    * Display a listing of the resource.
-    *
-    * @return Response
-    */
+
+
+    /**
+     * Display a listing of the resource.
+     *
+     * TODO: страница не используется, может удалить?
+     *
+     * @return Response
+     */
     public function index()
     {
         // Show the page
         return view('agent.lead.index');
     }
 
+
+    /**
+     * Страница с лидами, которые агент занес в систему
+     *
+     *
+     * @return string
+     */
     public function deposited(){
         $leads = $this->user->leads()->with('phone')->get();
         return view('agent.lead.deposited')
@@ -121,7 +132,7 @@ class LeadController extends AgentController {
         $mask=$this->mask;
 
         // маска лида
-        $leadBitmask = new LeadBitmask($mask->getTableNum());
+        $leadBitmask = new LeadBitmask( $mask->getTableNum() );
 
         // получаем данные всех активных масок агента
         $agentBitmask = $mask->getData()->where('status', '=', 1)->get();
@@ -208,11 +219,20 @@ class LeadController extends AgentController {
             ->edit_column('opened',function($model){
                 return view('agent.lead.datatables.obtain_count', [ 'opened'=>$model->opened ]);
             })
-            ->edit_column('id',function($model){
-                return view('agent.lead.datatables.obtain_open', [ 'lead'=>$model ]);
+            ->edit_column('id',function($model)  use ($agent){
+
+                $openLead = OpenLeads::where( 'lead_id', $model->id )->where( 'agent_id', $agent->id )->first();
+
+                if( $openLead ){
+                    return view('agent.lead.datatables.obtain_already_open');;
+                }else {
+
+                    return view('agent.lead.datatables.obtain_open', ['lead' => $model]);
+                }
             })
             ->add_column('ids',function($model){
-                return view('agent.lead.datatables.obtain_open_all', [ 'lead'=>$model ]);
+
+                    return view('agent.lead.datatables.obtain_open_all', [ 'lead'=>$model ]);
             }, 2)
             ->add_column('mask',function($model){
                 return $model->mask;
@@ -656,8 +676,6 @@ class LeadController extends AgentController {
     }
 
 
-
-
     /**
      * Открытие лида
      *
@@ -679,11 +697,11 @@ class LeadController extends AgentController {
     }
 
 
-
-
-
-
-    public function openAllLeads($id){
+    /**
+     *
+     *
+     */
+    public function openAllLeads( $id ){
         $credit = $this->user->bill;
         $balance = $credit->balance;
 
