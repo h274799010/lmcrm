@@ -219,20 +219,26 @@ class LeadController extends AgentController {
             ->edit_column('opened',function($model){
                 return view('agent.lead.datatables.obtain_count', [ 'opened'=>$model->opened ]);
             })
-            ->edit_column('id',function($model)  use ($agent){
+            ->edit_column('id',function($model) use ($agent){
 
                 $openLead = OpenLeads::where( 'lead_id', $model->id )->where( 'agent_id', $agent->id )->first();
 
                 if( $openLead ){
-                    return view('agent.lead.datatables.obtain_already_open');;
+                    return view('agent.lead.datatables.obtain_already_open');
                 }else {
 
                     return view('agent.lead.datatables.obtain_open', ['lead' => $model]);
                 }
             })
-            ->add_column('ids',function($model){
+            ->add_column('ids',function($model)  use ($agent){
 
-                    return view('agent.lead.datatables.obtain_open_all', [ 'lead'=>$model ]);
+                $openLead = OpenLeads::where( 'lead_id', $model->id )->where( 'agent_id', '<>', $agent->id )->first();
+
+                if( $openLead ){
+                    return view('agent.lead.datatables.obtain_already_open');
+                }else {
+                    return view('agent.lead.datatables.obtain_open_all', ['lead' => $model]);
+                }
             }, 2)
             ->add_column('mask',function($model){
                 return $model->mask;
@@ -719,73 +725,6 @@ class LeadController extends AgentController {
 
         return response()->json( $openResult );
 
-
-
-        $credit = $this->user->bill;
-        $balance = $credit->balance;
-
-        $mask=$this->mask;
-
-        $lead = Lead::lockForUpdate()->find($id);
-
-        $ol = $this->user->openLead($id)->first();
-        $obtainedByThisAgent = 0;
-        if ($ol)
-            $obtainedByThisAgent = $ol->count;
-        if ($lead->opened > 0 && $lead->opened != $obtainedByThisAgent)
-            return json_encode(['msg'=>trans('lead/lead.alreadyObtained')]);
-
-        $mustBeAdded = $lead->sphere->openLead - $obtainedByThisAgent;
-        $price = $mask->getStatus()->sharedLock()->first()->lead_price*$mustBeAdded;
-
-        if($price > $balance) {
-            return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
-        }
-
-        //$lead->opened += $lead->sphere->openLead;
-        $updateCount = Lead::where('id',$lead->id)->where('opened',$lead->opened)->increment('opened',$mustBeAdded);
-        if ($updateCount)
-        {
-            /**
-             * Высчитываем pending_time
-             */
-            switch ($lead->sphere->pending_type) {
-                case 0:
-                    $pending_factor = 60;
-                    break;
-                case 1:
-                    $pending_factor = 60 * 60;
-                    break;
-                case 2:
-                    $pending_factor = 60 * 60 * 24;
-                    break;
-                default:
-                    $pending_factor = 60 * 60;
-                    break;
-            }
-            $pending_time = $lead->sphere->pending_time * $pending_factor;
-
-            //$lead->obtainedBy()->attach($this->uid);
-            if (!$ol){
-                $ol = new OpenLeads();
-                $ol->lead_id = $id;
-                $ol->agent_id = $this->uid;
-            }
-            $ol->count = $lead->sphere->openLead;
-            $ol->pending_time = Date('Y-m-d H:i:s',time()+$pending_time);
-            $ol->save();
-            $credit->payment=$price;
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_PURCHASE;
-            $credit->save();//уменьшаем баланс купившего
-
-            CreditHelper::leadPurchase($credit,$price,$mustBeAdded,$lead,$this);
-
-            return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
-        }
-        else{
-            return json_encode(['msg'=>trans('lead/lead.obtainError')]);
-        }
     }
 
 

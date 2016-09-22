@@ -497,7 +497,7 @@ class Lead extends EloquentUser {
                 ]
             );
 
-
+            // сообщаем что лид открыт нормально
             return trans('lead/lead.openlead.AllLead_successfully_opened');
 
         }else{
