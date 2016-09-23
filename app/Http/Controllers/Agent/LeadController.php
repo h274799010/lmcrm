@@ -143,7 +143,7 @@ class LeadController extends AgentController {
                     return view('agent.lead.datatables.obtain_already_open');
                 }else {
                     // если не открыт - отдаем ссылку на открытия
-                    return view('agent.lead.datatables.obtain_open', ['lead' => $data['lead']]);
+                    return view('agent.lead.datatables.obtain_open', ['data' => $data]);
                 }
 
             }, 2)
@@ -157,7 +157,7 @@ class LeadController extends AgentController {
                     return view('agent.lead.datatables.obtain_already_open');
                 }else {
                     // если не открыт - отдаем ссылку на открытие всех лидов
-                    return view('agent.lead.datatables.obtain_open_all', ['lead' => $data['lead']]);
+                    return view('agent.lead.datatables.obtain_open_all', ['data' => $data]);
                 }
 
             }, 3)
@@ -193,9 +193,9 @@ class LeadController extends AgentController {
 
         ;
 
-//        if(!Sentinel::hasAccess(['agent.lead.openAll'])) {
-//            $datatable->removeColumn('ids');
-//        }
+        if(!Sentinel::hasAccess(['agent.lead.openAll'])) {
+            $datatable->removeColumn('openAll');
+        }
 
 
 
