@@ -403,8 +403,8 @@ class LeadController extends AgentController {
                 // получаем все лиды, помеченные к аукциону, по id из массива, без лидов автора
                 $leadsByFilter =
                     Lead::
-                    whereIn('id', $list)                   // все лиды полученыые по маске агента
-                    ->where('status', '=', 3)                // котрые помеченнык аукциону
+                    whereIn('id', $list)                     // все лиды полученыые по маске агента
+                    ->where('status', 3)                     // котрые помеченнык аукциону
                     ->where('agent_id', '<>', $agent->id)    // без лидов, которые занес агент
                     ->select(
                         [
@@ -793,6 +793,8 @@ class LeadController extends AgentController {
      */
     public function openedLeads()
     {
+
+//        dd(Auction::removeBySphereMask( 1, 8 ));
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::

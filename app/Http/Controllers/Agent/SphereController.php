@@ -6,10 +6,12 @@ use App\Http\Controllers\AgentController;
 use Validator;
 use App\Models\Sphere;
 use App\Models\AgentBitmask;
+use App\Models\Auction;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Input;
+
 //use App\Http\Requests\Admin\ArticleRequest;
 
 class SphereController extends AgentController {
@@ -151,6 +153,8 @@ class SphereController extends AgentController {
         // сохраняем данные в БД
         $mask->save();
 
+        // удаление всех лидов с текущей маской из таблицы аукциона
+        Auction::removeBySphereMask( $sphere_id, $mask_id );
 
         if($request->ajax()){
             return response()->json();
@@ -195,13 +199,17 @@ class SphereController extends AgentController {
             $testMask = $testMask->find( $maskId );
 
             if( $testMask ){
-                // если маска есть (т.е. неудалена)
+                // если маска есть ( неудалена )
 
                 // возвращаем 'notDeleted'
                 return 'notDeleted';
 
             }else{
-                // если маски (т.е. маска успешно удалена)
+                // если маски нет (т.е. маска успешно удалена)
+
+                // удаление всех лидов с текущей маской из таблицы аукциона
+                Auction::removeBySphereMask( $sphereId, $maskId );
+
 
                 // сообщаем что маска удалена, возвращаем 'deleted'
                 return 'deleted';
