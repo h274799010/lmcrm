@@ -9,11 +9,15 @@ use App\Models\AgentBitmask;
 
 class OpenLeads extends Model {
 
+
+    /**
+     * Название таблицы
+     *
+     *
+     * @var string
+     */
     protected $table="open_leads";
 
-    protected $fillable = [
-        'comment',
-    ];
 
     /**
      * Состояния открытого лида
@@ -22,6 +26,9 @@ class OpenLeads extends Model {
      * дополнительные статусы
      *
      * по этим параметрам, в итоге будет проходить расчет за лид
+     *
+     *
+     * @var array
      */
     public static $state =
     [
@@ -31,29 +38,41 @@ class OpenLeads extends Model {
     ];
 
 
+    /**
+     * Связь с таблицей лидов
+     *
+     */
     public function lead(){
-        return $this->hasOne('App\Models\Lead','id', 'lead_id');
+        return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
     }
 
+
+    /**
+     * Связь с таблицей пользователей
+     *
+     */
     public function agent(){
-        return $this->hasMany('App\Models\Agent','id', 'agent_id');
+        return $this->hasMany('App\Models\Agent', 'id', 'agent_id');
     }
 
+
+    /**
+     * Связь с таблицей органайзера
+     *
+     */
     public function organizer(){
         return $this->hasMany('App\Models\Organizer','open_lead_id', 'id')->orderBy('time','desc');
     }
 
+
+    /**
+     * Связь с таблицей статусов сферы
+     *
+     */
     public function statusInfo() {
-        return $this->hasOne('App\Models\SphereStatuses','id','status')->orderBy('position');
+        return $this->hasOne('App\Models\SphereStatuses', 'id', 'status')->orderBy('position');
     }
 
-    public function getCanSetBadAttribute(){
-        if (!$this->bad && $this->lead->checked && $this->lead->pending_time > date('Y-m-d H:i:s'))
-        {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * Получение имени маски по которой был открыт лид
@@ -70,11 +89,6 @@ class OpenLeads extends Model {
 
     /**
      * Создает открытый лид для агента в таблице открытых лидов
-     *
-     * Технические работы по открытию
-     *    - создание/обновление записи
-     *    - обновление счетчиков
-     *    - обновление дат
      *
      *
      * @param  Lead  $lead
@@ -129,6 +143,17 @@ class OpenLeads extends Model {
     }
 
 
+    /**
+     * Открытие лида максимальное количество раз
+     *
+     *
+     * @param  Lead  $lead
+     * @param  integer  $agent_id
+     * @param  integer  $mask_id
+     * @param  integer  $count
+     *
+     * @return OpenLeads
+     */
     public static function maxOpen( $lead, $agent_id, $mask_id, $count )
     {
 
@@ -183,6 +208,7 @@ class OpenLeads extends Model {
         return $openLead;
     }
 
+
     /**
      * Установка отметки что лид плохой
      *
@@ -215,9 +241,21 @@ class OpenLeads extends Model {
     public function closeDeal()
     {
 
+        // если у агента уже заключена сделка
+        // выходим
+        if( $this->state == 2 ){ return false; }
+
+        // выбираем лид
         $lead = Lead::find( $this['lead_id'] );
+        // выбираем агента
         $agent = Agent::find( $this['agent_id'] );
 
+        // проверяем лид,
+        // если сделок по нему нет - расчитываем и закрываем
+        // если были - игнорим этот шаг
+        $lead->checkCloseDeal();
+
+        // снимаем деньги за сделку по лиду
         $paymentStatus =
         Pay::closingDeal(
             $lead,
@@ -229,11 +267,6 @@ class OpenLeads extends Model {
         if( $paymentStatus ){
             $this->state = 2;
             $this->save();
-
-            // проверяем лид,
-            // если сделак по нему небыло - расчитываем и закрываем
-            // если были - игнорим этот жаг
-            $lead->checkCloseDeal();
 
         }
 

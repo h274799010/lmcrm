@@ -257,6 +257,14 @@ class Lead extends EloquentUser {
 
         // если задан статус
         if( isset($statuses['status']) ){
+
+            // если теперешний статус лида "3" и задаваемый не "3"
+            // т.е. он снимается с аукциона и не выставляется на аукцион
+            if( $this->status == 3 && $statuses['status'] != 3){
+                // полностью удаляем этот лид с аукциона
+                Auction::removeByLead( $this['id'] );
+            }
+
             // устанавливаем статус
             $this->status = $statuses['status'];
         }
