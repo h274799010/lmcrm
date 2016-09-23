@@ -61,6 +61,11 @@
                                 <hr>
                             @endif
 
+                            @if(isset($salesman_id) && $salesman_id !== false)
+                                <li><a href="{{ route('home') }}"><i class="fa fa-sign-out"></i> Salesman logout</a></li>
+                                <hr>
+                            @endif
+
                             <li>
                                 <a href="{{ URL::to('auth/logout')}}"><i class="fa fa-sign-out"></i> Logout </a>
                             </li>

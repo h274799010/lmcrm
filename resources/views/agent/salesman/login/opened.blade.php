@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('layouts.salesman')
 
 @section('content')
     <!-- Page Content -->
@@ -364,10 +364,10 @@
                 $('#organizer_title').attr( 'rowspan',1);
 
                 // путь к странице комментариев
-                var commentHref = '{{ route('agent.lead.addСomment', '') }}' + '/' + id;
+                var commentHref = '{{ route('agent.salesman.addСomment', ['','']) }}' + '/' + id + '/' + '{{ $salesman_id }}';
 
                 // путь к странице напоминаний
-                var reminderHref = '{{ route('agent.lead.addReminder', '') }}' + '/' + id;
+                var reminderHref = '{{ route('agent.salesman.addReminder', ['','']) }}' + '/' + id + '/' + '{{ $salesman_id }}';
 
                 // выставляем ссылку на комментарии в меню органайзера
                 $('#commentHref').attr( 'href', commentHref);
@@ -388,7 +388,7 @@
                 var token = $('meta[name=csrf-token]').attr('content');
 
                 // получаем поднобные данные о лиде с сервера
-                $.post('{{ route('agent.salesman.openedLeadAjax') }}', { 'id': id, 'salesman_id': '{{ $salesmanId }}', '_token': token }, function( data ){
+                $.post('{{ route('agent.salesman.openedLeadAjax') }}', { 'id': id, 'salesman_id': '{{ $salesman_id }}', '_token': token }, function( data ){
 
                     // парсим ответ в json
                     var tableData = $.parseJSON(data);
@@ -476,7 +476,7 @@
             $(dellItem).bind('click', function(){
 
                 // путь к странице удаления итема
-                var deleteReminder = '{{ route('agent.lead.deleteReminder', '') }}' + '/' + organizerId;
+                var deleteReminder = '{{ route('agent.salesman.deleteReminder', '') }}' + '/' + organizerId + '/{{ $salesman_id }}';
 
                 // запрос на удаление
                 $.get( deleteReminder, function( data ){
@@ -501,7 +501,7 @@
 
             editItem.css( 'display', 'block' );
             editItem.text('edit');
-            editItem.attr('href', '{{ route('agent.lead.editOrganizer', '') }}' + '/' + organizerId);
+            editItem.attr('href', '{{ route('agent.salesman.editOrganizer', '') }}' + '/' + organizerId);
 
 
             // кнопка завершения
@@ -585,7 +585,7 @@
             $(dellItem).bind('click', function(){
 
                 // путь к странице удаления итема
-                var deleteReminder = '{{ route('agent.lead.deleteReminder', '') }}' + '/' + organizerId;
+                var deleteReminder = '{{ route('agent.salesman.deleteReminder', '') }}' + '/' + organizerId;
 
                 // запрос на удаление
                 $.get( deleteReminder, function( data ){
@@ -610,7 +610,7 @@
 
             editItem.css( 'display', 'block' );
             editItem.text('edit');
-            editItem.attr('href', '{{ route('agent.lead.editOrganizer', '') }}' + '/' + organizerId);
+            editItem.attr('href', '{{ route('agent.salesman.editOrganizer', '') }}' + '/' + organizerId);
 
             // кнопка завершения
             var doneItem = $('<button />');
@@ -776,7 +776,7 @@
 
 
                     // изменяем статусы на сервере
-                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token}, function( data ){
+                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, 'salesman_id': '{{ $salesman_id }}', '_token': token}, function( data ){
 
                         // если статус изменен нормально
                         if( data == 'statusChanged'){

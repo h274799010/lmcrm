@@ -36,10 +36,19 @@ class LeadController extends AgentController {
         return view('agent.lead.index');
     }
 
-    public function deposited(){
-        $leads = $this->user->leads()->with('phone')->get();
-        return view('agent.lead.deposited')
-                    ->with('leads',$leads);
+    public function deposited($salesman_id = false){
+        if($salesman_id === false) {
+            $leads = $this->user->leads()->with('phone')->get();
+            return view('agent.lead.deposited')
+                ->with('leads',$leads);
+        } else {
+            $salesman = Salesman::findOrFail($salesman_id);
+
+            $leads = $salesman->leads()->with('phone')->get();
+            return view('agent.salesman.login.deposited')
+                ->with('leads',$leads)
+                ->with('salesman_id', $salesman_id);
+        }
     }
 
 
@@ -50,10 +59,16 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function obtain(){
+    public function obtain($salesman_id = false){
 
         // данные агента
-        $agent = $this->user;
+        if($salesman_id === false) {
+            $agent = $this->user;
+            $view = 'agent.lead.obtain';
+        } else {
+            $agent = Salesman::findOrFail($salesman_id);
+            $view = 'agent.salesman.login.obtain';
+        }
 
         // атрибуты лида (наверное)
         $lead_attr = $agent->sphere()->leadAttr;
@@ -61,9 +76,10 @@ class LeadController extends AgentController {
         // атрибуты фильтра (агента)
         $agent_attr = $agent->sphere()->attributes;
 
-        return view('agent.lead.obtain')
+        return view($view)
             ->with('agent_attr', $agent_attr)
-            ->with('lead_attr',$lead_attr);
+            ->with('lead_attr',$lead_attr)
+            ->with('salesman_id', $salesman_id);
     }
 
 
@@ -113,13 +129,20 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function obtainData(Request $request)
+    public function obtainData(Request $request, $salesman_id = false)
     {
-        // данные агента
-        $agent = $this->user;
+        if($salesman_id === false) {
+            // данные агента
+            $agent = $this->user;
 
-        // конструктор маски агента
-        $mask=$this->mask;
+            // конструктор маски агента
+            $mask=$this->mask;
+        } else {
+            // данные агента
+            $agent = Salesman::findOrFail($salesman_id);
+            $sphere_id=$agent->sphere()->id;
+            $mask = new AgentBitmask($sphere_id,$agent->id);
+        }
 
         // маска лида
         $leadBitmask = new LeadBitmask($mask->getTableNum());
@@ -876,10 +899,13 @@ class LeadController extends AgentController {
      * @return object
      *
      */
-    public function openedLeads(){
-
+    public function openedLeads($salesman_id = false){
         // id пользователя
-        $userId = Sentinel::getUser()->id;
+        if($salesman_id === false) {
+            $userId = Sentinel::getUser()->id;
+        } else {
+            $userId = (int)$salesman_id;
+        }
 
         // id открытых лидов пользователя
         $openLeads = OpenLeads::where('agent_id', '=', $userId)->lists('lead_id');
@@ -887,7 +913,14 @@ class LeadController extends AgentController {
         // открытые лиды пользователя
         $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->get();
 
-        return view('agent.lead.opened',['dataArray'=>$leads]);
+        if($salesman_id === false) {
+            $return = ['dataArray'=>$leads];
+            $view = 'agent.lead.opened';
+        } else {
+            $return = [ 'dataArray' => $leads, 'salesman_id' => (int)$salesman_id ];
+            $view = 'agent.salesman.login.opened';
+        }
+        return view($view, $return);
     }
 
 
@@ -965,7 +998,11 @@ class LeadController extends AgentController {
 
 
         // находим данные открытого лида
-        $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
+        if($request->salesman_id) {
+            $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$request->salesman_id])->first();
+        } else {
+            $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
+        }
 
         // получение данных органайзера
         $organizer = Organizer::where('open_lead_id', '=', $openedLead->id)->orderBy('time', 'asc')->get();
@@ -1030,8 +1067,14 @@ class LeadController extends AgentController {
         $lead_id = $request->lead_id;
         $status = $request->status;
 
+        if($request->salesman_id) {
+            $user_id = $request->salesman_id;
+        } else {
+            $user_id = $this->uid;
+        }
+
         // находим данные открытого лида по id лида и id агента
-        $openedLead = OpenLeads::where(['lead_id'=>$lead_id,'agent_id'=>$this->uid])->first();
+        $openedLead = OpenLeads::where(['lead_id'=>$lead_id,'agent_id'=>$user_id])->first();
 
         // если лид отмечен как плохой
         if($status == 'bad') {
@@ -1082,8 +1125,16 @@ class LeadController extends AgentController {
      */
     public function putReminder(Request $request){
 
-        // пробуем найти откытого лида с такими данными в БД
-        $openLead = OpenLeads::where(['lead_id'=>$request->input('lead_id'),'agent_id'=>$this->uid])->first();
+        if($request->input('salesman_id')) {
+            $salesman = Salesman::findOrFail($request->input('salesman_id'));
+
+            // пробуем найти откытого лида с такими данными в БД
+            $openLead = OpenLeads::where(['lead_id'=>$request->input('lead_id'),'agent_id'=>$salesman->id])->first();
+        } else {
+            // пробуем найти откытого лида с такими данными в БД
+            $openLead = OpenLeads::where(['lead_id'=>$request->input('lead_id'),'agent_id'=>$this->uid])->first();
+        }
+
 
         $organizer = false;
 
@@ -1130,11 +1181,16 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function deleteReminder($id){
+    public function deleteReminder($id, $salesman_id = false){
 
+        if($salesman_id === false) {
+            $user_id = $this->uid;
+        } else {
+            $user_id = $salesman_id;
+        }
 
         $organizer = Organizer::where(['id'=>$id])->first();
-        if ($organizer->openLead->agent_id == $this->uid){
+        if ($organizer->openLead->agent_id == $user_id){
             $organizer->delete();
         }
 
@@ -1150,10 +1206,15 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function addReminder($lead_id)
+    public function addReminder($lead_id, $salesman_id = false)
     {
-        return view('agent.lead.organizer.addReminder')
-            ->with( 'lead_id', $lead_id );
+        if($salesman_id === false) {
+            return view('agent.lead.organizer.addReminder')
+                ->with( 'lead_id', $lead_id );
+        } else {
+            return view('agent.salesman.organizer.addReminder')
+                ->with( ['lead_id' => $lead_id, 'salesman_id' => $salesman_id] );
+        }
     }
 
 
@@ -1165,10 +1226,15 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function addСomment($lead_id)
+    public function addСomment($lead_id, $salesman_id = false)
     {
-        return view('agent.lead.organizer.addComment')
-            ->with( 'lead_id', $lead_id );
+        if($salesman_id === false) {
+            return view('agent.lead.organizer.addComment')
+                ->with( 'lead_id', $lead_id );
+        } else {
+            return view('agent.salesman.organizer.addComment')
+                ->with( ['lead_id' => $lead_id, 'salesman_id' => $salesman_id] );
+        }
     }
 
     /**

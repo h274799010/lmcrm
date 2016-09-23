@@ -11,11 +11,13 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     Route::group([ 'middleware' => ['permissions'] ], function () {
         // страница отданых лидов агентом
         Route::get('lead/depostited', ['as' => 'agent.lead.deposited', 'uses' => 'Agent\LeadController@deposited']);
+
         Route::get('lead/create', ['as' => 'agent.lead.create', 'uses' => 'Agent\LeadController@create']);
         Route::post('lead/store',['as'=>'agent.lead.store', 'uses' => 'Agent\LeadController@store']);
         // страница фильтрации лидов
         Route::get('lead/obtain', ['as' => 'agent.lead.obtain', 'uses' => 'Agent\LeadController@obtain']);
         Route::get('openedLeads', ['as'=>'agent.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
+
         Route::get('lead/open/{id}', ['as' => 'agent.lead.open', 'uses' => 'Agent\LeadController@openLead']);
         Route::get('lead/openAll/{id}', ['as' => 'agent.lead.openAll', 'uses' => 'Agent\LeadController@openAllLeads']);
     });
@@ -107,11 +109,29 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
             //Route::resource('salesman','Agent\SalesmanController');
         });
 
-        Route::get('salesman/depositedLead/{id}', ['as' => 'agent.salesman.depositedLead', 'uses' => 'Agent\SalesmanController@salesmanDepositedLead']);
+        Route::get('salesman/depositedLead/{salesman_id?}', ['as' => 'agent.salesman.depositedLead', 'uses' => 'Agent\LeadController@deposited']);
 
-        Route::get('salesman/openedLeads/{id}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\SalesmanController@salesmanOpenedLeads']);
-        Route::post('salesman/openedLeadAjax', ['as' => 'agent.salesman.openedLeadAjax', 'uses' => 'Agent\SalesmanController@salesmanOpenedLeadAjax']);
+        Route::get('salesman/openedLeads/{salesman_id?}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\LeadController@openedLeads']);
+        Route::post('salesman/openedLeadAjax', ['as' => 'agent.salesman.openedLeadAjax', 'uses' => 'Agent\LeadController@openedLeadsAjax']);
 
-        Route::get('salesman/obtainedLead/{id}', ['as' => 'agent.salesman.obtainedLead', 'uses' => 'Agent\SalesmanController@salesmanObtainedLead']);
+        Route::get('salesman/obtainedLead/{salesman_id?}', ['as' => 'agent.salesman.obtainedLead', 'uses' => 'Agent\LeadController@obtain']);
+        Route::get('salesman/obtain/data/{salesman_id?}', ['as' => 'agent.salesman.obtain.data', 'uses' => 'Agent\LeadController@obtainData']);
+
+        // форма добавление комментария
+        Route::get('salesman/addСomment/{lead_id}/{salesman_id?}',['as'=>'agent.salesman.addСomment', 'uses' => 'Agent\LeadController@addСomment']);
+
+        // форма добавление напоминания
+        Route::get('salesman/addReminder/{lead_id}/{salesman_id?}',['as'=>'agent.salesman.addReminder', 'uses' => 'Agent\LeadController@addReminder']);
+        // сохранение данных органайзера в БД
+        Route::post('salesman/putReminder',['as'=>'agent.salesman.putReminder', 'uses' => 'Agent\LeadController@putReminder']);
+
+        // удаление строки органайзера из БД
+        Route::get('salesman/deleteReminder/{id}/{salesman_id?}',['as'=>'agent.salesman.deleteReminder', 'uses' => 'Agent\LeadController@deleteReminder']);
+
+        // редактирование строки органайзера из БД
+        Route::get('salesman/editOrganizer/{id}/',['as'=>'agent.salesman.editOrganizer', 'uses' => 'Agent\LeadController@editOrganizer']);
+
+        // обновление строки органайзера из БД
+        Route::post('salesman/updateOrganizer',['as'=>'agent.salesman.updateOrganizer', 'uses' => 'Agent\LeadController@updateOrganizer']);
     });
 });
