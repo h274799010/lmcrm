@@ -12,6 +12,7 @@ use App\Models\Organizer;
 use App\Models\SphereStatuses;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
@@ -794,7 +795,14 @@ class LeadController extends AgentController {
     public function openedLeads()
     {
 
-//        dd(Auction::removeBySphereMask( 1, 8 ));
+//        dd( Config::get('payment.system') );
+
+//        dd( config('payment.type') );
+
+//        dd( config('payment.system_id') );
+
+
+//        dd( \App\Helper\PayMaster\PayData::$type['manual'] );
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::

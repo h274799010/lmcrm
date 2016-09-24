@@ -150,7 +150,7 @@ class Pay
             $buyersStatus[ $buyer['id'] ] =
             Payment::fromSystem(
                 [
-                    'initiator_id'  => PayData::SYSTEM_ID,         // id инициатора платежа
+                    'initiator_id'  => config('payment.system_id'),         // id инициатора платежа
                     'user_id'       => $buyer['user_id'],          // id пользователя, на кошелек которого будет зачисленна сумма
                     'wallet_type'   => $buyer['wallet_type'],      // тип кошелька с которого снимается сумма
                     'type'          => 'repaymentForLead',         // тип транзакции
@@ -188,7 +188,7 @@ class Pay
         $paymentStatus =
         Payment::toSystem(
             [
-                'initiator_id'  => PayData::SYSTEM_ID,  // id инициатора платежа
+                'initiator_id'  => config('payment.system_id'),  // id инициатора платежа
                 'user_id'       => $author_id,          // id депозитора которому будет зачислен wasted
                 'wallet_type'   => 'wasted',            // тип кошелька c которого будет снята сумма
                 'type'          => 'operatorRepayment', // тип транзакции
@@ -223,7 +223,7 @@ class Pay
         $paymentStatus['openLeadsDetails'] =
             Payment::fromSystem(
                 [
-                    'initiator_id'  => PayData::SYSTEM_ID,    // id инициатора платежа
+                    'initiator_id'  => config('payment.system_id'),    // id инициатора платежа
                     'user_id'       => $agent_id,             // id пользователя, на кошелек которого будет зачисленна сумма
                     'wallet_type'   => 'earned',              // тип кошелька агента на который будет зачисленна сумма
                     'type'          => 'rewardForOpenLead',   // тип транзакции
@@ -339,7 +339,7 @@ class Pay
             $paymentStatus['openLeadsDetails'] =
             Payment::fromSystem(
                 [
-                    'initiator_id'  => PayData::SYSTEM_ID,  // id инициатора платежа
+                    'initiator_id'  => config('payment.system_id'),  // id инициатора платежа
                     'user_id'       => $agent_id,  // id пользователя, на кошелек которого будет зачисленна сумма
                     'wallet_type'   => 'earned',  // тип кошелька с которого снимается сумма
                     'type'          => 'rewardForOpenLead',  // тип транзакции
@@ -363,7 +363,7 @@ class Pay
                 $paymentStatus['closingDealDetails'] =
                 Payment::fromSystem(
                     [
-                        'initiator_id'  => PayData::SYSTEM_ID,        // id инициатора платежа
+                        'initiator_id'  => config('payment.system_id'),        // id инициатора платежа
                         'user_id'       => $agent_id,                 // id пользователя, на кошелек которого будет зачисленна сумма
                         'wallet_type'   => 'earned',                  // тип кошелька с которого снимается сумма
                         'type'          => 'rewardForClosingDeal',    // тип транзакции

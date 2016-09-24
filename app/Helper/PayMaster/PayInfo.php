@@ -57,7 +57,7 @@ class PayInfo
         $byersDetails = TransactionsDetails::
         whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям
             ->where( 'type', 'openLead' )                   // только с типом "открытие лида"
-            ->where( 'user_id', '<>', PayData::SYSTEM_ID )  // убираем из выборки данные системы
+            ->where( 'user_id', '<>', config('payment.system_id') )  // убираем из выборки данные системы
             ->with('lead')                                  // добавляем в выборку данные лида
             ->get();
 
@@ -112,7 +112,7 @@ class PayInfo
         // данные покупателей лида
         $operatorPayment = TransactionsDetails::
           whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям
-        ->where( 'user_id', PayData::SYSTEM_ID )
+        ->where( 'user_id', config('payment.system_id') )
         ->sum('amount');
 
         return $operatorPayment<0 ? $operatorPayment : 0;
@@ -146,7 +146,7 @@ class PayInfo
         // по id транзакциям выбираем все детали которые принадлежат пользователя со знаком (+)
         $received = TransactionsDetails::
         where( 'amount', '>', 0 )            // платежи только со знаком +
-        ->where( 'user_id', '=', PayData::SYSTEM_ID )    // только платежи пользователя
+        ->where( 'user_id', '=', config('payment.system_id') )    // только платежи пользователя
         ->whereIn( 'transaction_id', $leads )  //
         ->get();
 
@@ -192,7 +192,7 @@ class PayInfo
         // данные покупателей лида
         $systemRevenue = TransactionsDetails::
               whereIn( 'transaction_id', $leads )      // получение деталей по найденным транзакциям
-            ->where( 'user_id', PayData::SYSTEM_ID )   // только с типом "оплата за оператора"
+            ->where( 'user_id', config('payment.system_id') )   // только с типом "оплата за оператора"
             ->whereIn( 'type', $type )
             ->get();
 

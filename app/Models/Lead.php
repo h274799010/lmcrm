@@ -639,6 +639,15 @@ class Lead extends EloquentUser {
             }
 
             return $paymentStatus;
+
+        }elseif( $this['status'] == 4 ){
+            $this->state(
+                [
+                    'status'  => 6,  // closed deal
+                ]
+            );
+
+            return true;
         }
 
         return false;
