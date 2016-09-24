@@ -72,16 +72,14 @@ class PayCalculation
         // сумма дохода по открытым лидам
         $revenueOpenLead = PayInfo::SystemRevenueFromLeadSum( $lead->id, 'openLead' );
 
-        // сумма доходов по заключенным сделкам
-        $revenueClosingDeal = PayInfo::SystemRevenueFromLeadSum( $lead->id, 'closingDeal' );
 
         if( $revenueOpenLead <= 0 ) {
 
-            return 0;
+            return $callOperator * (-1);
 
         }elseif( $lead['status'] == 2 || $lead['status'] == 5 ){
 
-            return 0;
+            return $callOperator * (-1);
 
         }else{
 
@@ -90,24 +88,13 @@ class PayCalculation
 
             // процент агента за открытие лида
             $leadRevenueShare = $agentInfo->lead_revenue_share;
-            // процент агента за закрытие сделки по лиду
-            $paymentRevenueShare = $agentInfo->payment_revenue_share;
 
             // выручка агента по продажам лида
             // отнимаем от суммы всех продаж по лиду цену за оператора и умножаем на процент от выручки
             $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare;
 
-            // если есть доходы по закрытым сделкам
-            if( $revenueClosingDeal != 0 ) {
 
-                // todo вынести расчет в калькуляции
-                // выручка агента по закрытию сделок
-                $agentRevenueClosingDeal = $revenueClosingDeal * $paymentRevenueShare;
-            }else{
-                $agentRevenueClosingDeal = 0;
-            }
-
-            return $agentRevenueOpenLead + $agentRevenueClosingDeal;
+            return $agentRevenueOpenLead;
         }
     }
 

@@ -66,14 +66,14 @@
 
                         <td class="center"> {{ $lead->ClosingDealCount() }}</td>
 
-
                         <td style=" color:red; " > {{ $lead->operatorSpend() }} </td>
                         <td style=" color:green; " > {{ $lead->revenueForOpen()  }} </td>
                         <td style=" color:green; " > {{ $lead->revenueForClosingDeal()  }} </td>
 
+                        <td> @if( $lead->depositorProfit()<0 ) {{ $lead->depositorProfit() }} wasted @else {{ $lead->depositorProfit() }} @endif </td>
 
 
-                        <td> {{ $lead->depositorProfit()  }} </td>
+
 
                         <td> {{ $lead->systemProfit() }} </td>
 
