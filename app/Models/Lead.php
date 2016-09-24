@@ -788,7 +788,7 @@ class Lead extends EloquentUser {
      */
     public function revenueForOpen()
     {
-        return PayInfo::SystemRevenueFromLeadSum( $this->id, 'openLead' );
+        return PayInfo::SystemRevenueFromLeadSum( $this->id, ['openLead', 'repaymentForLead'] );
     }
 
 
