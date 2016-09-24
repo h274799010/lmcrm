@@ -77,7 +77,7 @@ class PayInfo
     {
         // все транзакции в которых учавствовал лид
         $leads = TransactionsLeadInfo::
-              where( 'lead_id', $lead_id )                 // только те данные в которых учавствовал лид
+              where( 'lead_id', $lead_id )                 // только те транзакции в которых учавствовал лид
             ->lists( 'transaction_id' );                   // только список id транзакций
 
         // данные покупателей лида
@@ -106,14 +106,14 @@ class PayInfo
     {
         // все транзакции в которых учавствовал лид
         $leads = TransactionsLeadInfo::
-        where( 'lead_id', $lead_id )                 // только те данные в которых учавствовал лид
-        ->lists( 'transaction_id' );                   // только список id транзакций
+            where( 'lead_id', $lead_id )                       // только те данные в которых учавствовал лид
+            ->lists( 'transaction_id' );                       // только список id транзакций
 
         // данные покупателей лида
         $operatorPayment = TransactionsDetails::
-          whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям
-        ->where( 'user_id', config('payment.system_id') )
-        ->sum('amount');
+              whereIn( 'transaction_id', $leads )              // получение деталей по найденным транзакциям
+            ->where( 'user_id', config('payment.system_id') )
+            ->sum('amount');
 
         return $operatorPayment<0 ? $operatorPayment : 0;
     }

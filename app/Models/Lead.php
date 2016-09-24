@@ -162,10 +162,18 @@ class Lead extends EloquentUser {
 
     }
 
-
+    /**
+     * Телефон клиента
+     *
+     * Связь с таблицей customer
+     *
+     *
+     * @return Query
+     */
     public function phone(){
         return $this->hasOne('App\Models\Customer','id','customer_id');
     }
+
 
     public function obtainedBy($agent_id=NULL){
         $relation=$this->belongsToMany('App\Models\Agent','open_leads','lead_id','agent_id');
@@ -285,6 +293,7 @@ class Lead extends EloquentUser {
 
     }
 
+
     /**
      * Получение имя статуса лида
      *
@@ -297,7 +306,6 @@ class Lead extends EloquentUser {
         // выбираем значение из переменной статуса лида
         return self::$status[ $this['status'] ];
     }
-
 
 
     /**
@@ -357,6 +365,7 @@ class Lead extends EloquentUser {
 
         return $mask;
     }
+
 
     public function getIsBadAttribute(){
         $outOfPending = $this->openLeads()->where('pending_time','>',date('Y-m-d H:i:s'))->count();
@@ -524,6 +533,7 @@ class Lead extends EloquentUser {
         }
 
     }
+
 
     /**
      * Максимальное количество открытия лида
@@ -748,6 +758,19 @@ class Lead extends EloquentUser {
 
 
     /**
+     * Цена за обработку лида оператором
+     *
+     *
+     * @return double
+     */
+    public function operatorSpend()
+    {
+        // цена за обработку лида оператором
+        return PayInfo::OperatorPayment( $this->id );
+    }
+
+
+    /**
      * Цена обработки лида оператором
      *
      *
@@ -756,6 +779,39 @@ class Lead extends EloquentUser {
     public function systemSpend()
     {
        return PayInfo::LeadSpend( $this->id );
+    }
+
+
+    /**
+     * Доход с лида за его открытия
+     *
+     */
+    public function revenueForOpen()
+    {
+        return PayInfo::SystemRevenueFromLeadSum( $this->id, 'openLead' );
+    }
+
+
+    /**
+     * Доход со сделок
+     *
+     */
+    public function ClosingDealCount()
+    {
+
+        $deals = PayInfo::SystemRevenueFromLeadDetails( $this->id, 'closingDeal' );
+
+        return $deals->count();
+    }
+
+
+    /**
+     * Доход со сделок
+     *
+     */
+    public function revenueForClosingDeal()
+    {
+        return PayInfo::SystemRevenueFromLeadSum( $this->id, 'closingDeal' );
     }
 
 
@@ -876,6 +932,7 @@ class Lead extends EloquentUser {
         $mask = new AgentBitmask( $this->sphere['id'] );
         return $mask->find( $mask_id )->name;
     }
+
 
     /**
      * Помечает лид как завершенный

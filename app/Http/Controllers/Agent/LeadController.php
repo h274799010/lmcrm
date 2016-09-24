@@ -795,15 +795,6 @@ class LeadController extends AgentController {
     public function openedLeads()
     {
 
-//        dd( Config::get('payment.system') );
-
-//        dd( config('payment.type') );
-
-//        dd( config('payment.system_id') );
-
-
-//        dd( \App\Helper\PayMaster\PayData::$type['manual'] );
-
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
                   where( 'agent_id', $this->user->id )
