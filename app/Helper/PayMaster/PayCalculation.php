@@ -161,8 +161,8 @@ class PayCalculation
     public static function systemProfit( $lead )
     {
 
-        // доход системы
-        $systemRevenue = PayInfo::SystemRevenueFromLeadSum( $lead->id );
+        // доход системы по открытым лидам
+        $systemRevenue = PayInfo::SystemRevenueFromLeadSum( $lead->id, 'openLead' );
 
         // прибыль депозитора лида
         $depositorProfit = self::depositorProfit( $lead );

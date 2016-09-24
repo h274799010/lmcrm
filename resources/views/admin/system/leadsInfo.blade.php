@@ -27,7 +27,7 @@
 
                     <th colspan="2">доход</th>
 
-                    <th colspan="2">прибыль</th>
+                    <th colspan="2">прибыль с продаж</th>
 
                     <th colspan="2">время завершения</th>
                     <th colspan="3">статус</th>
@@ -71,8 +71,6 @@
                         <td style=" color:green; " > {{ $lead->revenueForClosingDeal()  }} </td>
 
                         <td> @if( $lead->depositorProfit()<0 ) {{ $lead->depositorProfit() }} wasted @else {{ $lead->depositorProfit() }} @endif </td>
-
-
 
 
                         <td> {{ $lead->systemProfit() }} </td>
