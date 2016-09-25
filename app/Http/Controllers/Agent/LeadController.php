@@ -163,7 +163,7 @@ class LeadController extends AgentController {
                 }
 
             }, 2)
-            ->add_column('openAll',function( $data )  use ($agent){
+            ->add_column('openAll',function( $data ) use ($agent){
 
                 // проверяем открыт ли этот лид у других агентов
                 $openLead = OpenLeads::where( 'lead_id', $data['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
@@ -192,13 +192,15 @@ class LeadController extends AgentController {
                 return $data['lead']['name'];
 
             }, 6)
-            ->add_column('phone',function( $data ){
+            ->add_column('phone',function( $data ) use ($agent){
 
-                return $data['lead']['phone']->phone;
+                return ( $data['lead']->obtainedBy($agent['id'])->count() ) ? $data['lead']['phone']->phone : trans('site/lead.hidden');
+
             }, 7)
-            ->add_column('e-mail',function( $data ){
+            ->add_column('e-mail',function( $data ) use ($agent){
 
-                return $data['lead']['email'];
+                return ( $data['lead']->obtainedBy($agent['id'])->count() ) ? $data['lead']['email'] : trans('site/lead.hidden');
+
             }, 8)
             ->remove_column('id')
             ->remove_column('lead_id')
@@ -829,10 +831,10 @@ class LeadController extends AgentController {
 
 
         if($salesman_id === false) {
-            $return = ['dataArray'=>$leads];
+            $return = ['openLeads'=>$openLeads];
             $view = 'agent.lead.opened';
         } else {
-            $return = [ 'dataArray' => $leads, 'salesman_id' => (int)$salesman_id ];
+            $return = [ 'openLeads' => $openLeads, 'salesman_id' => (int)$salesman_id ];
             $view = 'agent.salesman.login.opened';
         }
 
