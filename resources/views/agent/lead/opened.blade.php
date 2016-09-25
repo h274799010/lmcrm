@@ -5,13 +5,11 @@
                 <div class="row">
                     <div id="main_table" class="col-md-12">
 
-                        {{--<table class="table table-bordered table-striped table-hover openLeadsTable">--}}
                         <table class="table table-bordered table-striped table-hover openLeadsTable">
                             <thead>
                                 <tr>
                                     <th>{!! trans("site/lead.opened.icon") !!}</th>
                                     <th>{!! trans('site/lead.opened.status') !!}</th>
-                                    <th>{!! trans('site/lead.opened.date') !!}</th>
                                     <th>{!! trans('site/lead.opened.name') !!}</th>
                                     <th>{!! trans('site/lead.opened.phone') !!}</th>
                                     <th>{!! trans('site/lead.opened.email') !!}</th>
@@ -20,37 +18,36 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @foreach ($dataArray as $data)
-                                <tr lead_id="{{ $data->id }}">
+                            @foreach ($openLeads as $openLead)
+                                <tr lead_id="{{ $openLead['lead']['id'] }}"  opened_Lead_Id="{{ $openLead['id'] }}">
                                     <td><div></div></td>
                                     <td class="select_cell">
                                         {{-- Если лид был отмечен как плохой --}}
-                                        @if($data->openLeadStatus->bad == true)
+                                        @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
                                             bad lead
                                         {{-- впротивном случае вывод select со статусами --}}
-                                        @elseif($data->closing_deal == true)
+                                        @elseif( $openLead->state == 2 )
                                             {!! trans('site/lead.deal_closed') !!}
                                         @else
-                                            <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
-                                                @if($data->openLeadStatus->status == 0)
+                                            <select name="status" class="form">
+                                                @if( $openLead->status == 0 )
                                                     <option selected="selected" class="emptyOption"></option>
                                                 @endif
-                                                @if(time() < strtotime($data->openLeadStatus->expiration_time))
+                                                @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
                                                     <option value="bad" class="badOption">bad lead</option>
                                                 @endif
-                                                @foreach($data->sphereStatuses->statuses as $status)
-                                                    <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
+                                                    <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
                                                 @endforeach
                                                     <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
                                             </select>
                                         @endif
                                         {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
                                     </td>
-                                    <td><div>{{ $data->date }}</div></td>
-                                    <td><div>{{ $data->name }}</div></td>
-                                    <td><div>{{ $data->phone->phone }}</div></td>
-                                    <td><div>{{ $data->email }}</div></td>
-                                    <td><div> Имя маски </div></td>
+                                    <td><div>{{ $openLead['lead']['name'] }}</div></td>
+                                    <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
+                                    <td><div>{{ $openLead['lead']['email'] }}</div></td>
+                                    <td><div> {{ $openLead->maskName() }} </div></td>
                                     <td class="edit">
                                         <div>
                                             <a href="#">
@@ -438,6 +435,7 @@
             }
         }
 
+
         // добавление строки органайзера
         function addOrganizerRow( organizerId, time, comment, type ){
 
@@ -651,7 +649,7 @@
         }
 
         /*
-        * Собитие наведения на строку органайзера
+        * Событие наведения на строку органайзера
         */
         var organizedRow = '#info_table .organizedRow';
         $(document).on('mouseover', organizedRow,function () {
@@ -688,7 +686,7 @@
         });
 
 
-        $(function(){
+        $(function() {
 
 
             /**
@@ -698,23 +696,22 @@
              *
              */
 
-            function disabledOptionFromServer(){
+            function disabledOptionFromServer() {
 
-                $.each( $('.select_cell'), function( k, cell ){
+                $.each($('.select_cell'), function (k, cell) {
 
                     // номера опций которые нужно заблокировать
                     var disabled_data = $(cell).find('select').attr('disabled_opt').split(',');
 
 
-                    $.each( disabled_data, function( k, disabled ){
+                    $.each(disabled_data, function (k, disabled) {
 
                         $(cell).find('li[data-val="' + disabled + '"]')
-                                .attr( 'data-disabled', 'true')
+                                .attr('data-disabled', 'true')
                                 .addClass('disabled');
                     });
                 });
             }
-
 
 
             /**
@@ -724,21 +721,21 @@
              *
              */
 
-            function disabledSelectOption(){
+            function disabledSelectOption() {
 
                 // выбираем все ячейки с селектом в таблице
-                $.each( $('.select_cell'), function( k, cell ){
+                $.each($('.select_cell'), function (k, cell) {
 
                     // перебираем все опции в ячейке
-                    $.each( $(cell).find('li'), function( k, li ){
+                    $.each($(cell).find('li'), function (k, li) {
 
                         // если доходим до активного класса - останавливаемся
-                        if( $(li).hasClass( 'selectboxit-selected' ) ){
+                        if ($(li).hasClass('selectboxit-selected')) {
                             return false;
 
-                        // если опция находится до активного класса - делаем ее недоступной
-                        }else{
-                            $(li).attr( 'data-disabled', 'true').addClass('disabled');
+                            // если опция находится до активного класса - делаем ее недоступной
+                        } else {
+                            $(li).attr('data-disabled', 'true').addClass('disabled');
                         }
                     });
                 });
@@ -759,6 +756,9 @@
                 // получение id лида
                 var lead_id = $(this).parent().attr('lead_id');
 
+                // получение id лида
+                var openedLeadId = $(this).parent().attr('opened_Lead_Id');
+
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
 
@@ -771,12 +771,12 @@
                 // событие на клик, по кнопке "Change status" (изменение статуса)
                 $( '#statusModalChange' ).bind( 'click', function(){
 
-                    // спрятать модальное окно
-                    $('#statusModal').modal('hide');
+                        // спрятать модальное окно
+                        $('#statusModal').modal('hide');
 
 
                     // изменяем статусы на сервере
-                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, '_token': token}, function( data ){
+                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'openedLeadId': openedLeadId, 'lead_id': lead_id, '_token': token}, function( data ){
 
                         // если статус изменен нормально
                         if( data == 'statusChanged'){

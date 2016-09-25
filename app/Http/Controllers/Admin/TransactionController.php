@@ -5,8 +5,15 @@ use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Helper\PayMaster;
+use App\Models\Lead;
 
 class TransactionController extends AdminController {
+
+    public function __construct()
+    {
+        parent::__construct();
+        view()->share('type', '');
+    }
 
 
     /**
@@ -34,6 +41,57 @@ class TransactionController extends AdminController {
     }
 
 
+
+    /**
+     * Изменение кредитов пользователя
+     *
+     * todo доработать
+     *
+     * @return object
+     */
+    public function systemWallet()
+    {
+
+        // все данные агента по кредитам (кошелек, история, транзакции)
+        $system = PayMaster::systemInfo();
+
+        return view('admin.system.wallet', [ 'system'=>$system ]);
+
+    }
+
+    /**
+     * Изменение кредитов пользователя
+     *
+     * todo доработать
+     *
+     *
+     * @return object
+     */
+    public function allTransactions()
+    {
+        $allTransactions = PayMaster::allTransactions();
+
+        return view('admin.system.transactions', [ 'allTransactions'=>$allTransactions ]);
+
+    }
+
+
+    /**
+     * Изменение кредитов пользователя
+     *
+     * todo доработать
+     *
+     * @return object
+     */
+    public function allLeadsInfo()
+    {
+        $leads =
+            Lead::
+                  where( 'status', '>', 1 )
+                ->paginate(10);
+
+        return view('admin.system.leadsInfo', [ 'leads'=>$leads ]);
+    }
 
 
 

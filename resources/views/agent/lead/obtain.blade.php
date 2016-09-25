@@ -70,3 +70,11 @@
     });
 </script>
 @stop
+
+@section('styles')
+<style>
+    .already_open{
+        color: lightgrey;
+    }
+</style>
+@stop

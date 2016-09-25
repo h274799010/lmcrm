@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Helper\PayMaster;
+use App\Helper\PayMaster\PayInfo;
+use App\Helper\PayMaster\Pay;
 use App\Http\Controllers\AgentController;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
@@ -22,14 +26,18 @@ use Illuminate\Support\Facades\Input;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
 use App\Http\Controllers\Notice;
-use App\CreditHelper;
+use App\Models\Auction;
 
 class LeadController extends AgentController {
-     /*
-    * Display a listing of the resource.
-    *
-    * @return Response
-    */
+
+
+    /**
+     * Display a listing of the resource.
+     *
+     * TODO: страница не используется, может удалить?
+     *
+     * @return Response
+     */
     public function index()
     {
         // Show the page
@@ -84,44 +92,6 @@ class LeadController extends AgentController {
 
 
     /**
-     * todo временно для демонстрации, удалить
-     * Выводит таблицу с отфильтрованными лидами
-     * (только саму таблицу, строки добавляет метод obtainData)
-     *
-     *
-     * @return object
-     */
-    public function obtain2(){
-
-        // данные агента
-        $agent = $this->user;
-
-        // сфера агента
-        $sphere = $agent->sphere();
-
-        // конструктор маски агента
-        $mask = new AgentBitmask( $sphere->id, $agent->id );
-
-        // выбираем все актинвные маски
-        $agentMasks = $mask->where( 'status', '=', 1 )->where( 'user_id', '=', $agent->id )->get();
-
-        // todo проверить вывод маски
-//        dd($agentMasks);
-
-        // атрибуты лида
-        $lead_attr = $sphere->leadAttr;
-
-        // атрибуты фильтра (агента)
-        $agent_attr = $sphere->attributes;
-
-        return view( 'agent.lead.obtain2' )
-            ->with( 'agentMasks', $agentMasks )
-            ->with( 'agent_attr', $agent_attr )
-            ->with( 'lead_attr',$lead_attr );
-    }
-
-
-    /**
      * Заполнение строк таблицы на странице obtain
      *
      *
@@ -145,54 +115,7 @@ class LeadController extends AgentController {
         }
 
         // маска лида
-        $leadBitmask = new LeadBitmask($mask->getTableNum());
-
-        // получаем данные всех активных масок агента
-        $agentBitmask = $mask->getData()->where('status', '=', 1)->get();
-
-        // ПРОВЕРКА НАЛИЧИЯ МАСКИ У АГЕНТА ПЕРЕД ПОЛУЧЕНИЕМ ЛИДОВ
-        if( $agentBitmask->count() != 0 ){
-            // если у агента есть запись в битмаске получаем лиды
-
-            // коллекция содержащая все лиды прошедшие фильтр
-            $leads = collect();
-
-            // перебираем все лиды агента и обрабатываем данные
-            $agentBitmask->each(function( $agentMask ) use ( $leadBitmask, $agent, $leads ){
-
-                // короткая маска лида ("ключ"=>"значение")
-                $agentBitmaskData = $agentMask->findFbMaskById();
-
-                // id всех лидов по фильтру
-                $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
-
-                // получаем все лиды, помеченные к аукциону, по id из массива, без лидов автора
-                $leadsByFilter = Lead::whereIn('id', $list)
-                    ->where('status', '=', 4)
-                    ->where('agent_id', '<>', $agent->id)
-                    ->select(['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'])
-                    ->get();
-
-                // перебираем все полученные лиды, добавляем имя маски и заносим данные в массив лидов
-                $leadsByFilter->each(function( $lead ) use( $leads, $agentMask ) {
-
-                    // todo добавление id маски в данные лида
-                    $lead->mask_id = $agentMask->id;
-
-                    // добавление имени маски в данные лида
-                    $lead->mask = $agentMask->name;
-
-                    // добавление лида в коллекцию $leads
-                    $leads->push($lead);
-                });
-            });
-
-        }else{
-            // если у агента нет записи в битмаске
-
-            // возвращаем пустую коллекцию
-            $leads = collect();
-        }
+        $leadBitmask = new LeadBitmask( $mask->getTableNum() );
 
 
         if (count($request->only('filter'))) {
@@ -217,29 +140,74 @@ class LeadController extends AgentController {
             }
         }
 
-        $datatable = Datatables::of($leads)
-            ->edit_column('opened',function($model){
-                return view('agent.lead.datatables.obtain_count',['opened'=>$model->opened]);
-            })
-            ->edit_column('id',function($model){
-                return view('agent.lead.datatables.obtain_open',['lead'=>$model]);
-            })
-            ->add_column('ids',function($model){
-                return view('agent.lead.datatables.obtain_open_all',['lead'=>$model]);
+
+        $datatable = Datatables::of( $auctionData )
+            ->add_column('count', function( $data ) {
+
+                return view('agent.lead.datatables.obtain_count', [ 'opened'=>$data['lead']['opened'] ]);
+            }, 1)
+            ->add_column('open',function( $data ) use ($agent){
+
+                // проверяем открыт ли этот лид у агента
+                $openLead = OpenLeads::where( 'lead_id', $data['lead']['id'] )->where( 'agent_id', $agent->id )->first();
+
+                if( $openLead ){
+                    // если открыт - блокируем возможность открытия
+                    return view('agent.lead.datatables.obtain_already_open');
+                }else {
+                    // если не открыт - отдаем ссылку на открытия
+                    return view('agent.lead.datatables.obtain_open', ['data' => $data]);
+                }
+
             }, 2)
-            ->add_column('mask',function($model){
-                return $model->mask;
+            ->add_column('openAll',function( $data )  use ($agent){
+
+                // проверяем открыт ли этот лид у других агентов
+                $openLead = OpenLeads::where( 'lead_id', $data['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
+
+                if( $openLead ){
+                    // если открыт - блокируем ссылку
+                    return view('agent.lead.datatables.obtain_already_open');
+                }else {
+                    // если не открыт - отдаем ссылку на открытие всех лидов
+                    return view('agent.lead.datatables.obtain_open_all', ['data' => $data]);
+                }
+
             }, 3)
+            ->add_column('mask', function( $data ){
+
+                return $data['lead']->maskName( $data['mask_id'] );
+
+            }, 4)
+            ->add_column('updated', function( $data ){
+
+                return $data['lead']['updated_at'];
+
+            }, 5)
+            ->add_column('name', function( $data ){
+
+                return $data['lead']['name'];
+
+            }, 6)
+            ->add_column('phone',function( $data ){
+
+                return $data['lead']['phone']->phone;
+            }, 7)
+            ->add_column('e-mail',function( $data ){
+
+                return $data['lead']['email'];
+            }, 8)
+            ->remove_column('id')
+            ->remove_column('lead_id')
+            ->remove_column('user_id')
+            ->remove_column('sphere_id')
             ->remove_column('mask_id')
-            ->edit_column('customer_id',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
-            })
-            ->edit_column('email',function($lead) use ($agent){
-                return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('site/lead.hidden');
-            })
+            ->remove_column('lead')
+
         ;
+
         if(!Sentinel::hasAccess(['agent.lead.openAll'])) {
-            $datatable->removeColumn('ids');
+            $datatable->removeColumn('openAll');
         }
 
 
@@ -261,10 +229,10 @@ class LeadController extends AgentController {
         foreach($agentAttributes as $attr){
 
             // добавляем столбец в таблицу
-            $datatable->add_column( 'a_'.$index,function( $lead ) use ( $attr, $fdMask ){
+            $datatable->add_column( 'a_'.$index, function( $data ) use ( $attr, $fdMask ){
 
                 // маска текущего лида
-                $leadMask = $fdMask[$lead->id];
+                $leadMask = $fdMask[$data['lead']['id']];
 
 
                 // выбираем тип текущего атрибута
@@ -325,10 +293,10 @@ class LeadController extends AgentController {
         // перебираем все атрибуты и выставляем значения по маске лида
         foreach($leadAttributes as $attr){
 
-           $datatable->add_column( 'a_'.$index, function( $lead ) use ( $attr, $adMask ){
+           $datatable->add_column( 'a_'.$index, function( $data ) use ( $attr, $adMask ){
 
                // маска текущего лида
-               $leadMask = $adMask[$lead->id];
+               $leadMask = $adMask[ $data['lead']['id'] ];
 
                // выбираем тип текущего атрибута
                $attrType = $attr->_type;
@@ -415,7 +383,7 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function obtain2Data( Request $request )
+    public function obtain2Data(Request $request)
     {
 
         // id маски по которой нужно отдать лиды
@@ -428,58 +396,58 @@ class LeadController extends AgentController {
         $mask=$this->mask;
 
         // маска лида
-        $leadBitmask = new LeadBitmask($mask->getTableNum());
+        $leadBitmask = new LeadBitmask( $mask->getTableNum() );
 
         // получаем данные всех активных масок агента
-        $agentBitmask = $mask->getData()->where( 'status', '=', 1 )->find( $maskId );
-
+        $agentBitmask = $mask->getData()->where('status', '=', 1)->get();
 
         // ПРОВЕРКА НАЛИЧИЯ МАСКИ У АГЕНТА ПЕРЕД ПОЛУЧЕНИЕМ ЛИДОВ
-        if( $agentBitmask ){
+        if( $agentBitmask->count() != 0 ){
             // если у агента есть запись в битмаске получаем лиды
 
-            // маска агента по id
-            $agentBitmaskData = $agentBitmask->findFbMaskById();
+            // коллекция содержащая все лиды прошедшие фильтр
+            $leads = collect();
 
-            // получаем id всех лидо по маске
-            $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists( 'user_id' );
+            // перебираем все лиды агента и обрабатываем данные
+            $agentBitmask->each(function( $agentMask ) use ( $leadBitmask, $agent, $leads ){
 
-            // конструктор модели Lead, заводим получение лидов по id
-            $leads = Lead::whereIn( 'id', $list );
+                // короткая маска лида ("ключ"=>"значение")
+                $agentBitmaskData = $agentMask->findFbMaskById();
 
-            // фильтр, если есть данные по фильтру они подключаются к конструкторв
-            if ( count( $request['filter'] ) ) {
-                $eFilter = $request->only('filter')['filter'];
-                foreach ($eFilter as $eFKey => $eFVal) {
-                    switch($eFKey) {
-                        case 'date':
-                            if($eFVal=='2d') {
-                                $date = new \DateTime();
-                                $date->sub(new \DateInterval('P2D'));
-                                $leads->where('created_at','>=', $date->format('Y-m-d'));
-                            } elseif($eFVal=='1m') {
-                                $date = new \DateTime();
-                                $date->sub(new \DateInterval('P1M'));
-                                $leads->where('created_at','>=', $date->format('Y-m-d'));
-                            } else {
+                // id всех лидов по фильтру
+                $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
 
-                            }
-                            break;
-                        default: ;
-                    }
-                }
-            }
+                // получаем все лиды, помеченные к аукциону, по id из массива, без лидов автора
+                $leadsByFilter =
+                    Lead::
+                    whereIn('id', $list)                     // все лиды полученыые по маске агента
+                    ->where('status', 3)                     // котрые помеченнык аукциону
+                    ->where('agent_id', '<>', $agent->id)    // без лидов, которые занес агент
+                    ->select(
+                        [
+                            'opened',
+                            'id',
+                            'updated_at',
+                            'name',
+                            'customer_id',
+                            'email'
+                        ]
+                    )
+                        ->get();
 
-            // подключаем другие данные к конструктору и выбираем данные из БД
-            $leads
-                // лиды только со статусом 4 (это которые "к аукциону")
-                ->where( 'status', '=', 4 )
-                // исключаем лиды которые принадлежат пользователю который делает запрос
-                ->where( 'agent_id', '<>', $agent->id )
-                // получаем только те поля, которые нам нужны
-                ->select( ['opened', 'id', 'updated_at', 'name', 'customer_id', 'email'] )
-                // делаем запрос к БД
-                ->get();
+                // перебираем все полученные лиды, добавляем имя маски и заносим данные в массив лидов
+                $leadsByFilter->each(function( $lead ) use( $leads, $agentMask ) {
+
+                    // добавление id маски в данные лида
+                    $lead->mask_id = $agentMask->id;
+
+                    // добавление имени маски в данные лида
+                    $lead->mask = $agentMask->name;
+
+                    // добавление лида в коллекцию $leads
+                    $leads->push($lead);
+                });
+            });
 
         }else{
             // если у агента нет записи в битмаске
@@ -489,16 +457,62 @@ class LeadController extends AgentController {
         }
 
 
-        $datatable = Datatables::of( $leads )
+        if (count($request->only('filter'))) {
+            $eFilter = $request->only('filter')['filter'];
+            foreach ($eFilter as $eFKey => $eFVal) {
+                switch($eFKey) {
+                    case 'date':
+                        if($eFVal=='2d') {
+                            $date = new \DateTime();
+                            $date->sub(new \DateInterval('P2D'));
+                            $leads->where('leads.created_at','>=',$date->format('Y-m-d'));
+                        } elseif($eFVal=='1m') {
+                            $date = new \DateTime();
+                            $date->sub(new \DateInterval('P1M'));
+                            $leads->where('leads.created_at','>=',$date->format('Y-m-d'));
+                        } else {
+
+                        }
+                        break;
+                    default: ;
+                }
+            }
+        }
+
+        $datatable = Datatables::of($leads)
             ->edit_column('opened',function($model){
-                return view('agent.lead.datatables.obtain_count',['opened'=>$model->opened]);
+                return view('agent.lead.datatables.obtain_count', [ 'opened'=>$model->opened ]);
             })
-            ->edit_column('id',function($model){
-                return view('agent.lead.datatables.obtain_open',['lead'=>$model]);
+            ->edit_column('id',function($model) use ($agent){
+
+                // проверяем открыт ли этот лид у агента
+                $openLead = OpenLeads::where( 'lead_id', $model->id )->where( 'agent_id', $agent->id )->first();
+
+                if( $openLead ){
+                    // если открыт - блокируем возможность открытия
+                    return view('agent.lead.datatables.obtain_already_open');
+                }else {
+                    // если не открыт - отдаем ссылку на открытия
+                    return view('agent.lead.datatables.obtain_open', ['lead' => $model]);
+                }
             })
-            ->add_column('ids',function($model){
-                return view('agent.lead.datatables.obtain_open_all',['lead'=>$model]);
+            ->add_column('ids',function($model)  use ($agent){
+
+                // проверяем открыт ли этот лид у других агентов
+                $openLead = OpenLeads::where( 'lead_id', $model->id )->where( 'agent_id', '<>', $agent->id )->first();
+
+                if( $openLead ){
+                    // если открыт - блокируем ссылку
+                    return view('agent.lead.datatables.obtain_already_open');
+                }else {
+                    // если не открыт - отдаем ссылку на открытие всех лидов
+                    return view('agent.lead.datatables.obtain_open_all', ['lead' => $model]);
+                }
             }, 2)
+            ->add_column('mask',function($model){
+                return $model->mask;
+            }, 3)
+            ->remove_column('mask_id')
             ->edit_column('customer_id',function($lead) use ($agent){
                 return ($lead->obtainedBy($agent->id)->count())?$lead->phone->phone:trans('site/lead.hidden');
             })
@@ -506,6 +520,9 @@ class LeadController extends AgentController {
                 return ($lead->obtainedBy($agent->id)->count())?$lead->email:trans('site/lead.hidden');
             })
         ;
+        if(!Sentinel::hasAccess(['agent.lead.openAll'])) {
+            $datatable->removeColumn('ids');
+        }
 
 
 
@@ -517,7 +534,7 @@ class LeadController extends AgentController {
         // маска fb полей лидов
         // массив с ключами и значениями только fb_ полей
         // [ fb_11_2=>1, fb_2_1=>0 ]
-        $fdMask = collect( $leadBitmask->findFbMask() );
+        $fdMask = collect($leadBitmask->findFbMask());
 
         // индекс, столбца таблицы dataTables
         $index = 0;
@@ -526,17 +543,18 @@ class LeadController extends AgentController {
         foreach($agentAttributes as $attr){
 
             // добавляем столбец в таблицу
-            $datatable->add_column( 'a_'.$index, function( $lead ) use ( $attr, $fdMask ){
+            $datatable->add_column( 'a_'.$index,function( $lead ) use ( $attr, $fdMask ){
 
                 // маска текущего лида
                 $leadMask = $fdMask[$lead->id];
+
 
                 // выбираем тип текущего атрибута
                 $attrType = $attr->_type;
 
 
                 /** опции этих атрибутов имеют тип option их всегда несколько
-                    дальше идет фильтрация по маске лида, выбираются опции которые относятся к конкретному лиду */
+                дальше идет фильтрация по маске лида, выбираются опции которые относятся к конкретному лиду */
 
                 // все опции атрибута
                 $allOption = $attr->options;
@@ -563,6 +581,8 @@ class LeadController extends AgentController {
                             $value = $value .', ' .$opt->name;
                         }
                     }
+
+
                 }
 
                 return view('agent.lead.datatables.obtain_data',['data'=>$value,'type'=>$attrType]);
@@ -669,8 +689,6 @@ class LeadController extends AgentController {
     }
 
 
-
-
     /**
      * Открытие лида
      *
@@ -682,150 +700,39 @@ class LeadController extends AgentController {
      */
     public function openLead( $lead_id, $mask_id ){
 
-        // платеж по открытию лида
-        $operation =
-        PayMaster::openLead(
-            $this->user->id, // id агента который открывает лид
-            $lead_id,        // id лида
-            $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
-        );
+        // находим лид
+        $lead = Lead::find( $lead_id );
 
+        // пробуем открыть лид, статус записываем в переменную
+        $openResult = $lead->open( $this->user, $mask_id );
 
-        // обработка результата занесения платежа
-        if( $operation == false ) {
-
-            return response()->json( [ trans('lead/lead.openlead.error') ] );
-
-        }elseif( $operation == 'low balance' ) {
-
-            return response()->json( [ trans('lead/lead.openlead.low_balance') ] );
-
-        }elseif( $operation == 'the maximum number of open' ) {
-
-            return response()->json( [ trans('lead/lead.openlead.maximum_number') ] );
-
-        }else {
-
-            return response()->json( [ trans('lead/lead.openlead.successfully_opened') ] );
-        }
-
+        return response()->json( $openResult );
     }
-
-
-
-
-
-
-    public function openAllLeads($id){
-        $credit = $this->user->bill;
-        $balance = $credit->balance;
-
-        $mask=$this->mask;
-
-        $lead = Lead::lockForUpdate()->find($id);
-
-        $ol = $this->user->openLead($id)->first();
-        $obtainedByThisAgent = 0;
-        if ($ol)
-            $obtainedByThisAgent = $ol->count;
-        if ($lead->opened > 0 && $lead->opened != $obtainedByThisAgent)
-            return json_encode(['msg'=>trans('lead/lead.alreadyObtained')]);
-
-        $mustBeAdded = $lead->sphere->openLead - $obtainedByThisAgent;
-        $price = $mask->getStatus()->sharedLock()->first()->lead_price*$mustBeAdded;
-
-        if($price > $balance) {
-            return json_encode(['msg'=>trans('lead/lead.lowBalance')]);
-        }
-
-        //$lead->opened += $lead->sphere->openLead;
-        $updateCount = Lead::where('id',$lead->id)->where('opened',$lead->opened)->increment('opened',$mustBeAdded);
-        if ($updateCount)
-        {
-            /**
-             * Высчитываем pending_time
-             */
-            switch ($lead->sphere->pending_type) {
-                case 0:
-                    $pending_factor = 60;
-                    break;
-                case 1:
-                    $pending_factor = 60 * 60;
-                    break;
-                case 2:
-                    $pending_factor = 60 * 60 * 24;
-                    break;
-                default:
-                    $pending_factor = 60 * 60;
-                    break;
-            }
-            $pending_time = $lead->sphere->pending_time * $pending_factor;
-
-            //$lead->obtainedBy()->attach($this->uid);
-            if (!$ol){
-                $ol = new OpenLeads();
-                $ol->lead_id = $id;
-                $ol->agent_id = $this->uid;
-            }
-            $ol->count = $lead->sphere->openLead;
-            $ol->pending_time = Date('Y-m-d H:i:s',time()+$pending_time);
-            $ol->save();
-            $credit->payment=$price;
-            $credit->descrHistory = $mustBeAdded;
-            $credit->source = CreditTypes::LEAD_PURCHASE;
-            $credit->save();//уменьшаем баланс купившего
-
-            CreditHelper::leadPurchase($credit,$price,$mustBeAdded,$lead,$this);
-
-            return json_encode(['msg'=>trans('lead/lead.successfullyObtained')]);
-        }
-        else{
-            return json_encode(['msg'=>trans('lead/lead.obtainError')]);
-        }
-    }
-
 
 
     /**
-     * Закрытие сделки по лиду
-     *
-     * todo доработать
-     * пока непонятно сколько стоит закрытие сделки
-     * когда станет понятно - добавить
+     * Открытие максимальное количество лидов по лиду
      *
      *
-     * @param  integer  $lead_id
-     * @param  integer  $mask_id
+     * @param integer $lead_id
+     * @param integer $mask_id
      *
      * @return Response
      */
-    public function closingDeal( $lead_id, $mask_id )
-    {
+    public function openAllLeads( $lead_id, $mask_id ){
 
-        // платеж по закрытие сделки по лиду
-        $operation =
-        PayMaster::closingDeal(
-            $this->user->id, // id агента который закрывает сделку
-            $lead_id,        // id лида
-            $mask_id         // id маски, по которой получен лид (по ней же и цена лида)
-        );
+        // находим лид
+        $lead = Lead::find( $lead_id );
 
+        // агент
+        $agent = $this->user;
 
-        // обработка результата занесения платежа
-        if( $operation == false ) {
+        // пробуем открыть лид, статус записываем в переменную
+        $openResult = $lead->openAll( $agent, $mask_id );
 
-            return response()->json( [ trans('lead/lead.closingDeal.error') ] );
+        return response()->json( $openResult );
 
-        }elseif( $operation == 'low balance' ) {
-
-            return response()->json( [ trans('lead/lead.closingDeal.low_balance') ] );
-
-        }else {
-
-            return response()->json( [ trans('lead/lead.closingDeal.the_deal_is_closed') ] );
-        }
     }
-
 
 
     /**
@@ -841,6 +748,9 @@ class LeadController extends AgentController {
 
     /**
      * Store a newly created resource in storage.
+     *
+     *
+     * @param  Request  $request
      *
      * @return Response
      */
@@ -861,13 +771,12 @@ class LeadController extends AgentController {
         }
 
 
-        $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
 
         $lead = new Lead($request->except('phone'));
         $lead->customer_id=$customer->id;
-//        $lead->date=date('Y-m-d');
         $lead->sphere_id = $agent->sphere()->id;
-        $lead->status = 2;
+        $lead->status = 0;
 
 
         $agent->leads()->save($lead);
@@ -879,10 +788,12 @@ class LeadController extends AgentController {
         }
     }
 
+
     /**
      * Remove the specified resource from storage.
      *
      * @param $id
+     *
      * @return Response
      */
     public function destroy($id)
@@ -891,13 +802,11 @@ class LeadController extends AgentController {
         return response()->route('agent.lead.index');
     }
 
+
     /**
-     * Показывает всех открытых лидов для пользователя
-     *
-     * по идее возвращает лиды по таблице open_leads
+     * Выводит все открытые лиды агента
      *
      * @return object
-     *
      */
     public function openedLeads($salesman_id = false){
         // id пользователя
@@ -907,11 +816,14 @@ class LeadController extends AgentController {
             $userId = (int)$salesman_id;
         }
 
-        // id открытых лидов пользователя
-        $openLeads = OpenLeads::where('agent_id', '=', $userId)->lists('lead_id');
+        // Выбираем все открытые лиды агента с дополнительными данными
+        $openLeads = OpenLeads::
+        where( 'agent_id', $userId )
+            ->with( ['lead' => function( $query ){
+                $query->with('sphereStatuses');
+            }])
+            ->get();
 
-        // открытые лиды пользователя
-        $leads = Lead::whereIn('id', $openLeads)->with('sphereStatuses', 'openLeadStatus')->get();
 
         if($salesman_id === false) {
             $return = ['dataArray'=>$leads];
@@ -920,20 +832,21 @@ class LeadController extends AgentController {
             $return = [ 'dataArray' => $leads, 'salesman_id' => (int)$salesman_id ];
             $view = 'agent.salesman.login.opened';
         }
+
+        //return view( 'agent.lead.opened', ['openLeads'=>$openLeads] );
         return view($view, $return);
     }
-
 
 
     /**
      * Данные для заполлнения подробной таблице на странице открытых лидов
      *
      *
+     * @param  Request  $request
      */
     public function openedLeadsAjax( Request $request ){
         $id = $request->id;
-        $data = Lead::has('obtainedBy')->find($id);
-        $arr[] = [ 'date',$data->date ];
+        $data = Lead::has('obtainedBy')->find( $id );
         $arr[] = [ 'name',$data->name ];
         $arr[] = [ 'phone',$data->phone->phone ];
         $arr[] = [ 'email',$data->email ];
@@ -966,7 +879,6 @@ class LeadController extends AgentController {
 
             $str = '';
 
-//            $resp = $mask->where('ad_5_3',1)->where('user_id',$id)->first();
             $mask = new LeadBitmask($data->sphere_id,$data->id);
             $AdMask = $mask->findAdMask($id);
 
@@ -1036,27 +948,8 @@ class LeadController extends AgentController {
 
 
     /**
-     * Установка следующего статуса
-     *
-     * метод получает id лида
-     * находит пользователя у которого этот лид
-     * и прибавлает его статусу 1
-     *
-     *
-     * @param  integer  $id
-     *
-     * @return object
-     */
-    public function nextStatus($id){
-        $openedLead = OpenLeads::where(['lead_id'=>$id,'agent_id'=>$this->uid])->first();
-        $status = $openedLead->status+1;
-        if ($openedLead->lead->sphere->statuses->where('position',$status)->first())
-            $openedLead->increment('status');
-        return redirect()->route('agent.lead.showOpenedLead',[$id]);
-    }
-
-    /**
      * метод устанавливает статус
+     *
      *
      * @param  Request  $request
      *
@@ -1064,8 +957,8 @@ class LeadController extends AgentController {
      */
     public function setOpenLeadStatus( Request $request ){
 
-        $lead_id = $request->lead_id;
-        $status = $request->status;
+        $openedLeadId  = $request->openedLeadId;
+        $status   = $request->status;
 
         if($request->salesman_id) {
             $user_id = $request->salesman_id;
@@ -1074,32 +967,40 @@ class LeadController extends AgentController {
         }
 
         // находим данные открытого лида по id лида и id агента
-        $openedLead = OpenLeads::where(['lead_id'=>$lead_id,'agent_id'=>$user_id])->first();
+        $openedLead = OpenLeads::find( $openedLeadId );
 
-        // если лид отмечен как плохой
+        // если открытый лид отмечен как плохой
         if($status == 'bad') {
+
             if(time() < strtotime($openedLead->expiration_time)) {
-                $openedLead->bad = 1;
-                $openedLead->save();
+                // если время открытого лида еще не вышло
+
+                // помечаем его как плохой
+                $openedLead->setBadLead();
+
                 return response()->json('setBadStatus');
+
             } else {
+                // если время открытого лида уже вышло
+
+                // отменяем всю ничего не делаем, выходим
                 return response()->json('pendingTimeExpire');
             }
         }
 
+
         // Если сделка отмечается закрытой
         if($status == 'closing_deal') {
-            // ищем лид по id
-            $lead = Lead::find($lead_id);
-            // и устанавливаем статус завершенной сделки
-            $lead->closing_deal = true;
-            $lead->save();
+
+            // закрываем сделку
+            $openedLead->closeDeal();
+
             return response()->json('setClosingDealStatus');
         }
 
         // если новый статус меньше уже установленного, выходим из метода
         // или лид отмечен как плохой
-        if( $status < $openedLead->status || $openedLead->bad == true ){
+        if( $status < $openedLead->status || $openedLead->state == 1 || $openedLead->state == 2 ){
             return response()->json(FALSE);
 
         }else{
@@ -1257,7 +1158,8 @@ class LeadController extends AgentController {
      * Получение записи для редактирования
      *
      * @param $id
-     * @return $object
+     *
+     * @return object
      */
     public function editOrganizer($id)
     {

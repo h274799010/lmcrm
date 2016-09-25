@@ -25,6 +25,8 @@ return [
     'opened.organizer.comments' => 'Comments',
     'opened.organizer.button.comment' => 'Comments',
     'opened.organizer.button.reminder' => 'Reminder',
+    'closing_deal' => 'closing the deal',
+    'deal_closed'  => 'Deal is closed',
 
     /*
      * Modals

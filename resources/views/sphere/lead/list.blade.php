@@ -22,7 +22,7 @@
         @forelse($leads as $lead)
             <tr>
                 <td>{!! $lead->name !!}</td>
-                <td>{!! $lead->statusName->name !!}</td>
+                <td>{!! $lead->statusName() !!}</td>
 
                 <td>{!! $lead->user->first_name !!}</td>
 

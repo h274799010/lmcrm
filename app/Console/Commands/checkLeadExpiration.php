@@ -35,10 +35,16 @@ class checkLeadExpiration extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
+
+//        $this->info('Метод пока отключен, нужно дописать финиш и проверить в целом');
+//
+//        exit();
+
+
 
         // ищем просроченные лиды
         $expiredLeads = Lead::Expired()->get();
@@ -46,12 +52,24 @@ class checkLeadExpiration extends Command
         // если они есть - обрабатываем
         $expiredLeads->each(function( $lead ){
 
-            // метод завершает лид
-             PayMaster::finishLead( $lead );
+            // помечаем как завершенные
+            // убираем с аукционе
+            // ожидаем закрытие открытых лидов
+            $lead->markExpired();
+        });
+
+        // ищем просроченность по открытым лидам
+        // лиды, которые уже можно завершить
+        $expiredOpenLeads = Lead::OpenLeadExpired()->get();
+
+        // если они есть - обрабатываем
+        $expiredOpenLeads->each(function( $lead ){
+
+            // делаем расчет по открытым лидам
+            // и проставляем статусы
+            $lead->rewardForOpenLeads();
         });
 
         // todo сделать на логах
-
-        return true;
     }
 }

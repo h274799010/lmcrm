@@ -25,7 +25,7 @@ class Lead extends Model
         $lead = new LeadModel();
         $lead->customer_id = $customer->id;
         $lead->sphere_id = $agent->sphere()->id;
-        $lead->status = 2;
+        $lead->status = 0;
         $lead->name = $name;
         $lead->comment = $comment;
         $lead->agent_id = $user_id;
@@ -35,7 +35,12 @@ class Lead extends Model
     }
 
 
-    public static function seeder( $number, $agent_id  )
+    /**
+     * Метод добавления лидов
+     *
+     *
+     */
+    public static function LeadSeeder( $number, $agent_id  )
     {
 
         $lNumber = 0;

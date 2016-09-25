@@ -78,6 +78,7 @@ class Sphere extends Model
      *
      * метод преобразует интервал из DB в объект DateInterval
      *
+     * todo удалить, есть метод проще
      *
      * сам период храниты в DB в формате string
      * в поле "expiration_interval"

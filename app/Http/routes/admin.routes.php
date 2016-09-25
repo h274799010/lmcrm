@@ -11,6 +11,22 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // страница редактирования данных кошелька системы
     Route::get('system',['as'=>'admin.system', 'uses' => 'Admin\DashboardController@systemInfo']);
 
+
+    // todo страница редактирования данных кошелька системы
+    Route::get('systemWallet',['as'=>'admin.systemWallet', 'uses' => 'Admin\TransactionController@systemWallet']);
+
+    // todo страница редактирования данных кошелька системы
+    Route::get('allTransactions',['as'=>'admin.allTransactions', 'uses' => 'Admin\TransactionController@allTransactions']);
+
+    // todo страница редактирования данных кошелька системы
+    Route::get('allLeadsInfo',['as'=>'admin.allLeadsInfo', 'uses' => 'Admin\TransactionController@allLeadsInfo']);
+
+
+
+
+
+
+
     // изменение состояния счета системы
     Route::post('manual/Wallet/{user_id}/Change',['as'=>'manual.wallet.change', 'uses' => 'Admin\TransactionController@ManualWalletChange']);
 

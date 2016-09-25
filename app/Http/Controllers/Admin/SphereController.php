@@ -13,14 +13,13 @@ use App\Models\LeadBitmask;
 use Illuminate\Support\Facades\Input;
 use App\Models\User;
 use App\Models\Sphere;
+use App\Models\Auction;
 
 
-    use App\Models\SphereFormFilters;
+use App\Models\SphereFormFilters;
 
 
 use App\Models\SphereAdditionForms;
-
-use App\Models\SphereStatuses;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Datatables;
@@ -1374,7 +1373,7 @@ class SphereController extends AdminController {
      *
      * @return object
      */
-    public function filtrationUpdate(Request $request, $sphere, $mask_id)
+    public function filtrationUpdate( Request $request, $sphere, $mask_id )
     {
 
         // конструктор битмаска агента
@@ -1394,6 +1393,9 @@ class SphereController extends AdminController {
 
         // сохранение изменений
         $mask->save();
+
+        // добавлаем лиды агенту в таблицу аукциона (если есть лиды по маске)
+        Auction::addByAgentMask( $mask_id, $sphere );
 
         return redirect()->route('admin.sphere.reprice');
     }

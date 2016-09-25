@@ -64,12 +64,5 @@ class DatabaseSeeder extends Seeder
             'comment' => 'the client has completed a deal with one of the agents',
         ]);
 
-        DB::table('lead_statuses')->insert([
-            'id' => '7',
-            'name' => 'expiration of Lead',
-            'comment' => 'the completion time of stay of the Lead at auction',
-        ]);
-
-
     }
 }

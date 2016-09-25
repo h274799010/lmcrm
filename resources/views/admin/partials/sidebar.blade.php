@@ -20,11 +20,37 @@
                     <i class="fa fa-list"></i> Sphere filtration re-price
                 </a>
             </li>
+
+            <li>
+                <a href="{{ route('admin.system') }}">
+                    <i class="glyphicon glyphicon-flash"></i> System1
+                </a>
+            </li>
+
             <li>
                 <a href="{{ route('admin.system') }}">
                     <i class="glyphicon glyphicon-flash"></i> System
+                    <span class="fa arrow"></span>
                 </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('admin.systemWallet') }}">
+                            <i class="glyphicon glyphicon-usd"></i> Wallet
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.allTransactions') }}">
+                            <i class="glyphicon glyphicon-sort"></i> Transactions
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.allLeadsInfo') }}">
+                            <i class="glyphicon glyphicon-file"></i> Leads
+                        </a>
+                    </li>
+                </ul>
             </li>
+
             <li>
                 <a href="{{ route('admin.user.index') }}">
                     <i class="glyphicon glyphicon-user"></i> Users

@@ -8,8 +8,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ route('home') }}"><img src="{{ asset('assets/web/images/logo.png') }}"> LM
-                CRM</a>
+            <a class="navbar-brand" href="{{ route('home') }}"><img src="{{ asset('assets/web/images/logo.png') }}"> LM CRM</a>
         </div>
 
 
@@ -26,8 +25,7 @@
                 @if (!Sentinel::guest())
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                           aria-expanded="false"><i
-                                    class="glyphicon glyphicon-menu-hamburger"></i> {{ Sentinel::getUser()->name }} </a>
+                           aria-expanded="false"><i class="glyphicon glyphicon-menu-hamburger"></i> {{ Sentinel::getUser()->name }} </a>
                         <ul class="dropdown-menu" role="menu">
                             @if(Sentinel::inRole('administrator'))
                                 <li>
@@ -41,11 +39,6 @@
                             <br>
 
 
-                            {{-- todo временно, удалить потом --}}
-                            <li>
-                                <a href="{{ route('agent.lead.obtain.2') }}"> obtain2 </a>
-                            </li>
-                            <hr>
 
                             @if( Sentinel::hasAccess(['agent.sphere.update']) )
                                 <li>

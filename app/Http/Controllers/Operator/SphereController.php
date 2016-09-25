@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Operator;
 use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
+use App\Models\Auction;
 use App\Models\LeadBitmask;
 use Validator;
 use App\Models\Agent;
@@ -35,9 +36,9 @@ class SphereController extends Controller {
     public function index()
     {
 
-        $leads = Lead::where('status', '=', 2)->orWhere('status', '=', 3)->with([ 'statusName', 'sphere', 'user'])->get();
+        $leads = Lead::where('status', 0)->with([ 'sphere', 'user'])->get();
 
-        return view('sphere.lead.list')->with('leads', $leads);
+        return view('sphere.lead.list')->with( 'leads', $leads );
     }
 
 
@@ -74,7 +75,7 @@ class SphereController extends Controller {
 
 
     /**
-     * Сохранение данных лида и уведомление о нем агентов
+     * Сохранение данных лида и уведомление о нем агентов которым этот лид подходит
      *
      * поля лида
      * маска лида
@@ -98,12 +99,47 @@ class SphereController extends Controller {
         ]);
 
         if ($validator->fails()) {
-            if($request->ajax()){
+            if( $request->ajax() ){
                 return response()->json($validator);
             } else {
                 return redirect()->back()->withErrors($validator)->withInput();
             }
         }
+
+
+        /** --  Находим лид и проверяем на bad/good  -- */
+
+        // находим лид
+        $lead = Lead::find( $lead_id );
+
+        // если оператор отметил лид как плохой
+        if( $request->input('bad') ){
+
+            // расчитываем лид
+            $lead->operatorBad();
+
+            // выходим из метода
+            if( $request->ajax() ){
+                return response()->json();
+            } else {
+                return redirect()->route('operator.sphere.index');
+            }
+        }
+
+        /** --  П О Л Я  лида  -- */
+
+        $lead->name=$request->input('name');
+        $lead->email=$request->input('email');
+        $lead->comment=$request->input('comment');
+
+        $lead->status = 3;
+
+        $lead->operator_processing_time = date("Y-m-d H:i:s");
+        $lead->expiry_time = $lead->expiredTime();
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
+        $lead->customer_id = $customer->id;
+        $lead->save();
+
 
 
         /** --  П О Л Я  fb_  =====  сохранение данных опций атрибутов лида  -- */
@@ -126,24 +162,6 @@ class SphereController extends Controller {
         // в маске лида выставляется статус 1,
         // где и зачем используется - непонятно
         $mask->setStatus(1, $lead_id);
-
-
-        /** --  П О Л Я  лида  -- */
-
-        $lead = Lead::find($lead_id);
-        $lead->name=$request->input('name');
-        $lead->email=$request->input('email');
-        $lead->comment=$request->input('comment');
-        $lead->status = $request->input('bad') ? 1 : 4;
-
-        $lead->operator_processing_time = date("Y-m-d H:i:s");
-        $lead->expiry_time = $lead->expiredTime();
-
-
-//        $lead->status= $request->input('bad') ? $request->input('bad') : 0;
-        $customer = Customer::firstOrCreate(['phone'=>preg_replace('/[^\d]/','',$request->input('phone'))]);
-        $lead->customer_id=$customer->id;
-        $lead->save();
 
 
 
@@ -173,7 +191,7 @@ class SphereController extends Controller {
 
         /** --  вычитание из системы стоимость обслуживание лида  -- */
 
-        // todo сделать
+        // todo переделать по новой системе
 
         PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
 
@@ -202,10 +220,13 @@ class SphereController extends Controller {
             // todo подобрать название к этому уведомлению
             // рассылаем уведомления всем агентам которым подходит этот лид
             Notice::toMany( $senderId, $agents, 'note');
+
+            // метод добавляющий лид в таблицу аукциона агентам, которым он подходит
+            Auction::addFromBitmask( $agents, $sphere_id, $lead_id );
         }
 
 
-        if($request->ajax()){
+        if( $request->ajax() ){
             return response()->json();
         } else {
             return redirect()->route('operator.sphere.index');

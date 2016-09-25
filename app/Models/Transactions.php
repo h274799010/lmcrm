@@ -35,6 +35,35 @@ class Transactions extends Model {
             ->hasOne('App\Models\User', 'id', 'initiator_user_id');  // соединяем с таблицей пользователей
     }
 
+
+    /**
+     * Открытие транзакции транзакции
+     *
+     * создание транзакции для проведение платежей
+     *
+     *
+     * @param integer $initiator_id  // id инициатора транзакции
+     *
+     * @return Transactions
+     */
+    public static function open( $initiator_id )
+    {
+        // создание новой транзакции
+        $transaction = new Transactions();
+
+        // записываем инициатора транзакции
+        $transaction->initiator_user_id = $initiator_id;
+
+        // устанавливаем время транзакции
+        $transaction->created_at = Date('Y-m-d H:i:s');
+
+        // сохраняем
+        $transaction->save();
+
+        return $transaction;
+    }
+
+
     /**
      * Присваивает записи статус 'completed'
      *

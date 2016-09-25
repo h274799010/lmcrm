@@ -14,10 +14,11 @@ class CreateAgentInfo extends Migration
     {
         Schema::create('agent_info', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('agent_id');
-            $table->float('lead_revenue_share');
-            $table->float('payment_revenue_share');
-            $table->integer('pending_time');
+            $table->integer('agent_id');             // id агента
+            $table->float('lead_revenue_share');     // процент который агент получает с подажи собственных лидов
+            $table->float('payment_revenue_share');  // цена по которой агент закрывает сделку
+            $table->integer('pending_time');         // todo устаревшее, может удалить?
+
             $table->timestamps();
             $table->engine = 'InnoDB';
         });
