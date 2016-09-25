@@ -114,6 +114,9 @@ class LeadController extends AgentController {
             $mask = new AgentBitmask($sphere_id,$agent->id);
         }
 
+        // выборка всех лидов агента
+        $auctionData = Auction::where( 'user_id', $agent->id )->with('lead')->get();
+
         // маска лида
         $leadBitmask = new LeadBitmask( $mask->getTableNum() );
 
