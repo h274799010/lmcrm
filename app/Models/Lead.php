@@ -630,7 +630,7 @@ class Lead extends EloquentUser {
     {
 
         /** проверяем статус лида */
-        if( $this['status'] == 3 ){
+        if( $this['status'] == 3 || $this['status'] == 4 ){
             // если лид еще на аукционе
 
             // расчет с депозитором лида

@@ -105,6 +105,8 @@ class LeadController extends AgentController {
             // данные агента
             $agent = $this->user;
 
+            $user_id = $agent->id;
+
             // конструктор маски агента
             $mask=$this->mask;
         } else {
@@ -112,10 +114,11 @@ class LeadController extends AgentController {
             $agent = Salesman::findOrFail($salesman_id);
             $sphere_id=$agent->sphere()->id;
             $mask = new AgentBitmask($sphere_id,$agent->id);
+            $user_id = $agent->info->agent_id;
         }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where( 'user_id', $agent->id )->with('lead')->get();
+        $auctionData = Auction::where( 'user_id', $user_id )->with('lead')->get();
 
         // маска лида
         $leadBitmask = new LeadBitmask( $mask->getTableNum() );

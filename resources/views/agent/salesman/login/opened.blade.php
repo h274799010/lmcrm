@@ -1,86 +1,83 @@
 @extends('layouts.salesman')
 
 @section('content')
-    <!-- Page Content -->
-    <div class="row">
-        <div id="main_table" class="col-md-12">
+        <!-- Page Content -->
+<div class="row">
+    <div id="main_table" class="col-md-12">
 
-            {{--<table class="table table-bordered table-striped table-hover openLeadsTable">--}}
-            <table class="table table-bordered table-striped table-hover openLeadsTable">
-                <thead>
-                <tr>
-                    <th>{!! trans("site/lead.opened.icon") !!}</th>
-                    <th>{!! trans('site/lead.opened.status') !!}</th>
-                    <th>{!! trans('site/lead.opened.date') !!}</th>
-                    <th>{!! trans('site/lead.opened.name') !!}</th>
-                    <th>{!! trans('site/lead.opened.phone') !!}</th>
-                    <th>{!! trans('site/lead.opened.email') !!}</th>
-                    <th>{!! trans('site/lead.opened.maskname') !!}</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach ($dataArray as $data)
-                    <tr lead_id="{{ $data->id }}">
-                        <td><div></div></td>
-                        <td class="select_cell">
-                            {{-- Если лид был отмечен как плохой --}}
-                            @if($data->openLeadStatus->bad == true)
-                                bad lead
-                                {{-- впротивном случае вывод select со статусами --}}
-                            @elseif($data->closing_deal == true)
-                                {!! trans('site/lead.deal_closed') !!}
-                            @else
-                                <select name="status" class="form" disabled_opt="{{ $data->blockOptions }}">
-                                    @if($data->openLeadStatus->status == 0)
-                                        <option selected="selected" class="emptyOption"></option>
-                                    @endif
-                                    @if(time() < strtotime($data->openLeadStatus->expiration_time))
-                                        <option value="bad" class="badOption">bad lead</option>
-                                    @endif
-                                    @foreach($data->sphereStatuses->statuses as $status)
-                                        <option value="{{ $status->id }}" @if($data->openLeadStatus->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                                    @endforeach
-                                    <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
-                                </select>
-                            @endif
-                            {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
-                        </td>
-                        <td><div>{{ $data->date }}</div></td>
-                        <td><div>{{ $data->name }}</div></td>
-                        <td><div>{{ $data->phone->phone }}</div></td>
-                        <td><div>{{ $data->email }}</div></td>
-                        <td><div> Имя маски </div></td>
-                        <td class="edit">
-                            <div>
-                                <a href="#">
-                                    <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-
-        </div>
-
-        <div id="info_table_block" class="col-md-3 hidden">
-
-            <table id="info_table" class="table table-bordered table-striped table-hover"  cellspacing="0" width="100%">
-
-                <tr class="organizer_tr">
-                    <td id="organizer_title" colspan="2" rowspan="1" >
-                        {!! trans("site/lead.opened.organizer.title") !!}
+        <table class="table table-bordered table-striped table-hover openLeadsTable">
+            <thead>
+            <tr>
+                <th>{!! trans("site/lead.opened.icon") !!}</th>
+                <th>{!! trans('site/lead.opened.status') !!}</th>
+                <th>{!! trans('site/lead.opened.name') !!}</th>
+                <th>{!! trans('site/lead.opened.phone') !!}</th>
+                <th>{!! trans('site/lead.opened.email') !!}</th>
+                <th>{!! trans('site/lead.opened.maskname') !!}</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach ($openLeads as $openLead)
+                <tr lead_id="{{ $openLead['lead']['id'] }}"  opened_Lead_Id="{{ $openLead['id'] }}">
+                    <td><div></div></td>
+                    <td class="select_cell">
+                        {{-- Если лид был отмечен как плохой --}}
+                        @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
+                            bad lead
+                            {{-- впротивном случае вывод select со статусами --}}
+                        @elseif( $openLead->state == 2 )
+                            {!! trans('site/lead.deal_closed') !!}
+                        @else
+                            <select name="status" class="form">
+                                @if( $openLead->status == 0 )
+                                    <option selected="selected" class="emptyOption"></option>
+                                @endif
+                                @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
+                                    <option value="bad" class="badOption">bad lead</option>
+                                @endif
+                                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
+                                    <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                @endforeach
+                                <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
+                            </select>
+                        @endif
+                        {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
                     </td>
-                    <td class="organizer_time_title">
-                        {!! trans("site/lead.opened.organizer.time") !!}
-                    </td>
-                    <td class="organizer_comments_title">
+                    <td><div>{{ $openLead['lead']['name'] }}</div></td>
+                    <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
+                    <td><div>{{ $openLead['lead']['email'] }}</div></td>
+                    <td><div> {{ $openLead->maskName() }} </div></td>
+                    <td class="edit">
                         <div>
-                            {!! trans("site/lead.opened.organizer.comments") !!}
+                            <a href="#">
+                                <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
+                            </a>
                         </div>
-                        <span class="dropdown">
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+
+    </div>
+
+    <div id="info_table_block" class="col-md-3 hidden">
+
+        <table id="info_table" class="table table-bordered table-striped table-hover"  cellspacing="0" width="100%">
+
+            <tr class="organizer_tr">
+                <td id="organizer_title" colspan="2" rowspan="1" >
+                    {!! trans("site/lead.opened.organizer.title") !!}
+                </td>
+                <td class="organizer_time_title">
+                    {!! trans("site/lead.opened.organizer.time") !!}
+                </td>
+                <td class="organizer_comments_title">
+                    <div>
+                        {!! trans("site/lead.opened.organizer.comments") !!}
+                    </div>
+                                    <span class="dropdown">
                                         <a class="dropdown-toggle" aria-expanded="true" role="button" data-toggle="dropdown" href="#">
                                             <i class="glyphicon glyphicon-plus"></i>
                                         </a>
@@ -91,48 +88,48 @@
                                         </ul>
 
                                     </span>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <!-- /.col-lg-10 -->
+                </td>
+            </tr>
+        </table>
     </div>
-    <!-- /.row -->
-    <!-- /.container -->
+    <!-- /.col-lg-10 -->
+</div>
+<!-- /.row -->
+<!-- /.container -->
 
 
-    <div id="statusModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-        <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
+<div id="statusModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
 
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="exampleModalLabel">
-                        {!! trans("site/lead.opened.modal.head") !!}
-                    </h4>
-                </div>
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">
+                    {!! trans("site/lead.opened.modal.head") !!}
+                </h4>
+            </div>
 
-                <div class="modal-body">
+            <div class="modal-body">
 
-                    {!! trans("site/lead.opened.modal.body") !!}
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                        {!! trans("site/lead.opened.modal.button.Cancel") !!}
-                    </button>
-
-                    <button id="statusModalChange" type="button" class="btn btn-danger">
-                        {!! trans("site/lead.opened.modal.button.OK") !!}
-                    </button>
-                </div>
-
+                {!! trans("site/lead.opened.modal.body") !!}
 
             </div>
+
+            <div class="modal-footer">
+
+                <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                    {!! trans("site/lead.opened.modal.button.Cancel") !!}
+                </button>
+
+                <button id="statusModalChange" type="button" class="btn btn-danger">
+                    {!! trans("site/lead.opened.modal.button.OK") !!}
+                </button>
+            </div>
+
+
         </div>
     </div>
+</div>
 
 @endsection
 
@@ -364,10 +361,10 @@
                 $('#organizer_title').attr( 'rowspan',1);
 
                 // путь к странице комментариев
-                var commentHref = '{{ route('agent.salesman.addСomment', ['','']) }}' + '/' + id + '/' + '{{ $salesman_id }}';
+                var commentHref = '{{ route('agent.lead.addСomment', '') }}' + '/' + id;
 
                 // путь к странице напоминаний
-                var reminderHref = '{{ route('agent.salesman.addReminder', ['','']) }}' + '/' + id + '/' + '{{ $salesman_id }}';
+                var reminderHref = '{{ route('agent.lead.addReminder', '') }}' + '/' + id;
 
                 // выставляем ссылку на комментарии в меню органайзера
                 $('#commentHref').attr( 'href', commentHref);
@@ -388,7 +385,7 @@
                 var token = $('meta[name=csrf-token]').attr('content');
 
                 // получаем поднобные данные о лиде с сервера
-                $.post('{{ route('agent.salesman.openedLeadAjax') }}', { 'id': id, 'salesman_id': '{{ $salesman_id }}', '_token': token }, function( data ){
+                $.post('{{ route('agent.lead.openedAjax')  }}', { 'id': id, '_token': token }, function( data ){
 
                     // парсим ответ в json
                     var tableData = $.parseJSON(data);
@@ -423,7 +420,7 @@
 
                     /** данные и таблица органайзера */
 
-                    // перебираем все данные органайзера и выбираем нужные данные
+                        // перебираем все данные органайзера и выбираем нужные данные
                     $.each( tableData['organizer'], function(  k, data ){
 
                         addOrganizerRow( data[0], data[1], data[2], data[3] );
@@ -437,6 +434,7 @@
                 $('#info_table_block').attr('lead_id', id);
             }
         }
+
 
         // добавление строки органайзера
         function addOrganizerRow( organizerId, time, comment, type ){
@@ -476,7 +474,7 @@
             $(dellItem).bind('click', function(){
 
                 // путь к странице удаления итема
-                var deleteReminder = '{{ route('agent.salesman.deleteReminder', '') }}' + '/' + organizerId + '/{{ $salesman_id }}';
+                var deleteReminder = '{{ route('agent.lead.deleteReminder', '') }}' + '/' + organizerId;
 
                 // запрос на удаление
                 $.get( deleteReminder, function( data ){
@@ -501,7 +499,7 @@
 
             editItem.css( 'display', 'block' );
             editItem.text('edit');
-            editItem.attr('href', '{{ route('agent.salesman.editOrganizer', '') }}' + '/' + organizerId);
+            editItem.attr('href', '{{ route('agent.lead.editOrganizer', '') }}' + '/' + organizerId);
 
 
             // кнопка завершения
@@ -585,7 +583,7 @@
             $(dellItem).bind('click', function(){
 
                 // путь к странице удаления итема
-                var deleteReminder = '{{ route('agent.salesman.deleteReminder', '') }}' + '/' + organizerId;
+                var deleteReminder = '{{ route('agent.lead.deleteReminder', '') }}' + '/' + organizerId;
 
                 // запрос на удаление
                 $.get( deleteReminder, function( data ){
@@ -610,7 +608,7 @@
 
             editItem.css( 'display', 'block' );
             editItem.text('edit');
-            editItem.attr('href', '{{ route('agent.salesman.editOrganizer', '') }}' + '/' + organizerId);
+            editItem.attr('href', '{{ route('agent.lead.editOrganizer', '') }}' + '/' + organizerId);
 
             // кнопка завершения
             var doneItem = $('<button />');
@@ -651,7 +649,7 @@
         }
 
         /*
-         * Собитие наведения на строку органайзера
+         * Событие наведения на строку органайзера
          */
         var organizedRow = '#info_table .organizedRow';
         $(document).on('mouseover', organizedRow,function () {
@@ -674,7 +672,7 @@
          *
          */
 
-                // выбираем все ячейки таблицы кроме выпадающего меню и кнопки редактирования
+        // выбираем все ячейки таблицы кроме выпадающего меню и кнопки редактирования
         var openLeadsTable = $('table.openLeadsTable tbody tr td').not( ".select_cell,.edit " );
 
         // привязываем функцию на клик, которая будет прорисовывать таблицу
@@ -688,7 +686,7 @@
         });
 
 
-        $(function(){
+        $(function() {
 
 
             /**
@@ -698,23 +696,22 @@
              *
              */
 
-            function disabledOptionFromServer(){
+            function disabledOptionFromServer() {
 
-                $.each( $('.select_cell'), function( k, cell ){
+                $.each($('.select_cell'), function (k, cell) {
 
                     // номера опций которые нужно заблокировать
                     var disabled_data = $(cell).find('select').attr('disabled_opt').split(',');
 
 
-                    $.each( disabled_data, function( k, disabled ){
+                    $.each(disabled_data, function (k, disabled) {
 
                         $(cell).find('li[data-val="' + disabled + '"]')
-                                .attr( 'data-disabled', 'true')
+                                .attr('data-disabled', 'true')
                                 .addClass('disabled');
                     });
                 });
             }
-
 
 
             /**
@@ -724,21 +721,21 @@
              *
              */
 
-            function disabledSelectOption(){
+            function disabledSelectOption() {
 
                 // выбираем все ячейки с селектом в таблице
-                $.each( $('.select_cell'), function( k, cell ){
+                $.each($('.select_cell'), function (k, cell) {
 
                     // перебираем все опции в ячейке
-                    $.each( $(cell).find('li'), function( k, li ){
+                    $.each($(cell).find('li'), function (k, li) {
 
                         // если доходим до активного класса - останавливаемся
-                        if( $(li).hasClass( 'selectboxit-selected' ) ){
+                        if ($(li).hasClass('selectboxit-selected')) {
                             return false;
 
                             // если опция находится до активного класса - делаем ее недоступной
-                        }else{
-                            $(li).attr( 'data-disabled', 'true').addClass('disabled');
+                        } else {
+                            $(li).attr('data-disabled', 'true').addClass('disabled');
                         }
                     });
                 });
@@ -759,6 +756,9 @@
                 // получение id лида
                 var lead_id = $(this).parent().attr('lead_id');
 
+                // получение id лида
+                var openedLeadId = $(this).parent().attr('opened_Lead_Id');
+
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
 
@@ -776,7 +776,7 @@
 
 
                     // изменяем статусы на сервере
-                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'lead_id': lead_id, 'salesman_id': '{{ $salesman_id }}', '_token': token}, function( data ){
+                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'openedLeadId': openedLeadId, 'lead_id': lead_id, '_token': token}, function( data ){
 
                         // если статус изменен нормально
                         if( data == 'statusChanged'){
@@ -886,4 +886,3 @@
 
     </script>
 @endsection
-
