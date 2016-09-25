@@ -38,17 +38,25 @@
                             <br>
 
 
-                            <li>
-                                <a href="{{ route('agent.salesman.index') }}"> Salesmen </a>
-                            </li>
 
-                            <hr>
+                            @if( Sentinel::hasAccess(['agent.sphere.update']) )
+                                <li>
+                                    <a href="{{ route('agent.salesman.index') }}"> Salesmen </a>
+                                </li>
+                                <hr>
+                            @endif
 
-                            <li>
-                                <a href="{{ route('agent.sphere.index') }}"> Filtration customer </a>
-                            </li>
+                            @if(Sentinel::hasAccess(['agent.sphere.index']))
+                                <li>
+                                    <a href="{{ route('agent.sphere.index') }}"> Filtration customer </a>
+                                </li>
+                                <hr>
+                            @endif
 
-                            <hr>
+                            @if(isset($salesman_id) && $salesman_id !== false)
+                                <li><a href="{{ route('home') }}"><i class="fa fa-sign-out"></i> Salesman logout</a></li>
+                                <hr>
+                            @endif
 
                             <li>
                                 <a href="{{ URL::to('auth/logout')}}"><i class="fa fa-sign-out"></i> Logout </a>
@@ -60,11 +68,11 @@
                 @endif
             </ul>
 
-                @if (!Sentinel::guest())
-            <ul class="nav navbar-top-links navbar-right flip">
-                <li><a class=""><i class="glyphicon glyphicon-bell"></i></a></li>
-            </ul>
-                @endif
+            @if (!Sentinel::guest())
+                <ul class="nav navbar-top-links navbar-right flip">
+                    <li><a class=""><i class="glyphicon glyphicon-bell"></i></a></li>
+                </ul>
+            @endif
 
         </div>
     </div>
@@ -76,7 +84,9 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="removeNotice">новые лиды в системе <div class="removeNoticeIcon" > х </div></div>
+                    <div class="removeNotice">новые лиды в системе
+                        <div class="removeNoticeIcon"> х</div>
+                    </div>
                 </div>
             </div>
         </div>

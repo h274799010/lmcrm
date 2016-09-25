@@ -50,8 +50,8 @@ class Salesman extends EloquentUser implements AuthenticatableContract, CanReset
         return $this->spheres()->first();
     }
 
-    public function bill(){
-        return $this->belongsToMany('\App\Models\Credits','salesman_info','salesman_id','bill_id');
+    public function wallet(){
+        return $this->belongsToMany('\App\Models\Wallet','salesman_info','salesman_id','wallet_id');
     }
 
     public function getNameAttribute(){

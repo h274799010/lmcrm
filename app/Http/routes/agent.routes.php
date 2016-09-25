@@ -75,26 +75,54 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
     //Route::resource('lead','Agent\LeadController@create');
 
     Route::group( ['middleware'=>['agent']],function() {
-        // страница всех масок агента по сферам
-        Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
+        // Группа роутов для которых проверяются разрешения
+        Route::group([ 'middleware' => ['permissions'] ], function () {
+            // страница всех масок агента по сферам
+            Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
 
-        // страница создания/редактирования маски агента
-        Route::get('sphere/{sphere_id}/{mask_id}/edit',['as'=>'agent.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
+            // страница создания/редактирования маски агента
+            Route::get('sphere/{sphere_id}/{mask_id}/edit',['as'=>'agent.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
 
-        // сохранение данных маски агента
-        Route::match(['put','post'],'sphere/{sphere_id}/{mask_id}',['as'=>'agent.sphere.update', 'uses' => 'Agent\SphereController@update']);
+            // сохранение данных маски агента
+            Route::match(['put','post'],'sphere/{sphere_id}/{mask_id}',['as'=>'agent.sphere.update', 'uses' => 'Agent\SphereController@update']);
 
-        // удаление маски агента
-        Route::post('mask/remove', ['as'=>'agent.remove.mask', 'uses' => 'Agent\SphereController@removeMask']);
+            // удаление маски агента
+            Route::post('mask/remove', ['as'=>'agent.sphere.removeMask', 'uses' => 'Agent\SphereController@removeMask']);
 
 
-        //Route::resource('customer/filter','Agent\CustomerFilterController');
+            //Route::resource('customer/filter','Agent\CustomerFilterController');
 
-        Route::get('salesman', ['as' => 'agent.salesman.index', 'uses' => 'Agent\SalesmanController@index']);
-        Route::get('salesman/create', ['as' => 'agent.salesman.create', 'uses' => 'Agent\SalesmanController@create']);
-        Route::post('salesman/store', ['as' => 'agent.salesman.store', 'uses' => 'Agent\SalesmanController@store']);
-        Route::get('salesman/{id}/edit', ['as' => 'agent.salesman.edit', 'uses' => 'Agent\SalesmanController@edit']);
-        Route::match(['put', 'post'], 'salesman/{id}', ['as' => 'agent.salesman.update', 'uses' => 'Agent\SalesmanController@update']);
-        //Route::resource('salesman','Agent\SalesmanController');
+            Route::get('salesman', ['as' => 'agent.salesman.index', 'uses' => 'Agent\SalesmanController@index']);
+            Route::get('salesman/create', ['as' => 'agent.salesman.create', 'uses' => 'Agent\SalesmanController@create']);
+            Route::post('salesman/store', ['as' => 'agent.salesman.store', 'uses' => 'Agent\SalesmanController@store']);
+            Route::get('salesman/{id}/edit', ['as' => 'agent.salesman.edit', 'uses' => 'Agent\SalesmanController@edit']);
+            //Route::match(['put', 'post'], 'salesman/{id}', ['as' => 'agent.salesman.update', 'uses' => 'Agent\SalesmanController@update']);
+            //Route::resource('salesman','Agent\SalesmanController');
+        });
+
+        Route::get('salesman/depositedLead/{salesman_id?}', ['as' => 'agent.salesman.depositedLead', 'uses' => 'Agent\LeadController@deposited']);
+
+        Route::get('salesman/openedLeads/{salesman_id?}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\LeadController@openedLeads']);
+        Route::post('salesman/openedLeadAjax', ['as' => 'agent.salesman.openedLeadAjax', 'uses' => 'Agent\LeadController@openedLeadsAjax']);
+
+        Route::get('salesman/obtainedLead/{salesman_id?}', ['as' => 'agent.salesman.obtainedLead', 'uses' => 'Agent\LeadController@obtain']);
+        Route::get('salesman/obtain/data/{salesman_id?}', ['as' => 'agent.salesman.obtain.data', 'uses' => 'Agent\LeadController@obtainData']);
+
+        // форма добавление комментария
+        Route::get('salesman/addСomment/{lead_id}/{salesman_id?}',['as'=>'agent.salesman.addСomment', 'uses' => 'Agent\LeadController@addСomment']);
+
+        // форма добавление напоминания
+        Route::get('salesman/addReminder/{lead_id}/{salesman_id?}',['as'=>'agent.salesman.addReminder', 'uses' => 'Agent\LeadController@addReminder']);
+        // сохранение данных органайзера в БД
+        Route::post('salesman/putReminder',['as'=>'agent.salesman.putReminder', 'uses' => 'Agent\LeadController@putReminder']);
+
+        // удаление строки органайзера из БД
+        Route::get('salesman/deleteReminder/{id}/{salesman_id?}',['as'=>'agent.salesman.deleteReminder', 'uses' => 'Agent\LeadController@deleteReminder']);
+
+        // редактирование строки органайзера из БД
+        Route::get('salesman/editOrganizer/{id}/',['as'=>'agent.salesman.editOrganizer', 'uses' => 'Agent\LeadController@editOrganizer']);
+
+        // обновление строки органайзера из БД
+        Route::post('salesman/updateOrganizer',['as'=>'agent.salesman.updateOrganizer', 'uses' => 'Agent\LeadController@updateOrganizer']);
     });
 });

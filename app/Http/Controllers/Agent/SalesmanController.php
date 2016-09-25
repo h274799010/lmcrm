@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
 use App\Models\SphereMask;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\SalesmanInfo;
+use App\Models\OpenLeads;
+use App\Models\Lead;
+use App\Models\LeadBitmask;
+use App\Models\Organizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Http\Requests\AdminUsersEditFormRequest;
@@ -43,10 +48,11 @@ class SalesmanController extends AgentController {
      */
     public function store(AdminUsersEditFormRequest $request)
     {
-        $agent = Agent::with('sphereLink','bill')->findOrFail($this->uid);
+        $agent = Agent::with('sphereLink','wallet')->findOrFail($this->uid);
 
         $salesman=\Sentinel::registerAndActivate($request->except('password_confirmation','sphere'));
         $salesman->update(['password'=>\Hash::make($request->input('password'))]);
+
         $role = \Sentinel::findRoleBySlug('salesman');
         $salesman->roles()->attach($role);
 
@@ -55,7 +61,7 @@ class SalesmanController extends AgentController {
         $salesman->info()->save(new SalesmanInfo([
             'agent_id'=>$agent->id,
             'sphere_id'=>$agent->sphereLink->sphere_id,
-            'bill_id'=>$agent->bill->id,
+            'wallet_id'=>$agent->wallet->id
         ]));
 
         return redirect()->route('agent.salesman.edit',[$salesman->id]);
@@ -78,7 +84,5 @@ class SalesmanController extends AgentController {
         Agent::findOrFail($this->uid)->leads()->whereIn([$id])->delete();
         return response()->route('agent.salesman.index');
     }
-
-
 
 }

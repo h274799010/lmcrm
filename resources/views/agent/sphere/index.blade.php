@@ -31,7 +31,9 @@
                             <td>
                                 @if(isset($mask->status) && $mask->status) <span class="label label-success">@lang('site/sphere.status_1')</span> @else <span class="label label-danger">@lang('site/sphere.status_0')</span> @endif</td>
                             <td>{!! $mask->updated_at !!}</td>
+                            @if(Sentinel::hasAccess(['agent.sphere.edit']))
                             <td><a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                            @endif
                             <td>
                                 <div class="material-switch">
                                     <input id="someSwitchOptionDanger_{{ $mask->id }}" name="" type="checkbox" checked="checked"/>
@@ -53,8 +55,9 @@
                 </tbody>
             </table>
 
+        @if( Sentinel::hasAccess(['agent.sphere.edit']) )
         <a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0]) }}" type="button" class="btn btn-xs btn-primary add_mask"> add mask </a>
-
+        @endif
 
     @empty
     @endforelse
@@ -186,7 +189,7 @@
                 $('#removeModal').modal('hide');
 
                 // отправка поста на удаление маски
-                $.post( '{{ route('agent.remove.mask') }}', { _token: token, sphere_id: sphere_id, mask_id: mask_id }, function( data ){
+                $.post( '{{ route('agent.sphere.removeMask') }}', { _token: token, sphere_id: sphere_id, mask_id: mask_id }, function( data ){
 
                     //
                     if( data == 'deleted' ){

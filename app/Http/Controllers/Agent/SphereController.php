@@ -11,7 +11,6 @@ use App\Models\Auction;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Input;
-
 //use App\Http\Requests\Admin\ArticleRequest;
 
 class SphereController extends AgentController {

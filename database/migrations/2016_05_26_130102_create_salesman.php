@@ -17,7 +17,7 @@ class CreateSalesman extends Migration
             $table->integer('salesman_id');
             $table->integer('agent_id');
             $table->integer('sphere_id');
-            $table->integer('bill_id');
+            $table->integer('wallet_id');
             $table->timestamps();
             $table->engine = 'InnoDB';
         });
