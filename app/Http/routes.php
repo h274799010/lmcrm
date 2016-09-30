@@ -86,7 +86,7 @@ Route::get('postData', function(){
         $(function(){
 
             // изменяем статусы на сервере
-            $.post( "http://lmcrm.cos/ffffff", { "_token": \'' .$token .'\'}, function( data ){
+            $.post( "/ffffff", { "_token": \'' .$token .'\'}, function( data ){
 
                 alert(data.resp);
 
