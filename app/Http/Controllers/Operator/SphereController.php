@@ -36,7 +36,7 @@ class SphereController extends Controller {
     public function index()
     {
 
-        $leads = Lead::where('status', 0)->with([ 'sphere', 'user'])->get();
+        $leads = Lead::whereIn('status', [ 0, 1 ])->with([ 'sphere', 'user'])->get();
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
