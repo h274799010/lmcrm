@@ -105,12 +105,61 @@ Route::get('postData', function(){
 
 });
 
+
+Route::get('postDataRemote', function(){
+
+    $token = csrf_token();
+
+    echo
+        '
+<html>
+
+    <head>
+
+        <title>Тест поста</title>
+        <script src="/components/jquery/jquery-2.min.js"></script>
+
+    </head>
+
+    <body>
+        получение поста с сервера (только через csrf-токен) <br>
+
+        <script>
+
+        $(function(){
+
+            // изменяем статусы на сервере
+//            $.post( "/ffffff", { "_token": \'' .$token .'\'}, function( data ){
+
+            $.post( "http://lmcrm.biz.tm/ffffff", { "_token": \'' .$token .'\'}, function( data ){
+//            $.post( "http://lmcrm.biz.tm/ffffff", {}, function( data ){
+
+
+                alert(data.resp);
+
+            });
+        });
+    </script>
+
+    </body>
+</html>
+
+
+
+
+    '
+    ;
+
+});
+
+
+
 //Route::post('ffffff', function(){
 Route::match(['post','options'], 'ffffff', function(){
-//    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-//    header('Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Request-With');
-//    header('Access-Control-Allow-Credentials: true');
-//    header("Access-Control-Allow-Origin: *");
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Request-With');
+    header('Access-Control-Allow-Credentials: true');
+    header("Access-Control-Allow-Origin: *");
 
 
 //    echo 'sdfsdf';
