@@ -10,7 +10,11 @@
         </div>
     </div>
 
-    {!! Form::model($sphere,array('route' => ['agent.sphere.update', $sphere->id, $maskData['id']], 'method' => 'put', 'class' => 'bf', 'files'=> true)) !!}
+    @if(isset($salesman_id) && $salesman_id !== false)
+        {!! Form::model($sphere,array('route' => ['agent.salesman.sphere.update', $sphere->id, $maskData['id'], $salesman_id], 'method' => 'put', 'class' => 'bf', 'files'=> true)) !!}
+    @else
+        {!! Form::model($sphere,array('route' => ['agent.sphere.update', $sphere->id, $maskData['id']], 'method' => 'put', 'class' => 'bf', 'files'=> true)) !!}
+    @endif
 
 
     <div class="panel-group" id="accordion">

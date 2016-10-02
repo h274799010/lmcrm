@@ -3,13 +3,16 @@
 
 namespace App\Models;
 
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
 use MongoDB\Driver\Query;
 
 class Auction extends Model
 {
+    use SoftDeletes;
 
     protected $table = "auctions";
 
@@ -20,6 +23,13 @@ class Auction extends Model
      * @var array
      */
     protected $fillable = [ 'sphere_id', 'user_id', 'lead_id', 'mask_id' ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 
     /**
      * Отключаем метки времени
@@ -100,12 +110,16 @@ class Auction extends Model
         // id всех лидов по фильтру
         $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
 
+        // массив id пользователей, по которым нужно исключить выбор лидов
+        $excludedUsers = User::excludedUsers($agentBitmask['user_id']);
+
         // получаем все лиды, помеченные к аукциону, по id из массива, без лидов автора
         $leadsByFilter =
             Lead::
               whereIn('id', $list)                     // все лиды полученыые по маске агента
             ->where('status', 3)                       // котрые помеченны к аукциону
-            ->where('agent_id', '<>', $agentBitmask['user_id'])      // без лидов, которые занес агент
+            //->where('agent_id', '<>', $agentBitmask['user_id'])      // без лидов, которые занес агент
+            ->whereNotIn('agent_id', $excludedUsers)  // без лидов, которые занес агени и его продавцы
             ->get();
 
 

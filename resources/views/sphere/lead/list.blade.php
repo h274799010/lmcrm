@@ -2,7 +2,12 @@
 
 {{-- Content --}}
 @section('content')
-
+    @if($errors->any())
+        <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <div id="alertContent">{{$errors->first()}}</div>
+        </div>
+    @endif
 
     <table class="table table-bordered table-striped table-hover dataTable">
         <thead>
@@ -32,7 +37,13 @@
 
                 <td>{!! $lead->updated_at !!}</td>
 
-                <td><a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                <td>
+                    {{--@if(!\App\Models\Operator::with('lead')->where('lead_id', '=', $lead->id)->first())--}}
+                    <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
+                    {{--@else
+                        Лид уже редактируется
+                    @endif--}}
+                </td>
 
             </tr>
         @empty
@@ -40,7 +51,38 @@
         </tbody>
     </table>
 
+    <div id="statusModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
 
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">
+                        Этот лид находится на редактировании у другого оператора!
+                    </h4>
+                </div>
+
+                <div class="modal-body">
+
+                    Вы действительно хотите редактировать этого лида?
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button id="statusModalChange" type="button" class="btn btn-danger">
+                        OK
+                    </button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
     {{----}}
     {{----}}
     {{--<div class="_page-header" xmlns="http://www.w3.org/1999/html">--}}
@@ -85,3 +127,27 @@
     {{--</div>--}}
 
 @stop
+
+@section('scripts')
+    <script type="text/javascript">
+        $(document).on('click', '.checkLead', function (e) {
+            e.preventDefault();
+
+            var url = $(this).attr('href');
+
+            $.post('{{ route('operator.sphere.lead.check') }}', { 'lead_id': $(this).data('id'), '_token': $('meta[name=csrf-token]').attr('content') }, function (data) {
+                if(data == 'edited') {
+                    $('#statusModalChange').bind('click', function () {
+                        window.location.href = url;
+                    });
+
+                    $('#statusModal').modal();
+                }
+                else {
+                    window.location.href = url;
+                }
+            });
+            $('#statusModalChange').unbind('click');
+        });
+    </script>
+@endsection

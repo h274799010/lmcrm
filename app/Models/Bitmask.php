@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 
@@ -520,7 +521,12 @@ class Bitmask extends Model
 
             // todo доработать
             if($author){
-                $query->where( 'user_id', '<>', $author );
+
+                // массив id пользователей, по которым нужно исключить выбор лидов
+                $excludedUsers = User::excludedUsers($author);
+
+                //$query->where( 'user_id', '<>', $author );
+                $query->whereNotIn( 'user_id', $excludedUsers ); // без лидов, которых занес агент и его продавцы
             }
 
             // выборка по всем полям fb_

@@ -20,18 +20,31 @@ class SphereController extends AgentController {
      *
      * @return Response
      */
-    public function index()
+    public function index($salesman_id = false)
     {
+        if(isset($salesman_id) && $salesman_id !== false) {
+            $user_id = $salesman_id;
+        } else {
+            $user_id = $this->uid;
+        }
+
         // выбираем все активные сферы
         $spheres = Sphere::active()->get();
 
         // конструктор маски, задаем индекс агента
         $agentMask = new AgentBitmask();
-        $agentMask->setUserID($this->uid);
+        $agentMask->setUserID($user_id);
 
-        return view('agent.sphere.index')
-            ->with('spheres',$spheres)
-            ->with('agentMask',$agentMask);
+        if(isset($salesman_id) && $salesman_id !== false) {
+            return view('agent.sphere.index')
+                ->with('spheres',$spheres)
+                ->with('agentMask',$agentMask)
+                ->with('salesman_id', $salesman_id);
+        } else {
+            return view('agent.sphere.index')
+                ->with('spheres',$spheres)
+                ->with('agentMask',$agentMask);
+        }
     }
 
 
@@ -44,8 +57,14 @@ class SphereController extends AgentController {
      *
      * @return Response
      */
-    public function edit( $sphere_id, $mask_id )
+    public function edit( $sphere_id, $mask_id, $salesman_id = false )
     {
+        if(isset($salesman_id) && $salesman_id !== false) {
+            $user_id = $salesman_id;
+        } else {
+            $user_id = $this->uid;
+        }
+
         // выбираем сферу
         $data = Sphere::findOrFail($sphere_id);
 
@@ -53,7 +72,7 @@ class SphereController extends AgentController {
         $data->load('attributes.options');
 
         // конструктор маски
-        $mask = new AgentBitmask( $data->id, $this->uid );
+        $mask = new AgentBitmask( $data->id, $user_id );
 
         // если $mask_id = 0, значить это будет новая запись в маске
         if( $mask_id == 0 ){
@@ -80,10 +99,19 @@ class SphereController extends AgentController {
 
         }
 
-        return view('agent.sphere.edit')
-            ->with( 'sphere', $data )
-            ->with( 'maskData', $maskData )
-            ->with( 'mask', $mask );
+        if(isset($salesman_id) && $salesman_id !== false) {
+            return view('agent.sphere.edit')
+                ->with( 'sphere', $data )
+                ->with( 'maskData', $maskData )
+                ->with( 'mask', $mask )
+                ->with('salesman_id', $salesman_id);
+        } else {
+
+            return view('agent.sphere.edit')
+                ->with( 'sphere', $data )
+                ->with( 'maskData', $maskData )
+                ->with( 'mask', $mask );
+        }
     }
 
 
@@ -100,8 +128,13 @@ class SphereController extends AgentController {
      *
      * @return Response
      */
-    public function update(Request $request, $sphere_id, $mask_id)
+    public function update(Request $request, $sphere_id, $mask_id, $salesman_id = false)
     {
+        if(isset($salesman_id) && $salesman_id !== false) {
+            $user_id = $salesman_id;
+        } else {
+            $user_id = $this->uid;
+        }
 
         // валидация
         $validator = Validator::make($request->all(), [
@@ -118,7 +151,7 @@ class SphereController extends AgentController {
         }
 
         // конструктор маски
-        $mask = new AgentBitmask( $sphere_id, $this->uid );
+        $mask = new AgentBitmask( $sphere_id, $user_id );
 
         // если маска заданна (т.е. она уже есть в бд) находим ее
         if( $mask_id!=0 ){
@@ -144,7 +177,7 @@ class SphereController extends AgentController {
         $mask->status = 0;
 
         // устанавливаем пользователя (после find() некоторые данные конструктора теряются)
-        $mask->user_id = $this->uid;
+        $mask->user_id = $user_id;
 
         // сохраняем имя таблицы
         $mask->name =$request['maskName'];
@@ -158,8 +191,11 @@ class SphereController extends AgentController {
         if($request->ajax()){
             return response()->json();
         } else {
-
-            return redirect()->route('agent.sphere.index');
+            if(isset($salesman_id) && $salesman_id !== false) {
+                return redirect()->route('agent.salesman.sphere.index', ['salesman_id' => $salesman_id]);
+            } else {
+                return redirect()->route('agent.sphere.index');
+            }
         }
     }
 

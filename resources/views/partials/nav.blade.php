@@ -47,16 +47,22 @@
                                 <hr>
                             @endif
 
-                            @if(Sentinel::hasAccess(['agent.sphere.index']))
-                                <li>
-                                    <a href="{{ route('agent.sphere.index') }}"> Filtration customer </a>
-                                </li>
-                                <hr>
-                            @endif
-
                             @if(isset($salesman_id) && $salesman_id !== false)
+                                @if(Sentinel::hasAccess(['agent.salesman.sphere.index']))
+                                    <li>
+                                        <a href="{{ route('agent.salesman.sphere.index', ['salesman_id' => $salesman_id]) }}"> Filtration customer (salesman) </a>
+                                    </li>
+                                    <hr>
+                                @endif
                                 <li><a href="{{ route('home') }}"><i class="fa fa-sign-out"></i> Salesman logout</a></li>
                                 <hr>
+                            @else
+                                @if(Sentinel::hasAccess(['agent.sphere.index']))
+                                    <li>
+                                        <a href="{{ route('agent.sphere.index') }}"> Filtration customer </a>
+                                    </li>
+                                    <hr>
+                                @endif
                             @endif
 
                             <li>

@@ -6,7 +6,7 @@ Route::group(['prefix' => 'admin'], function() {
     Route::get('credit/data', 'Admin\CreditController@data');
 });
 //
-Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'web','localeSessionRedirect','localizationRedirect', 'localize']], function() {
+Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ /*'web',*/'localeSessionRedirect','localizationRedirect', 'localize']], function() {
     include('routes/front.routes.php');
     include('routes/agent.routes.php');
     include('routes/operator.routes.php');

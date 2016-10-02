@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
 use App\Models\LeadBitmask;
+use App\Models\Operator;
 use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -53,7 +54,19 @@ class SphereController extends Controller {
      */
     public function edit( $sphere, $id )
     {
+        $leadEdited = Operator::with('lead')->where('lead_id', '=', $id)->first();
+        $operator = Sentinel::getUser();
 
+        if(!$leadEdited) {
+            $leadEdited = new Operator;
+
+            $leadEdited->lead_id = $id;
+            $leadEdited->operator_id = $operator->id;
+
+            $leadEdited->save();
+        } elseif ($leadEdited->operator_id != $operator->id) {
+            return redirect()->back()->withErrors(['errors' => 'Этот лид уже редактируется другим оператором!']);
+        }
 
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
@@ -207,6 +220,7 @@ class SphereController extends Controller {
 
         // находим всех агентов которым подходит этот лид по фильтру
         // исключаем агента добавившего лид
+        // + и его продавцов
         $agents = $agentBitmasks
             ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
             ->get();
@@ -244,6 +258,16 @@ class SphereController extends Controller {
     {
         Agent::findOrFail(\Sentinel::getUser()->id)->leads()->whereIn([$id])->delete();
         return response()->route('agent.lead.index');
+    }
+
+    public function checkLead(Request $request) {
+        $leadEdited = Operator::with('lead')->where('lead_id', '=', $request->lead_id)->first();
+
+        if(isset($leadEdited->id)) {
+            return response()->json('edited');
+        } else {
+            return response()->json('free');
+        }
     }
 
 

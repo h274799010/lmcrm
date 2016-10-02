@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAuctions extends Migration
+class CreateOperator extends Migration
 {
     /**
      * Run the migrations.
@@ -12,13 +12,11 @@ class CreateAuctions extends Migration
      */
     public function up()
     {
-        Schema::create('auctions', function (Blueprint $table) {
+        Schema::create('operator', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('lead_id');    // id лида
-            $table->integer('user_id');    // id пользователя
-            $table->integer('sphere_id');  // id сферы
-            $table->integer('mask_id');    // id маски по которой был выбран лид
-            $table->softDeletes();
+            $table->integer('operator_id');    // id оператора
+            $table->timestamps();
         });
     }
 
@@ -29,6 +27,6 @@ class CreateAuctions extends Migration
      */
     public function down()
     {
-        Schema::drop('auctions');
+        Schema::drop('operator');
     }
 }

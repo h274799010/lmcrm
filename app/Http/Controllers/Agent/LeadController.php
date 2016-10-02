@@ -114,7 +114,7 @@ class LeadController extends AgentController {
             $agent = Salesman::findOrFail($salesman_id);
             $sphere_id=$agent->sphere()->id;
             $mask = new AgentBitmask($sphere_id,$agent->id);
-            $user_id = $agent->info->agent_id;
+            $user_id = $agent->id;
         }
 
         // выборка всех лидов агента
