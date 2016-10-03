@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Sentinel;
 
 Route::group(['prefix' => 'admin'], function() {
     Route::get('sphere/data', 'Admin\SphereController@data');
@@ -31,36 +33,39 @@ Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|sal
 
 /** todo Тестовое удалить */
 
-
-
-// todo тестовый, удалить
-//Route::post('ffffff', function(){
-//    //header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-//    //header('Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Request-With');
-//    //header('Access-Control-Allow-Credentials: true');
-//    //header("Access-Control-Allow-Origin: *");
-//
-//
-//
-////    echo 'sdfsdf';
-//    //echo json_encode('12313');
-//    //exit;
-//
-//    return response()->json(['k'=>'aaa']);
-////        ->header('Access-Control-Allow-Origin', '*')
-////        ->header('Allow-Control-Allow-Credentials', 'true');
-//
-//});
-
-
-
 Route::get('token', function(){
 
     header("Access-Control-Allow-Origin: *");
 
     return csrf_token();
-
 });
+
+
+Route::match(['post','options'], 'mobileLogin', function( Request $request ){
+
+    $credentials = [
+        'email'    => $request['email'],
+        'password' => $request['password'],
+    ];
+
+
+    if (Sentinel::authenticate($credentials, true)) {
+        return 'залогинен';
+    }
+
+    return 'не залогинен';
+});
+
+
+
+Route::match(['post','options'], 'mobileLogout', function( Request $request ){
+
+    Sentinel::logout();
+
+    return 'Logout';
+});
+
+
 
 
 Route::get('postData', function(){
@@ -131,13 +136,49 @@ Route::get('postDataRemote', function(){
             // изменяем статусы на сервере
 //            $.post( "/ffffff", { "_token": \'' .$token .'\'}, function( data ){
 
-            $.post( "http://lmcrm.biz.tm/ffffff", { "_token": \'' .$token .'\'}, function( data ){
-//            $.post( "http://lmcrm.biz.tm/ffffff", {}, function( data ){
+            $.get("http://lmcrm.biz.tm/token", function( data ){
+
+                var token = data;
 
 
-                alert(data.resp);
+                $.ajax({
+                    url: "http://lmcrm.biz.tm/ffffff",
+                    type: "post",
+                    data: {
+                        _token: token
+                    },
+                  beforeSend: function(xhr){
+                            xhr.setRequestHeader("XSRF-TOKEN","eyJpdiI6IlpPSXJtcm1HeDA5RUp2bkxYNWJpQkE9PSIsInZhbHVlIjoidUhzcTZPbEs5QzBYRlpkU2haamJ0SmlXSU1cL1VaWCtUcjhPcWFpdTFTM3VSS3g5eG5qZmhjM0dRb1ZWSGpcL0lZV0ZzRFdDQTVUS00xNzdaRG5BdUxPdz09IiwibWFjIjoiMmEzZTZkOTM3ZDM0ODdkY2VkNDE4YjQ0MDAwZjAwYzgzODFmZGMxOTRmMDcyYzc1NzY3Yjc3Mjk4MDBlNjg0NSJ9");
+                            xhr.setRequestHeader("Accept","application/json");
+                  },
+                  dataType: "json",
+                    success: function (data) {
+                        alert(data.resp);
+                    }
+                });
+
+
+//                $.post( "http://lmcrm.biz.tm/ffffff", { _token: token }, function( data ){
+//    //            $.post( "http://lmcrm.biz.tm/ffffff", {}, function( data ){
+//
+//
+//                    alert(data.resp);
+//
+//                });
+
+
 
             });
+
+
+
+//            $.post( "http://lmcrm.biz.tm/ffffff", { "_token": \'' .$token .'\'}, function( data ){
+////            $.post( "http://lmcrm.biz.tm/ffffff", {}, function( data ){
+//
+//
+//                alert(data.resp);
+//
+//            });
         });
     </script>
 
@@ -154,24 +195,29 @@ Route::get('postDataRemote', function(){
 
 
 
-//Route::post('ffffff', function(){
 Route::match(['post','options'], 'ffffff', function(){
-//    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-//    header('Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Request-With');
-//    header('Access-Control-Allow-Credentials: true');
-    header("Access-Control-Allow-Origin: *");
+
+    return response()->json(['resp'=>'дата7']);
+
+} );
 
 
-//    echo 'sdfsdf';
-////    echo json_encode('12313');
-//    exit;
 
-    return response()->json(['resp'=>'ответ сервера']);
-//        ->header('Access-Control-Allow-Origin', '*')
-//        ->header('Allow-Control-Allow-Credentials', 'true');
+Route::get('loginTest', function(){
+
+//        header("Access-Control-Allow-Origin: *");
+
+
+    if( \Sentinel::check() ){
+
+
+        return 'Залогинен';
+    }else{
+
+//        return response()->json(['resp'=>'Не залогинен']);
+
+        return 'Не залогинен';
+    }
 
 });
 
-
-
-//Route::get()
