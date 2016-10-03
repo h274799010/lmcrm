@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use Sentinel;
+//use Sentinel;
 
 Route::group(['prefix' => 'admin'], function() {
     Route::get('sphere/data', 'Admin\SphereController@data');
@@ -208,7 +208,7 @@ Route::get('loginTest', function(){
 //        header("Access-Control-Allow-Origin: *");
 
 
-    if( \Sentinel::check() ){
+    if( Sentinel::check() ){
 
 
         return 'Залогинен';
