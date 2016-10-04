@@ -37,7 +37,7 @@ class SphereController extends Controller {
     public function index()
     {
 
-        $leads = Lead::where('status', 0)->with([ 'sphere', 'user'])->get();
+        $leads = Lead::whereIn('status', [0,1])->with([ 'sphere', 'user'])->get();
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
@@ -54,8 +54,8 @@ class SphereController extends Controller {
      */
     public function edit( $sphere, $id )
     {
-        $leadEdited = Operator::with('lead')->where('lead_id', '=', $id)->first();
         $operator = Sentinel::getUser();
+        $leadEdited = Operator::with('lead')->where('lead_id', '=', $id)->where('operator_id', '=', $operator->id)->first();
 
         if(!$leadEdited) {
             $leadEdited = new Operator;
@@ -64,14 +64,17 @@ class SphereController extends Controller {
             $leadEdited->operator_id = $operator->id;
 
             $leadEdited->save();
-        } elseif ($leadEdited->operator_id != $operator->id) {
+        } /*elseif ($leadEdited->operator_id != $operator->id) {
             return redirect()->back()->withErrors(['errors' => 'Этот лид уже редактируется другим оператором!']);
-        }
+        }*/
 
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
 
         $lead = Lead::with('phone')->find($id);
+
+        $lead->status = 1;
+        $lead->save();
 
         $mask = new LeadBitmask($data->id, $id);
         $shortMask = $mask->findShortMask();
@@ -152,6 +155,12 @@ class SphereController extends Controller {
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
         $lead->customer_id = $customer->id;
         $lead->save();
+
+        $operator = Sentinel::getUser();
+
+        $leadEdited = Operator::where('lead_id', $lead->id)->where('operator_id', $operator->id)->first();
+        $leadEdited->updated_at = date("Y-m-d H:i:s");
+        $leadEdited->save();
 
 
 

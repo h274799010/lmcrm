@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateOperator extends Migration
+class CreateOperators extends Migration
 {
     /**
      * Run the migrations.

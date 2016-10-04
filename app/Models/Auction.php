@@ -154,6 +154,7 @@ class Auction extends Model
      */
     public static function removeByLead( $lead_id )
     {
+        Auction::where( 'lead_id', $lead_id)->update(['status' => 1]);
         return Auction::where( 'lead_id', $lead_id)->delete();
     }
 
@@ -169,6 +170,7 @@ class Auction extends Model
      */
     public static function removeBySphereMask( $sphere_id, $mask_id)
     {
+        Auction::where( 'sphere_id', $sphere_id)->where( 'mask_id', $mask_id)->update(['status' => 1]);
         return Auction::where( 'sphere_id', $sphere_id)->where( 'mask_id', $mask_id)->delete();
     }
 }

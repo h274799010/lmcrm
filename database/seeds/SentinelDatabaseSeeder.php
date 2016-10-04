@@ -151,33 +151,33 @@ class SentinelDatabaseSeeder extends Seeder
         $agentRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Agent',
             'slug' => 'agent',
-            'permissions' => array(
-                'agent.sphere.index' => true,
-                'agent.sphere.edit' => true,
-                'agent.sphere.update' => true,
-                'agent.sphere.removeMask' => true,
-                'agent.salesman.index' => true,
-                'agent.salesman.create' => true,
-                'agent.salesman.store' => true,
-                'agent.salesman.edit' => true,
-                'agent.salesman.update' => true
-            )
+            'permissions' => [
+                "agent.sphere.index" => true,
+                "agent.sphere.edit" => true,
+                "agent.sphere.update" => true,
+                "agent.sphere.removeMask" => true,
+                "agent.salesman.index" => true,
+                "agent.salesman.create" => true,
+                "agent.salesman.store" => true,
+                "agent.salesman.edit" => true,
+                "agent.salesman.update" => true
+            ]
         ));
 
         $salesmanRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Salesman',
             'slug' => 'salesman',
-            'permissions' => array(
-                'agent.sphere.index' => false,
-                'agent.sphere.edit' => false,
-                'agent.sphere.update' => false,
-                'agent.sphere.removeMask' => false,
-                'agent.salesman.index' => false,
-                'agent.salesman.create' => false,
-                'agent.salesman.store' => false,
-                'agent.salesman.edit' => false,
-                'agent.salesman.update' => false
-            )
+            'permissions' => [
+                "agent.sphere.index" => false,
+                "agent.sphere.edit" => false,
+                "agent.sphere.update" => false,
+                "agent.sphere.removeMask" => false,
+                "agent.salesman.index" => false,
+                "agent.salesman.create" => false,
+                "agent.salesman.store" => false,
+                "agent.salesman.edit" => false,
+                "agent.salesman.update" => false
+            ]
         ));
 
         $operatorRole = Sentinel::getRoleRepository()->create(array(
@@ -190,41 +190,52 @@ class SentinelDatabaseSeeder extends Seeder
         $dealmakerRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Deal maker',
             'slug' => 'dealmaker',
-            'permissions' => array(
-                "agent.lead.deposited" => true,
-                "agent.lead.create" => true,
-                "agent.lead.store" => true,
-                "agent.lead.obtain" => true,
-                "agent.lead.opened" => true,
-                "agent.lead.open" => true,
-                "agent.lead.openAll" => false
-            )
+            'permissions' => [
+                "agent.lead.deposited"=> true,
+                "agent.lead.create"=> true,
+                "agent.lead.store"=> true,
+                "agent.lead.obtain"=> true,
+                "agent.lead.opened"=> true,
+                "agent.lead.open"=> true,
+                "agent.lead.openAll"=> false,
+                "salesman.lead.obtain"=> true,
+                "salesman.lead.deposited"=> true,
+                "salesman.lead.opened"=> true
+            ]
         ));
+
         $leadbayerRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Lead bayer',
             'slug' => 'leadbayer',
-            'permissions' => array(
-                "agent.lead.deposited" => true,
-                "agent.lead.create" => true,
-                "agent.lead.store" => true,
-                "agent.lead.obtain" => true,
-                "agent.lead.opened" => true,
-                "agent.lead.open" => true,
-                "agent.lead.openAll" => true
-            )
+            'permissions' => [
+                "agent.lead.deposited"=> true,
+                "agent.lead.create"=> true,
+                "agent.lead.store"=> true,
+                "agent.lead.obtain"=> true,
+                "agent.lead.opened"=> true,
+                "agent.lead.open"=> true,
+                "agent.lead.openAll"=> true,
+                "salesman.lead.obtain"=> true,
+                "salesman.lead.deposited"=> true,
+                "salesman.lead.opened"=> true
+            ]
         ));
+
         $partnerRole = Sentinel::getRoleRepository()->create(array(
             'name' => 'Partner',
             'slug' => 'partner',
-            'permissions' => array(
-                "agent.lead.deposited" => true,
-                "agent.lead.create" => true,
-                "agent.lead.store" => true,
-                "agent.lead.obtain" => false,
-                "agent.lead.opened" => false,
-                "agent.lead.open" => false,
-                "agent.lead.openAll" => false
-            )
+            'permissions' => [
+                "agent.lead.deposited"=> true,
+                "agent.lead.create"=> true,
+                "agent.lead.store"=> true,
+                "agent.lead.obtain"=> false,
+                "agent.lead.opened"=> false,
+                "agent.lead.open"=> false,
+                "agent.lead.openAll"=> false,
+                "salesman.lead.obtain"=> false,
+                "salesman.lead.deposited"=> true,
+                "salesman.lead.opened"=> false
+            ]
         ));
 
         // Assign Roles to Users

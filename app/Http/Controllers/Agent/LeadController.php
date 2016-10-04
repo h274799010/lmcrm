@@ -118,7 +118,7 @@ class LeadController extends AgentController {
         }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where( 'user_id', $user_id )->with('lead')->get();
+        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->with('lead')->get();
 
         // маска лида
         $leadBitmask = new LeadBitmask( $mask->getTableNum() );

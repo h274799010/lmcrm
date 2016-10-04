@@ -2,12 +2,12 @@
 
 {{-- Content --}}
 @section('content')
-    @if($errors->any())
+    {{--@if($errors->any())
         <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
             <div id="alertContent">{{$errors->first()}}</div>
         </div>
-    @endif
+    @endif--}}
 
     <table class="table table-bordered table-striped table-hover dataTable">
         <thead>
@@ -58,13 +58,13 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        Этот лид находится на редактировании у другого оператора!
+                        Этот лид уже находится на редактировании!
                     </h4>
                 </div>
 
                 <div class="modal-body">
 
-                    Вы действительно хотите редактировать этого лида?
+                    Вы действительно хотите его редактировать?
 
                 </div>
 
@@ -75,7 +75,7 @@
                     </button>
 
                     <button id="statusModalChange" type="button" class="btn btn-danger">
-                        OK
+                        Edit
                     </button>
                 </div>
 
