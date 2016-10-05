@@ -8,7 +8,9 @@
         <div class="col-xs-12">
             {!! trans("site/lead.opened.modal.reminder.time") !!}<br/>
             <input type="text" class="form-control" name="time" id="time">
-            <script>$('input#time').datetimepicker({});</script>
+            <script>$('input#time').datetimepicker({
+                    minDate: new Date()
+                });</script>
         </div>
     </div>
 

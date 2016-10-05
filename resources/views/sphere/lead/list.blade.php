@@ -2,12 +2,12 @@
 
 {{-- Content --}}
 @section('content')
-    {{--@if($errors->any())
+    @if($errors->any())
         <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
             <div id="alertContent">{{$errors->first()}}</div>
         </div>
-    @endif--}}
+    @endif
 
     <table class="table table-bordered table-striped table-hover dataTable">
         <thead>
@@ -83,6 +83,21 @@
             </div>
         </div>
     </div>
+
+    <div id="closedModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">
+                        Этот лид уже отредактирован другим оператором!
+                    </h4>
+                </div>
+
+            </div>
+        </div>
+    </div>
     {{----}}
     {{----}}
     {{--<div class="_page-header" xmlns="http://www.w3.org/1999/html">--}}
@@ -142,6 +157,9 @@
                     });
 
                     $('#statusModal').modal();
+                }
+                else if(data == 'close') {
+                    $('#closedModal').modal();
                 }
                 else {
                     window.location.href = url;

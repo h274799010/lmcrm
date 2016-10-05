@@ -55,7 +55,7 @@ class SphereController extends Controller {
     public function edit( $sphere, $id )
     {
         $operator = Sentinel::getUser();
-        $leadEdited = Operator::with('lead')->where('lead_id', '=', $id)->where('operator_id', '=', $operator->id)->first();
+        $leadEdited = Operator::where('lead_id', '=', $id)->where('operator_id', '=', $operator->id)->first();
 
         if(!$leadEdited) {
             $leadEdited = new Operator;
@@ -127,6 +127,10 @@ class SphereController extends Controller {
 
         // находим лид
         $lead = Lead::find( $lead_id );
+
+        if($lead->status != 0 && $lead->status != 1) {
+            return redirect()->route('operator.sphere.index')->withErrors(['lead_closed' => 'Лид уже отредактирован другим оператором!']);
+        }
 
         // если оператор отметил лид как плохой
         if( $request->input('bad') ){
@@ -273,7 +277,11 @@ class SphereController extends Controller {
         $leadEdited = Operator::with('lead')->where('lead_id', '=', $request->lead_id)->first();
 
         if(isset($leadEdited->id)) {
-            return response()->json('edited');
+            if($leadEdited->lead->status == 0 | $leadEdited->lead->status == 1) {
+                return response()->json('edited');
+            } else {
+                return response()->json('close');
+            }
         } else {
             return response()->json('free');
         }
