@@ -31,11 +31,7 @@
         ],
         "psr-4": {
             "App\\": "app/"
-        },
-        // todo удалить
-        "files": [
-            "app/Helper/CreditHelper.php"
-        ]
+        }
     },
     "autoload-dev": {
         "classmap": [
