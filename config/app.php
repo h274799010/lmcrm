@@ -170,6 +170,11 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Spescina\Mediabrowser\Providers\MediabrowserServiceProvider::class,
 
+        /*
+         * JWT auth
+         */
+        Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
+
     ],
 
     /*
@@ -227,6 +232,7 @@ return [
 
         'LaravelLocalization'   => Mcamara\LaravelLocalization\Facades\LaravelLocalization::class,
         'Image' => Intervention\Image\Facades\Image::class,
+        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
 
     ],
 
