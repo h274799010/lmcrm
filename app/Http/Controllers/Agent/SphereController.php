@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
+use App\Models\MaskNames;
 use Validator;
 use App\Models\Sphere;
 use App\Models\AgentBitmask;
@@ -180,10 +181,30 @@ class SphereController extends AgentController {
         $mask->user_id = $user_id;
 
         // сохраняем имя таблицы
-        $mask->name =$request['maskName'];
+        //$mask->name =$request['maskName'];
 
         // сохраняем данные в БД
         $mask->save();
+
+
+        // Сохраняем имя маски
+        // Если имя маски уже есть - находим ее
+        $maskName = MaskNames::where('mask_id', '=', $mask_id)->first();
+
+        // Если имени этой маски нет - создаем новое
+        if(!isset($maskName->id)) {
+            $maskName = new MaskNames();
+        }
+        // Имя маски
+        $maskName->name = $request['maskName'];
+        // id агента
+        $maskName->agent_id = $user_id;
+        // id сферы
+        $maskName->sphere_id = $sphere_id;
+        // id маски
+        $maskName->mask_id = $mask->id;
+        // Сохраняем данные в БД
+        $maskName->save();
 
         // удаление всех лидов с текущей маской из таблицы аукциона
         Auction::removeBySphereMask( $sphere_id, $mask_id );

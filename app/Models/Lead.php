@@ -929,8 +929,11 @@ class Lead extends EloquentUser {
      */
     public function maskName( $mask_id )
     {
-        $mask = new AgentBitmask( $this->sphere['id'] );
-        return $mask->find( $mask_id )->name;
+        /*$mask = new AgentBitmask( $this->sphere['id'] );
+        return $mask->find( $mask_id )->name;*/
+        $maskName = MaskNames::where('mask_id', '=', $mask_id)->where('sphere_id', '=', $this->sphere['id'])->first();
+
+        return $maskName->name;
     }
 
 

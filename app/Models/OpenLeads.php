@@ -82,8 +82,11 @@ class OpenLeads extends Model {
     public function maskName()
     {
         $lead = Lead::find( $this['lead_id'] );
-        $mask = new AgentBitmask( $lead->sphere['id'] );
-        return $mask->find( $this['mask_id'] )->name;
+        $maskName = MaskNames::where('mask_id', '=', $this['mask_id'])->where('sphere_id', '=', $lead->sphere['id'])->first();
+
+        return $maskName->name;
+        //$mask = new AgentBitmask( $lead->sphere['id'] );
+        //return $mask->find( $this['mask_id'] )->name;
     }
 
 
