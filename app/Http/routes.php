@@ -83,3 +83,19 @@ Route::get('loginTest', function(){
     }
 });
 
+
+
+
+Route::group(['middleware' => ['api'], 'prefix' => 'api'], function () {
+
+    Route::post('register', 'APIController@register');
+
+    Route::post('login', 'APIController@login');
+
+    Route::group(['middleware' => 'jwt-auth'], function () {
+
+        Route::post('get_user_details', 'APIController@get_user_details');
+
+    });
+
+});
