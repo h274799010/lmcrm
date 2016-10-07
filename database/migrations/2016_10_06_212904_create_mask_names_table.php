@@ -16,7 +16,7 @@ class CreateMaskNamesTable extends Migration
             $table->increments('id');
             $table->integer('sphere_id');   // id сферы
             $table->integer('mask_id');     // id маски
-            $table->integer('agent_id');    // id агента
+            $table->integer('user_id');    // id агента
             $table->string('name');        // имя маски
         });
     }

@@ -50,6 +50,14 @@ class Auction extends Model
         return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
     }
 
+    /**
+     * Связь с таблицей имени маски
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function maskName() {
+        return $this->hasOne('App\Models\MaskNames', 'id', 'mask_name_id');
+    }
 
 
 
@@ -72,9 +80,10 @@ class Auction extends Model
 
         // перебираем всех агентов и добавляем данные в таблицу
         $agentsBitmask->each( function( $agent ) use( &$query, $sphere_id, $lead_id ){
+            $maskName = MaskNames::where('user_id', '=', $agent['user_id'])->where('mask_id', '=', $agent['id'])->first();
 
             // формируем запрос
-            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$agent['user_id'], 'mask_id'=>$agent['id'] ];
+            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$agent['user_id'], 'mask_id'=>$agent['id'], 'mask_name_id'=>$maskName->id ];
 
         });
 
@@ -129,9 +138,10 @@ class Auction extends Model
 
         // перебираем всех агентов и добавляем данные в таблицу
         $leadsByFilter->each( function( $lead ) use( &$query, $sphere_id, $agentBitmask ){
+            $maskName = MaskNames::where('user_id', '=', $agentBitmask['user_id'])->where('mask_id', '=', $agentBitmask['id'])->first();
 
             // формируем запрос
-            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'] ];
+            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'], 'mask_name_id'=>$maskName->id ];
 
         });
 

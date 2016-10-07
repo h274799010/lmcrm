@@ -78,9 +78,4 @@ class AgentBitmask extends Bitmask
     {
         return $this->hasOne('App\Models\User', 'id', 'user_id');
     }
-
-    public function getName()
-    {
-        return $this->hasOne('App\Models\MaskNames', 'id', 'mask_id');
-    }
 }

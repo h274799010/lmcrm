@@ -92,8 +92,11 @@ class SphereController extends AgentController {
             // если маска не найдена - редирект на главную страницу
             if( $mask==NULL ){ return redirect('/'); }
 
+            // получаем имя маски
+            $maskName = MaskNames::where('mask_id', $mask->id)->where('sphere_id', $sphere_id)->first();
+
             // имя маски
-            $maskData = [ 'id'=>$mask->id, 'name'=>$mask->name];
+            $maskData = [ 'id'=>$mask->id, 'name'=>$maskName->name];
 
             // находим короткую маску
             $mask = $mask->findShortMaskById();
@@ -198,7 +201,7 @@ class SphereController extends AgentController {
         // Имя маски
         $maskName->name = $request['maskName'];
         // id агента
-        $maskName->agent_id = $user_id;
+        $maskName->user_id = $user_id;
         // id сферы
         $maskName->sphere_id = $sphere_id;
         // id маски
