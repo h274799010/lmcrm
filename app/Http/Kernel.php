@@ -75,6 +75,7 @@ class Kernel extends HttpKernel
 
 
         'jwt-auth' => \App\Http\Middleware\authJWT::class,
+        'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class
     ];
 
 }

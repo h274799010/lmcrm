@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-//use Sentinel;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 Route::group(['prefix' => 'admin'], function() {
     Route::get('sphere/data', 'Admin\SphereController@data');
@@ -10,13 +10,20 @@ Route::group(['prefix' => 'admin'], function() {
     Route::get('user/data', 'Admin\UserController@data');
     Route::get('credit/data', 'Admin\CreditController@data');
 });
-//
+
+
+// роуты для разных групп пользователей
 Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'web','localeSessionRedirect','localizationRedirect', 'localize']], function() {
     include('routes/front.routes.php');
     include('routes/agent.routes.php');
     include('routes/operator.routes.php');
-
     include('routes/admin.routes.php');
+});
+
+
+// Роуты мобильного приложения
+Route::group(['prefix' => 'api'], function(){
+    include ('routes/api.routes.php');
 });
 
 
@@ -37,65 +44,84 @@ Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|sal
 
 /** todo Тестовое удалить */
 
-/** Получение токена */
-Route::get('token', function(){
-
-    return csrf_token();
-});
 
 
-/** Залогинивание пользователя */
-Route::match(['post','options'], 'mobileLogin', function( Request $request ){
+/** Проверка авторизации пользователя по токену */
+Route::get('loginTestToken', function(){
 
-    $credentials = [
-        'email'    => $request['email'],
-        'password' => $request['password'],
-    ];
-
-
-    if (Sentinel::authenticate($credentials, true)) {
-        return 'залогинен';
-    }
-
-    return 'не залогинен';
-});
-
-
-/** Разлогинивание пользователя */
-Route::match(['post','options'], 'mobileLogout', function( Request $request ){
-
-    Sentinel::logout();
-
-    return 'Logout';
-});
+echo
+'
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<script src="components/jquery/jquery-2.min.js"></script>
+</head>
+<body>
+  Загрузился
 
 
-/** Проверка авторизации пользователя */
-Route::get('loginTest', function(){
+<script>
 
-    if( Sentinel::check() ){
+    $(function(){
 
-        return 'Залогинен';
 
-    }else{
-
-        return 'Не залогинен';
-    }
-});
+        // аутентификация
+//        $.ajax({
+//            url: "api/login",
+//            method: "post",
+//            data: {
+//                email: "agent@agent.com",
+//                password: "agent"
+//            },
+//            success: function(data){
+//                alert(data);
+//            }
+//        });
 
 
 
+        // Проверка прав на доступ к системе
+        $.ajax({
+            url: "/api/mobileLoginTest",
+            method: "post",
+            headers: {
 
-Route::group(['middleware' => ['api'], 'prefix' => 'api'], function () {
+                Authorization: "Bearer" + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImlzcyI6Imh0dHA6XC9cL2xtY3JtLmNvc1wvYXBpXC9hcGlcL2xvZ2luIiwiaWF0IjoxNDc1ODMwOTAxLCJleHAiOjE0NzU4MzQ1MDEsIm5iZiI6MTQ3NTgzMDkwMSwianRpIjoiZGVlNWY0NjFlYjhjNjlkMjQ1NjY0MGNmYzkzZDVmZjgifQ.uUG93BWq7agbKoJMGQh3FDIBj_rAZNl3gwF8JlGhzEI",
+            },
+            success: function(data){
+                alert(data);
+            }
+        });
 
-    Route::post('register', 'APIController@register');
 
-    Route::post('login', 'APIController@login');
+        // разлогинивание
+//        $.ajax({
+//            url: "api/logout",
+//            method: "post",
+//            headers: {
+//                Authorization: "Bearer" + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImlzcyI6Imh0dHA6XC9cL2xtY3JtLmNvc1wvYXBpXC9hcGlcL2xvZ2luIiwiaWF0IjoxNDc1ODMwOTAxLCJleHAiOjE0NzU4MzQ1MDEsIm5iZiI6MTQ3NTgzMDkwMSwianRpIjoiZGVlNWY0NjFlYjhjNjlkMjQ1NjY0MGNmYzkzZDVmZjgifQ.uUG93BWq7agbKoJMGQh3FDIBj_rAZNl3gwF8JlGhzEI",
+//            },
+//            success: function(data){
+//                alert(data);
+//            }
+//        });
 
-    Route::group(['middleware' => 'jwt-auth'], function () {
-
-        Route::post('get_user_details', 'APIController@get_user_details');
 
     });
 
+</script>
+
+</body>
+</html>
+
+
+';
+
+
+
+
 });
+
+

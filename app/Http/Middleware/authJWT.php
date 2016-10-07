@@ -22,7 +22,9 @@ class authJWT
 
         try {
 
-            $user = JWTAuth::toUser($request->input('token'));
+            JWTAuth::parseToken()->toUser();
+
+            // JWTAuth::parseToken()->authenticate()
 
         } catch (Exception $e) {
 
@@ -37,11 +39,8 @@ class authJWT
             }else{
 
                 return response()->json(['error'=>'Something is wrong']);
-
             }
-
         }
-
 
 
         return $next($request);
