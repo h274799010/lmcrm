@@ -144,9 +144,51 @@ class ApiController extends Controller
         ];
 
         return response()->json($data);
-//        return response()->json(compact('data'));
+
+    }
 
 
+    // todo пока что тестовая
+    // страница фильтра лидов
+    public function deposited()
+    {
+
+        $className = get_class( $this );
+
+        $data =
+            [
+                'id' => $this->user->id,
+                'email' => $this->user->email,
+                'wallet' => $this->wallet->earned + $this->wallet->buyed,
+                'wasted' => $this->wallet->wasted,
+                'className' => $className,
+                'func' => __FUNCTION__
+
+            ];
+
+        return response()->json($data);
+    }
+
+
+    // todo пока что тестовая
+    // страница фильтра лидов
+    public function openedLeads()
+    {
+
+        $className = get_class( $this );
+
+        $data =
+            [
+                'id' => $this->user->id,
+                'email' => $this->user->email,
+                'wallet' => $this->wallet->earned + $this->wallet->buyed,
+                'wasted' => $this->wallet->wasted,
+                'className' => $className,
+                'func' => __FUNCTION__
+
+            ];
+
+        return response()->json($data);
     }
 
 

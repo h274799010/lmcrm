@@ -58,7 +58,14 @@ Route::group(['middleware' => 'jwt-auth'], function () {
 
     });
 
+    // лиды отфильтрованные для агента
     Route::post('obtain', ['as' => 'api.obtain', 'uses' => 'Agent\ApiController@obtain']);
+
+    // лиды, которые агент внес в систему
+    Route::post('deposited', ['as' => 'api.deposited', 'uses' => 'Agent\ApiController@deposited']);
+
+    // лиды, которые агент открыл
+    Route::post('opened', ['as' => 'api.opened', 'uses' => 'Agent\ApiController@openedLeads']);
 
 
 });
