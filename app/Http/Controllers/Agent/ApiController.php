@@ -12,6 +12,7 @@ use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
+use App\Models\Wallet;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
@@ -29,11 +30,21 @@ use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
 use App\Http\Controllers\Notice;
 use App\Models\Auction;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 class ApiController extends Controller
 {
 
+    public function __construct()
+    {
+        // получаем пользователя
+        $this->user = JWTAuth::parseToken()->authenticate();
+        $this->wallet = Wallet::where( 'user_id', $this->user->id )->first();
+
+    }
+
+    // todo тестовый роут, удалить
     public function test()
     {
 
@@ -111,6 +122,31 @@ class ApiController extends Controller
         ';
 
         echo $test;
+    }
+
+
+    // todo пока что тестовая
+    // страница фильтра лидов
+    public function obtain()
+    {
+
+        $className = get_class( $this );
+
+        $data =
+        [
+            'id' => $this->user->id,
+            'email' => $this->user->email,
+            'wallet' => $this->wallet->earned + $this->wallet->buyed,
+            'wasted' => $this->wallet->wasted,
+            'className' => $className,
+            'func' => __FUNCTION__
+
+        ];
+
+        return response()->json($data);
+//        return response()->json(compact('data'));
+
+
     }
 
 

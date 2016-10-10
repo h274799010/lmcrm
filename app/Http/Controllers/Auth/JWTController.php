@@ -38,18 +38,30 @@ class JWTController extends Controller
             // Попытка авторизации пользователя и получения токена
             if (! $token = JWTAuth::attempt($credentials)) {
                 // если ошибка в логине/пароле - вернется сообщение об ошибке
-                return response()->json(['error' => 'invalid_credentials'], 401);
+//                return response()->json(['error' => 'invalid_credentials'], 401);
+                return response()->json( 'invalid_credentials' );
+
             }
         } catch (JWTException $e) {
             // если что-то пошло не так, выскочит это сообщение
-            return response()->json(['error' => 'could_not_create_token'], 500);
+//            return response()->json(['error' => 'could_not_create_token'], 500);
+            return response()->json( 'could_not_create_token' );
         }
 
         // todo "выкинуть" пользователя если пользователь админ или оператор
 
         // todo добавить еще и данные пользователя
         // Если все хорошо - возвращается токен
-        return response()->json(compact('token'));
+
+//        $user = JWTAuth::parseToken()->toUser();
+
+//        $a = $user->id;
+
+//        return response()->json( [ 'token' => $a ] );
+
+//        return response()->json( $token );
+
+        return response()->json( [ 'status' => 'Ok', 'token' => $token ] );
     }
 
 

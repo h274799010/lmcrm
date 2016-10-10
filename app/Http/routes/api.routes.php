@@ -58,6 +58,9 @@ Route::group(['middleware' => 'jwt-auth'], function () {
 
     });
 
+    Route::post('obtain', ['as' => 'api.obtain', 'uses' => 'Agent\ApiController@obtain']);
+
+
 });
 
 

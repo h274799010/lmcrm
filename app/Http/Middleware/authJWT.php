@@ -22,7 +22,7 @@ class authJWT
 
         try {
 
-            JWTAuth::parseToken()->toUser();
+            $user = JWTAuth::parseToken()->toUser();
 
             // JWTAuth::parseToken()->authenticate()
 
@@ -30,15 +30,21 @@ class authJWT
 
             if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
 
-                return response()->json(['error'=>'Token is Invalid']);
+                return response()->json( 'Token is Invalid' );
+
+//                return response()->json(['error'=>'Token is Invalid']);
 
             }else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException){
 
-                return response()->json(['error'=>'Token is Expired']);
+                return response()->json( 'Token is Expired' );
+
+//                return response()->json(['error'=>'Token is Expired']);
 
             }else{
 
-                return response()->json(['error'=>'Something is wrong']);
+                return response()->json( 'Something is wrong' );
+
+//                return response()->json(['error'=>'Something is wrong']);
             }
         }
 

@@ -35,7 +35,8 @@ Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|sal
 
 
 
-/** todo Тестовое удалить */
+
+/** todo Тестовое, удалить */
 
 // Тестовая страница для проверки JWT токена
 Route::get('loginTestToken', [ 'uses' => 'Agent\ApiController@test' ]);
