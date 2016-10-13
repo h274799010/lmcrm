@@ -125,6 +125,33 @@ class ApiController extends Controller
     }
 
 
+    /**
+     * Создание нового лида
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return boolean
+     */
+    public function createLead( Request $request )
+    {
+        // выбираем данные для удобства
+        $depositor_id = $this->user->id; // id депозитора
+        $name = $request->name;          // имя клиента
+        $phone = $request->phone;        // телефон клиента
+        $comment = $request->comment;    // комментарий
+
+        // создание нового лида
+        $newLead = Lead::createNew( $depositor_id, $name, $phone, $comment );
+
+        // если все нормально возвращается "Ок"
+        if( $newLead  ){ return response()->json('Ok'); }
+
+        // Если что-то пошло не так, возвращается 'Error'
+        return response()->json('Error');
+    }
+
+
     // todo пока что тестовая
     // страница фильтра лидов
     public function obtain()
@@ -148,12 +175,21 @@ class ApiController extends Controller
     }
 
 
-    // todo пока что тестовая
-    // страница фильтра лидов
+    /**
+     * Страница отданных лидов пользователя
+     *
+     */
     public function deposited()
     {
 
-        $className = get_class( $this );
+//        $leads = $this->user->leads()->with('phone')->get();
+        $leads = Lead::where('agent_id', $this->user->id)->select([ 'id', 'name' ])->get();
+
+        if( !$leads->count() ){
+            $leads = 'Нет лидов';
+        }else{
+//            $leads = $leads->toArray();
+        }
 
         $data =
             [
@@ -161,9 +197,7 @@ class ApiController extends Controller
                 'email' => $this->user->email,
                 'wallet' => $this->wallet->earned + $this->wallet->buyed,
                 'wasted' => $this->wallet->wasted,
-                'className' => $className,
-                'func' => __FUNCTION__
-
+                'leads' => $leads,
             ];
 
         return response()->json($data);
@@ -171,7 +205,7 @@ class ApiController extends Controller
 
 
     // todo пока что тестовая
-    // страница фильтра лидов
+    // страница открытых лидов
     public function openedLeads()
     {
 

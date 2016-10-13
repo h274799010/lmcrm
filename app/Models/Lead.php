@@ -6,6 +6,8 @@ use App\Helper\PayMaster\PayCalculation;
 use App\Helper\PayMaster\PayInfo;
 use Cartalyst\Sentinel\Users\EloquentUser;
 
+use App\Models\Customer;
+
 use App\Models\Sphere;
 
 use Illuminate\Auth\Authenticatable;
@@ -93,8 +95,25 @@ class Lead extends EloquentUser {
         3 => 'payment for bad lead',     // оплата агентам по плохому лиду (возврат покупателям, штраф депозитору)
     ];
 
-    // todo ? payment for operator bad lead
 
+    public static function createNew( $user_id, $name, $phone, $comment='' )
+    {
+        $agent = Agent::find( $user_id );
+
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $phone )] );
+
+        $lead = new Lead();
+        $lead->customer_id = $customer->id;
+        $lead->sphere_id = $agent->sphere()->id;
+        $lead->status = 0;
+        $lead->name = $name;
+        $lead->comment = $comment;
+        $lead->agent_id = $user_id;
+
+        $lead->save();
+
+        return $lead;
+    }
 
     public function SphereFormFilters($sphere_id=NULL){
         $relation = $this->hasMany('App\Models\SphereFormFilters', 'sphere_id', 'sphere_id');

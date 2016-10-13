@@ -50,8 +50,6 @@ class JWTController extends Controller
 
         // todo "выкинуть" пользователя если пользователь админ или оператор
 
-        // todo добавить еще и данные пользователя
-        // Если все хорошо - возвращается токен
 
 //        $user = JWTAuth::parseToken()->toUser();
 

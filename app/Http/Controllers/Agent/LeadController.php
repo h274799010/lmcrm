@@ -44,7 +44,17 @@ class LeadController extends AgentController {
         return view('agent.lead.index');
     }
 
-    public function deposited($salesman_id = false){
+
+    /**
+     * Лиды которые агент внес в систему
+     *
+     *
+     * @param  integer|boolean  $salesman_id
+     *
+     * @return object
+     */
+    public function deposited( $salesman_id = false ){
+
         if($salesman_id === false) {
             $leads = $this->user->leads()->with('phone')->get();
             return view('agent.lead.deposited')
