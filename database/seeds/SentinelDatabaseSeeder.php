@@ -71,19 +71,30 @@ class SentinelDatabaseSeeder extends Seeder
         $dealmaker = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'dealmaker@dealmaker.com',
-            'password' => 'dealmaker'
+            'password' => 'dealmaker',
+            'name' => 'dealmaker'
 
         ));
         $leadbayer = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'leadbayer@leadbayer.com',
-            'password' => 'leadbayer'
+            'password' => 'leadbayer',
+            'name' => 'leadbayer'
 
         ));
         $partner = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'partner@partner.com',
-            'password' => 'partner'
+            'password' => 'partner',
+            'name' => 'partner'
+
+        ));
+
+        $accountManager = Sentinel::getUserRepository()->create(array(
+
+            'email'    => 'account@account.com',
+            'password' => 'account',
+            'name' => 'account manager'
 
         ));
 
@@ -116,6 +127,10 @@ class SentinelDatabaseSeeder extends Seeder
         $code = Activation::create($partner)->code;
 
         Activation::complete($partner, $code);
+
+        $code = Activation::create($accountManager)->code;
+
+        Activation::complete($accountManager, $code);
 
 
         // Create Roles
@@ -238,6 +253,12 @@ class SentinelDatabaseSeeder extends Seeder
             ]
         ));
 
+        $accountManagerRole = Sentinel::getRoleRepository()->create(array(
+            'name' => 'Account Manager',
+            'slug' => 'account_manager',
+            'permissions' => []
+        ));
+
         // Assign Roles to Users
 
         $administratorRole->users()->attach($admin);
@@ -257,6 +278,8 @@ class SentinelDatabaseSeeder extends Seeder
 
         $partnerRole->users()->attach($partner);
         $agentRole->users()->attach($partner);
+
+        $accountManagerRole->users()->attach($accountManager);
 
     }
 }

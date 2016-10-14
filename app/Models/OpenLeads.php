@@ -56,7 +56,7 @@ class OpenLeads extends Model {
     }
 
     public function maskName2() {
-        return $this->hasOne('App\Models\MaskNames', 'id', 'mask_name_id');
+        return $this->hasOne('App\Models\UserMasks', 'id', 'mask_name_id');
     }
 
 
@@ -86,7 +86,7 @@ class OpenLeads extends Model {
     public function maskName()
     {
         $lead = Lead::find( $this['lead_id'] );
-        $maskName = MaskNames::where('mask_id', '=', $this['mask_id'])->where('sphere_id', '=', $lead->sphere['id'])->first();
+        $maskName = UserMasks::where('mask_id', '=', $this['mask_id'])->where('sphere_id', '=', $lead->sphere['id'])->first();
 
         return $maskName->name;
         //$mask = new AgentBitmask( $lead->sphere['id'] );
@@ -131,7 +131,7 @@ class OpenLeads extends Model {
             // создаем его
 
             // получаем имя маски
-            $maskName = MaskNames::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
+            $maskName = UserMasks::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
 
             $openLead = new OpenLeads();
             $openLead->lead_id = $lead->id;                 // id лида
@@ -199,7 +199,7 @@ class OpenLeads extends Model {
             // создаем его
 
             // получаем имя маски
-            $maskName = MaskNames::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
+            $maskName = UserMasks::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
 
             $openLead = new OpenLeads();
             $openLead->lead_id = $lead->id;                 // id лида

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
-use App\Models\MaskNames;
+use App\Models\UserMasks;
 use Validator;
 use App\Models\Sphere;
 use App\Models\AgentBitmask;
@@ -93,7 +93,7 @@ class SphereController extends AgentController {
             if( $mask==NULL ){ return redirect('/'); }
 
             // получаем имя маски
-            $maskName = MaskNames::where('mask_id', $mask->id)->where('sphere_id', $sphere_id)->first();
+            $maskName = UserMasks::where('mask_id', $mask->id)->where('sphere_id', $sphere_id)->first();
 
             // имя маски
             $maskData = [ 'id'=>$mask->id, 'name'=>$maskName->name];
@@ -192,11 +192,11 @@ class SphereController extends AgentController {
 
         // Сохраняем имя маски
         // Если имя маски уже есть - находим ее
-        $maskName = MaskNames::where('mask_id', '=', $mask_id)->first();
+        $maskName = UserMasks::where('mask_id', '=', $mask_id)->first();
 
         // Если имени этой маски нет - создаем новое
         if(!isset($maskName->id)) {
-            $maskName = new MaskNames();
+            $maskName = new UserMasks();
         }
         // Имя маски
         $maskName->name = $request['maskName'];

@@ -65,6 +65,16 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     }
 
     /**
+     * Список групп агентов
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function groups()
+    {
+        return $this->belongsToMany('\App\Models\AgentGroups', 'agents_groups', 'agent_id', 'group_id');
+    }
+
+    /**
      * Кредиты агента
      *
      * todo доработать

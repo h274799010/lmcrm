@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMaskNamesTable extends Migration
+class CreateUserMasksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateMaskNamesTable extends Migration
      */
     public function up()
     {
-        Schema::create('mask_names', function (Blueprint $table) {
+        Schema::create('user_masks', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('sphere_id');   // id сферы
             $table->integer('mask_id');     // id маски
@@ -28,6 +28,6 @@ class CreateMaskNamesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('mask_names');
+        Schema::drop('user_masks');
     }
 }
