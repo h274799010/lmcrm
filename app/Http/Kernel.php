@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'redirectAgent' => \App\Http\Middleware\SentinelRedirectAgent::class,
         'redirectSalesman' => \App\Http\Middleware\SentinelRedirectSalesman::class,
         'redirectOperator' => \App\Http\Middleware\SentinelRedirectOperator::class,
+        'redirectAccountManager' => \App\Http\Middleware\SentinelRedirectAccountManager::class,
 
         'localize' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRoutes::class,
         'localizationRedirect' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,

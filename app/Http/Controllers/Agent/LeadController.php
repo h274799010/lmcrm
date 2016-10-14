@@ -124,11 +124,11 @@ class LeadController extends AgentController {
             $agent = Salesman::findOrFail($salesman_id);
             $sphere_id=$agent->sphere()->id;
             $mask = new AgentBitmask($sphere_id,$agent->id);
-            $user_id = $agent->info->agent_id;
+            $user_id = $agent->id;
         }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where( 'user_id', $user_id )->with('lead')->get();
+        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->with('lead')->with('maskName')->get();
 
         // маска лида
         $leadBitmask = new LeadBitmask( $mask->getTableNum() );
@@ -192,7 +192,8 @@ class LeadController extends AgentController {
             }, 3)
             ->add_column('mask', function( $data ){
 
-                return $data['lead']->maskName( $data['mask_id'] );
+                //return $data['lead']->maskName( $data['mask_id'] );
+                return $data['maskName']->name;
 
             }, 4)
             ->add_column('updated', function( $data ){
@@ -836,7 +837,7 @@ class LeadController extends AgentController {
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
-        where( 'agent_id', $userId )
+        where( 'agent_id', $userId )->with('maskName2')
             ->with( ['lead' => function( $query ){
                 $query->with('sphereStatuses');
             }])

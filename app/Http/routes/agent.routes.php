@@ -1,5 +1,17 @@
 <?php
 
+Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] ], function() {
+
+    // страница с отданными лидами
+    Route::get('lead/depostited', ['as' => 'salesman.lead.deposited', 'uses' => 'Agent\LeadController@deposited']);
+
+    // страница с отфильтрованными лидами
+    Route::get('lead/obtain', ['as' => 'salesman.lead.obtain', 'uses' => 'Agent\LeadController@obtain']);
+
+    // страница с открытыми лидами
+    Route::get('openedLeads', ['as'=>'salesman.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
+
+});
 Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], function() {
 
     // todo эти две страницы, похоже, несуществуют, проверить и удалить
@@ -83,11 +95,20 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
             // страница всех масок агента по сферам
             Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
 
+            // страница всех масок агента по сферам (под продавцом)
+            Route::get('sphere/{salesman_id?}', ['as' => 'agent.salesman.sphere.index', 'uses' => 'Agent\SphereController@index']);
+
             // страница создания/редактирования маски агента
             Route::get('sphere/{sphere_id}/{mask_id}/edit',['as'=>'agent.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
 
+            // страница создания/редактирования маски агента (под продавцом)
+            Route::get('sphere/{sphere_id}/{mask_id}/edit/{salesman_id?}',['as'=>'agent.salesman.sphere.edit', 'uses' => 'Agent\SphereController@edit']);
+
             // сохранение данных маски агента
             Route::match(['put','post'],'sphere/{sphere_id}/{mask_id}',['as'=>'agent.sphere.update', 'uses' => 'Agent\SphereController@update']);
+
+            // сохранение данных маски агента (под продавцом)
+            Route::match(['put','post'],'sphere/{sphere_id}/{mask_id}/{salesman_id?}',['as'=>'agent.salesman.sphere.update', 'uses' => 'Agent\SphereController@update']);
 
             // удаление маски агента
             Route::post('mask/remove', ['as'=>'agent.sphere.removeMask', 'uses' => 'Agent\SphereController@removeMask']);

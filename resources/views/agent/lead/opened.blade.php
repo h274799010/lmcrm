@@ -47,7 +47,8 @@
                                     <td><div>{{ $openLead['lead']['name'] }}</div></td>
                                     <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
                                     <td><div>{{ $openLead['lead']['email'] }}</div></td>
-                                    <td><div> {{ $openLead->maskName() }} </div></td>
+                                    {{--<td><div> {{ $openLead->maskName() }} </div></td>--}}
+                                    <td><div> {{ $openLead->maskName2->name }} </div></td>
                                     <td class="edit">
                                         <div>
                                             <a href="#">

@@ -55,6 +55,10 @@ class OpenLeads extends Model {
         return $this->hasMany('App\Models\Agent', 'id', 'agent_id');
     }
 
+    public function maskName2() {
+        return $this->hasOne('App\Models\UserMasks', 'id', 'mask_name_id');
+    }
+
 
     /**
      * Связь с таблицей органайзера
@@ -82,8 +86,11 @@ class OpenLeads extends Model {
     public function maskName()
     {
         $lead = Lead::find( $this['lead_id'] );
-        $mask = new AgentBitmask( $lead->sphere['id'] );
-        return $mask->find( $this['mask_id'] )->name;
+        $maskName = UserMasks::where('mask_id', '=', $this['mask_id'])->where('sphere_id', '=', $lead->sphere['id'])->first();
+
+        return $maskName->name;
+        //$mask = new AgentBitmask( $lead->sphere['id'] );
+        //return $mask->find( $this['mask_id'] )->name;
     }
 
 
@@ -123,11 +130,15 @@ class OpenLeads extends Model {
             // если НЕТ открытого лида с такими параметрами
             // создаем его
 
+            // получаем имя маски
+            $maskName = UserMasks::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
+
             $openLead = new OpenLeads();
             $openLead->lead_id = $lead->id;                 // id лида
             $openLead->agent_id = $agent_id;                // id агента, который его открыл
             $openLead->mask_id = $mask_id;                  // комментарий (не обазательно)
             $openLead->expiration_time = $expiration_time;  // время истечения лида
+            $openLead->mask_name_id = $maskName->id;        // имя маски
             $openLead->count = 1;                           // количество открытий (при первом открытии = "1")
 
             $openLead->save();
@@ -187,11 +198,15 @@ class OpenLeads extends Model {
             // если НЕТ открытого лида с такими параметрами
             // создаем его
 
+            // получаем имя маски
+            $maskName = UserMasks::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
+
             $openLead = new OpenLeads();
             $openLead->lead_id = $lead->id;                 // id лида
             $openLead->agent_id = $agent_id;                // id агента, который его открыл
             $openLead->mask_id = $mask_id;                  // комментарий (не обазательно)
             $openLead->expiration_time = $expiration_time;  // время истечения лида
+            $openLead->mask_name_id = $maskName->id;        // имя маски
             $openLead->count = $count;                      // количество открытий (при первом открытии = "1")
 
             $openLead->save();

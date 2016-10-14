@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
 use App\Models\LeadBitmask;
+use App\Models\Operator;
 use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -36,7 +37,7 @@ class SphereController extends Controller {
     public function index()
     {
 
-        $leads = Lead::whereIn('status', [ 0, 1 ])->with([ 'sphere', 'user'])->get();
+        $leads = Lead::whereIn('status', [0,1])->with([ 'sphere', 'user'])->get();
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
@@ -53,12 +54,27 @@ class SphereController extends Controller {
      */
     public function edit( $sphere, $id )
     {
+        $operator = Sentinel::getUser();
+        $leadEdited = Operator::where('lead_id', '=', $id)->where('operator_id', '=', $operator->id)->first();
 
+        if(!$leadEdited) {
+            $leadEdited = new Operator;
+
+            $leadEdited->lead_id = $id;
+            $leadEdited->operator_id = $operator->id;
+
+            $leadEdited->save();
+        } /*elseif ($leadEdited->operator_id != $operator->id) {
+            return redirect()->back()->withErrors(['errors' => 'Этот лид уже редактируется другим оператором!']);
+        }*/
 
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
 
         $lead = Lead::with('phone')->find($id);
+
+        $lead->status = 1;
+        $lead->save();
 
         $mask = new LeadBitmask($data->id, $id);
         $shortMask = $mask->findShortMask();
@@ -112,6 +128,10 @@ class SphereController extends Controller {
         // находим лид
         $lead = Lead::find( $lead_id );
 
+        if($lead->status != 0 && $lead->status != 1) {
+            return redirect()->route('operator.sphere.index')->withErrors(['lead_closed' => 'Лид уже отредактирован другим оператором!']);
+        }
+
         // если оператор отметил лид как плохой
         if( $request->input('bad') ){
 
@@ -139,6 +159,12 @@ class SphereController extends Controller {
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
         $lead->customer_id = $customer->id;
         $lead->save();
+
+        $operator = Sentinel::getUser();
+
+        $leadEdited = Operator::where('lead_id', $lead->id)->where('operator_id', $operator->id)->first();
+        $leadEdited->updated_at = date("Y-m-d H:i:s");
+        $leadEdited->save();
 
 
 
@@ -207,6 +233,7 @@ class SphereController extends Controller {
 
         // находим всех агентов которым подходит этот лид по фильтру
         // исключаем агента добавившего лид
+        // + и его продавцов
         $agents = $agentBitmasks
             ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
             ->get();
@@ -244,6 +271,20 @@ class SphereController extends Controller {
     {
         Agent::findOrFail(\Sentinel::getUser()->id)->leads()->whereIn([$id])->delete();
         return response()->route('agent.lead.index');
+    }
+
+    public function checkLead(Request $request) {
+        $leadEdited = Operator::with('lead')->where('lead_id', '=', $request->lead_id)->first();
+
+        if(isset($leadEdited->id)) {
+            if($leadEdited->lead->status == 0 | $leadEdited->lead->status == 1) {
+                return response()->json('edited');
+            } else {
+                return response()->json('close');
+            }
+        } else {
+            return response()->json('free');
+        }
     }
 
 

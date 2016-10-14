@@ -35,7 +35,7 @@ class Salesman extends EloquentUser implements AuthenticatableContract, CanReset
     }
 
     public function agent(){
-        return $this->belongsToMany('\App\Models\Agent','salesman_info','id','agent_id');
+        return $this->belongsToMany('\App\Models\Agent','salesman_info','salesman_id','agent_id');
     }
 
     public function leads(){

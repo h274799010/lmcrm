@@ -16,7 +16,8 @@ class CreateOpenLeads extends Migration
             $table->increments('id');
             $table->integer('lead_id');            // id лида
             $table->integer('agent_id');           // id агента, который открыл лид
-            $table->integer('mask_id');            // маска, по которой агент открыл лид
+            $table->integer('mask_id');            // маска, по которой агент открыл лид todo позже нужно удалить
+            $table->integer('mask_name_id');       // имя маски
             $table->integer('count');              // считает сколько раз агент открыл лид
             $table->integer('status');             // статусы продвижения по лиду (берутся из статусов сферы
             $table->integer('state')->default(0);  // состояние открытого лида, играют роль при расчете за лид (bad, close...)

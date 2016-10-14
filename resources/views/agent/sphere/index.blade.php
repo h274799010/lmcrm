@@ -27,12 +27,19 @@
                     @forelse($masks as $mask)
 
                         <tr mask_id="{{ $mask->id }}">
-                            <td>{!! $mask->name !!}</td>
+                            {{--<td>{!! $mask->name !!}</td>--}}
+                            <td>{!! \App\Models\UserMasks::where('mask_id', $mask->id)->where('sphere_id', $sphere->id)->first()->name !!}</td>
                             <td>
                                 @if(isset($mask->status) && $mask->status) <span class="label label-success">@lang('site/sphere.status_1')</span> @else <span class="label label-danger">@lang('site/sphere.status_0')</span> @endif</td>
                             <td>{!! $mask->updated_at !!}</td>
-                            @if(Sentinel::hasAccess(['agent.sphere.edit']))
-                            <td><a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                            @if(isset($salesman_id) && $salesman_id !== false)
+                                @if(Sentinel::hasAccess(['agent.sphere.edit']))
+                                    <td><a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id, 'salesman_id'=>$salesman_id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                                @endif
+                            @else
+                                @if(Sentinel::hasAccess(['agent.sphere.edit']))
+                                    <td><a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                                @endif
                             @endif
                             <td>
                                 <div class="material-switch">
@@ -56,7 +63,11 @@
             </table>
 
         @if( Sentinel::hasAccess(['agent.sphere.edit']) )
-        <a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0]) }}" type="button" class="btn btn-xs btn-primary add_mask"> add mask </a>
+            @if(isset($salesman_id) && $salesman_id !== false)
+                <a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0, 'salesman_id'=>$salesman_id]) }}" type="button" class="btn btn-xs btn-primary add_mask"> add mask </a>
+            @else
+                <a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0]) }}" type="button" class="btn btn-xs btn-primary add_mask"> add mask </a>
+            @endif
         @endif
 
     @empty

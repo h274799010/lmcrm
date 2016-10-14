@@ -8,8 +8,12 @@
         <div class="col-xs-12">
             {!! trans("site/lead.opened.modal.reminder.time") !!}<br/>
             <input type="text" class="form-control" name="time" id="time">
-            <script>$('input#time').datetimepicker({});</script>
-            <script>$('input#time').val('{{ $organizer->time->format('m/d/Y g:i A') }}');</script>
+            <script>$('input#time').datetimepicker({
+                    useCurrent: false,
+                    defaultDate: new Date('{{ $organizer->time }}'),
+                    minDate: new Date()
+                });</script>
+           {{-- <script>$('input#time').val('{{ $organizer->time->format('m/d/Y g:i A') }}');</script>--}}
         </div>
     </div>
 

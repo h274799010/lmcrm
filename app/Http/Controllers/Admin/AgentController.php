@@ -48,7 +48,7 @@ class AgentController extends AdminController
     public function create()
     {
         $spheres = Sphere::active()->lists('name','id');
-        return view('admin.agent.create_edit')->with('spheres', $spheres);
+        return view('admin.agent.create_edit')->with('spheres', $spheres)->with('role', null);
     }
 
     /**
@@ -68,7 +68,26 @@ class AgentController extends AdminController
         $user->roles()->attach($role);
 
         $user = Agent::find($user->id);
-        $user->spheres()->sync($request->only('sphere'));
+
+        foreach ($request->only('sphere') as $sphere) {
+            $user->spheres()->sync($sphere);
+        }
+
+        // Заполняем agentInfo
+        $agentInfo = new AgentInfo();
+        $agentInfo->agent_id = $user->id;
+        $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
+        $agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
+        $agentInfo->save();
+
+        // Создаем кошелек
+        $wallet = new Wallet();
+        $wallet->user_id = $user->id;
+        $wallet->buyed = 0.0;
+        $wallet->earned = 0.0;
+        $wallet->wasted = 0.0;
+        $wallet->overdraft = 0.0;
+        $wallet->save();
 
         return redirect()->route('admin.agent.index');
     }
@@ -85,7 +104,7 @@ class AgentController extends AdminController
     public function edit($id)
     {
         // данные агента
-        $agent = Agent::findOrFail($id);
+        $agent = Agent::with('agentInfo')->findOrFail($id);
 
         // данные сферы
         $spheres = Sphere::active()->lists('name','id');

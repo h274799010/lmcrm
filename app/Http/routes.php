@@ -1,9 +1,4 @@
 <?php
-
-use Illuminate\Http\Response;
-use Illuminate\Http\Request;
-use Tymon\JWTAuth\Exceptions\JWTException;
-
 Route::group(['prefix' => 'admin'], function() {
     Route::get('sphere/data', 'Admin\SphereController@data');
     Route::get('agent/data', 'Admin\AgentController@data');
@@ -17,7 +12,9 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'we
     include('routes/front.routes.php');
     include('routes/agent.routes.php');
     include('routes/operator.routes.php');
+
     include('routes/admin.routes.php');
+    include('routes/account_manager.routes.php');
 });
 
 
@@ -32,13 +29,3 @@ Route::get('notice', ['as' => 'notification', 'middleware' => ['auth', 'agent|sa
 
 // в этом месте сообщения отмечаются как полученные
 Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notified']);
-
-
-
-
-/** todo Тестовое, удалить */
-
-// Тестовая страница для проверки JWT токена
-Route::get('loginTestToken', [ 'uses' => 'Agent\ApiController@test' ]);
-
-

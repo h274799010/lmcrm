@@ -3,13 +3,16 @@
 
 namespace App\Models;
 
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
 use MongoDB\Driver\Query;
 
 class Auction extends Model
 {
+    use SoftDeletes;
 
     protected $table = "auctions";
 
@@ -20,6 +23,13 @@ class Auction extends Model
      * @var array
      */
     protected $fillable = [ 'sphere_id', 'user_id', 'lead_id', 'mask_id' ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 
     /**
      * Отключаем метки времени
@@ -40,6 +50,14 @@ class Auction extends Model
         return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
     }
 
+    /**
+     * Связь с таблицей имени маски
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function maskName() {
+        return $this->hasOne('App\Models\UserMasks', 'id', 'mask_name_id');
+    }
 
 
 
@@ -62,9 +80,10 @@ class Auction extends Model
 
         // перебираем всех агентов и добавляем данные в таблицу
         $agentsBitmask->each( function( $agent ) use( &$query, $sphere_id, $lead_id ){
+            $maskName = UserMasks::where('user_id', '=', $agent['user_id'])->where('mask_id', '=', $agent['id'])->first();
 
             // формируем запрос
-            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$agent['user_id'], 'mask_id'=>$agent['id'] ];
+            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$agent['user_id'], 'mask_id'=>$agent['id'], 'mask_name_id'=>$maskName->id ];
 
         });
 
@@ -100,12 +119,16 @@ class Auction extends Model
         // id всех лидов по фильтру
         $list = $leadBitmask->filterByMask( $agentBitmaskData )->lists('user_id');
 
+        // массив id пользователей, по которым нужно исключить выбор лидов
+        $excludedUsers = User::excludedUsers($agentBitmask['user_id']);
+
         // получаем все лиды, помеченные к аукциону, по id из массива, без лидов автора
         $leadsByFilter =
             Lead::
               whereIn('id', $list)                     // все лиды полученыые по маске агента
             ->where('status', 3)                       // котрые помеченны к аукциону
-            ->where('agent_id', '<>', $agentBitmask['user_id'])      // без лидов, которые занес агент
+            //->where('agent_id', '<>', $agentBitmask['user_id'])      // без лидов, которые занес агент
+            ->whereNotIn('agent_id', $excludedUsers)  // без лидов, которые занес агени и его продавцы
             ->get();
 
 
@@ -115,9 +138,10 @@ class Auction extends Model
 
         // перебираем всех агентов и добавляем данные в таблицу
         $leadsByFilter->each( function( $lead ) use( &$query, $sphere_id, $agentBitmask ){
+            $maskName = UserMasks::where('user_id', '=', $agentBitmask['user_id'])->where('mask_id', '=', $agentBitmask['id'])->first();
 
             // формируем запрос
-            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'] ];
+            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'], 'mask_name_id'=>$maskName->id ];
 
         });
 
@@ -140,6 +164,7 @@ class Auction extends Model
      */
     public static function removeByLead( $lead_id )
     {
+        Auction::where( 'lead_id', $lead_id)->update(['status' => 1]);
         return Auction::where( 'lead_id', $lead_id)->delete();
     }
 
@@ -155,6 +180,7 @@ class Auction extends Model
      */
     public static function removeBySphereMask( $sphere_id, $mask_id)
     {
+        Auction::where( 'sphere_id', $sphere_id)->where( 'mask_id', $mask_id)->update(['status' => 1]);
         return Auction::where( 'sphere_id', $sphere_id)->where( 'mask_id', $mask_id)->delete();
     }
 }

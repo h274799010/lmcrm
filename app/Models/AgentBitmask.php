@@ -24,7 +24,8 @@ class AgentBitmask extends Bitmask
     public function __construct( $id = NULL, $agentID = NULL, array $attributes = array() )
     {
         $tablePrefix = 'agent_bitmask_';
-        $fields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
+        //$fields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
+        $fields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
 
         parent::__construct( $id, $agentID, $attributes, $tablePrefix, $fields );
 
@@ -77,6 +78,4 @@ class AgentBitmask extends Bitmask
     {
         return $this->hasOne('App\Models\User', 'id', 'user_id');
     }
-
-
 }

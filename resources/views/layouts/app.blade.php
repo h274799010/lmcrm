@@ -12,7 +12,11 @@
 
         <div class="row maincontent">
             <div class="col-md-1 col-sm-2">
-                @include('partials.sidebar')
+                @if( isset($salesman_id) && $salesman_id !== false )
+                    @include('partials.salesmansidebar')
+                @else
+                    @include('partials.sidebar')
+                @endif
             </div>
 
             <div class="col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-9">
