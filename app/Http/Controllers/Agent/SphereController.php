@@ -174,20 +174,37 @@ class SphereController extends AgentController {
             $options=$request->only('options')['options'];
         }
 
-        // сохраняем атрибуты
-        $mask->setAttrById($options);
+        // Получаем опции сферы
+        $maskOptions = $mask->attributesAssoc();
+        // Флаг ( false - опции не изменились, true - опции изменились )
+        $flagOptions = false;
+        foreach ($maskOptions as $field => $index) {
+            if( ($mask[$field] === 0 && !in_array($index, $options)) || ($mask[$field] === 1 && in_array($index, $options)) ) {
+                // Если значение опции в маске совпадает со значением из $request - опция не изменилась (маску не пересохраняем)
+                $flagOptions = false;
+            } else {
+                // В противном случае пересохраняем маску
+                $flagOptions = true;
+                break;
+            }
+        }
 
-        // выставляем статус в 0
-        $mask->status = 0;
+        if($flagOptions === true) {
+            // сохраняем атрибуты
+            $mask->setAttrById($options);
 
-        // устанавливаем пользователя (после find() некоторые данные конструктора теряются)
-        $mask->user_id = $user_id;
+            // выставляем статус в 0
+            $mask->status = 0;
 
-        // сохраняем имя таблицы
-        //$mask->name =$request['maskName'];
+            // устанавливаем пользователя (после find() некоторые данные конструктора теряются)
+            $mask->user_id = $user_id;
 
-        // сохраняем данные в БД
-        $mask->save();
+            // сохраняем имя таблицы
+            //$mask->name =$request['maskName'];
+
+            // сохраняем данные в БД
+            $mask->save();
+        }
 
 
         // Сохраняем имя маски
@@ -209,8 +226,10 @@ class SphereController extends AgentController {
         // Сохраняем данные в БД
         $maskName->save();
 
-        // удаление всех лидов с текущей маской из таблицы аукциона
-        Auction::removeBySphereMask( $sphere_id, $mask_id );
+        if($flagOptions === true) {
+            // удаление всех лидов с текущей маской из таблицы аукциона
+            Auction::removeBySphereMask( $sphere_id, $mask_id );
+        }
 
         if($request->ajax()){
             return response()->json();
