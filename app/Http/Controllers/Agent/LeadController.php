@@ -852,6 +852,8 @@ class LeadController extends AgentController {
             ->get();
 
 
+//        dd( $openLeads[0]['lead']['sphereStatuses']['statuses'] );
+
         if($salesman_id === false) {
             $return = ['openLeads'=>$openLeads];
             $view = 'agent.lead.opened';

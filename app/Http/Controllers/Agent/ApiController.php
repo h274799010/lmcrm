@@ -44,86 +44,6 @@ class ApiController extends Controller
 
     }
 
-    // todo тестовый роут, удалить
-    public function test()
-    {
-
-//        echo "ok";
-//        return null;
-
-        $test =
-        '
-        <!doctype html>
-        <html lang="en">
-        <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
-        <script src="components/jquery/jquery-2.min.js"></script>
-        </head>
-        <body>
-          Загрузился
-
-
-        <script>
-
-            $(function(){
-
-
-                // аутентификация
-        //        $.ajax({
-        //            url: "api/login",
-        //            method: "post",
-        //            data: {
-        //                email: "agent@agent.com",
-        //                password: "agent"
-        //            },
-        //            success: function(data){
-        //                alert(data);
-        //            }
-        //        });
-
-
-
-                // Проверка прав на доступ к системе
-                $.ajax({
-                    url: "/api/mobileLoginTest",
-                    method: "post",
-                    headers: {
-
-                        Authorization: "Bearer" + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImlzcyI6Imh0dHA6XC9cL2xtY3JtLmNvc1wvYXBpXC9hcGlcL2xvZ2luIiwiaWF0IjoxNDc1ODMwOTAxLCJleHAiOjE0NzU4MzQ1MDEsIm5iZiI6MTQ3NTgzMDkwMSwianRpIjoiZGVlNWY0NjFlYjhjNjlkMjQ1NjY0MGNmYzkzZDVmZjgifQ.uUG93BWq7agbKoJMGQh3FDIBj_rAZNl3gwF8JlGhzEI",
-                    },
-                    success: function(data){
-                        alert(data);
-                    }
-                });
-
-
-                // разлогинивание
-        //        $.ajax({
-        //            url: "api/logout",
-        //            method: "post",
-        //            headers: {
-        //                Authorization: "Bearer" + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImlzcyI6Imh0dHA6XC9cL2xtY3JtLmNvc1wvYXBpXC9hcGlcL2xvZ2luIiwiaWF0IjoxNDc1ODMwOTAxLCJleHAiOjE0NzU4MzQ1MDEsIm5iZiI6MTQ3NTgzMDkwMSwianRpIjoiZGVlNWY0NjFlYjhjNjlkMjQ1NjY0MGNmYzkzZDVmZjgifQ.uUG93BWq7agbKoJMGQh3FDIBj_rAZNl3gwF8JlGhzEI",
-        //            },
-        //            success: function(data){
-        //                alert(data);
-        //            }
-        //        });
-
-
-            });
-
-        </script>
-
-        </body>
-        </html>
-
-
-        ';
-
-        echo $test;
-    }
-
 
     /**
      * Создание нового лида
@@ -183,13 +103,21 @@ class ApiController extends Controller
     {
 
 //        $leads = $this->user->leads()->with('phone')->get();
-        $leads = Lead::where('agent_id', $this->user->id)->select([ 'id', 'name' ])->get();
+        $leads = Lead::where('agent_id', $this->user->id)->get();
 
         if( !$leads->count() ){
             $leads = 'Нет лидов';
         }else{
 //            $leads = $leads->toArray();
         }
+
+        $leads = $leads->map(function( $lead ){
+
+            $lead->sName = $lead->statusName();
+
+            return $lead;
+
+        });
 
         $data =
             [
@@ -209,7 +137,14 @@ class ApiController extends Controller
     public function openedLeads()
     {
 
-        $className = get_class( $this );
+        // Выбираем все открытые лиды агента с дополнительными данными
+        $openLeads = OpenLeads::
+        where( 'agent_id', $this->user->id )->with('maskName2')
+            ->with( ['lead' => function( $query ){
+                $query->with('sphereStatuses');
+            }])
+            ->get();
+
 
         $data =
             [
@@ -217,9 +152,8 @@ class ApiController extends Controller
                 'email' => $this->user->email,
                 'wallet' => $this->wallet->earned + $this->wallet->buyed,
                 'wasted' => $this->wallet->wasted,
-                'className' => $className,
-                'func' => __FUNCTION__
-
+                'openLeads' => $openLeads,
+                'statuses' => $openLeads[0]['lead']['sphereStatuses']['statuses'],
             ];
 
         return response()->json($data);
