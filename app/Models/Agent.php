@@ -56,7 +56,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     }
 
     public function sphereLink(){
-        return $this->hasMany('\App\Models\AgentSphere','agent_id','id');
+        return $this->hasOne('\App\Models\AgentSphere','agent_id','id');
     }
 
     public function agentInfo()

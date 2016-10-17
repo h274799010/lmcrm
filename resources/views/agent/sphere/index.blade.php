@@ -27,7 +27,7 @@
                     @forelse($masks as $mask)
 
                         <tr mask_id="{{ $mask->id }}">
-                            {{--<td>{!! $mask->name !!}</td>--}}
+{{--                            <td>{!! $mask->name !!}</td>--}}
                             <td>{!! \App\Models\UserMasks::where('mask_id', $mask->id)->where('sphere_id', $sphere->id)->first()->name !!}</td>
                             <td>
                                 @if(isset($mask->status) && $mask->status) <span class="label label-success">@lang('site/sphere.status_1')</span> @else <span class="label label-danger">@lang('site/sphere.status_0')</span> @endif</td>

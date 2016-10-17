@@ -29,5 +29,3 @@ Route::group(['middleware' => 'guest'], function () {
     Route::post('reset_password/{token}', 'Auth\PasswordController@postReset');
 });
 */
-
-?>

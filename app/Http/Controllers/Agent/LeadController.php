@@ -44,7 +44,17 @@ class LeadController extends AgentController {
         return view('agent.lead.index');
     }
 
-    public function deposited($salesman_id = false){
+
+    /**
+     * Лиды которые агент внес в систему
+     *
+     *
+     * @param  integer|boolean  $salesman_id
+     *
+     * @return object
+     */
+    public function deposited( $salesman_id = false ){
+
         if($salesman_id === false) {
             $leads = $this->user->leads()->with('phone')->get();
             return view('agent.lead.deposited')
@@ -118,7 +128,9 @@ class LeadController extends AgentController {
         }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->with('lead')->with('maskName')->get();
+        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->with('lead') /*->with('maskName') */ ->get();
+
+//        dd($auctionData);
 
         // маска лида
         $leadBitmask = new LeadBitmask( $mask->getTableNum() );
@@ -184,6 +196,8 @@ class LeadController extends AgentController {
 
                 //return $data['lead']->maskName( $data['mask_id'] );
                 return $data['maskName']->name;
+//                return $data['maskName']['name'];
+
 
             }, 4)
             ->add_column('updated', function( $data ){
@@ -212,6 +226,10 @@ class LeadController extends AgentController {
             ->remove_column('sphere_id')
             ->remove_column('mask_id')
             ->remove_column('lead')
+            ->remove_column('mask_name_id')
+//            ->remove_column('maskName')
+            ->remove_column('status')
+            ->remove_column('deleted_at')
 
         ;
 
@@ -833,6 +851,8 @@ class LeadController extends AgentController {
             }])
             ->get();
 
+
+//        dd( $openLeads[0]['lead']['sphereStatuses']['statuses'] );
 
         if($salesman_id === false) {
             $return = ['openLeads'=>$openLeads];
