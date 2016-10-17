@@ -12,7 +12,7 @@ class UserMasks extends Model {
      *
      * @var string
      */
-    protected $table="mask_names";
+    protected $table="user_masks";
 
     /**
      * Отключаем метки времени

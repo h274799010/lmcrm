@@ -50,6 +50,8 @@ class SalesmanController extends AgentController {
     {
         $agent = Agent::with('sphereLink','wallet')->findOrFail($this->uid);
 
+//        dd($agent);
+
         $salesman=\Sentinel::registerAndActivate($request->except('password_confirmation','sphere'));
         $salesman->update(['password'=>\Hash::make($request->input('password'))]);
 
