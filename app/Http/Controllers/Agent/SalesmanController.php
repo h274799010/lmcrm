@@ -75,6 +75,23 @@ class SalesmanController extends AgentController {
         return view('agent.salesman.create')->with('salesman',$salesman);
     }
 
+    public function update(AdminUsersEditFormRequest $request, $id) {
+        $salesman = Salesman::find($id);
+
+        $password = $request->password;
+        $passwordConfirmation = $request->password_confirmation;
+
+        if (!empty($password)) {
+            if ($password === $passwordConfirmation) {
+                $salesman->password = \Hash::make($request->input('password'));
+            }
+        }
+
+        $salesman->update($request->except('password','password_confirmation'));
+
+        return redirect()->route('agent.salesman.index');
+    }
+
     /**
      * Remove the specified resource from storage.
      *

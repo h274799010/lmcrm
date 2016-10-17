@@ -175,7 +175,10 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.salesman.create" => true,
                 "agent.salesman.store" => true,
                 "agent.salesman.edit" => true,
-                "agent.salesman.update" => true
+                "agent.salesman.update" => true,
+                "agent.salesman.sphere.index" => true,
+                "agent.salesman.sphere.edit" => true,
+                "agent.salesman.sphere.update" => true
             ]
         ));
 

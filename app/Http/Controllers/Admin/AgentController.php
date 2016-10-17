@@ -69,7 +69,7 @@ class AgentController extends AdminController
 
         $user = Agent::find($user->id);
 
-        foreach ($request->only('sphere') as $sphere) {
+        foreach ($request->only('spheres') as $sphere) {
             $user->spheres()->sync($sphere);
         }
 
@@ -150,9 +150,9 @@ class AgentController extends AdminController
             }
         }
 
-        $agent->update($request->except('password','password_confirmation','sphere','info'));
+        $agent->update($request->except('password','password_confirmation', 'spheres','info'));
 
-        $agent->spheres()->sync($request->only('sphere'));
+        $agent->spheres()->sync($request->input('spheres'));
         return redirect()->route('admin.agent.index');
     }
 

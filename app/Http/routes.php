@@ -8,7 +8,7 @@ Route::group(['prefix' => 'admin'], function() {
 
 
 // роуты для разных групп пользователей
-Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'web','localeSessionRedirect','localizationRedirect', 'localize']], function() {
+Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => ['localeSessionRedirect','localizationRedirect', 'localize']], function() {
     include('routes/front.routes.php');
     include('routes/agent.routes.php');
     include('routes/operator.routes.php');
