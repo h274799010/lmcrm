@@ -41,11 +41,11 @@
             <!-- General tab -->
             <div class="tab-pane active" id="tab-general">
 
-        <div class="form-group  {{ $errors->has('sphere') ? 'has-error' : '' }}">
-            {!! Form::label('sphere', trans("admin/sphere.sphere"), array('class' => 'control-label')) !!}
+        <div class="form-group  {{ $errors->has('spheres') ? 'has-error' : '' }}">
+            {!! Form::label('spheres', trans("admin/sphere.sphere"), array('class' => 'control-label')) !!}
             <div class="controls">
-                {!! Form::select('sphere[]',$spheres,(isset($agent))?$agent->sphereLink->lists('sphere_id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control','required'=>'required')) !!}
-                <span class="help-block">{{ $errors->first('sphere', ':message') }}</span>
+                {!! Form::select('spheres[]',$spheres,(isset($agent))?$agent->sphereLink->lists('sphere_id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control','required'=>'required')) !!}
+                <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
             </div>
         </div>
 

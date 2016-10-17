@@ -288,6 +288,12 @@ class SphereController extends AgentController {
                 // удаление всех лидов с текущей маской из таблицы аукциона
                 Auction::removeBySphereMask( $sphereId, $maskId );
 
+                // удаление имени маски
+                $maskName = UserMasks::where('mask_id', '=', $mask->id)->first();
+                if($maskName->id) {
+                    $maskName->delete();
+                }
+
 
                 // сообщаем что маска удалена, возвращаем 'deleted'
                 return 'deleted';
