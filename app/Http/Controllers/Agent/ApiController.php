@@ -139,9 +139,12 @@ class ApiController extends Controller
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
-        where( 'agent_id', $this->user->id )->with('maskName2')
+        where( 'agent_id', $this->user->id )
+            ->with('maskName2')
             ->with( ['lead' => function( $query ){
-                $query->with('sphereStatuses');
+                $query
+                    ->with('sphereStatuses')
+                    ->with('phone');
             }])
             ->get();
 
