@@ -128,7 +128,7 @@ class LeadController extends AgentController {
         }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->with('lead') /* ->with('maskName') */ ->get();
+        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->with('lead')->with('maskName')->get();
 
 //        dd($auctionData);
 
@@ -227,7 +227,7 @@ class LeadController extends AgentController {
             ->remove_column('mask_id')
             ->remove_column('lead')
             ->remove_column('mask_name_id')
-//            ->remove_column('maskName')
+            ->remove_column('maskName')
             ->remove_column('status')
             ->remove_column('deleted_at')
 
