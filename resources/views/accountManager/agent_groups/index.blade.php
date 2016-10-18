@@ -1,22 +1,19 @@
-@extends('account_manager.layouts.default')
+@extends('accountManager.layouts.default')
 {{-- Content --}}
 @section('content')
-    <h1>{{ $group->name }} agent list</h1>
-    <div style="text-align: right;">
-        <a href="{{ route('accountManager.agentGroups.addAgents', [ 'group_id' => $group->id ]) }}">Add aggents</a>
+    <h1>Agent groups list</h1>
+    <div style="text-align: right;padding-right: 30px;">
+        <a href="{{ route('accountManager.agentGroups.create') }}" class="dialog">Add group</a>
     </div>
-    @if(count($agents))
+    @if(count($groups))
         <ul>
-            @foreach($agents as $agent)
-                <li>
-                    <a href="{{ route('accountManager.agent.info', [ 'agent_id' => $agent->id ]) }}">{{ $agent->email }}</a>
-                    -
-                    <a href="#" class="deleteAgent" data-agentid="{{ $agent->id }}">Delete agent</a>
-                </li>
+            @foreach($groups as $group)
+                <li><a href="{{ route('accountManager.agentGroups.agents', [ 'group_id' => $group->id ]) }}">{{ $group->name }}</a> -
+                    <a href="{{ route('accountManager.agentGroups.delete', [ 'group_id' => $group->id ]) }}" class="deleteGroup" data-groupid="{{ $group->id }}">delete group</a></li>
             @endforeach
         </ul>
     @else
-        Agents list empty
+        <p>Agent groups list empty</p>
     @endif
 
     <div id="deleteModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
@@ -26,13 +23,13 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        Delete agent
+                        Delete group
                     </h4>
                 </div>
 
                 <div class="modal-body">
 
-                    Delete agent?
+                    Are you sure you want to delete this group?
 
                 </div>
 
@@ -51,17 +48,17 @@
             </div>
         </div>
     </div>
-@stop
+@endsection
 
 @section('scripts')
     <script type="text/javascript">
-        $(document).on('click', '.deleteAgent', function (e) {
+        $(document).on('click', '.deleteGroup', function (e) {
             e.preventDefault();
 
             // получение токена
             var token = $('meta[name=csrf-token]').attr('content');
 
-            var agent_id = $(this).data('agentid');
+            var group_id = $(this).data('groupid');
 
             var self = $(this);
 
@@ -74,10 +71,10 @@
                 $('#deleteModal').modal('hide');
 
                 // изменяем статусы на сервере
-                $.post('{{ route('accountManager.agentGroups.deleteAgent') }}', { '_token': token, 'agent_id': agent_id, 'group_id': '{{ $group->id }}' }, function( data ){
+                $.post(href, { '_token': token}, function( data ){
 
                     // если статус изменен нормально
-                    if( data == 'agentDeleted') {
+                    if( data == 'groupDeleted') {
                         //location.reload();
                         self.closest('li').remove();
                     } else{

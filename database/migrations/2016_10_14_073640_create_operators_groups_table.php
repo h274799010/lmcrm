@@ -15,7 +15,7 @@ class CreateOperatorsGroupsTable extends Migration
         Schema::create('operators_groups', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('group_id');   // id группы
-            $table->integer('agent_id');    // id агента
+            $table->integer('operator_id');    // id агента
         });
     }
 

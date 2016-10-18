@@ -1,4 +1,4 @@
-@extends('account_manager.layouts.master')
+@extends('accountManager.layouts.master')
 {{-- Content --}}
 @section('content')
     {!! Form::open(array('route' => ['accountManager.agentGroups.store'], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) !!}

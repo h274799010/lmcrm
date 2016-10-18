@@ -1,4 +1,4 @@
-@extends('account_manager.layouts.default')
+@extends('accountManager.layouts.default')
 {{-- Content --}}
 @section('content')
     <h1>Agent list</h1>

@@ -3,38 +3,38 @@
 namespace App\Http\Controllers\AccountManager;
 
 use App\Http\Controllers\Controller;
-use App\Models\Agent;
-use App\Models\AgentGroups;
+use App\Models\Operator;
+use App\Models\OperatorGroups;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Http\Request;
 use Validator;
 
-class AgentGroupsController extends Controller  {
+class OperatorGroupsController extends Controller  {
 
     /**
-     * Группы агентов
+     * Группы операторов
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function groups()
     {
-        $groups = AgentGroups::all();
+        $groups = OperatorGroups::all();
 
-        return view('accountManager.agent_groups.index', [ 'groups' => $groups ]);
+        return view('accountManager.operatorGroups.index', [ 'groups' => $groups ]);
     }
 
     /**
-     * Вызов форми для создания группы агентов
+     * Вызов форми для создания группы операторов
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function create()
     {
-        return view('accountManager.agent_groups.create');
+        return view('accountManager.operatorGroups.create');
     }
 
     /**
-     * Сохранение группы агентов
+     * Сохранение группы операторов
      *
      * @param Request $request
      * @return $this|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
@@ -53,19 +53,19 @@ class AgentGroupsController extends Controller  {
             }
         }
 
-        $group = new AgentGroups();
+        $group = new OperatorGroups();
         $group->name = $request->input('name');
         $group->save();
 
         if($request->ajax()){
             return response()->json('reload');
         } else {
-            return redirect()->route('accountManager.agentGroups.list');
+            return redirect()->route('accountManager.operatorGroups.list');
         }
     }
 
     /**
-     * Удаление группы агентов
+     * Удаление группы операторов
      *
      * @param $group_id
      * @param Request $request
@@ -73,87 +73,89 @@ class AgentGroupsController extends Controller  {
      */
     public function delete($group_id, Request $request)
     {
-        AgentGroups::where('id', '=', $group_id)->first()->delete();
+        OperatorGroups::where('id', '=', $group_id)->first()->delete();
 
         if($request->ajax()){
             return response()->json('groupDeleted');
         } else {
-            return redirect()->route('accountManager.agentGroups.list');
+            return redirect()->route('accountManager.operatorGroups.list');
         }
     }
 
     /**
-     * Просмотр агентов в группе
+     * Просмотр операторов в группе
      *
      * @param $group_id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function agents($group_id)
+    public function operators($group_id)
     {
-        $group = AgentGroups::find($group_id);
-        $agents = $group->agents()->get();
+        $group = OperatorGroups::find($group_id);
+        $operators = $group->operators()->get();
 
-        return view('accountManager.agent_groups.agentList', [ 'group' => $group, 'agents' => $agents ]);
+        return view('accountManager.operatorGroups.operatorList', [ 'group' => $group, 'operators' => $operators ]);
     }
 
     /**
-     * Страница добавления агентов в группу
+     * Страница добавления операторов в группу
      *
      * @param $group_id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function addAgents($group_id) {
-        $group = AgentGroups::find($group_id);
+    public function addOperators($group_id) {
+        $group = OperatorGroups::find($group_id);
 
-        $agents = Agent::listAll()->whereNotIn('id', $group->agents()->get()->lists('id'))->get();
+        $operatorRole = Sentinel::findRoleBySlug('operator');
 
-        return view('accountManager.agent_groups.addAgents', [ 'group' => $group, 'agents' => $agents ]);
+        $operators = $operatorRole->users()->whereNotIn('id', $group->operators()->get()->lists('id'))->get();
+
+        return view('accountManager.operatorGroups.addOperators', [ 'group' => $group, 'operators' => $operators ]);
     }
 
     /**
-     * Добавление агента в группу
+     * Добавление оператора в группу
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function putAgent(Request $request) {
-        $agent_id = $request->input('agent_id');
+    public function putOperator(Request $request) {
+        $operator_id = $request->input('operator_id');
         $group_id = $request->input('group_id');
 
-        $group = AgentGroups::find($group_id);
+        $group = OperatorGroups::find($group_id);
 
         if($group->id) {
-            $group->agents()->attach($agent_id);
+            $group->operators()->attach($operator_id);
 
             if($request->ajax()){
                 return response()->json('agentAdded');
             } else {
-                return redirect()->route('accountManager.agentGroups.addAgents');
+                return redirect()->route('accountManager.operatorGroups.addOperators');
             }
         }
         return response()->json();
     }
 
     /**
-     * Удаление агента из группы
+     * Удаление оператора из группы
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function deleteAgent(Request $request)
+    public function deleteOperator(Request $request)
     {
-        $agent_id = $request->input('agent_id');
+        $operator_id = $request->input('operator_id');
         $group_id = $request->input('group_id');
 
-        $group = AgentGroups::find($group_id);
+        $group = OperatorGroups::find($group_id);
 
         if($group->id) {
-            $group->agents()->detach($agent_id);
+            $group->operators()->detach($operator_id);
 
             if($request->ajax()){
                 return response()->json('agentDeleted');
             } else {
-                return redirect()->route('accountManager.agentGroups.agents');
+                return redirect()->route('accountManager.operatorGroups.operators');
             }
         }
         return response()->json();

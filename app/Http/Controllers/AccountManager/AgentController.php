@@ -18,7 +18,7 @@ class AgentController extends AccountManagerController {
         $agentRole = Sentinel::findRoleBySlug('agent');
         $agents = $agentRole->users()->get();
 
-        return view('account_manager.agent.index', [ 'agents' => $agents ]);
+        return view('accountManager.agent.index', [ 'agents' => $agents ]);
     }
 
     /**
@@ -31,7 +31,7 @@ class AgentController extends AccountManagerController {
     {
         $agent = Sentinel::findById($agent_id);
 
-        return view('account_manager.agent.info', [ 'agent' => $agent ]);
+        return view('accountManager.agent.info', [ 'agent' => $agent ]);
     }
 
 }
