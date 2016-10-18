@@ -24,6 +24,11 @@
             {!! Form::text('maskName', $maskData['name'], array('class' => 'form-control', 'required' => 'required')) !!}
         </div>
 
+        <div class="mask_name">
+            <label for="maskDescription" class="mask_name_label">Mask name</label>
+            {!! Form::textarea('maskDescription', $maskData['description'], array('class' => 'form-control')) !!}
+        </div>
+
 
         @forelse($sphere->attributes as $attr)
         <div class="panel panel-default">
