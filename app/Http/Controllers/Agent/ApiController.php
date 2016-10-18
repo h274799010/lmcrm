@@ -132,6 +132,7 @@ class ApiController extends Controller
     }
 
 
+    
     // todo пока что тестовая
     // страница открытых лидов
     public function openedLeads()
