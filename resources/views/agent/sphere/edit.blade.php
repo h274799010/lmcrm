@@ -25,7 +25,7 @@
         </div>
 
         <div class="mask_name">
-            <label for="maskDescription" class="mask_name_label">Mask name</label>
+            <label for="maskDescription" class="mask_name_label">Description</label>
             {!! Form::textarea('maskDescription', $maskData['description'], array('class' => 'form-control')) !!}
         </div>
 
