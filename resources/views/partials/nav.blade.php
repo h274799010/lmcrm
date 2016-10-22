@@ -65,6 +65,19 @@
                                 @endif
                             @endif
 
+                            @if(Sentinel::inRole('operator'))
+                                <li>
+                                    <a href="{{ route('operator.sphere.index') }}">New leads</a>
+                                </li>
+
+                                <hr>
+                                <li>
+                                    <a href="{{ route('operator.sphere.edited') }}">Edited leads</a>
+                                </li>
+
+                                <hr>
+                            @endif
+
                             <li>
                                 <a href="{{ URL::to('auth/logout')}}"><i class="fa fa-sign-out"></i> Logout </a>
                             </li>

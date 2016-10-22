@@ -45,6 +45,7 @@
                         Login
                     </button>
 
+                    <a href="{{ route('register') }}">Register</a>
                     <a href="{{ route('login') }}">Forgot Your Password?</a>
                 </div>
             </div>

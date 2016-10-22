@@ -44,7 +44,7 @@
         <div class="form-group  {{ $errors->has('spheres') ? 'has-error' : '' }}">
             {!! Form::label('spheres', trans("admin/sphere.sphere"), array('class' => 'control-label')) !!}
             <div class="controls">
-                {!! Form::select('spheres[]',$spheres,(isset($agent))?$agent->sphereLink->lists('sphere_id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control','required'=>'required')) !!}
+                {!! Form::select('spheres[]',$spheres,(isset($agent))?$agent->spheres()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2','required'=>'required')) !!}
                 <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
             </div>
         </div>

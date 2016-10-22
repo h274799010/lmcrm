@@ -10,6 +10,7 @@ use App\Models\FormFiltersOptions;
 use App\Models\AdditionFormsOptions;
 
 use App\Models\LeadBitmask;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Input;
 use App\Models\User;
 use App\Models\Sphere;
@@ -105,6 +106,24 @@ class SphereController extends AdminController {
                 "button"=>"Add field"
             ]
         ];
+
+        $month = $days = $hours = $minutes = array();
+
+        for($i = 0; $i <= 60; $i++) {
+            if ($i < 13) {
+                $month[] = ['key'=>$i,'value'=>$i];
+            }
+            if ($i < 32) {
+                $days[] = ['key'=>$i,'value'=>$i];
+            }
+            if ($i < 25) {
+                $hours[] = ['key'=>$i,'value'=>$i];
+            }
+            if ($i < 61) {
+                $minutes[] = ['key'=>$i,'value'=>$i];
+            }
+        }
+
         $settings = [
             "targetEntity"=>"SphereSettings",
             "_settings"=>[
@@ -138,7 +157,7 @@ class SphereController extends AdminController {
                         'option'=>[['key'=>1,'value'=>'on'],['key'=>0,'value'=>'off']],
                     ]
                 ],
-                "pending_time"=>[
+                /*"pending_time"=>[
                     "renderType"=>"single",
                     'name' => 'pending_time',
                     'values'=>'',
@@ -165,7 +184,172 @@ class SphereController extends AdminController {
                         "type"=>'select',
                         'option'=>[ ['key'=>0,'value'=>'minutes'], ['key'=>1,'value'=>'hours'], ['key'=>2,'value'=>'days'] ],
                     ]
+                ],*/
+
+                // Селекты для выбора времени жизни лида на аукционе
+
+                "lead_auction_expiration_interval_label"=>[
+                    "renderType"=>"single",
+                    'name' => '',
+                    'values'=>'',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'lead_auction_expiration_interval',
+                        "type"=>'label',
+                        'option'=>'',
+                    ]
                 ],
+
+                "lead_auction_expiration_interval_month"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_auction_expiration_interval_month',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'month',
+                        "type"=>'select',
+                        'option'=>$month,
+                    ]
+                ],
+
+                "lead_auction_expiration_interval_days"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_auction_expiration_interval_days',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'days',
+                        "type"=>'select',
+                        'option'=>$days,
+                    ]
+                ],
+
+                "lead_auction_expiration_interval_hours"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_auction_expiration_interval_hours',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'hours',
+                        "type"=>'select',
+                        'option'=>$hours,
+                    ]
+                ],
+
+                "lead_auction_expiration_interval_minutes"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_auction_expiration_interval_minutes',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'minutes',
+                        "type"=>'select',
+                        'option'=>$minutes,
+                    ]
+                ],
+
+                // END: Селекты для выбора времени жизни лида на аукционе
+
+                // Селекты для выбора времени за которое можно поставить статус bad
+                "lead_bad_status_interval_label"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_bad_status_interval_month',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'lead_bad_status_interval',
+                        "type"=>'label',
+                        'option'=>$month,
+                    ]
+                ],
+
+                "lead_bad_status_interval_month"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_bad_status_interval_month',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'month',
+                        "type"=>'select',
+                        'option'=>$month,
+                    ]
+                ],
+
+                "lead_bad_status_interval_days"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_bad_status_interval_days',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'days',
+                        "type"=>'select',
+                        'option'=>$days,
+                    ]
+                ],
+
+                "lead_bad_status_interval_hours"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_bad_status_interval_hours',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'hours',
+                        "type"=>'select',
+                        'option'=>$hours,
+                    ]
+                ],
+
+                "lead_bad_status_interval_minutes"=>[
+                    "renderType"=>"single",
+                    'name' => 'lead_bad_status_interval_minutes',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'minutes',
+                        "type"=>'select',
+                        'option'=>$minutes,
+                    ]
+                ],
+                // END: Селекты для выбора времени за которое можно поставить статус bad
 
                 "openLead"=>
                 [
@@ -227,8 +411,36 @@ class SphereController extends AdminController {
             $settings['variables']['name']['values'] = $group->name;
             $settings['variables']['status']['values'] = $group->status;
             $settings['variables']['openLead']['values'] = $group->openLead;
-            $settings['variables']['pending_time']['values'] = $group->pending_time;
-            $settings['variables']['pending_type']['values'] = $group->pending_type;
+
+            $now = Carbon::now();
+            $auction_expiration = Carbon::createFromTimestamp(time() + $group->lead_auction_expiration_interval);
+
+            $month = $auction_expiration->diffInMonths($now);
+            $days = $auction_expiration->subMonth($month)->diffInDays($now);
+            $hours = $auction_expiration->subDays($days)->diffInHours($now);
+            $minutes = $auction_expiration->subHours($hours)->diffInMinutes($now);
+
+            $settings['variables']['lead_auction_expiration_interval_month']['values'] = $month;
+            $settings['variables']['lead_auction_expiration_interval_days']['values'] = $days;
+            $settings['variables']['lead_auction_expiration_interval_hours']['values'] = $hours;
+            $settings['variables']['lead_auction_expiration_interval_minutes']['values'] = $minutes;
+
+            $now = Carbon::now();
+            $bad_expiration = Carbon::createFromTimestamp(time() + $group->lead_bad_status_interval);
+
+            $month = $bad_expiration->diffInMonths($now);
+            $days = $bad_expiration->subMonth($month)->diffInDays($now);
+            $hours = $bad_expiration->subDays($days)->diffInHours($now);
+            $minutes = $bad_expiration->subHours($hours)->diffInMinutes($now);
+
+            $settings['variables']['lead_bad_status_interval_month']['values'] = $month;
+            $settings['variables']['lead_bad_status_interval_days']['values'] = $days;
+            $settings['variables']['lead_bad_status_interval_hours']['values'] = $hours;
+            $settings['variables']['lead_bad_status_interval_minutes']['values'] = $minutes;
+
+
+            //$settings['variables']['pending_time']['values'] = $group->pending_time;
+            //$settings['variables']['pending_type']['values'] = $group->pending_type;
 
             foreach($group->attributes()->get() as $chrct) {
                 $arr=[];
@@ -855,6 +1067,28 @@ class SphereController extends AdminController {
 
         /** ----- КОНЕЦ ПРОВЕРОК НА ОШИБКИ ---------- */
 
+        // Считаем интервалы времени прибывания лида на укционе и времени на статус bad
+
+        $months = $sphereData['variables']['lead_auction_expiration_interval_month'];
+        $days = $sphereData['variables']['lead_auction_expiration_interval_days'];
+        $hours = $sphereData['variables']['lead_auction_expiration_interval_hours'];
+        $minutes = $sphereData['variables']['lead_auction_expiration_interval_minutes'];
+
+        $now = Carbon::now();
+        $timestamp = $now->timestamp;
+        $interval_auction = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
+        $interval_auction = $interval_auction->timestamp - $timestamp;
+
+        $months = $sphereData['variables']['lead_bad_status_interval_month'];
+        $days = $sphereData['variables']['lead_bad_status_interval_days'];
+        $hours = $sphereData['variables']['lead_bad_status_interval_hours'];
+        $minutes = $sphereData['variables']['lead_bad_status_interval_minutes'];
+
+        $now = Carbon::now();
+        $timestamp = $now->timestamp;
+        $interval_bad = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
+        $interval_bad = $interval_bad->timestamp - $timestamp;
+
         /**
          * Выбираем сферу по id, либо, создаем новую
          *
@@ -865,18 +1099,16 @@ class SphereController extends AdminController {
             $sphere->minLead = $minLead;
             $sphere->status = $sphereData['variables']['status'];
             $sphere->openLead = $sphereData['variables']['openLead'];
-            $sphere->pending_time = $sphereData['variables']['pending_time'];
-            $sphere->pending_type = $sphereData['variables']['pending_type'];
+            $sphere->lead_auction_expiration_interval = $interval_auction;
+            $sphere->lead_bad_status_interval = $interval_bad;
         } else {
-            $sphere = new Sphere(
-            [
-                'name' => $sphereData['variables']['name'],
-                'status' => $sphereData['variables']['status'],
-                'minLead' => $minLead,
-                'openLead' => $sphereData['variables']['openLead'],
-                'pending_time' => $sphereData['variables']['pending_time'],
-                'pending_type' => $sphereData['variables']['pending_type'],
-            ]);
+            $sphere = new Sphere();
+            $sphere->name = $sphereData['variables']['name'];
+            $sphere->minLead = $minLead;
+            $sphere->status = $sphereData['variables']['status'];
+            $sphere->openLead = $sphereData['variables']['openLead'];
+            $sphere->lead_auction_expiration_interval = $interval_auction;
+            $sphere->lead_bad_status_interval = $interval_bad;
         }
 
         $sphere->save();
@@ -1297,7 +1529,7 @@ class SphereController extends AdminController {
 
     /**
      * Вывод всех масок агентов, у которых статус = 0
-     *
+     * Update: Вывод всех масок агентов, независимо от статуса
      */
     public function filtration(){
 
@@ -1314,7 +1546,8 @@ class SphereController extends AdminController {
             $mask = new AgentBitmask($sphere->id);
 
             // добавляем в массив (с ключем id сферы) все неактинвые маски сферы с агентами масок
-            $collection[$sphere->id] = $mask->where('status', '=', 0)->with('user')->get();
+            //$collection[$sphere->id] = $mask->where('status', '=', 0)->with('user')->get();
+            $collection[$sphere->id] = $mask->whereIn('status', [0, 1])->with('user')->get();
         }
 
         return view('admin.sphere.reprice')

@@ -43,6 +43,17 @@ class SphereController extends Controller {
     }
 
 
+    public function editedLids()
+    {
+        $operator = Sentinel::getUser();
+
+        $leadsId = Operator::where('operator_id', '=', $operator->id)->with('editedLeads')->get()->lists('lead_id');
+        $leads = Lead::whereNotIn('status', [0, 1])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
+
+        return view('sphere.lead.editedList')->with( 'leads', $leads );
+    }
+
+
     /**
      * Show the form to edit resource.
      *
@@ -248,6 +259,12 @@ class SphereController extends Controller {
             // рассылаем уведомления всем агентам которым подходит этот лид
             Notice::toMany( $senderId, $agents, 'note');
 
+            // Удаляем ранее отредактированного лида с аукциона
+            Auction::where('lead_id', '=', $lead_id)->delete();
+            /*if($auctions) {
+                $auctions->delete();
+            }*/
+
             // метод добавляющий лид в таблицу аукциона агентам, которым он подходит
             Auction::addFromBitmask( $agents, $sphere_id, $lead_id );
         }
@@ -273,14 +290,21 @@ class SphereController extends Controller {
         return response()->route('agent.lead.index');
     }
 
+    /**
+     * Проверка редактируется ли лид другим оператором
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function checkLead(Request $request) {
         $leadEdited = Operator::with('lead')->where('lead_id', '=', $request->lead_id)->first();
 
         if(isset($leadEdited->id)) {
-            if($leadEdited->lead->status == 0 | $leadEdited->lead->status == 1) {
+            if($leadEdited->lead->status == 0 || $leadEdited->lead->status == 1) {
                 return response()->json('edited');
             } else {
-                return response()->json('close');
+                //return response()->json('close');
+                return response()->json('free');
             }
         } else {
             return response()->json('free');

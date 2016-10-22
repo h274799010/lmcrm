@@ -8,6 +8,12 @@ Route::group(['prefix' => 'accountManager','middleware' => ['auth'] ], function(
     // Подробная информация о агенте
     Route::get('agent/info/{agent_id}', [ 'as' => 'accountManager.agent.info', 'uses' => 'AccountManager\AgentController@agentInfo' ]);
 
+    // Подробная информация о агенте
+    Route::get('agent/edit/{agent_id}', [ 'as' => 'accountManager.agent.edit', 'uses' => 'AccountManager\AgentController@agentEdit' ]);
+
+    // Подробная информация о агенте
+    Route::post('agent/update', [ 'as' => 'accountManager.agent.update', 'uses' => 'AccountManager\AgentController@update' ]);
+
     // Группы агентов
     Route::get('agentGroups/list', [ 'as' => 'accountManager.agentGroups.list', 'uses' => 'AccountManager\AgentGroupsController@groups' ]);
 

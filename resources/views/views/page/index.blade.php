@@ -115,6 +115,7 @@
                             Login
                         </button>
 
+                        <a href="{{ route('register') }}" class="btn btn-success" style="margin-right: 15px;">Register</a>
                         <a href="{{ route('login') }}">Forgot Your Password?</a>
                     </div>
                 </div>
