@@ -111,6 +111,7 @@ class ApiController extends Controller
 //            $leads = $leads->toArray();
         }
 
+        // добавляем маску в лид
         $leads = $leads->map(function( $lead ){
 
             $lead->sName = $lead->statusName();
@@ -132,6 +133,7 @@ class ApiController extends Controller
     }
 
 
+
     // todo пока что тестовая
     // страница открытых лидов
     public function openedLeads()
@@ -139,9 +141,12 @@ class ApiController extends Controller
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
-        where( 'agent_id', $this->user->id )->with('maskName2')
+        where( 'agent_id', $this->user->id )
+            ->with('maskName2')
             ->with( ['lead' => function( $query ){
-                $query->with('sphereStatuses');
+                $query
+                    ->with('sphereStatuses')
+                    ->with('phone');
             }])
             ->get();
 
