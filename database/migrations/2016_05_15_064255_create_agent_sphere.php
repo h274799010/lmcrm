@@ -16,6 +16,7 @@ class CreateAgentSphere extends Migration
             $table->increments('id');
             $table->integer('agent_id');
             $table->integer('sphere_id');
+            $table->integer('agent_range')->default(1)->unsigned();
             $table->timestamps();
             $table->engine = 'InnoDB';
         });

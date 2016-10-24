@@ -124,6 +124,11 @@ class SphereController extends AdminController {
             }
         }
 
+        $max_range = array();
+        for($i = 1; $i <= 6; $i++) {
+            $max_range[] = ['key'=>$i,'value'=>$i];
+        }
+
         $settings = [
             "targetEntity"=>"SphereSettings",
             "_settings"=>[
@@ -140,6 +145,20 @@ class SphereController extends AdminController {
                     ],
                     "settings"=>[
                         "label" => 'Form name',
+                        "type"=>'text'
+                    ]
+                ],
+                'price_call_center'=>[
+                    "renderType"=>"single",
+                    'name' => 'price_call_center',
+                    'values'=>'',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                        "data-integer"=>true
+                    ],
+                    "settings"=>[
+                        "label" => 'price_call_center',
                         "type"=>'text'
                     ]
                 ],
@@ -351,6 +370,102 @@ class SphereController extends AdminController {
                 ],
                 // END: Селекты для выбора времени за которое можно поставить статус bad
 
+                "max_range"=>[
+                    "renderType"=>"single",
+                    'name' => 'max_range',
+                    'values'=>'',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'max_range',
+                        "type"=>'select',
+                        'option'=>$max_range,
+                    ]
+                ],
+
+                // Период времени, по истечению которого лиды на аукционе будут доступны агенту рангом ниже
+                "range_show_lead_interval_label"=>[
+                    "renderType"=>"single",
+                    'name' => 'range_show_lead_interval_month',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'range_show_lead_interval',
+                        "type"=>'label',
+                        'option'=>$month,
+                    ]
+                ],
+
+                "range_show_lead_interval_month"=>[
+                    "renderType"=>"single",
+                    'name' => 'range_show_lead_interval_month',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'month',
+                        "type"=>'select',
+                        'option'=>$month,
+                    ]
+                ],
+
+                "range_show_lead_interval_days"=>[
+                    "renderType"=>"single",
+                    'name' => 'range_show_lead_interval_days',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'days',
+                        "type"=>'select',
+                        'option'=>$days,
+                    ]
+                ],
+
+                "range_show_lead_interval_hours"=>[
+                    "renderType"=>"single",
+                    'name' => 'range_show_lead_interval_hours',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'hours',
+                        "type"=>'select',
+                        'option'=>$hours,
+                    ]
+                ],
+
+                "range_show_lead_interval_minutes"=>[
+                    "renderType"=>"single",
+                    'name' => 'range_show_lead_interval_minutes',
+                    'values'=>'',
+                    'group_class'=>'select-group',
+                    "attributes" => [
+                        "type"=>'text',
+                        "class" => 'form-control',
+                    ],
+                    "settings"=>[
+                        "label" => 'minutes',
+                        "type"=>'select',
+                        'option'=>$minutes,
+                    ]
+                ],
+                // END: Период времени, по истечению которого лиды на аукционе будут доступны агенту рангом ниже
                 "openLead"=>
                 [
                     "renderType"=>"single",
@@ -437,6 +552,23 @@ class SphereController extends AdminController {
             $settings['variables']['lead_bad_status_interval_days']['values'] = $days;
             $settings['variables']['lead_bad_status_interval_hours']['values'] = $hours;
             $settings['variables']['lead_bad_status_interval_minutes']['values'] = $minutes;
+
+            $settings['variables']['price_call_center']['values'] = $group->price_call_center;
+
+            $settings['variables']['max_range']['values'] = $group->max_range;
+
+            $now = Carbon::now();
+            $range_expiration = Carbon::createFromTimestamp(time() + $group->range_show_lead_interval);
+
+            $month = $range_expiration->diffInMonths($now);
+            $days = $range_expiration->subMonth($month)->diffInDays($now);
+            $hours = $range_expiration->subDays($days)->diffInHours($now);
+            $minutes = $range_expiration->subHours($hours)->diffInMinutes($now);
+
+            $settings['variables']['range_show_lead_interval_month']['values'] = $month;
+            $settings['variables']['range_show_lead_interval_days']['values'] = $days;
+            $settings['variables']['range_show_lead_interval_hours']['values'] = $hours;
+            $settings['variables']['range_show_lead_interval_minutes']['values'] = $minutes;
 
 
             //$settings['variables']['pending_time']['values'] = $group->pending_time;
@@ -1089,6 +1221,16 @@ class SphereController extends AdminController {
         $interval_bad = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
         $interval_bad = $interval_bad->timestamp - $timestamp;
 
+        $months = $sphereData['variables']['range_show_lead_interval_month'];
+        $days = $sphereData['variables']['range_show_lead_interval_days'];
+        $hours = $sphereData['variables']['range_show_lead_interval_hours'];
+        $minutes = $sphereData['variables']['range_show_lead_interval_minutes'];
+
+        $now = Carbon::now();
+        $timestamp = $now->timestamp;
+        $interval_range = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
+        $interval_range = $interval_range->timestamp - $timestamp;
+
         /**
          * Выбираем сферу по id, либо, создаем новую
          *
@@ -1101,6 +1243,9 @@ class SphereController extends AdminController {
             $sphere->openLead = $sphereData['variables']['openLead'];
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
+            $sphere->range_show_lead_interval = $interval_range;
+            $sphere->price_call_center = $sphereData['variables']['price_call_center'];
+            $sphere->max_range = $sphereData['variables']['max_range'];
         } else {
             $sphere = new Sphere();
             $sphere->name = $sphereData['variables']['name'];
@@ -1109,6 +1254,9 @@ class SphereController extends AdminController {
             $sphere->openLead = $sphereData['variables']['openLead'];
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
+            $sphere->range_show_lead_interval = $interval_range;
+            $sphere->price_call_center = $sphereData['variables']['price_call_center'];
+            $sphere->max_range = $sphereData['variables']['max_range'];
         }
 
         $sphere->save();
