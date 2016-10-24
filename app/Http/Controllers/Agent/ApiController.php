@@ -111,6 +111,7 @@ class ApiController extends Controller
 //            $leads = $leads->toArray();
         }
 
+        // добавляем маску в лид
         $leads = $leads->map(function( $lead ){
 
             $lead->sName = $lead->statusName();
