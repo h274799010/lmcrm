@@ -18,6 +18,7 @@ class CreateUserMasksTable extends Migration
             $table->integer('mask_id');     // id маски
             $table->integer('user_id');    // id агента
             $table->string('name');        // имя маски
+            $table->text('description');   // описание маски
         });
     }
 

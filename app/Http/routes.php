@@ -14,7 +14,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => ['loc
     include('routes/operator.routes.php');
 
     include('routes/admin.routes.php');
-    include('routes/account_manager.routes.php');
+    include('routes/accountManager.routes.php');
 });
 
 

@@ -36,4 +36,9 @@ class Operator extends Model
         return $this->hasOne('App\Models\User', 'id', 'operator_id');
     }
 
+    public function editedLeads()
+    {
+        return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
+    }
+
 }

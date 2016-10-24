@@ -79,7 +79,7 @@ class SphereController extends AgentController {
         if( $mask_id == 0 ){
 
             // делаем поля маски пустыми
-            $maskData = [ 'id'=>0, 'name'=>''];
+            $maskData = [ 'id'=>0, 'name'=>'', 'description'=>''];
 
             // массив маски тоже пустой
             $mask = [];
@@ -96,7 +96,7 @@ class SphereController extends AgentController {
             $maskName = UserMasks::where('mask_id', $mask->id)->where('sphere_id', $sphere_id)->first();
 
             // имя маски
-            $maskData = [ 'id'=>$mask->id, 'name'=>$maskName->name];
+            $maskData = [ 'id'=>$mask->id, 'name'=>$maskName->name, 'description'=>$maskName->description];
 
             // находим короткую маску
             $mask = $mask->findShortMaskById();
@@ -217,6 +217,8 @@ class SphereController extends AgentController {
         }
         // Имя маски
         $maskName->name = $request['maskName'];
+        // Имя маски
+        $maskName->description = $request['maskDescription'];
         // id агента
         $maskName->user_id = $user_id;
         // id сферы

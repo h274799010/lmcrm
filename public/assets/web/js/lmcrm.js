@@ -2,7 +2,7 @@ var tables = [];
 
 $(function(){
 	if ($.isFunction($.fn.selectBoxIt)) {
-	    $("select").selectBoxIt();
+	    $("select:not(.notSelectBoxIt)").selectBoxIt();
 	}
 
 	if ($.isFunction($.fn.datepicker)) {
@@ -85,6 +85,15 @@ $(function(){
 		});
 
         $('.dataTable').on( 'draw.dt', function () {
+            $("select").selectBoxIt();
+        } );
+
+		$('.dataTableOperatorLeads').DataTable({
+			responsive: true,
+			"order": [[ 4, "desc" ]]
+		});
+
+        $('.dataTableOperatorLeads').on( 'draw.dt', function () {
             $("select").selectBoxIt();
         } );
 

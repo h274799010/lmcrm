@@ -1,19 +1,22 @@
-@extends('account_manager.layouts.default')
+@extends('accountManager.layouts.default')
 {{-- Content --}}
 @section('content')
-    <h1>Agent groups list</h1>
-    <div style="text-align: right;padding-right: 30px;">
-        <a href="{{ route('accountManager.agentGroups.create') }}" class="dialog">Add group</a>
+    <h1>"{{ $group->name }}" operator list</h1>
+    <div style="text-align: right;">
+        <a href="{{ route('accountManager.operatorGroups.addOperators', [ 'group_id' => $group->id ]) }}">Add operators</a>
     </div>
-    @if(count($groups))
+    @if(count($operators))
         <ul>
-            @foreach($groups as $group)
-                <li><a href="{{ route('accountManager.agentGroups.agents', [ 'group_id' => $group->id ]) }}">{{ $group->name }}</a> -
-                    <a href="{{ route('accountManager.agentGroups.delete', [ 'group_id' => $group->id ]) }}" class="deleteGroup" data-groupid="{{ $group->id }}">delete group</a></li>
+            @foreach($operators as $operator)
+                <li>
+                    {{ $operator->email }}
+                    -
+                    <a href="#" class="deleteAgent" data-agentid="{{ $operator->id }}">Delete operator</a>
+                </li>
             @endforeach
         </ul>
     @else
-        <p>Agent groups list empty</p>
+        Operators list empty
     @endif
 
     <div id="deleteModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
@@ -23,13 +26,13 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        Delete group
+                        Delete operator
                     </h4>
                 </div>
 
                 <div class="modal-body">
 
-                    Are you sure you want to delete this group?
+                    Delete operator?
 
                 </div>
 
@@ -48,17 +51,17 @@
             </div>
         </div>
     </div>
-@endsection
+@stop
 
 @section('scripts')
     <script type="text/javascript">
-        $(document).on('click', '.deleteGroup', function (e) {
+        $(document).on('click', '.deleteAgent', function (e) {
             e.preventDefault();
 
             // получение токена
             var token = $('meta[name=csrf-token]').attr('content');
 
-            var group_id = $(this).data('groupid');
+            var operator_id = $(this).data('agentid');
 
             var self = $(this);
 
@@ -71,10 +74,10 @@
                 $('#deleteModal').modal('hide');
 
                 // изменяем статусы на сервере
-                $.post(href, { '_token': token}, function( data ){
+                $.post('{{ route('accountManager.operatorGroups.deleteOperator') }}', { '_token': token, 'operator_id': operator_id, 'group_id': '{{ $group->id }}' }, function( data ){
 
                     // если статус изменен нормально
-                    if( data == 'groupDeleted') {
+                    if( data == 'agentDeleted') {
                         //location.reload();
                         self.closest('li').remove();
                     } else{

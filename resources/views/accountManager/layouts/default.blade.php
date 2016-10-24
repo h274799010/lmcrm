@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    @include('account_manager.partials.head')
+    @include('accountManager.partials.head')
     @yield('styles')
 </head>
 <body>
 <div id="wrapper">
-    @include('account_manager.partials.nav')
+    @include('accountManager.partials.nav')
 
     <div class="container-fluid">
 
         <div class="row maincontent">
             <div class="col-md-1 col-sm-2">
-                @include('account_manager.partials.sidebar')
+                @include('accountManager.partials.sidebar')
             </div>
 
             <div class="col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-9">
@@ -24,7 +24,7 @@
 
             <div class="col-md-12">
 
-                @include('account_manager.partials.footer')
+                @include('accountManager.partials.footer')
 
             </div>
         </div>

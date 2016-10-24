@@ -842,13 +842,13 @@ class Bitmask extends Model
             foreach($group_index as $item) {
                 $delAttr = preg_grep("/^fb_" . $item . "_.*/", $this->attributes());
                 foreach($delAttr as $item) {
-                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '', []);
+                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '`', []);
                 }
             }
         } elseif(is_numeric($group_index) && $opt_index==null){
             $delAttr = preg_grep("/^fb_" . $group_index . "_.*/", $this->attributes());
             foreach($delAttr as $item) {
-                DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '', []);
+                DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '`', []);
             }
         }else {
             if (is_array($opt_index)) {
@@ -856,7 +856,7 @@ class Bitmask extends Model
             } else {
                 $index = implode('_', ['fb', $group_index, $opt_index]);
                 if (in_array($index, $this->attributes())) {
-                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $index . '', []);
+                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $index . '`', []);
                 }
             }
         }
@@ -880,13 +880,13 @@ class Bitmask extends Model
             foreach($group_index as $item) {
                 $delAttr = preg_grep("/^ad_" . $item . "_.*/", $this->attributes());
                 foreach($delAttr as $item) {
-                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '', []);
+                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '`', []);
                 }
             }
         } elseif(is_numeric($group_index) && $opt_index==null){
             $delAttr = preg_grep("/^ad_" . $group_index . "_.*/", $this->attributes());
             foreach($delAttr as $item) {
-                DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '', []);
+                DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $item . '`', []);
             }
         }else {
             if (is_array($opt_index)) {
@@ -894,7 +894,7 @@ class Bitmask extends Model
             } else {
                 $index = implode('_', ['ad', $group_index, $opt_index]);
                 if (in_array($index, $this->attributes())) {
-                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $index . '', []);
+                    DB::statement('ALTER TABLE `' . $this->table . '` DROP COLUMN `' . $index . '`', []);
                 }
             }
         }

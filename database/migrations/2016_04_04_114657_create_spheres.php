@@ -22,6 +22,8 @@ class CreateSpheres extends Migration
             $table->integer('lead_auction_expiration_interval');
             $table->integer('lead_bad_status_interval');
             $table->integer('steps');
+            $table->integer('max_range')->default(1)->unsigned();
+            $table->integer('range_show_lead_interval');
             $table->timestamps();
         });
     }

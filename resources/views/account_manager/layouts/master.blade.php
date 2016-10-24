@@ -1,1 +1,0 @@
-@extends(Request::ajax()?'account_manager.layouts.ajax':'account_manager.layouts.default')

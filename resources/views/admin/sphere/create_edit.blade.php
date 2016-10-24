@@ -121,6 +121,20 @@
     <link media="all" type="text/css" rel="stylesheet" href="{{ asset('packages/spescina/mediabrowser/dist/mediabrowser-include.min.css') }}">
     <link type="text/css" rel="stylesheet" href="{{ asset('components/nouislider/css/nouislider.pips.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('components/entypo/css/entypo.css') }}">
+    <style>
+        #opt .panel-body .form-group.select-group {
+            width: 80px;
+            float: left;
+            position: relative;
+            z-index: 9;
+            margin-top: 0;
+            margin-right: 6px;
+        }
+        #opt .panel-body .form-group.select-group label {
+            margin-top: 0;
+            padding-top: 0;
+        }
+    </style>
 @stop
 {{-- Scripts --}}
 @section('scripts')

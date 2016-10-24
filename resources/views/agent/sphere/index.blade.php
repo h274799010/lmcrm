@@ -16,9 +16,9 @@
                         <th>{!! trans("site/mask.name") !!}</th>
                         <th>{!! trans("main.status") !!}</th>
                         <th>{!! trans("main.updated_at") !!}</th>
-                        <th>{!! trans("main.action") !!}</th>
                         <th>{!! trans("main.active") !!}</th>
-                        <th>{!! trans("main.dell") !!}</th>
+                        {{--<th>{!! trans("main.dell") !!}</th>--}}
+                        <th>{!! trans("main.action") !!}</th>
 
                     </tr>
                 </thead>
@@ -32,22 +32,24 @@
                             <td>
                                 @if(isset($mask->status) && $mask->status) <span class="label label-success">@lang('site/sphere.status_1')</span> @else <span class="label label-danger">@lang('site/sphere.status_0')</span> @endif</td>
                             <td>{!! $mask->updated_at !!}</td>
-                            @if(isset($salesman_id) && $salesman_id !== false)
-                                @if(Sentinel::hasAccess(['agent.sphere.edit']))
-                                    <td><a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id, 'salesman_id'=>$salesman_id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
-                                @endif
-                            @else
-                                @if(Sentinel::hasAccess(['agent.sphere.edit']))
-                                    <td><a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
-                                @endif
-                            @endif
                             <td>
                                 <div class="material-switch">
                                     <input id="someSwitchOptionDanger_{{ $mask->id }}" name="" type="checkbox" checked="checked"/>
                                     <label for="someSwitchOptionDanger_{{ $mask->id }}" class="label-success"></label>
                                 </div>
                             </td>
-                            <td><button sphere_id="{{ $sphere->id }}" mask_id="{{ $mask->id }}" type="button" class="btn btn-xs btn-danger remove_mask" > <i class="glyphicon glyphicon-remove"></i> </button></td>
+                            <td>
+                            @if(isset($salesman_id) && $salesman_id !== false)
+                                @if(Sentinel::hasAccess(['agent.sphere.edit']))
+                                    <a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id, 'salesman_id'=>$salesman_id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
+                                @endif
+                            @else
+                                @if(Sentinel::hasAccess(['agent.sphere.edit']))
+                                    <a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
+                                @endif
+                            @endif
+                                <button sphere_id="{{ $sphere->id }}" mask_id="{{ $mask->id }}" type="button" class="btn btn-xs btn-danger remove_mask" > <i class="glyphicon glyphicon-remove"></i> </button>
+                            </td>
                         </tr>
 
                     @empty

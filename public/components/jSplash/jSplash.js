@@ -1920,7 +1920,7 @@
                 '<div class="text-danger"></div>'+
                 '</div>'+
                 '</div>',
-            'default.select':'<div class="form-group">'+
+            'default.select':'<div class="form-group {{?it.group_class}}{{=it.group_class}}{{?}}">'+
                 '<div class="col-xs-12">'+
                 '<label class="control-label _col-sm-2">{{=it.settings.label }}</label>'+
                 '<select name="{{=it.name}}"'+
@@ -1985,6 +1985,27 @@
                 '</div>'+
                 '</div>'+
                 '</div>',
+            'default.label': '<div class="form-group"><div class="col-xs-12"><label class="control-label _col-sm-2">{{=it.settings.label }}</label></div></div>',
+            'default.select_group':'<div class="form-group select-group">'+
+            '<div class="col-xs-12">'+
+            '<label class="control-label _col-sm-2">{{=it.settings.label }}</label>'+
+            '<select name="{{=it.name}}"'+
+            '{{ for(var index in it.attributes) { }} {{=index}}="{{=it.attributes[index] }}" {{ } }}'+
+            '{{?it.settings.validate}} data-validate="{{=it.settings.validate}}" {{?}}'+
+            '>'+
+            '{{?it.settings && it.settings.option}}'+
+            '{{~it.settings.option :value:index}}'+
+            '<option value="{{=value.key}}" {{=(value.key==it.values)?"SELECTED":""}}>'+
+            '{{=value.value}}'+
+            '</option>'+
+            '{{~}}'+
+            '{{?}}'+
+            '</select>'+
+            '<div class="text-danger"></div>'+
+            '</div>'+
+            '</div>',
+            'default.group_start':'<div class="test">',
+            'default.group_end':'</div">',
     };
 
     window.trans=function(phrase){

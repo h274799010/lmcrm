@@ -1,51 +1,154 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-{{-- Web site Title --}}
-@section('title') {!! trans('site/user.register') !!} :: @parent @stop
+    <title>@section('title') lead recycling CRM @show</title>
+    @section('meta_keywords')
+        <meta name="keywords" content="your, awesome, keywords, here"/>
+    @show @section('meta_author')
+        <meta name="author" content="Jon Doe"/>
+    @show @section('meta_description')
+        <meta name="description"
+              content="Lorem ipsum dolor sit amet, nihil fabulas et sea, nam posse menandri scripserit no, mei."/>
+    @show
+<!-- Material Design fonts -->
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('components/bootstrap/css/bootstrap.min.css') }}" >
+    @if(LaravelLocalization::getCurrentLocaleDirection()=='rtl') <link rel="stylesheet" href="{{ asset('components/bootstrap-rtl/dist/css/bootstrap-rtl.min.css') }}"> @endif
 
-{{-- Content --}}
-@section('content')
+    <link href="{{ asset('components/jquery-selectboxit/src/stylesheets/jquery.selectBoxIt.css')}}" rel="stylesheet">
+    <link href="{{ asset('components/bootstrap-checkbox/awesome-bootstrap-checkbox.css')}}" rel="stylesheet">
+    <link href="{{ asset('components/bootstrap-datepicker/css/datepicker.css')}}" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ asset('assets/web/css/sb-admin.css')}}" rel="stylesheet">
+    <!-- Custom Fonts -->
+    <link href="{{ asset('components/font-awesome/css/font-awesome.min.css')}}" rel="stylesheet" type="text/css">
+    <!-- Custom THEME -->
+    <link href="{{ asset('assets/web/css/lmcrm-theme.css')}}" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+
+    @yield('styles')
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="{{ asset('components/jquery/jquery-2.min.js') }}"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="{{ asset('components/bootstrap/js/bootstrap.min.js') }}"></script>
+<!--<script type="text/javascript" src="{{ asset('components/bootstrap/js/material.min.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('components/bootstrap/js/ripples.min.js') }}"></script>-->
+
+    <!-- Plugin JavaScript -->
+    <script src="{{ asset('components/metisMenu/dist/metisMenu.min.js')}}"></script>
+    <script src="{{ asset('components/bootstrap-datepicker/js/bootstrap-datepicker.js')}}"></script>
+    <script src="{{ asset('components/bootbox/bootbox.min.js')}}"></script>
+
+    <script type="text/javascript" src="{{ asset('components/jquery-ui/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('components/ajax-form/jquery.form.min.js')}}"></script>
+    <script src="{{ asset('components/jquery-selectboxit/src/javascripts/jquery.selectBoxIt.js')}}"></script>
+    <script src="{{ asset('components/jquery-validation/dist/jquery.validate.min.js')}}"></script>
+    <script src="{{ asset('components/jquery-validation/dist/additional-methods.js')}}"></script>
+    @if(LaravelLocalization::getCurrentLocale()!='en')<script src="{{ asset('components/jquery-validation/dist/localization/messages_'.LaravelLocalization::getCurrentLocale().'.min.js')}}"></script>@endif
+<!-- DataTables JavaScript -->
+    <script src="{{ asset('components/datatables/media/js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{ asset('components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js')}}"></script>
+    <script src="{{ asset('components/datatables-responsive/js/dataTables.responsive.js')}}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="{{ asset('assets/web/js/sb-admin.js')}}"></script>
+    @section('script') @show
+    <script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
+
+    <link rel="shortcut icon" href="{!! asset('assets/web/ico/favicon.ico')  !!} ">
+</head>
+<body>
+<div id="wrapper">
+    @include('partials.nav')
+
+    <div class="container">
     <div class="row">
         <div class="page-header">
             <h2>{!! trans('site/user.register') !!}</h2>
         </div>
     </div>
 
+        {{-- todo Подправить названия полей (labels) --}}
     <div class="container-fluid">
         <div class="row">
-            {!! Form::open(array('url' => URL::to('auth/register'), 'method' => 'post', 'files'=> true)) !!}
-            <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
-                {!! Form::label('name', trans('site/user.name'), array('class' => 'control-label')) !!}
+            {!! Form::open(array('route' => ['register.put'], 'method' => 'post', 'class' => 'validate', 'files'=> true)) !!}
+            <div class="form-group  {{ $errors->has('spheres') ? 'has-error' : '' }}">
+                {!! Form::label('spheres', trans('Sphere of influence'), array('class' => 'control-label')) !!}
                 <div class="controls">
-                    {!! Form::text('name', null, array('class' => 'form-control')) !!}
-                    <span class="help-block">{{ $errors->first('name', ':message') }}</span>
+                    {!! Form::select('spheres[]', $spheres, null, array('multiple'=>'multiple', 'class' => 'form-control notSelectBoxIt select2','required'=>'required')) !!}
+                    <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
                 </div>
             </div>
-            <div class="form-group  {{ $errors->has('username') ? 'has-error' : '' }}">
-                {!! Form::label('username', 'Username', array('class' => 'control-label')) !!}
+            <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
+                {!! Form::label('role', trans('admin/users.role'), array('class' => 'control-label')) !!}
                 <div class="controls">
-                    {!! Form::text('username', null, array('class' => 'form-control')) !!}
-                    <span class="help-block">{{ $errors->first('username', ':message') }}</span>
+                    {!! Form::select('role', $roles, null, array('class' => 'form-control','required'=>'required')) !!}
+                    <span class="help-block">{{ $errors->first('role', ':message') }}</span>
+                </div>
+            </div>
+            <div class="form-group  {{ $errors->has('accountManager') ? 'has-error' : '' }}">
+                {!! Form::label('accountManager', trans('site/user.accountManager'), array('class' => 'control-label')) !!}
+                <div class="controls">
+                    {!! Form::select('accountManager', $accountManagers, null, array('class' => 'form-control','required'=>'required')) !!}
+                    <span class="help-block">{{ $errors->first('accountManager', ':message') }}</span>
+                </div>
+            </div>
+
+            <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
+                {!! Form::label('first_name', trans('admin/users.first_name'), array('class' => 'control-label')) !!}
+                <div class="controls">
+                    {!! Form::text('first_name', null, array('class' => 'form-control','required'=>'required')) !!}
+                    <span class="help-block">{{ $errors->first('first_name', ':message') }}</span>
+                </div>
+            </div>
+            <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
+                {!! Form::label('last_name', trans('admin/users.last_name'), array('class' => 'control-label')) !!}
+                <div class="controls">
+                    {!! Form::text('last_name', null, array('class' => 'form-control','required'=>'required')) !!}
+                    <span class="help-block">{{ $errors->first('last_name', ':message') }}</span>
+                </div>
+            </div>
+            <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
+                {!! Form::label('name', 'Username', array('class' => 'control-label')) !!}
+                <div class="controls">
+                    {!! Form::text('name', null, array('class' => 'form-control','required'=>'required')) !!}
+                    <span class="help-block">{{ $errors->first('name', ':message') }}</span>
                 </div>
             </div>
             <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
                 {!! Form::label('email', trans('site/user.e_mail'), array('class' => 'control-label')) !!}
                 <div class="controls">
-                    {!! Form::text('email', null, array('class' => 'form-control')) !!}
+                    {!! Form::text('email', null, array('class' => 'form-control','required'=>'required')) !!}
                     <span class="help-block">{{ $errors->first('email', ':message') }}</span>
                 </div>
             </div>
             <div class="form-group  {{ $errors->has('password') ? 'has-error' : '' }}">
                 {!! Form::label('password', "Password", array('class' => 'control-label')) !!}
                 <div class="controls">
-                    {!! Form::password('password', array('class' => 'form-control')) !!}
+                    {!! Form::password('password', array('class' => 'form-control','required'=>'required')) !!}
                     <span class="help-block">{{ $errors->first('password', ':message') }}</span>
                 </div>
             </div>
             <div class="form-group  {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
                 {!! Form::label('password_confirmation', "Confirm Password", array('class' => 'control-label')) !!}
                 <div class="controls">
-                    {!! Form::password('password_confirmation', array('class' => 'form-control')) !!}
+                    {!! Form::password('password_confirmation', array('class' => 'form-control','required'=>'required')) !!}
                     <span class="help-block">{{ $errors->first('password_confirmation', ':message') }}</span>
                 </div>
             </div>
@@ -59,4 +162,24 @@
             {!! Form::close() !!}
         </div>
     </div>
-@endsection
+
+
+    </div>
+</div>
+<div id="footer">
+    <div class="container">
+        <p class="text-muted credit"><span style="text-align: left; float: left">&copy; 2016 <a href="#">LM CRM</a></span>
+            <!--<span class="hidden-phone" style="text-align: right; float: right">Powered by: <a href="http://laravel.com/" >Laravel 5</a></span>-->
+        </p>
+    </div>
+</div>
+
+<!-- Scripts -->
+@yield('scripts')
+
+<script type="text/javascript">
+    $('.select2').select2();
+</script>
+
+</body>
+</html>
