@@ -1110,7 +1110,13 @@ class SphereController extends AdminController {
 
                 return response()->json(FALSE);
 
-            } elseif( isset($agentData['variables'][0]) ){
+            }elseif(count($agentData['variables']) < 3) {
+                /*
+                 * Если у агента меньше 3-х атрибутов
+                 * возвращаем FALSE
+                 */
+                return response()->json( [ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ] );
+            }elseif( isset($agentData['variables'][0]) ){
                 // 'variables' массив у которого есть хотя бы один атрибут
 
                 /*
@@ -1131,7 +1137,7 @@ class SphereController extends AdminController {
                  * работа метода останавливается
                  */
 
-                return response()->json(FALSE);
+                return response()->json([ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ]);
             }
 
         }else{

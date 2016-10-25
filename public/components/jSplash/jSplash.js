@@ -283,7 +283,7 @@
                     data = [data];
                 }
                 for (var i in data) {
-                    if (!data[i]) {
+                    if (!data[i] || $.isNumeric(data[i])) {
                         continue;
                     }
 
@@ -313,6 +313,7 @@
                         } else {
                             type = 'default.container';
                         }
+
                         //if (data[i].renderType && (data[i].renderType == 'container' || data[i].renderType == 'group') && data[i].variables) {
                         if (data[i].variables) {
                             data[i].chain = tmpl.render(data[i].variables, context, {values: data[i].values || []});

@@ -30,7 +30,7 @@
                 <td>{!! $lead->name !!}</td>
                 <td>{!! $lead->statusName() !!}</td>
 
-                <td>{!! $lead->user->first_name !!}</td>
+                <td>{!! $lead->user->agentInfo()->first()->company !!}</td>
 
                 <td>{!! $lead->sphere->name !!}</td>
 
