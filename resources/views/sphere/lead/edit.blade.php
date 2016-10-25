@@ -9,13 +9,18 @@
             </a>
         </div>
     </div>
-    <div class="container" id="content">
+    <div class="container" id="content" style="padding-bottom: 100px;">
+        <div>
+            <strong>Company:</strong> {{ $lead->user->agentInfo()->first()->company }}<br>
+            <strong>Agent first name:</strong> {{ $lead->user->first_name }}
+        </div>
         {!! Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'method' => 'put', 'class' => 'validate', 'files'=> false)) !!}
+        <input type="hidden" name="type" id="typeFrom" value="">
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseLead"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Lead data') </a>
+                        <a data-toggle="collapse" href="#collapseLead"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Lead data') </a>
                     </h4>
                 </div>
                 <div id="collapseLead" class="panel-collapse collapse in">
@@ -101,7 +106,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseForm"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Filtration') </a>
+                        <a data-toggle="collapse" href="#collapseForm"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Filtration') </a>
                     </h4>
                 </div>
                 <div id="collapseForm" class="panel-collapse collapse in">
@@ -144,7 +149,24 @@
             </div>
         </div>
 
-        {!! Form::submit(trans('site/sphere.apply'),['class'=>'btn btn-default']) !!}
+        {!! Form::submit(trans('site/sphere.save'),['class'=>'btn btn-default', 'id'=>'leadSave']) !!}
+        {!! Form::submit(trans('site/sphere.auction'),['class'=>'btn btn-success', 'id'=>'leadToAuction']) !!}
         {!! Form::close() !!}
     </div>
 @stop
+@section('scripts')
+    <script type="text/javascript">
+        $(document).on('click', '#leadSave', function (e) {
+            e.preventDefault();
+
+            $('#typeFrom').val('save');
+            $(this).closest('form').submit();
+        });
+        $(document).on('click', '#leadToAuction', function (e) {
+            e.preventDefault();
+
+            $('#typeFrom').val('toAuction');
+            $(this).closest('form').submit();
+        });
+    </script>
+@endsection

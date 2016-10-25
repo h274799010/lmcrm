@@ -37,7 +37,8 @@ class SphereController extends Controller {
     public function index()
     {
 
-        $leads = Lead::whereIn('status', [0,1])->with([ 'sphere', 'user'])->get();
+        //$leads = Lead::whereIn('status', [0,1])->with([ 'sphere', 'user' ])->get();
+        $leads = Lead::whereIn('status', [0,1])->with([ 'sphere', 'user' ])->get();
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
@@ -82,10 +83,12 @@ class SphereController extends Controller {
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
 
-        $lead = Lead::with('phone')->find($id);
+        $lead = Lead::with(['phone', 'user'])->find($id);
 
-        $lead->status = 1;
-        $lead->save();
+        if($lead->status < 1) {
+            $lead->status = 1;
+            $lead->save();
+        }
 
         $mask = new LeadBitmask($data->id, $id);
         $shortMask = $mask->findShortMask();
@@ -118,6 +121,10 @@ class SphereController extends Controller {
     public function update(Request $request, $sphere_id, $lead_id)
     {
 
+        // Тип запроса:
+        // 1. save - просто сохраняем лида
+        // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
+        $typeRequest = $request->input('type');
 
         /** --  проверка данных на валидность  -- */
 
@@ -163,7 +170,9 @@ class SphereController extends Controller {
         $lead->email=$request->input('email');
         $lead->comment=$request->input('comment');
 
-        $lead->status = 3;
+        if($typeRequest == 'toAuction') {
+            $lead->status = 3;
+        }
 
         $lead->operator_processing_time = date("Y-m-d H:i:s");
         $lead->expiry_time = $lead->expiredTime();
@@ -232,43 +241,42 @@ class SphereController extends Controller {
 
         PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
 
+        if($typeRequest == 'toAuction') {
+            /** --  уведомление Агентов которым этот лид подходит  -- */
 
+            // выбираем маску лида
+            $leadBitmaskData = $mask->findFbMask($lead_id);
 
-        /** --  уведомление Агентов которым этот лид подходит  -- */
+            // выбираем маски всех агентов
+            $agentBitmasks = new AgentBitmask($sphere_id);
 
-        // выбираем маску лида
-        $leadBitmaskData = $mask->findFbMask($lead_id);
+            // находим всех агентов которым подходит этот лид по фильтру
+            // исключаем агента добавившего лид
+            // + и его продавцов
+            $agents = $agentBitmasks
+                ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
+                ->get();
 
-        // выбираем маски всех агентов
-        $agentBitmasks = new AgentBitmask($sphere_id);
+            // если агентов нет, пропускаем оповещения, если есть - оповещаем
+            if( $agents->count() ){
 
-        // находим всех агентов которым подходит этот лид по фильтру
-        // исключаем агента добавившего лид
-        // + и его продавцов
-        $agents = $agentBitmasks
-            ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
-            ->get();
+                // находим id текущего оператора, чтобы отметить как отправителя сообщения
+                $senderId = Sentinel::getUser()->id;
 
-        // если агентов нет, пропускаем оповещения, если есть - оповещаем
-        if( $agents->count() ){
+                // todo подобрать название к этому уведомлению
+                // рассылаем уведомления всем агентам которым подходит этот лид
+                Notice::toMany( $senderId, $agents, 'note');
 
-            // находим id текущего оператора, чтобы отметить как отправителя сообщения
-            $senderId = Sentinel::getUser()->id;
+                // Удаляем ранее отредактированного лида с аукциона
+                Auction::where('lead_id', '=', $lead_id)->delete();
+                /*if($auctions) {
+                    $auctions->delete();
+                }*/
 
-            // todo подобрать название к этому уведомлению
-            // рассылаем уведомления всем агентам которым подходит этот лид
-            Notice::toMany( $senderId, $agents, 'note');
-
-            // Удаляем ранее отредактированного лида с аукциона
-            Auction::where('lead_id', '=', $lead_id)->delete();
-            /*if($auctions) {
-                $auctions->delete();
-            }*/
-
-            // метод добавляющий лид в таблицу аукциона агентам, которым он подходит
-            Auction::addFromBitmask( $agents, $sphere_id, $lead_id );
+                // метод добавляющий лид в таблицу аукциона агентам, которым он подходит
+                Auction::addFromBitmask( $agents, $sphere_id, $lead_id );
+            }
         }
-
 
         if( $request->ajax() ){
             return response()->json();

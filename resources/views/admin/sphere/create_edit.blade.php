@@ -16,6 +16,10 @@
         </div>
         </h3>
     </div>
+    <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert" style="display: none">
+        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <div id="alertContent"></div>
+    </div>
     <div id="content">
         <div class="wizard">
             <ul class="flexbox flex-justify">
@@ -154,6 +158,10 @@
             $(".jSplash-form").submit(function(){
                 return false;
             });
+            $('#alert .close').on('click', function (e) {
+                e.preventDefault();
+                $('#alert').slideUp();
+            });
 
             $('.wizard').bootstrapWizard({
                 'tabClass': 'nav nav-pills',
@@ -227,8 +235,15 @@
                         method: 'POST',
                         data: postData,
                         success: function (data, textStatus) {
-                            $this.prop('disabled',false);
-                            window.location = '{{ route('admin.sphere.index') }}';
+                            if(data['error']) {
+                                $('#alertContent').html(data['message']);
+                                $('#alert').slideDown();
+
+                                $this.prop('disabled',false);
+                            } else {
+                                $this.prop('disabled',false);
+                                window.location = '{{ route('admin.sphere.index') }}';
+                            }
                         },
                         error: function (XMLHttpRequest, textStatus) {
                             alert(textStatus);

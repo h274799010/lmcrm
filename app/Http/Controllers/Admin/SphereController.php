@@ -986,6 +986,12 @@ class SphereController extends AdminController {
         // данные формы лида
         $leadData = $request['lead']['data'];
 
+
+        /**
+         * todo у лида может не быть атрибутов вообще, поправить этот момент
+         *
+         */
+
         // проверка атрибутов лида
         // массив атрибутов лида может выглядеть по разному, на каждый вариант своя обработка
         if(isset($leadData['variables'])){
@@ -1099,7 +1105,13 @@ class SphereController extends AdminController {
 
 //                return response()->json(FALSE);
 
-            } elseif( isset($agentData['variables'][0]) ){
+            }elseif(count($agentData['variables']) < 3) {
+                /*
+                 * Если у агента меньше 3-х атрибутов
+                 * возвращаем FALSE
+                 */
+                return response()->json( [ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ] );
+            }elseif( isset($agentData['variables'][0]) ){
                 // 'variables' массив у которого есть хотя бы один атрибут
 
                 /*
@@ -1122,6 +1134,7 @@ class SphereController extends AdminController {
 
                 $agentDataAttr = NULL;
 //                return response()->json(FALSE);
+                return response()->json([ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ]);
             }
 
         }else{
@@ -1461,9 +1474,6 @@ class SphereController extends AdminController {
          * Обработка атрибутов агента
          */
         if($agentDataAttr){
-
-            // todo вернуть
-//            dd($agentDataAttr);
 
             // перебираем все атрибуты, создаем/обновляем его данные
             $agentDataAttr->each(function( $attr )  use( $sphere, &$agentBitmask, &$leadBitmask ) {
