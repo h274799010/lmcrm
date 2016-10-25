@@ -77,7 +77,8 @@ class ApiController extends Controller
     public function obtain()
     {
 
-        $className = get_class( $this );
+        $auctionData = Auction::where('status', 0)->where( 'user_id', $this->user->id )->with('lead') /*->with('maskName') */ ->get();
+
 
         $data =
         [
@@ -85,13 +86,11 @@ class ApiController extends Controller
             'email' => $this->user->email,
             'wallet' => $this->wallet->earned + $this->wallet->buyed,
             'wasted' => $this->wallet->wasted,
-            'className' => $className,
-            'func' => __FUNCTION__
+            'auctionData' => $auctionData,
 
         ];
 
         return response()->json($data);
-
     }
 
 
@@ -103,7 +102,7 @@ class ApiController extends Controller
     {
 
 //        $leads = $this->user->leads()->with('phone')->get();
-        $leads = Lead::where('agent_id', $this->user->id)->get();
+        $leads = Lead::where('agent_id', $this->user->id)->with('phone')->get();
 
         if( !$leads->count() ){
             $leads = 'Нет лидов';
@@ -131,7 +130,6 @@ class ApiController extends Controller
 
         return response()->json($data);
     }
-
 
 
     // todo пока что тестовая
