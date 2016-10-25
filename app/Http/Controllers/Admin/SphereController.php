@@ -1110,7 +1110,8 @@ class SphereController extends AdminController {
                  * Если у агента меньше 3-х атрибутов
                  * возвращаем FALSE
                  */
-                return response()->json( [ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ] );
+                    $agentDataAttr = collect( $agentData['variables'] );
+//                return response()->json( [ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ] );
             }elseif( isset($agentData['variables'][0]) ){
                 // 'variables' массив у которого есть хотя бы один атрибут
 
@@ -1134,7 +1135,7 @@ class SphereController extends AdminController {
 
                 $agentDataAttr = NULL;
 //                return response()->json(FALSE);
-                return response()->json([ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ]);
+//                return response()->json([ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ]);
             }
 
         }else{
@@ -1525,42 +1526,44 @@ class SphereController extends AdminController {
 
             // УДАЛЕНИЕ ОПЦИЙ АТРИБУТА
 
-                $AttrOptionsInDB = FormFiltersOptions::where( 'attr_id', $attr['id'] )->get();
+                dd($attr);
 
-                if( $AttrOptionsInDB && isset( $attr['option'] ) ){
+                if( $attr['id'] != 0 ){
+                    $AttrOptionsInDB = FormFiltersOptions::where( 'attr_id', $attr['id'] )->get();
 
-                    // если в атрибуте только одна опция то она помещается в option без массива
-                    // чтобы обработка была правильной, просто помещаем его в массив
-                    if( isset( $attr['option']['id']) ){
-                        $attr['option'] = [ $attr['option'] ];
-                    }
+                    if( $AttrOptionsInDB && isset( $attr['option'] ) ){
+
+                        // если в атрибуте только одна опция то она помещается в option без массива
+                        // чтобы обработка была правильной, просто помещаем его в массив
+                        if( isset( $attr['option']['id']) ){
+                            $attr['option'] = [ $attr['option'] ];
+                        }
 
 
-                    $siteOptions = [];
+                        $siteOptions = [];
 
-                    foreach( $attr['option'] as $option){
+                        foreach( $attr['option'] as $option){
 
-                        $siteOptions[ $option['id'] ] = $option;
+                            $siteOptions[ $option['id'] ] = $option;
 
-                    }
+                        }
 
 //                    dd( $siteOptions );
 
 
-                    $AttrOptionsInDB->each(function( $optionInDB ) use ( $siteOptions ){
+                        $AttrOptionsInDB->each(function( $optionInDB ) use ( $siteOptions ){
 
-                        if( !isset( $siteOptions[ $optionInDB->id ] ) ){
+                            if( !isset( $siteOptions[ $optionInDB->id ] ) ){
 
 //                            dd( $optionInDB->id );
-                            $optionInDB->delete();
-                        }
+                                $optionInDB->delete();
+                            }
 
 
-                    });
+                        });
 
+                    }
                 }
-
-//                dd('no');
 
 
 
