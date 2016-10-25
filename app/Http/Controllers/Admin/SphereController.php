@@ -986,12 +986,6 @@ class SphereController extends AdminController {
         // данные формы лида
         $leadData = $request['lead']['data'];
 
-
-        /**
-         * todo у лида может не быть атрибутов вообще, поправить этот момент
-         *
-         */
-
         // проверка атрибутов лида
         // массив атрибутов лида может выглядеть по разному, на каждый вариант своя обработка
         if(isset($leadData['variables'])){
@@ -1004,25 +998,17 @@ class SphereController extends AdminController {
                  * если у лида только одни атрибут,
                  * он может просто находится в 'variables', без индексов,
                  * (при этом у него всегда бует переменная '_type')
-                 *
-                 * у лида должно быть не меньше 3 атрибутов
-                 * работа метода останавливается
                  */
 
-                return response()->json(FALSE);
+//                return response()->json(FALSE);
 
             }elseif( $leadData['variables']==["email" => "", "textarea" => "", "input" => "", "checkbox" => "", "radio" => "", "select" => "", "calendar" => "", "submit" => ""] ){
                 // 'variables' состоит из массива с ключами из типов полей
 
                 /*
-                 * когда у лида нет вообще атрибутов (собственно, это ошибка, такого быть не должно)
-                 * переменная 'variables' может принимать такой вид (описанный выше)
-                 *
-                 * работа метода останавливается
+                 * У лида может и не быть атрибутов
                  */
 
-                // todo проверить в работе
-//                return response()->json(FALSE);
                 $leadDataAttr = NULL;
 
 
@@ -1078,6 +1064,9 @@ class SphereController extends AdminController {
         // данные формы агента
         $agentData = $request['cform']['data'];
 
+
+        $agentDataAttr = NULL;
+
         // проверка атрибутов агента
         // массив атрибутов агента может выглядеть по разному, на каждый вариант своя обработка
         if(isset($agentData['variables'])){
@@ -1108,7 +1097,7 @@ class SphereController extends AdminController {
                  * дальнейшая работа метода прекращается
                  */
 
-                return response()->json(FALSE);
+//                return response()->json(FALSE);
 
             } elseif( isset($agentData['variables'][0]) ){
                 // 'variables' массив у которого есть хотя бы один атрибут
@@ -1131,7 +1120,8 @@ class SphereController extends AdminController {
                  * работа метода останавливается
                  */
 
-                return response()->json(FALSE);
+                $agentDataAttr = NULL;
+//                return response()->json(FALSE);
             }
 
         }else{
@@ -1139,7 +1129,9 @@ class SphereController extends AdminController {
             // работа метода останавливается
 
             // у агента должно быть не меньше 1 атрибута
-            return response()->json(FALSE);
+            $agentDataAttr = NULL;
+
+//            return response()->json(FALSE);
         }
 
         // минимальное количество лидов
@@ -1157,45 +1149,45 @@ class SphereController extends AdminController {
         // переменная указывающая на ошибки, если $error = true работа метода останавливается
         $error = false;
         /* проверка атрибутов формы лида на ошибки */
-        if( $leadDataAttr ){
-
-            /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
-               хотя бы одна */
-            // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
-            $leadDataAttr->each(function( $attr ) use( &$error ){
-
-                // если у атрибута тип checkbox, radio или select
-                if( ($attr['_type']=='checkbox') || ($attr['_type']=='radio') || ($attr['_type']=='select') ){
-                    // и при этом у него нет опций, либо их количество равно 0
-                    if( !isset($attr['option']) || (count($attr['option']) == 0) ){
-                        // помечаем ошибку
-                        $error = true;
-                    }
-                }
-            });
-        }
+//        if( $leadDataAttr ){
+//
+//            /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
+//               хотя бы одна */
+//            // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
+//            $leadDataAttr->each(function( $attr ) use( &$error ){
+//
+//                // если у атрибута тип checkbox, radio или select
+//                if( ($attr['_type']=='checkbox') || ($attr['_type']=='radio') || ($attr['_type']=='select') ){
+//                    // и при этом у него нет опций, либо их количество равно 0
+//                    if( !isset($attr['option']) || (count($attr['option']) == 0) ){
+//                        // помечаем ошибку
+//                        $error = true;
+//                    }
+//                }
+//            });
+//        }
 
         /* проверка атрибутов формы агента на ошибки */
-        if( $agentDataAttr ){
-
-            /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
-               хотя бы одна */
-            // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
-            $agentDataAttr->each(function( $attr ) use( &$error ){
-
-                // если у атрибута тип checkbox, radio или select
-                if( ($attr['_type']=='checkbox') && ($attr['_type']=='radio') && ($attr['_type']=='select') ){
-                    // и при этом у него нет опций, либо их количество равно 0
-                    if( !isset($attr['option']) && (count($attr['option']) == 0) ){
-                        // помечаем ошибку
-                        $error = true;
-                    }
-                }
-            });
-        }
+//        if( $agentDataAttr ){
+//
+//            /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
+//               хотя бы одна */
+//            // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
+//            $agentDataAttr->each(function( $attr ) use( &$error ){
+//
+//                // если у атрибута тип checkbox, radio или select
+//                if( ($attr['_type']=='checkbox') && ($attr['_type']=='radio') && ($attr['_type']=='select') ){
+//                    // и при этом у него нет опций, либо их количество равно 0
+//                    if( !isset($attr['option']) && (count($attr['option']) == 0) ){
+//                        // помечаем ошибку
+//                        $error = true;
+//                    }
+//                }
+//            });
+//        }
 
         // если есть ошибка, функция вернет ошибку и остановится
-        if($error){ return response()->json(FALSE); }
+//        if($error){ return response()->json(FALSE); }
 
         /** ----- КОНЕЦ ПРОВЕРОК НА ОШИБКИ ---------- */
 
@@ -1348,52 +1340,55 @@ class SphereController extends AdminController {
                     // в начале метода стоит проверка,
                     // если опций нет - метод вернет ошибку еще в начале (до этого места не дойдет)
 
-                    // перебираем все опции и либо создаем новую,
-                    // либо обновляем существующую запись опции
-                    $optionCollection = collect($attr['option']);
-                    $optionCollection->each(function( $option ) use ( &$leadAttr, &$leadBitmask ){
+                    if( isset($attr['option']) ){
 
-                        if($option['id']){
-                            // у опции ЕСТЬ id, т.е. опция уже есть в БД
+                        // перебираем все опции и либо создаем новую,
+                        // либо обновляем существующую запись опции
+                        $optionCollection = collect($attr['option']);
+                        $optionCollection->each(function( $option ) use ( &$leadAttr, &$leadBitmask ){
 
-                            // выбираем данные опции из БД
-                            $dbOption = AdditionFormsOptions::find($option['id']);
-                            // присваиваем опции новые значения
-                            $dbOption->_type = 'option';
-                            $dbOption->name = $option['val'];
-                            $dbOption->value = (isset($option['vale'])) ? $option['vale'] : '';
-                            // сохраняем
-                            $dbOption->save();
+                            if($option['id']){
+                                // у опции ЕСТЬ id, т.е. опция уже есть в БД
 
-                        }else{
-                            // у опции НЕТ id
-                            // (создание новой зписи и полей в битмаске соответственно)
+                                // выбираем данные опции из БД
+                                $dbOption = AdditionFormsOptions::find($option['id']);
+                                // присваиваем опции новые значения
+                                $dbOption->_type = 'option';
+                                $dbOption->name = $option['val'];
+                                $dbOption->value = (isset($option['vale'])) ? $option['vale'] : '';
+                                // сохраняем
+                                $dbOption->save();
 
-                            // создание новой опции
-                            $newOption = new AdditionFormsOptions();
-                            // присваиваем опции новые значения
-                            $newOption->_type = 'option';
-                            $newOption->name = $option['val'];
-                            $newOption->value = (isset($option['vale'])) ? $option['vale'] : '';
-                            // сохраняем
-                            $leadAttr->options()->save($newOption);
+                            }else{
+                                // у опции НЕТ id
+                                // (создание новой зписи и полей в битмаске соответственно)
 
-                            // создаем новый столбец "ad_" в БД
-                            $leadBitmask->addAb($leadAttr->id, $newOption->id, $leadAttr->_type);
+                                // создание новой опции
+                                $newOption = new AdditionFormsOptions();
+                                // присваиваем опции новые значения
+                                $newOption->_type = 'option';
+                                $newOption->name = $option['val'];
+                                $newOption->value = (isset($option['vale'])) ? $option['vale'] : '';
+                                // сохраняем
+                                $leadAttr->options()->save($newOption);
 
-                            /** todo доработать метод копирования */
-//                            if (isset($option['parent'])) {
-//                                // копирование атрибутов
-//                                $leadBitmask->copyAttr
-//                                (
-//                                    $leadAttr->id,
-//                                    $newOption->id,
-//                                    /*parent*/
-//                                    $option['parent']
-//                                );
-//                            }
-                        }
-                    });
+                                // создаем новый столбец "ad_" в БД
+                                $leadBitmask->addAb($leadAttr->id, $newOption->id, $leadAttr->_type);
+
+                                /** копирование опции атрибута */
+                                if (isset($option['parent'])) {
+                                    // копирование атрибутов
+                                    $leadBitmask->copyAttr
+                                    (
+                                        $leadAttr->id,
+                                        $newOption->id,
+                                        /*parent*/
+                                        $option['parent']
+                                    );
+                                }
+                            }
+                        });
+                    }
 
                 }elseif( ($attr['_type']=='textarea') || ($attr['_type']=='input') ){
                     // обработка атрибутов с типом 'textarea' и 'input'
@@ -1467,6 +1462,9 @@ class SphereController extends AdminController {
          */
         if($agentDataAttr){
 
+            // todo вернуть
+//            dd($agentDataAttr);
+
             // перебираем все атрибуты, создаем/обновляем его данные
             $agentDataAttr->each(function( $attr )  use( $sphere, &$agentBitmask, &$leadBitmask ) {
 
@@ -1515,18 +1513,65 @@ class SphereController extends AdminController {
                 }
 
 
-            // ОБРАБОТКА ОПЦИЙ АТРИБУТА (предполагается что у атрибута есть только опции)
+            // УДАЛЕНИЕ ОПЦИЙ АТРИБУТА
+
+                $AttrOptionsInDB = FormFiltersOptions::where( 'attr_id', $attr['id'] )->get();
+
+                if( $AttrOptionsInDB && isset( $attr['option'] ) ){
+
+                    // если в атрибуте только одна опция то она помещается в option без массива
+                    // чтобы обработка была правильной, просто помещаем его в массив
+                    if( isset( $attr['option']['id']) ){
+                        $attr['option'] = [ $attr['option'] ];
+                    }
+
+
+                    $siteOptions = [];
+
+                    foreach( $attr['option'] as $option){
+
+                        $siteOptions[ $option['id'] ] = $option;
+
+                    }
+
+//                    dd( $siteOptions );
+
+
+                    $AttrOptionsInDB->each(function( $optionInDB ) use ( $siteOptions ){
+
+                        if( !isset( $siteOptions[ $optionInDB->id ] ) ){
+
+//                            dd( $optionInDB->id );
+                            $optionInDB->delete();
+                        }
+
+
+                    });
+
+                }
+
+//                dd('no');
+
+
+
+            // ОБРАБОТКА ОПЦИЙ АТРИБУТА (предполагается что у атрибута есть только опции, валидаций и прочего нет)
 
                 if (isset($attr['option'])) {
                     // контрольная проверка наличия опций
                     // по идее опции должны быть, в начале метода стоит проверка
+
+                    // если в атрибуте только одна опция то она помещается в option без массива
+                    // чтобы обработка была правильной, просто помещаем его в массив
+                    if( isset( $attr['option']['id']) ){
+                        $attr['option'] = [ $attr['option'] ];
+                    }
 
                     // перебираем все опции и либо создаем новую,
                     // либо обновляем существующую запись опции
                     $optionCollection = collect($attr['option']);
                     $optionCollection->each(function ($option) use (&$agentAttr, &$agentBitmask, &$leadBitmask) {
 
-                        if ($option['id']) {
+                        if ( $option['id'] ) {
                             // у опции ЕСТЬ id, т.е. опция уже есть в БД
 
                             // выбираем данные опции из БД
@@ -1553,16 +1598,16 @@ class SphereController extends AdminController {
 
 
                             /** смысл этой конструкции я не понял */
-//                            if (isset($option['parent'])) {
-//                                // копирование атрибутов
-//                                $agentBitmask->copyAttr
-//                                (
-//                                    $agentAttr->id,
-//                                    $newOption->id,
-//                                    /*parent*/
-//                                    $option['parent']
-//                                );
-//                            }
+                            if (isset($option['parent'])) {
+                                // копирование атрибутов
+                                $agentBitmask->copyAttr
+                                (
+                                    $agentAttr->id,
+                                    $newOption->id,
+                                    /*parent*/
+                                    $option['parent']
+                                );
+                            }
                         }
                     });
 
