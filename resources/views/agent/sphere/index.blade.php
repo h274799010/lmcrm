@@ -34,7 +34,7 @@
                             <td>{!! $mask->updated_at !!}</td>
                             <td>
                                 <div class="material-switch">
-                                    <input id="someSwitchOptionDanger_{{ $mask->id }}" name="" type="checkbox" checked="checked"/>
+                                    <input id="someSwitchOptionDanger_{{ $mask->id }}" name="" disabled type="checkbox" checked="checked"/>
                                     <label for="someSwitchOptionDanger_{{ $mask->id }}" class="label-success"></label>
                                 </div>
                             </td>
@@ -57,7 +57,7 @@
 
                         <tr class="noMaskRow @if( count($masks) != 0 ) hidden @endif">
                             <td colspan="5">
-                                нет ни одной маски
+                                no mask
                             </td>
                         </tr>
 
