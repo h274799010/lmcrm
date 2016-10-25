@@ -22,13 +22,7 @@
             </li>
 
             <li>
-                <a href="{{ route('admin.system') }}">
-                    <i class="glyphicon glyphicon-flash"></i> System1
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ route('admin.system') }}">
+                <a href="#">
                     <i class="glyphicon glyphicon-flash"></i> System
                     <span class="fa arrow"></span>
                 </a>
