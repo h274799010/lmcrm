@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 
 class Sphere extends Model
 {
@@ -48,6 +49,26 @@ class Sphere extends Model
         return $this->hasManyThrough('\App\Models\Agent','\App\Models\AgentSphere','sphere_id','agent_id');
     }
 
+
+    /**
+     * Все маски по сфере из таблицы UserMasks
+     *
+     *
+     * @param  integer  $user_id
+     *
+     * @return Builder
+     */
+    public function masks( $user_id=NULL ){
+
+        // связь таблицы сферы с таблицей UserMasks
+        $relation = $this->hasMany('App\Models\UserMasks', 'sphere_id', 'id');
+
+        // если задан пользователь возвращается только маски пользователя
+        // если нет - возвращаются все маски по сфере
+        return $user_id ? $relation->where('user_id', $user_id) : $relation;
+    }
+
+
     protected static function boot() {
         parent::boot();
 
@@ -71,6 +92,8 @@ class Sphere extends Model
 
         });
     }
+
+
 
 
     /**

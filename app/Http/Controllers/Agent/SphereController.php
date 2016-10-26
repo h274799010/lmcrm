@@ -8,6 +8,8 @@ use Validator;
 use App\Models\Sphere;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
+use App\Models\AgentSphere;
+
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,9 +21,11 @@ class SphereController extends AgentController {
     /**
      * Страница выводит все маски пользователя по сферам
      *
+     * @param  boolean|integer  $salesman_id
+     *
      * @return Response
      */
-    public function index($salesman_id = false)
+    public function index( $salesman_id = false )
     {
         if(isset($salesman_id) && $salesman_id !== false) {
             $user_id = $salesman_id;
@@ -30,7 +34,24 @@ class SphereController extends AgentController {
         }
 
         // выбираем все активные сферы
-        $spheres = Sphere::active()->get();
+//        $spheres = Sphere::active()->get();
+
+        // todo получение всех сфер агента
+        $agentSpheres = AgentSphere::where('agent_id', $this->user->id )->with('sphere')->get();
+
+
+//        dd( $this->user->spheres );
+
+        dd( $this->user->spheresWithMasks );
+
+        // todo все сферы агента
+
+
+        // todo маски по сферам
+
+
+
+//        dd($agentSpheres);
 
         // конструктор маски, задаем индекс агента
         $agentMask = new AgentBitmask();
@@ -38,12 +59,12 @@ class SphereController extends AgentController {
 
         if(isset($salesman_id) && $salesman_id !== false) {
             return view('agent.sphere.index')
-                ->with('spheres',$spheres)
+                ->with('agentSpheres',$agentSpheres)
                 ->with('agentMask',$agentMask)
                 ->with('salesman_id', $salesman_id);
         } else {
             return view('agent.sphere.index')
-                ->with('spheres',$spheres)
+                ->with('agentSpheres',$agentSpheres)
                 ->with('agentMask',$agentMask);
         }
     }

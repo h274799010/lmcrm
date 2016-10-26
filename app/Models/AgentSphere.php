@@ -23,7 +23,7 @@ class AgentSphere extends Model {
     }
 
     public function sphere(){
-        return $this->hasMany('App\Models\Sphere','id','sphere_id');
+        return $this->hasOne('App\Models\Sphere','id','sphere_id');
     }
 
 }

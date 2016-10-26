@@ -8,6 +8,7 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Query\Builder;
 
 
 class Agent extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
@@ -47,6 +48,11 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $this->belongsToMany('\App\Models\Salesman','salesman_info','agent_id','salesman_id');
     }
 
+
+    /**
+     * Сферы к которым прикреплен агент
+     *
+     */
     public function spheres(){
         return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id');
     }
@@ -81,6 +87,29 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
      */
     public function wallet(){
         return $this->hasOne('\App\Models\Wallet','user_id','id');
+    }
+
+
+    /**
+     * Маски по всем сферам агента
+     *
+     *
+     * @return Builder
+     */
+    public function spheresWithMasks(){
+
+        // id агента
+        $agent_id = $this->id;
+
+        // находим все сферы агента вместе с масками, которые тоже относятся к агенту
+        $spheres = $this
+            ->spheres()                                                 // все сферы агента
+            ->with(['masks' => function( $query ) use ( $agent_id ){    // вместе с масками
+                // маски которые принадлежат текущему агенту
+                $query->where( 'user_id', $agent_id );
+        }]);
+
+        return $spheres;
     }
 
 

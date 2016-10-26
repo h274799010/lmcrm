@@ -5,7 +5,9 @@
     <div class="_page-header" xmlns="http://www.w3.org/1999/html">
     </div>
 
-    @forelse($spheres as $sphere)
+    @forelse($agentSpheres as $agentSphere)
+
+        @php( $sphere = $agentSphere->sphere )
 
         <h4>{{ $sphere->name }}</h4>
         @php($masks = $agentMask->findSphereMask($sphere->id)->get())
