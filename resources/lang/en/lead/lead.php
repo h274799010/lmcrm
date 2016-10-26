@@ -10,5 +10,9 @@ return [
     'alreadyObtained' => 'Part of leads is already obtained by other agent',
     'successfullyObtained' => 'Successfully obtained',
     'obtainError' => 'Obtain error',
-    'lowBalance' => 'Error: low balance'
+    'lowBalance' => 'Error: low balance',
+    'Lead.not_at_auction' => 'Lead withdrawn from auction',
+    'openlead.successfully_opened' => 'Lead successfully opened',
+    'openlead.low_balance' => 'Low balance',
+    'openlead.already_open' => 'Already open',
 ];

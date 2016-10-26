@@ -452,7 +452,7 @@ class Lead extends EloquentUser {
 
             // выход если платеж не произведен
             if (!$payment['status']) {
-                return $payment['description'];
+                return trans('lead/lead.openlead.low_balance');
             }
 
 
