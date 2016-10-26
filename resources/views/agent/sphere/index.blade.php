@@ -5,12 +5,9 @@
     <div class="_page-header" xmlns="http://www.w3.org/1999/html">
     </div>
 
-    @forelse($agentSpheres as $agentSphere)
-
-        @php( $sphere = $agentSphere->sphere )
+    @forelse($agentSpheres as $sphere)
 
         <h4>{{ $sphere->name }}</h4>
-        @php($masks = $agentMask->findSphereMask($sphere->id)->get())
 
             <table sphereId="{{ $sphere->id }}" class="table table-bordered table-striped table-hover">
                 <thead>
@@ -25,38 +22,38 @@
                 </thead>
                 <tbody>
 
-                    @forelse($masks as $mask)
+                    @forelse($sphere->masks as $mask)
 
-                        <tr mask_id="{{ $mask->id }}">
+                        <tr mask_id="{{ $mask->mask_id }}">
 
-                            <td>{{ \App\Models\UserMasks::where('mask_id', $mask->id)->where('sphere_id', $sphere->id)->first()->name }}</td>
+                            <td>{{ $mask->name }}</td>
                             <td>
                                 @if(isset($mask->status) && $mask->status) <span class="label label-success">@lang('site/sphere.status_1')</span> @else <span class="label label-danger">@lang('site/sphere.status_0')</span> @endif</td>
                             <td>{{ $mask->updated_at }}</td>
                             <td>
                                 <div class="material-switch">
-                                    <input id="someSwitchOptionDanger_{{ $mask->id }}" name="" disabled type="checkbox" checked="checked"/>
-                                    <label for="someSwitchOptionDanger_{{ $mask->id }}" class="label-success"></label>
+                                    <input id="someSwitchOptionDanger_{{ $mask->mask_id }}" name="" disabled type="checkbox" checked="checked"/>
+                                    <label for="someSwitchOptionDanger_{{ $mask->mask_id }}" class="label-success"></label>
                                 </div>
                             </td>
                             <td>
                             @if(isset($salesman_id) && $salesman_id !== false)
                                 @if(Sentinel::hasAccess(['agent.sphere.edit']))
-                                    <a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id, 'salesman_id'=>$salesman_id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
+                                    <a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->mask_id, 'salesman_id'=>$salesman_id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
                                 @endif
                             @else
                                 @if(Sentinel::hasAccess(['agent.sphere.edit']))
-                                    <a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
+                                    <a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>$mask->mask_id]) }}" class="btn btn-xs" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
                                 @endif
                             @endif
-                                <button sphere_id="{{ $sphere->id }}" mask_id="{{ $mask->id }}" type="button" class="btn btn-xs btn-danger remove_mask" > <i class="glyphicon glyphicon-remove"></i> </button>
+                                <button sphere_id="{{ $sphere->id }}" mask_id="{{ $mask->mask_id }}" type="button" class="btn btn-xs btn-danger remove_mask" > <i class="glyphicon glyphicon-remove"></i> </button>
                             </td>
                         </tr>
 
                     @empty
                     @endforelse
 
-                        <tr class="noMaskRow @if( count($masks) != 0 ) hidden @endif">
+                        <tr class="noMaskRow @if( $sphere->masks->count() != 0 ) hidden @endif">
                             <td colspan="5">
                                 {{ trans("site/mask.no_mask") }}
                             </td>

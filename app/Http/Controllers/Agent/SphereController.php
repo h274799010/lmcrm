@@ -18,8 +18,10 @@ use Illuminate\Support\Facades\Input;
 
 class SphereController extends AgentController {
 
+
     /**
      * Страница выводит все маски пользователя по сферам
+     *
      *
      * @param  boolean|integer  $salesman_id
      *
@@ -27,46 +29,53 @@ class SphereController extends AgentController {
      */
     public function index( $salesman_id = false )
     {
+
+        // проверка заданного параметра $salesman_id
         if(isset($salesman_id) && $salesman_id !== false) {
+
+            // если параметр задан
             $user_id = $salesman_id;
         } else {
+
+            // если параметр не задан
             $user_id = $this->uid;
         }
 
-        // выбираем все активные сферы
-//        $spheres = Sphere::active()->get();
 
-        // todo получение всех сфер агента
-        $agentSpheres = AgentSphere::where('agent_id', $this->user->id )->with('sphere')->get();
+        // получаем данные по все именам масок по всем сферам
+        $agentSpheres = $this->user->spheresWithMasks( $user_id )->get();
 
 
-//        dd( $this->user->spheres );
+        // todo это удалить потом, когда будут данные о статусе и дате в таблице масок пользователя
+        // добавление статуса и времени
+        $agentSpheres->map(function( $item ){
 
-        dd( $this->user->spheresWithMasks );
+            // id сферы
+            $sphere_id = $item->id;
 
-        // todo все сферы агента
+            // добавление данных в маску
+            $item->masks->map(function($item) use ($sphere_id){
+
+                // получение данных фильтра маски
+                $agentMask = new AgentBitmask($sphere_id);
+                $maskItem = $agentMask->find( $item->mask_id );
+
+                // добавление статуса
+                $item->status = $maskItem->status;
+                // добавление даты
+                $item->updated_at = $maskItem->updated_at;
+
+                return $item;
+            });
+
+            return $item;
+        });
 
 
-        // todo маски по сферам
+        return view('agent.sphere.index')
+            ->with('agentSpheres',$agentSpheres)
+            ->with('salesman_id', $salesman_id);
 
-
-
-//        dd($agentSpheres);
-
-        // конструктор маски, задаем индекс агента
-        $agentMask = new AgentBitmask();
-        $agentMask->setUserID($user_id);
-
-        if(isset($salesman_id) && $salesman_id !== false) {
-            return view('agent.sphere.index')
-                ->with('agentSpheres',$agentSpheres)
-                ->with('agentMask',$agentMask)
-                ->with('salesman_id', $salesman_id);
-        } else {
-            return view('agent.sphere.index')
-                ->with('agentSpheres',$agentSpheres)
-                ->with('agentMask',$agentMask);
-        }
     }
 
 

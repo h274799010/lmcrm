@@ -36,13 +36,16 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $query->whereIn('id',\Sentinel::findRoleBySlug('agent')->users()->lists('id'))->select(array('users.id','users.first_name','users.last_name', 'users.name', 'users.email', 'users.created_at'));
     }
 
+
     public function leads(){
         return $this->hasMany('\App\Models\Lead','agent_id','id');
     }
 
+
     public function openLead($id){
         return $this->hasOne('\App\Models\OpenLeads','agent_id','id')->where('open_leads.lead_id', '=', $id);
     }
+
 
     public function salesmen(){
         return $this->belongsToMany('\App\Models\Salesman','salesman_info','agent_id','salesman_id');
@@ -57,18 +60,22 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id');
     }
 
+
     public function sphere(){
         return $this->spheres()->first();
     }
+
 
     public function sphereLink(){
         return $this->hasOne('\App\Models\AgentSphere','agent_id','id');
     }
 
+
     public function agentInfo()
     {
         return $this->hasOne('\App\Models\AgentInfo', 'agent_id', 'id');
     }
+
 
     /**
      * Список групп агентов
@@ -79,6 +86,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     {
         return $this->belongsToMany('\App\Models\AgentGroups', 'agents_groups', 'agent_id', 'group_id');
     }
+
 
     /**
      * Кредиты агента
@@ -91,15 +99,17 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
 
 
     /**
-     * Маски по всем сферам агента
+     * Все маски по всем сферам агента
      *
+     *
+     * @param  integer  $user_id
      *
      * @return Builder
      */
-    public function spheresWithMasks(){
+    public function spheresWithMasks( $user_id=NULL ){
 
         // id агента
-        $agent_id = $this->id;
+        $agent_id = $user_id ? $user_id : $this->id;
 
         // находим все сферы агента вместе с масками, которые тоже относятся к агенту
         $spheres = $this
