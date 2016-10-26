@@ -5,28 +5,28 @@
     <div class="page-header">
         <div class="pull-right flip">
             <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
-                <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
+                <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
             </a>
         </div>
     </div>
 
     @if(isset($salesman_id) && $salesman_id !== false)
-        {!! Form::model($sphere,array('route' => ['agent.salesman.sphere.update', $sphere->id, $maskData['id'], $salesman_id], 'method' => 'put', 'class' => 'bf', 'files'=> true)) !!}
+        {{ Form::model($sphere,array('route' => ['agent.salesman.sphere.update', $sphere->id, $maskData['id'], $salesman_id], 'method' => 'put', 'class' => 'bf', 'files'=> true)) }}
     @else
-        {!! Form::model($sphere,array('route' => ['agent.sphere.update', $sphere->id, $maskData['id']], 'method' => 'put', 'class' => 'bf', 'files'=> true)) !!}
+        {{ Form::model($sphere,array('route' => ['agent.sphere.update', $sphere->id, $maskData['id']], 'method' => 'put', 'class' => 'bf', 'files'=> true)) }}
     @endif
 
 
     <div class="panel-group" id="accordion">
 
         <div class="mask_name">
-            <label for="maskName" class="mask_name_label">Mask name</label>
-            {!! Form::text('maskName', $maskData['name'], array('class' => 'form-control', 'required' => 'required')) !!}
+            <label for="maskName" class="mask_name_label">{{ trans("agent/mask/edit.name") }}</label>
+            {{ Form::text('maskName', $maskData['name'], array('class' => 'form-control', 'required' => 'required')) }}
         </div>
 
         <div class="mask_name">
-            <label for="maskDescription" class="mask_name_label">Description</label>
-            {!! Form::textarea('maskDescription', $maskData['description'], array('class' => 'form-control')) !!}
+            <label for="maskDescription" class="mask_name_label"> {{ trans("agent/mask/edit.description") }}</label>
+            {{ Form::textarea('maskDescription', $maskData['description'], array('class' => 'form-control')) }}
         </div>
 
 
@@ -41,7 +41,7 @@
                 <div class="panel-body">
                     @foreach($attr->options as $option)
                         <div class="checkbox checkbox-inline">
-                            {!! Form::checkbox('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => '','id'=>"ch-$option->id")) !!}
+                            {{ Form::checkbox('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => '','id'=>"ch-$option->id")) }}
                             <label for="ch-{{ $option->id }}">{{ $option->name }}</label>
                         </div>
                     @endforeach
@@ -52,8 +52,8 @@
         @endforelse
 
 
-        {!! Form::submit(trans('site/sphere.apply'),['class'=>'btn btn-default']) !!}
-        {!! Form::close() !!}
+        {{ Form::submit(trans('agent/mask/edit.apply'),['class'=>'btn btn-default']) }}
+        {{ Form::close() }}
     </div>
 @endsection
 
