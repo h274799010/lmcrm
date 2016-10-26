@@ -30,5 +30,25 @@ return [
     'sort' => 'sorting',
     'emptytable' => 'Not available in the table data',
 
+    'status' => 'Status',
+    'updated_at' => 'Updated',
+    'active' => 'Active',
+    'action' => 'Action',
+
+
     'date_format' => 'm/d/Y',
 ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+

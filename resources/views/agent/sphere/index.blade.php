@@ -7,18 +7,17 @@
 
     @forelse($spheres as $sphere)
 
-        <h4>{!! $sphere->name !!}</h4>
+        <h4>{{ $sphere->name }}</h4>
         @php($masks = $agentMask->findSphereMask($sphere->id)->get())
 
             <table sphereId="{{ $sphere->id }}" class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>{!! trans("site/mask.name") !!}</th>
-                        <th>{!! trans("main.status") !!}</th>
-                        <th>{!! trans("main.updated_at") !!}</th>
-                        <th>{!! trans("main.active") !!}</th>
-                        {{--<th>{!! trans("main.dell") !!}</th>--}}
-                        <th>{!! trans("main.action") !!}</th>
+                        <th>{{ trans("site/mask.name") }}</th>
+                        <th>{{ trans("main.status") }}</th>
+                        <th>{{ trans("main.updated_at") }}</th>
+                        <th>{{ trans("main.active") }}</th>
+                        <th>{{ trans("main.action") }}</th>
 
                     </tr>
                 </thead>
@@ -27,11 +26,11 @@
                     @forelse($masks as $mask)
 
                         <tr mask_id="{{ $mask->id }}">
-{{--                            <td>{!! $mask->name !!}</td>--}}
-                            <td>{!! \App\Models\UserMasks::where('mask_id', $mask->id)->where('sphere_id', $sphere->id)->first()->name !!}</td>
+
+                            <td>{{ \App\Models\UserMasks::where('mask_id', $mask->id)->where('sphere_id', $sphere->id)->first()->name }}</td>
                             <td>
                                 @if(isset($mask->status) && $mask->status) <span class="label label-success">@lang('site/sphere.status_1')</span> @else <span class="label label-danger">@lang('site/sphere.status_0')</span> @endif</td>
-                            <td>{!! $mask->updated_at !!}</td>
+                            <td>{{ $mask->updated_at }}</td>
                             <td>
                                 <div class="material-switch">
                                     <input id="someSwitchOptionDanger_{{ $mask->id }}" name="" disabled type="checkbox" checked="checked"/>
@@ -57,7 +56,7 @@
 
                         <tr class="noMaskRow @if( count($masks) != 0 ) hidden @endif">
                             <td colspan="5">
-                                no mask
+                                {{ trans("site/mask.no_mask") }}
                             </td>
                         </tr>
 
@@ -66,9 +65,9 @@
 
         @if( Sentinel::hasAccess(['agent.sphere.edit']) )
             @if(isset($salesman_id) && $salesman_id !== false)
-                <a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0, 'salesman_id'=>$salesman_id]) }}" type="button" class="btn btn-xs btn-primary add_mask"> add mask </a>
+                <a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0, 'salesman_id'=>$salesman_id]) }}" type="button" class="btn btn-xs btn-primary add_mask"> {{ trans("site/mask.add_mask") }}</a>
             @else
-                <a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0]) }}" type="button" class="btn btn-xs btn-primary add_mask"> add mask </a>
+                <a href="{{ route('agent.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0]) }}" type="button" class="btn btn-xs btn-primary add_mask"> {{ trans("site/mask.add_mask") }} </a>
             @endif
         @endif
 
@@ -83,24 +82,24 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        Removing the mask
+                        {{ trans("site/mask.remove_head_mask") }}
                     </h4>
                 </div>
 
                 <div class="modal-body">
 
-                    Are you sure?
+                    {{ trans("site/mask.remove_body_mask") }}
 
                 </div>
 
                 <div class="modal-footer">
 
                     <button id="removeModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                        Cancel
+                        {{ trans("site/mask.cancel_remove_mask") }}
                     </button>
 
                     <button id="removeModalChange" type="button" class="btn btn-danger">
-                        Remove mask
+                        {{ trans("site/mask.confirm_remove_mask") }}
                     </button>
                 </div>
 
