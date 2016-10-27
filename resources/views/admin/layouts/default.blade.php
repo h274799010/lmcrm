@@ -25,6 +25,16 @@
      <link rel="stylesheet" type="text/css" href="{{ asset('components/bootstrap/css/bootstrap-material-design.css') }}">
      <link rel="stylesheet" type="text/css" href="{{ asset('components/bootstrap/css/ripples.min.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .form-group label.control-label, label.control-label {
+            color: #3ebbdf;
+            font-size: 16px;
+        }
+        .form-control, .form-group .form-control {
+            color: #333333;
+            font-size: 14px;
+        }
+    </style>
      @yield('styles')
 
     <script type="text/javascript" src="{{ asset('components/jquery/jquery-2.min.js') }}"></script>

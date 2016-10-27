@@ -85,7 +85,7 @@ class SphereController extends AdminController {
                 ],
                 "fields" => ["checkbox","radio","select"],
                 "form.attributes"=>[],
-                "button"=>"Add field"
+                "button"=>trans('admin/sphere.button_add_field')
             ]
         ];
         $lead = [
@@ -103,7 +103,7 @@ class SphereController extends AdminController {
                     "edit"=>"modal.dynamic"
                 ],
                 "form.dynamic"=>[],
-                "button"=>"Add field"
+                "button"=>trans('admin/sphere.button_add_field')
             ]
         ];
 
@@ -124,11 +124,6 @@ class SphereController extends AdminController {
             }
         }
 
-        $max_range = array();
-        for($i = 1; $i <= 6; $i++) {
-            $max_range[] = ['key'=>$i,'value'=>$i];
-        }
-
         $settings = [
             "targetEntity"=>"SphereSettings",
             "_settings"=>[
@@ -142,9 +137,10 @@ class SphereController extends AdminController {
                     "attributes" => [
                         "type"=>'text',
                         "class" => 'form-control',
+                        "required" => "required"
                     ],
                     "settings"=>[
-                        "label" => 'Form name',
+                        "label" => trans('admin/sphere.sphere_name'),
                         "type"=>'text'
                     ]
                 ],
@@ -158,10 +154,31 @@ class SphereController extends AdminController {
                         "data-integer"=>true
                     ],
                     "settings"=>[
-                        "label" => 'price_call_center',
+                        "label" => trans('admin/sphere.price_call_center'),
                         "type"=>'text'
                     ]
                 ],
+                "openLead"=>
+                    [
+                        "renderType"=>"single",
+
+                        'name' => 'openLead',
+
+                        "values"=>3,
+
+                        "attributes" =>
+                            [
+                                "type"=>'text',
+                                "class" => 'form-control',
+                                "data-integer"=>true,
+                            ],
+
+                        "settings"=>
+                            [
+                                "label" => trans('admin/sphere.max_lead'),
+                                "type"=>'text',
+                            ],
+                    ],
                 "status"=>[
                     "renderType"=>"single",
                     'name' => 'status',
@@ -171,39 +188,11 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'Status',
+                        "label" => trans('admin/sphere.status'),
                         "type"=>'select',
                         'option'=>[['key'=>1,'value'=>'on'],['key'=>0,'value'=>'off']],
                     ]
                 ],
-                /*"pending_time"=>[
-                    "renderType"=>"single",
-                    'name' => 'pending_time',
-                    'values'=>'',
-                    "attributes" => [
-                        "type"=>'text',
-                        "class" => 'form-control',
-                        "data-integer"=>true,
-                    ],
-                    "settings"=>[
-                        "label" => 'Pending time',
-                        "type"=>'text'
-                    ]
-                ],
-                "pending_type"=>[
-                    "renderType"=>"single",
-                    'name' => 'pending_type',
-                    'values'=>'',
-                    "attributes" => [
-                        "type"=>'text',
-                        "class" => 'form-control',
-                    ],
-                    "settings"=>[
-                        "label" => 'Pending type',
-                        "type"=>'select',
-                        'option'=>[ ['key'=>0,'value'=>'minutes'], ['key'=>1,'value'=>'hours'], ['key'=>2,'value'=>'days'] ],
-                    ]
-                ],*/
 
                 // Селекты для выбора времени жизни лида на аукционе
 
@@ -216,7 +205,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'lead_auction_expiration_interval',
+                        "label" => trans('admin/sphere.lead_auction_expiration_interval'),
                         "type"=>'label',
                         'option'=>'',
                     ]
@@ -232,7 +221,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'month',
+                        "label" => trans('admin/sphere.month'),
                         "type"=>'select',
                         'option'=>$month,
                     ]
@@ -248,7 +237,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'days',
+                        "label" => trans('admin/sphere.days'),
                         "type"=>'select',
                         'option'=>$days,
                     ]
@@ -264,7 +253,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'hours',
+                        "label" => trans('admin/sphere.hours'),
                         "type"=>'select',
                         'option'=>$hours,
                     ]
@@ -280,7 +269,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'minutes',
+                        "label" => trans('admin/sphere.minutes'),
                         "type"=>'select',
                         'option'=>$minutes,
                     ]
@@ -299,7 +288,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'lead_bad_status_interval',
+                        "label" => trans('admin/sphere.lead_bad_status_interval'),
                         "type"=>'label',
                         'option'=>$month,
                     ]
@@ -315,7 +304,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'month',
+                        "label" => trans('admin/sphere.month'),
                         "type"=>'select',
                         'option'=>$month,
                     ]
@@ -331,7 +320,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'days',
+                        "label" => trans('admin/sphere.days'),
                         "type"=>'select',
                         'option'=>$days,
                     ]
@@ -347,7 +336,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'hours',
+                        "label" => trans('admin/sphere.hours'),
                         "type"=>'select',
                         'option'=>$hours,
                     ]
@@ -363,25 +352,24 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'minutes',
+                        "label" => trans('admin/sphere.minutes'),
                         "type"=>'select',
                         'option'=>$minutes,
                     ]
                 ],
                 // END: Селекты для выбора времени за которое можно поставить статус bad
 
-                "max_range"=>[
+                'max_range'=>[
                     "renderType"=>"single",
                     'name' => 'max_range',
                     'values'=>'',
                     "attributes" => [
                         "type"=>'text',
-                        "class" => 'form-control',
+                        "class" => 'form-control'
                     ],
                     "settings"=>[
-                        "label" => 'max_range',
-                        "type"=>'select',
-                        'option'=>$max_range,
+                        "label" => trans('admin/sphere.max_range'),
+                        "type"=>'text'
                     ]
                 ],
 
@@ -396,7 +384,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'range_show_lead_interval',
+                        "label" => trans('admin/sphere.range_show_lead_interval'),
                         "type"=>'label',
                         'option'=>$month,
                     ]
@@ -412,7 +400,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'month',
+                        "label" => trans('admin/sphere.month'),
                         "type"=>'select',
                         'option'=>$month,
                     ]
@@ -428,7 +416,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'days',
+                        "label" => trans('admin/sphere.days'),
                         "type"=>'select',
                         'option'=>$days,
                     ]
@@ -444,7 +432,7 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'hours',
+                        "label" => trans('admin/sphere.hours'),
                         "type"=>'select',
                         'option'=>$hours,
                     ]
@@ -460,35 +448,12 @@ class SphereController extends AdminController {
                         "class" => 'form-control',
                     ],
                     "settings"=>[
-                        "label" => 'minutes',
+                        "label" => trans('admin/sphere.minutes'),
                         "type"=>'select',
                         'option'=>$minutes,
                     ]
                 ],
                 // END: Период времени, по истечению которого лиды на аукционе будут доступны агенту рангом ниже
-                "openLead"=>
-                [
-                    "renderType"=>"single",
-
-                    'name' => 'openLead',
-
-                    'values'=>'',
-
-                    "attributes" =>
-                    [
-                        "type"=>'text',
-                        "class" => 'form-control',
-                        "data-integer"=>true,
-                    ],
-
-                    "settings"=>
-                    [
-                        "label" => 'Max lead to open',
-                        "type"=>'text',
-                    ],
-
-                    "values"=>3,
-                ],
             ],
         ];
 
@@ -978,13 +943,16 @@ class SphereController extends AdminController {
         /** ----- ОБРАБОТКА ДАННЫХ ПОЛУЧЕННЫХ С ФРОНТЕНДА ---------- */
 
         // если Request пустой, возвращаем false
-        if( !count($request->all()) ) { return response()->json(FALSE); }
+        // если Request пустой, возвращаем сообщение с ошибкой
+        if( !count($request->all()) ) { return response()->json( ['error'=>trans('admin/sphere.errors.required.sphere_name')] ); }
 
         // данные формы сферы
         $sphereData = $request['opt']['data'];
 
         // данные формы лида
         $leadData = $request['lead']['data'];
+
+        $sphereStatus = $sphereData['variables']['status'];
 
 
         /**
@@ -1015,6 +983,7 @@ class SphereController extends AdminController {
                  * У лида может и не быть атрибутов
                  */
 
+                $sphereStatus = 0;
                 $leadDataAttr = NULL;
 
 
@@ -1064,6 +1033,7 @@ class SphereController extends AdminController {
             // todo добавить чтобы можно было сохранять и без атрибутов лида
             // у лида должно быть не меньше 3 атрибутов
 //            return response()->json(FALSE);
+            $sphereStatus = 0;
             $leadDataAttr = NULL;
         }
 
@@ -1103,6 +1073,7 @@ class SphereController extends AdminController {
                  * дальнейшая работа метода прекращается
                  */
 
+                $sphereStatus = 0;
 //                return response()->json(FALSE);
 
             }elseif(count($agentData['variables']) < 3) {
@@ -1110,8 +1081,9 @@ class SphereController extends AdminController {
                  * Если у агента меньше 3-х атрибутов
                  * возвращаем FALSE
                  */
+                    $sphereStatus = 0;
                     $agentDataAttr = collect( $agentData['variables'] );
-//                return response()->json( [ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ] );
+//                return response()->json( [ 'error'=>true, 'message'=>trans('admin/sphere.errors.minAgentForm') ] );
             }elseif( isset($agentData['variables'][0]) ){
                 // 'variables' массив у которого есть хотя бы один атрибут
 
@@ -1133,9 +1105,10 @@ class SphereController extends AdminController {
                  * работа метода останавливается
                  */
 
+                $sphereStatus = 0;
                 $agentDataAttr = NULL;
 //                return response()->json(FALSE);
-//                return response()->json([ 'error'=>true, 'message'=>trans('admin.sphere.errors.minAgentForm') ]);
+//                return response()->json([ 'error'=>true, 'message'=>trans('admin/sphere.errors.minAgentForm') ]);
             }
 
         }else{
@@ -1144,6 +1117,7 @@ class SphereController extends AdminController {
 
             // у агента должно быть не меньше 1 атрибута
             $agentDataAttr = NULL;
+            $sphereStatus = 0;
 
 //            return response()->json(FALSE);
         }
@@ -1203,6 +1177,10 @@ class SphereController extends AdminController {
         // если есть ошибка, функция вернет ошибку и остановится
 //        if($error){ return response()->json(FALSE); }
 
+        if(empty($sphereData['variables']['name'])) {
+            return response( ['error'=>trans('admin/sphere.errors.required.sphere_name')] );
+        }
+
         /** ----- КОНЕЦ ПРОВЕРОК НА ОШИБКИ ---------- */
 
         // Считаем интервалы времени прибывания лида на укционе и времени на статус bad
@@ -1237,6 +1215,12 @@ class SphereController extends AdminController {
         $interval_range = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
         $interval_range = $interval_range->timestamp - $timestamp;
 
+        if( !$minLead || !$sphereData['variables']['openLead'] || !$interval_auction || !$interval_bad
+            || !$interval_range || !$sphereData['variables']['price_call_center'] || !$sphereData['variables']['max_range'] ) {
+
+            $sphereStatus = 0;
+        }
+
         /**
          * Выбираем сферу по id, либо, создаем новую
          *
@@ -1245,7 +1229,7 @@ class SphereController extends AdminController {
             $sphere = Sphere::find($id);
             $sphere->name = $sphereData['variables']['name'];
             $sphere->minLead = $minLead;
-            $sphere->status = $sphereData['variables']['status'];
+            $sphere->status = $sphereStatus;
             $sphere->openLead = $sphereData['variables']['openLead'];
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
@@ -1256,7 +1240,7 @@ class SphereController extends AdminController {
             $sphere = new Sphere();
             $sphere->name = $sphereData['variables']['name'];
             $sphere->minLead = $minLead;
-            $sphere->status = $sphereData['variables']['status'];
+            $sphere->status = $sphereStatus;
             $sphere->openLead = $sphereData['variables']['openLead'];
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
@@ -1520,13 +1504,13 @@ class SphereController extends AdminController {
                 } else {
                     // если атрибута нет или он равен 0 создаем его
                     $agentAttr = new SphereFormFilters($attr);
-                    $sphere->attributes()->save($agentAttr);
+                    $attr = $sphere->attributes()->save($agentAttr);
                 }
 
 
             // УДАЛЕНИЕ ОПЦИЙ АТРИБУТА
 
-                dd($attr);
+                //dd($attr);
 
                 if( $attr['id'] != 0 ){
                     $AttrOptionsInDB = FormFiltersOptions::where( 'attr_id', $attr['id'] )->get();

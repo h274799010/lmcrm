@@ -236,7 +236,7 @@
                         data: postData,
                         success: function (data, textStatus) {
                             if(data['error']) {
-                                $('#alertContent').html(data['message']);
+                                $('#alertContent').html(data['error']);
                                 $('#alert').slideDown();
 
                                 $this.prop('disabled',false);
