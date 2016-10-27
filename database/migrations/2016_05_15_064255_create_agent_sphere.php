@@ -17,6 +17,8 @@ class CreateAgentSphere extends Migration
             $table->integer('agent_id');
             $table->integer('sphere_id');
             $table->integer('agent_range')->default(1)->unsigned();
+            $table->float('lead_revenue_share');     // процент который агент получает с подажи собственных лидов
+            $table->float('payment_revenue_share');  // цена по которой агент закрывает сделку
             $table->timestamps();
             $table->engine = 'InnoDB';
         });
