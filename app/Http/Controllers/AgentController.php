@@ -76,6 +76,47 @@ class AgentController extends BaseController
         $this->mask = new AgentBitmask($sphere_id,$this->uid);
         $price = $this->mask->getStatus()->first();
 
+        $maxPrice = 0;
+
+        $allSpheres = $this->user->spheresWithMasks;
+
+        // добавление статуса и времени
+        $allSpheres->map(function( $item ) use ( &$maxPrice ){
+
+            // id сферы
+            $sphere_id = $item->id;
+
+            // добавление данных в маску
+            $item->masks->map(function($item) use ($sphere_id, &$maxPrice){
+
+                // получение данных фильтра маски
+                $agentMask = new AgentBitmask($sphere_id);
+                $maskItem = $agentMask->find( $item->mask_id );
+
+                // добавление статуса
+                $item->status = $maskItem->status;
+                // добавление даты
+                $item->lead_price = $maskItem->lead_price;
+                // добавление даты
+                $item->updated_at = $maskItem->updated_at;
+
+                if( $maxPrice < $maskItem->lead_price ){
+                    $maxPrice = $maskItem->lead_price;
+                }
+
+                return $item;
+            });
+
+            return $item;
+        });
+
+
+//        dd($maxPrice);
+//
+//        dd( $allSpheres );
+
+        $wasted = $wallet->wasted;
+
 
         /**
          * Данные агента по средствам
@@ -83,9 +124,11 @@ class AgentController extends BaseController
          * количество лидов, которое может купить агент
          *
          */
-        $balance = ( $price && $price->lead_price && $wallet )?floor($wallet->balance/$price->lead_price):0;
+//        $balance = ( $price && $price->lead_price && $wallet )?floor($wallet->balance/$price->lead_price):0;
+        $balance = ( $price && $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
 
-        view()->share('balance', [0, $balance]);
+
+        view()->share('balance', [$wasted, $balance]);
 
         return true;
     }

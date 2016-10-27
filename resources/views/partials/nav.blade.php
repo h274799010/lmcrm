@@ -15,9 +15,23 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             @if(isset($balance))
                 <ul class="nav navbar-top-links navbar-left flip">
-                    <li><a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance[0]}} </a></li>
-                    <li><a><i class="fa fa-copyright bg-blue"></i> {{$balance[1]}} {{ trans('navbar.credits') }}</a></li>
+                    <li>
+                        <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance[0]}} </a>
+                    </li>
+                    <li
+                            data-toggle="modal"
+                            data-target="#creditsDetails"
+                    >
+
+
+
+                        <a><i class="fa fa-copyright bg-blue"></i> {{$balance[1]}} {{ trans('navbar.credits') }}</a>
+                    </li>
                 </ul>
+
+
+
+
             @endif
 
             <ul class="nav navbar-top-links navbar-right language_bar_chooser flip">
