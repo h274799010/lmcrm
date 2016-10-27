@@ -36,8 +36,20 @@ class Wallet extends Model {
         return $this->belongsTo('App\Models\Agent', 'id', 'agent_id');
     }
 
+    /**
+     * Подсчет полного баланса по кошельку
+     *
+     */
     public function getBalanceAttribute(){
-        return $this->attributes['buyed'] + $this->attributes['earned'];
+
+        $balance  = $this->attributes['buyed'];
+        $balance += $this->attributes['earned'];
+        $balance += $this->attributes['overdraft'];
+
+        // отнимаем wasted
+        $balance -= $this->attributes['wasted'];
+
+        return $balance;
     }
 
     /**

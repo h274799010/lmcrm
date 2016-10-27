@@ -28,7 +28,38 @@
             </div>
 
             <div class="modal-body">
-                {{$balance[1]}}
+
+                @foreach( $balance['allSpheres'] as $sphere )
+
+                   <div><b>{{ $sphere['name']  }}</b></div>
+
+                    <table class="table">
+
+                        @forelse( $sphere['masks'] as $mask)
+
+                            @if( $mask['status'] != 0 )
+                            <tr>
+                                <td>{{$mask['name']}}</td>
+                                <td style="text-align: right">{{$mask['leadsCount']}}</td>
+                            </tr>
+                            @endif
+
+                        @empty
+
+                            <tr>
+                                <td>
+                                    no active masks
+                                </td>
+                            </tr>
+
+                        @endforelse
+
+                    </table>
+
+                    <hr>
+
+                @endforeach
+
             </div>
 
             <div class="modal-footer">

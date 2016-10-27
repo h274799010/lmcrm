@@ -16,16 +16,10 @@
             @if(isset($balance))
                 <ul class="nav navbar-top-links navbar-left flip">
                     <li>
-                        <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance[0]}} </a>
+                        <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance['wasted']}} </a>
                     </li>
-                    <li
-                            data-toggle="modal"
-                            data-target="#creditsDetails"
-                    >
-
-
-
-                        <a><i class="fa fa-copyright bg-blue"></i> {{$balance[1]}} {{ trans('navbar.credits') }}</a>
+                    <li class="credit_button" data-toggle="modal" data-target="#creditsDetails">
+                        <a><i class="fa fa-copyright bg-blue"></i> {{$balance['minLeadsToBuy']}} {{ trans('navbar.credits') }}</a>
                     </li>
                 </ul>
 

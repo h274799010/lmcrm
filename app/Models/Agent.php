@@ -117,6 +117,8 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
             ->with(['masks' => function( $query ) use ( $agent_id ){    // вместе с масками
                 // маски которые принадлежат текущему агенту
                 $query->where( 'user_id', $agent_id );
+//                $query->where( 'status', '<>', 0 );
+
         }]);
 
         return $spheres;

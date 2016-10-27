@@ -36,6 +36,11 @@ class AgentController extends BaseController
     // конструктор класса
     public function __construct()
     {
+
+        $user = Sentinel::getUser();
+
+        if( !$user ){ return false; }
+
         // получение id пользователя
         $this->uid = Sentinel::getUser()->id;
 
@@ -74,24 +79,31 @@ class AgentController extends BaseController
 
         // получение строки маски агента
         $this->mask = new AgentBitmask($sphere_id,$this->uid);
-        $price = $this->mask->getStatus()->first();
 
         $maxPrice = 0;
 
         $allSpheres = $this->user->spheresWithMasks;
 
-        // добавление статуса и времени
-        $allSpheres->map(function( $item ) use ( &$maxPrice ){
+        // добавление статуса, времени и прайс
+        $allSpheres->map(function( $item ) use ( &$maxPrice, $wallet ){
 
             // id сферы
             $sphere_id = $item->id;
 
             // добавление данных в маску
-            $item->masks->map(function($item) use ($sphere_id, &$maxPrice){
+            $item->masks->map(function($item) use ( $sphere_id, &$maxPrice, $wallet ){
 
                 // получение данных фильтра маски
                 $agentMask = new AgentBitmask($sphere_id);
                 $maskItem = $agentMask->find( $item->mask_id );
+
+                if( $maskItem->status == 0){
+                    return false;
+                }
+
+                // количество лидов, которое агент может купить по этой маске
+                $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
+
 
                 // добавление статуса
                 $item->status = $maskItem->status;
@@ -111,11 +123,8 @@ class AgentController extends BaseController
         });
 
 
-//        dd($maxPrice);
-//
-//        dd( $allSpheres );
-
         $wasted = $wallet->wasted;
+
 
 
         /**
@@ -125,10 +134,21 @@ class AgentController extends BaseController
          *
          */
 //        $balance = ( $price && $price->lead_price && $wallet )?floor($wallet->balance/$price->lead_price):0;
-        $balance = ( $price && $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
+        $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
 
 
-        view()->share('balance', [$wasted, $balance]);
+        $balance =
+        [
+            'wasted' => $wasted,
+            'minLeadsToBuy' => $minLeadsToBuy,
+            'allSpheres' => $allSpheres
+        ];
+
+//        dd($balance);
+
+        view()->share('balance', $balance);
+
+//        view()->share('balance', [ 'wasted' => $wasted, 'minLeadsToBuy' $minLeadsToBuy, $allSpheres]);
 
         return true;
     }
