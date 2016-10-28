@@ -247,3 +247,58 @@ footer,.footer,#footer{
 	cursor: pointer;
 }
 
+/* Основной контейнер выпадающего меню */
+#balance_data_content{
+	font-weight: bold;
+}
+
+/* Основной контейнер выпадающего меню */
+#balance_data_content > li{
+    padding-left: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px lightgrey solid;
+}
+
+
+#balance_data_content  .balance_masks_block{
+    font-weight: normal;
+    padding-left: 10px;
+    padding-right: 10px;
+
+}
+
+#balance_data_content  .balance_masks_block > li {
+
+}
+
+#balance_data_content  .balance_masks_block > li >span:last-child{
+    float: right;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

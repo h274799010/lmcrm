@@ -225,7 +225,6 @@ $(function(){
 	});
 
 
-
     /** наполняет таблицу обтеин на странице где только одна таблица с масками */
     $('.ajax-dataTable').each(function() {
         var $table=$(this);
@@ -281,9 +280,108 @@ $(function(){
     });
 
 
+    /** Контейнер выпадающего меню с балансом по всем маскам агента */
+
+    // наполнение контейнера с балансом данными, перед появлением
+    $('.balance_data_container').on('show.bs.dropdown', function () {
+
+        // получаем данные баланса из куки и преобразовываем в json
+        var balanceData = JSON.parse( getCookie('balance') );
+
+        // выбираем блок с контентом выпадающего меню
+        var balance = $('#balance_data_content');
+
+        // перебираем все маски и заносим данные в выпадающее меню
+        $( balanceData.allSpheres ).each(function( key, val ){
+
+            // итем с именем маски
+            var li = $('<li />');
+
+            // дочерний блок в котором будут имена масок с количеством лидов по ним
+            var childrenUl = $('<ul />');
+
+            childrenUl.addClass('balance_masks_block');
+
+            // добавляем имя сферы в блок
+            li.text( val.name.replace( '+', ' ' ) );
+
+            // добавляем в блок с именем сферы блок с его масками
+            li.append( childrenUl );
+
+
+            // проверка наличия масок в сфере
+
+            if( val.masks.length != 0 ){
+                // если маски есть
+                // перебираем все маски и добавляем название маски и количество лидов по ней
+
+                $(val.masks).each(function( key, mask ){
+                    // перебираем все маски
+
+                    if( mask.status === undefined ){ return false; }
+
+                    // блок с именем
+                    var name = $('<span />');
+                    // блок с количеством лидов
+                    var count = $('<span />');
+
+                    // добавляем имя маски в блок с именем
+                    name.text( mask.name.replace('+',' ') );
+
+                    // добавляем количество лидво в блок с количеством
+                    count.text( mask.leadsCount );
+
+                    // создаем li дочернего ul блока
+                    var childrenLi = $('<li />');
+
+                    // добавляем блок с именем к дочернему li
+                    childrenLi.append(name);
+                    // добавляем блок с количеством лидов к дочернему li
+                    childrenLi.append(count);
+
+                    childrenUl.append(childrenLi);
+                });
+            }
+
+
+            //Проверка на содержание блока со сферами
+            if( childrenUl.children().length == 0){
+                // если масок нет
+                // просто добавляем надпись что масок нет
+
+                // li дочернего блока
+                var childrenLi = $('<li />');
+                // наполнение li дочернего блока
+                childrenLi.text('no active masks ');
+                // подключение li к дочернему ul
+                childrenUl.append(childrenLi);
+            }
+
+
+            balance.append(li);
+        });
+
+
+
+
+
+        //alert('работаю');
+
+    });
+
+    // очистка контейнера с балансом, после его сворачивания
+    $('.balance_data_container').on('hidden.bs.dropdown', function () {
+
+
+        $('#balance_data_content').empty();
+
+    });
 
 
 });
+
+
+
 
 
 
@@ -326,10 +424,17 @@ source.onmessage = function(event) {
 	});
 
 
-
-
 };
 
+
+
+// функция для работы с куки
+function getCookie(name) {
+    var matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+}
 
 
 
