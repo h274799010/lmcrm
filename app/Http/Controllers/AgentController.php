@@ -140,10 +140,14 @@ class AgentController extends BaseController
             'allSpheres' => $allSpheres
         ];
 
-
+        // добавляем данные по балансу на страницу
         view()->share('balance', $balance);
 
-        Cookie::queue('balance', 'balanceData');
+        // переводим данные по балансу в json
+        $balanceJSON = json_encode($balance);
+
+        // добавляем на страницу куки с данными по балансу
+        Cookie::queue('balance', $balanceJSON);
 
         return true;
     }

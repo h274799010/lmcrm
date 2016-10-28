@@ -21,7 +21,18 @@
                     <li class="credit_button" data-toggle="modal" data-target="#creditsDetails">
                         <a><i class="fa fa-copyright bg-blue"></i> {{$balance['minLeadsToBuy']}} {{ trans('navbar.credits') }}</a>
                     </li>
+
+
+                    <li class="credit_button dropdown" >
+                        <a id="balance_data" data-target="#" href="http://example.com" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-copyright bg-blue"></i> {{$balance['minLeadsToBuy']}} {{ trans('navbar.credits') }}</a>
+
+                        <ul class="dropdown-menu" aria-labelledby="balance_data">
+                            <li>balance</li>
+                        </ul>
+
+                    </li>
                 </ul>
+
 
 
 
