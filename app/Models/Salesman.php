@@ -43,12 +43,37 @@ class Salesman extends EloquentUser implements AuthenticatableContract, CanReset
     }
 
     public function spheres(){
-        return $this->belongsToMany('\App\Models\Sphere','salesman_info','salesman_id','sphere_id');
+        return $this->belongsToMany('\App\Models\Sphere','user_masks','user_id','sphere_id');
     }
 
     public function sphere(){
         return $this->spheres()->first();
     }
+
+    /**
+     * Все маски по всем сферам salesman
+     *
+     *
+     * @param  integer  $user_id
+     *
+     * @return Builder
+     */
+    public function spheresWithMasks( $user_id=NULL ){
+
+        // id салесмана
+        $agent_id = $user_id ? $user_id : $this->id;
+
+        // находим все сферы агента вместе с масками, которые тоже относятся к агенту
+        $spheres = $this
+            ->spheres()                                                 // все сферы агента
+            ->with(['masks' => function( $query ) use ( $agent_id ){    // вместе с масками
+                // маски которые принадлежат текущему агенту
+                $query->where( 'user_id', $agent_id );
+            }]);
+
+        return $spheres;
+    }
+
 
     public function wallet(){
         return $this->belongsToMany('\App\Models\Wallet','salesman_info','salesman_id','wallet_id');
