@@ -80,8 +80,10 @@ class AgentController extends BaseController
         // получение строки маски агента
         $this->mask = new AgentBitmask($sphere_id,$this->uid);
 
+        // максимальная цена по маскам
         $maxPrice = 0;
 
+        // получение всех сфер вместе с масками
         $allSpheres = $this->user->spheresWithMasks;
 
         // добавление статуса, времени и прайс
@@ -122,21 +124,14 @@ class AgentController extends BaseController
             return $item;
         });
 
-
+        // данные по забракованным лидам
         $wasted = $wallet->wasted;
 
-
-
-        /**
-         * Данные агента по средствам
-         *
-         * количество лидов, которое может купить агент
-         *
-         */
-//        $balance = ( $price && $price->lead_price && $wallet )?floor($wallet->balance/$price->lead_price):0;
+        // минимальное количество лидо которое может купить агент
+        // сколько агент может купить лидов по маске с максимальным прайсом
         $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
 
-
+        // данные по балансу в шапке
         $balance =
         [
             'wasted' => $wasted,
@@ -144,11 +139,8 @@ class AgentController extends BaseController
             'allSpheres' => $allSpheres
         ];
 
-//        dd($balance);
 
         view()->share('balance', $balance);
-
-//        view()->share('balance', [ 'wasted' => $wasted, 'minLeadsToBuy' $minLeadsToBuy, $allSpheres]);
 
         return true;
     }
