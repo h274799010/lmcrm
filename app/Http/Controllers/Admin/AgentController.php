@@ -125,7 +125,9 @@ class AgentController extends AdminController
         // все данные агента по кредитам (кошелек, история, транзакции)
         $userInfo = PayMaster::userInfo($id);
 
-        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role, 'userInfo'=>$userInfo]);
+        $agentSpheres = $agent->agentSphere()->with('sphere')->get();
+
+        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role, 'userInfo'=>$userInfo, 'agentSpheres'=>$agentSpheres]);
     }
 
 
@@ -154,6 +156,27 @@ class AgentController extends AdminController
 
         $agent->spheres()->sync($request->input('spheres'));
         return redirect()->route('admin.agent.index');
+    }
+
+    /**
+     * Метод обновляет revenue_share агента в табл. agent_sphere
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function revenueUpdate(Request $request)
+    {
+        $agentSphere = AgentSphere::find($request->input('agentSphere_id'));
+
+        if(isset($agentSphere->id)) {
+            $agentSphere->lead_revenue_share = $request->input('lead_revenue_share');
+            $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+
+            $agentSphere->save();
+            return response()->json([ 'error'=>false, 'message'=>'revenue share updated success' ]);
+        }
+
+        return response()->json([ 'error'=>true, 'message'=>'revenue share not updated!' ]);
     }
 
 

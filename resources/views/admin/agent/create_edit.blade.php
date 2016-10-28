@@ -30,6 +30,12 @@
                         Wallet </a>
                 </li>
             @endif
+            @if(isset($agentSpheres))
+                <li><a href="#revenue" data-toggle="tab">
+                        {{-- посадить на trans() --}}
+                        Revenue </a>
+                </li>
+            @endif
 
 
         </ul>
@@ -77,22 +83,6 @@
                 <span class="help-block">{{ $errors->first('email', ':message') }}</span>
             </div>
         </div>
-
-        <div class="form-group  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
-            {!! Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) !!}
-            <div class="controls">
-                {!! Form::text('lead_revenue_share', (isset($agent))?$agent->agentInfo->lead_revenue_share:NULL, array('class' => 'form-control')) !!}
-                <span class="help-block">{{ $errors->first('lead_revenue_share', ':message') }}</span>
-            </div>
-        </div>
-        <div class="form-group  {{ $errors->has('payment_revenue_share') ? 'has-error' : '' }}">
-            {!! Form::label('payment_revenue_share', trans("admin/users.payment_revenue_share"), array('class' => 'control-label')) !!}
-            <div class="controls">
-                {!! Form::text('payment_revenue_share', (isset($agent))?$agent->agentInfo->payment_revenue_share:NULL, array('class' => 'form-control')) !!}
-                <span class="help-block">{{ $errors->first('payment_revenue_share', ':message') }}</span>
-            </div>
-        </div>
-
         <div class="form-group  {{ $errors->has('password') ? 'has-error' : '' }}">
             {!! Form::label('password', trans("admin/users.password"), array('class' => 'control-label')) !!}
             <div class="controls">
@@ -114,6 +104,26 @@
                 <span class="help-block">{{ $errors->first('role', ':message') }}</span>
             </div>
         </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                            <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                        </a>
+                        <button type="reset" class="btn btn-sm btn-default">
+                            <span class="glyphicon glyphicon-remove-circle"></span> {{
+                        trans("admin/modal.reset") }}
+                        </button>
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <span class="glyphicon glyphicon-ok-circle"></span>
+                            @if	(isset($agent))
+                                {{ trans("admin/modal.update") }}
+                            @else
+                                {{trans("admin/modal.create") }}
+                            @endif
+                        </button>
+                    </div>
+                </div>
                 {!! Form::close() !!}
 
     </div>
@@ -244,31 +254,82 @@
 
                 </table>
 
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                            <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                        </a>
+                        <button type="reset" class="btn btn-sm btn-default">
+                            <span class="glyphicon glyphicon-remove-circle"></span> {{
+                        trans("admin/modal.reset") }}
+                        </button>
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <span class="glyphicon glyphicon-ok-circle"></span>
+                            @if	(isset($agent))
+                                {{ trans("admin/modal.update") }}
+                            @else
+                                {{trans("admin/modal.create") }}
+                            @endif
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
             @endif
 
+            @if(isset($agentSpheres))
+                <div class="tab-pane" id="revenue">
 
-            <div class="form-group">
-                <div class="col-md-12">
-                    <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
-                        <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
-                    </a>
-                    <button type="reset" class="btn btn-sm btn-default">
-                        <span class="glyphicon glyphicon-remove-circle"></span> {{
-                        trans("admin/modal.reset") }}
-                    </button>
-                    <button type="submit" class="btn btn-sm btn-success">
-                        <span class="glyphicon glyphicon-ok-circle"></span>
-                        @if	(isset($agent))
-                            {{ trans("admin/modal.update") }}
-                        @else
-                            {{trans("admin/modal.create") }}
-                        @endif
-                    </button>
+                    @foreach($agentSpheres as $agentSphere)
+                        {!! Form::open(array('route' => ['admin.agent.revenue'], 'method' => 'post', 'class' => 'validate agent-sphere-form agentSphereForm', 'files'=> true)) !!}
+                        <div class="alert alert-success alert-dismissible fade in" role="alert" style="display: none;">
+                            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            <div class="alertContent"></div>
+                        </div>
+                        <input type="hidden" name="agentSphere_id" value="{{ $agentSphere->id }}">
+                        <h3>Sphere: "{{ $agentSphere->sphere->name }}"</h3>
+                        <div class="form-group-wrap">
+                            <div class="form-group form-group-revenue  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
+                                {!! Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) !!}
+                                <div class="controls">
+                                    {!! Form::text('lead_revenue_share', (isset($agentSphere))?$agentSphere->lead_revenue_share:NULL, array('class' => 'form-control')) !!}
+                                    <span class="help-block">{{ $errors->first('lead_revenue_share', ':message') }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-revenue  {{ $errors->has('payment_revenue_share') ? 'has-error' : '' }}">
+                                {!! Form::label('payment_revenue_share', trans("admin/users.payment_revenue_share"), array('class' => 'control-label')) !!}
+                                <div class="controls">
+                                    {!! Form::text('payment_revenue_share', (isset($agentSphere))?$agentSphere->payment_revenue_share:NULL, array('class' => 'form-control')) !!}
+                                    <span class="help-block">{{ $errors->first('payment_revenue_share', ':message') }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <div class="col-md-12">
+                                <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                                    <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                                </a>
+                                <button type="reset" class="btn btn-sm btn-default">
+                                    <span class="glyphicon glyphicon-remove-circle"></span> {{
+                            trans("admin/modal.reset") }}
+                                </button>
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-ok-circle"></span>
+                                    @if	(isset($agent))
+                                        {{ trans("admin/modal.update") }}
+                                    @else
+                                        {{trans("admin/modal.create") }}
+                                    @endif
+                                </button>
+                            </div>
+                        </div>
+                        {!! Form::close() !!}
+                    @endforeach
+
                 </div>
-            </div>
-
+            @endif
         </div>
     </div>
 @stop
@@ -341,6 +402,24 @@
     .wallet_decrease{
         background: #E6B9C8;
         color: #833B53;
+    }
+
+    .form-group-revenue {
+        width: 49%;
+        float: left;
+        margin-top: 0;
+    }
+
+    .form-group-revenue:last-child {
+        float: right;
+    }
+    .form-group-wrap:after, .clearfix:after {
+        content: " ";
+        display: block;
+        clear: both;
+    }
+    .agent-sphere-form {
+        margin-bottom: 36px;
     }
 
 </style>
@@ -442,6 +521,29 @@
             $('#earned-minus').val('');
             $('#wasted-plus').val('');
             $('#wasted-minus').val('');
+        });
+
+        $('.agentSphereForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var param = $(this).serialize();
+
+            var $alert = $(this).find('.alert');
+
+            $alert.find('.close').on('click', function (e) {
+                e.preventDefault();
+                $alert.slideUp();
+            });
+
+            $.post('{{ route('admin.agent.revenue') }}', param, function (data) {
+                if(data['error'] == true) {
+                    $alert.removeClass('alert-success').addClass('alert-warning');
+                } else {
+                    $alert.removeClass('alert-warning').addClass('alert-success');
+                }
+                $alert.find('.alertContent').html(data['message']);
+                $alert.slideDown();
+            });
         });
 
 

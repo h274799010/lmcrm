@@ -62,7 +62,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.agent.index') }}">
+                        <a href="{{ route('admin.operator.index') }}">
                             <i class="glyphicon glyphicon-star"></i> Operators
                         </a>
                     </li>

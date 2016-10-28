@@ -1736,8 +1736,8 @@ class SphereController extends AdminController {
             $mask = new AgentBitmask($sphere->id);
 
             // добавляем в массив (с ключем id сферы) все неактинвые маски сферы с агентами масок
-            //$collection[$sphere->id] = $mask->where('status', '=', 0)->with('user')->get();
-            $collection[$sphere->id] = $mask->whereIn('status', [0, 1])->with('user')->get();
+            $collection['notActive'][$sphere->id] = $mask->where('status', '=', 0)->with('user')->get();
+            $collection['active'][$sphere->id] = $mask->whereIn('status', [1])->with('user')->get();
         }
 
         return view('admin.sphere.reprice')

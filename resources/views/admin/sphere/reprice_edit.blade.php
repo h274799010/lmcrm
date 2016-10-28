@@ -10,6 +10,11 @@
     <div class="page-header">
         <h3>
             {!! trans("admin/sphere.sphere") !!}
+            <div class="pull-right flip">
+                <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
+                    <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
+                </a>
+            </div>
         </h3>
     </div>
 
