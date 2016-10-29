@@ -41,7 +41,7 @@
             </tbody>
         </table>
 
-        <h4>{{ trans('admin/sphere.not_active_mask') }}</h4>
+        <h4>{{ trans('admin/sphere.inactive_mask') }}</h4>
         <table class="table table-striped table-hover datatable">
             <thead>
             <tr>

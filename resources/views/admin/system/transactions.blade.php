@@ -3,7 +3,7 @@
 @section('main')
     <div class="page-header">
         <h3>
-            All transactions
+            {{ trans('admin/wallet.transactions.title') }}
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
                     <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
@@ -21,15 +21,15 @@
 
                 <thead>
                 <tr>
-                    <th>time</th>
-                    <th>user</th>
-                    <th>amount</th>
-                    <th>after</th>
-                    <th>wallet type</th>
-                    <th>type</th>
-                    <th>transaction</th>
-                    <th>initiator user</th>
-                    <th>status</th>
+                    <th>{{ trans('admin/wallet.time') }}</th>
+                    <th>{{ trans('admin/wallet.user') }}</th>
+                    <th>{{ trans('admin/wallet.amount') }}</th>
+                    <th>{{ trans('admin/wallet.after') }}</th>
+                    <th>{{ trans('admin/wallet.wallet_type') }}</th>
+                    <th>{{ trans('admin/wallet.type') }}</th>
+                    <th>{{ trans('admin/wallet.transaction') }}</th>
+                    <th>{{ trans('admin/wallet.initiator_user') }}</th>
+                    <th>{{ trans('admin/wallet.status') }}</th>
                 </tr>
                 </thead>
 

@@ -26,14 +26,12 @@
 
             @if (isset($agent))
                 <li><a href="#wallet" data-toggle="tab">
-                        {{-- посадить на trans() --}}
-                        Wallet </a>
+                        {{ trans('admin/modal.wallet') }} </a>
                 </li>
             @endif
             @if(isset($agentSpheres))
                 <li><a href="#revenue" data-toggle="tab">
-                        {{-- посадить на trans() --}}
-                        Revenue </a>
+                        {{ trans('admin/modal.revenue') }} </a>
                 </li>
             @endif
 
@@ -137,17 +135,17 @@
 
                     <div>
                         <div class="type_buyed">
-                            <div><b>buyed:</b> <span id="buyedVal">{{ $userInfo->buyed }}</span></div>
+                            <div><b>{{ trans('admin/wallet.buyed') }}:</b> <span id="buyedVal">{{ $userInfo->buyed }}</span></div>
 
                         </div>
 
                         <div class="type_earned">
-                            <div><b>earned:</b> <span id="earnedVal">{{  $userInfo->earned }}</span></div>
+                            <div><b>{{ trans('admin/wallet.earned') }}:</b> <span id="earnedVal">{{  $userInfo->earned }}</span></div>
 
                         </div>
 
                         <div class="type_wasted">
-                            <div><b>wasted:</b> <span id="wastedVal">{{  $userInfo->wasted }}</span></div>
+                            <div><b>{{ trans('admin/wallet.wasted') }}:</b> <span id="wastedVal">{{  $userInfo->wasted }}</span></div>
 
                         </div>
 
@@ -223,14 +221,14 @@
 
                     <thead>
                         <tr>
-                            <th>time</th>
-                            <th>amount</th>
-                            <th>after</th>
-                            <th>wallet type</th>
-                            <th>type</th>
-                            <th>transaction</th>
-                            <th>initiator user</th>
-                            <th>status</th>
+                            <th>{{ trans('admin/wallet.time') }}</th>
+                            <th>{{ trans('admin/wallet.amount') }}</th>
+                            <th>{{ trans('admin/wallet.after') }}</th>
+                            <th>{{ trans('admin/wallet.wallet_type') }}</th>
+                            <th>{{ trans('admin/wallet.type') }}</th>
+                            <th>{{ trans('admin/wallet.transaction') }}</th>
+                            <th>{{ trans('admin/wallet.initiator_user') }}</th>
+                            <th>{{ trans('admin/wallet.status') }}</th>
                         </tr>
                     </thead>
 
@@ -288,7 +286,7 @@
                             <div class="alertContent"></div>
                         </div>
                         <input type="hidden" name="agentSphere_id" value="{{ $agentSphere->id }}">
-                        <h3>Sphere: "{{ $agentSphere->sphere->name }}"</h3>
+                        <h3>{{ trans('admin/sphere.name') }}: "{{ $agentSphere->sphere->name }}"</h3>
                         <div class="form-group-wrap">
                             <div class="form-group form-group-revenue  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
                                 {!! Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) !!}

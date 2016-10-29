@@ -3,7 +3,7 @@
 @section('main')
     <div class="page-header">
         <h3>
-            Leads Info
+            {{ trans('leads.title') }}
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
                     <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
@@ -21,36 +21,36 @@
 
                 <thead>
                 <tr>
-                    <th rowspan="2"> name </th>
-                    <th colspan="2"> счетчик </th>
-                    <th>затраты</th>
+                    <th rowspan="2"> {{ trans('admin/wallet.name') }} </th>
+                    <th colspan="2"> {{ trans('admin/wallet.counter') }} </th>
+                    <th>{{ trans('admin/wallet.expenses') }}</th>
 
-                    <th colspan="2">доход</th>
+                    <th colspan="2">{{ trans('admin/wallet.revenue') }}</th>
 
-                    <th colspan="2">прибыль с продаж</th>
+                    <th colspan="2">{{ trans('admin/wallet.sales_profit') }}</th>
 
-                    <th colspan="2">время завершения</th>
-                    <th colspan="3">статус</th>
+                    <th colspan="2">{{ trans('admin/wallet.completion_time') }}</th>
+                    <th colspan="3">{{ trans('admin/wallet.status') }}</th>
 
                     <th> </th>
                 </tr>
                 <tr>
-                    <th>открытия</th>
-                    <th>сделки</th>
-                    <th>оператор</th>
+                    <th>{{ trans('admin/wallet.discoveries') }}</th>
+                    <th>{{ trans('admin/wallet.dealings') }}</th>
+                    <th>{{ trans('admin/wallet.operator') }}</th>
 
-                    <th>продажи</th>
-                    <th>сделки</th>
+                    <th>{{ trans('admin/wallet.realization') }}</th>
+                    <th>{{ trans('admin/wallet.dealings') }}</th>
 
-                    <th>депозитор</th>
-                    <th>система</th>
+                    <th>{{ trans('admin/wallet.depositor') }}</th>
+                    <th>{{ trans('admin/wallet.system') }}</th>
 
-                    <th class="lead_expiry_time">lead</th>
-                    <th>openLeads</th>
+                    <th class="lead_expiry_time">{{ trans('admin/wallet.lead') }}</th>
+                    <th>{{ trans('admin/wallet.open_leads') }}</th>
 
-                    <th>лид</th>
-                    <th>аукцион</th>
-                    <th>оплата</th>
+                    <th>{{ trans('admin/wallet.lead') }}</th>
+                    <th>{{ trans('admin/wallet.auction') }}</th>
+                    <th>{{ trans('admin/wallet.payment') }}</th>
 
                     <th> </th>
                 </tr>

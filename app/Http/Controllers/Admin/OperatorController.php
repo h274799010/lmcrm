@@ -23,7 +23,14 @@ class OperatorController extends AdminController {
     public function data()
     {
         $operatorRole = Sentinel::findRoleBySlug('operator');
-        $operators = $operatorRole->users()->select('users.id as id', 'users.first_name as first_name', 'users.last_name as last_name', 'users.name as name', 'users.email as email', 'users.created_at as created_at');
+        $operators = $operatorRole->users()->select(
+            'users.id as id',
+            'users.first_name as first_name',
+            'users.last_name as last_name',
+            'users.name as name',
+            'users.email as email',
+            'users.created_at as created_at'
+        );
 
         return Datatables::of($operators)
             ->remove_column('first_name')

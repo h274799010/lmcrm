@@ -13,6 +13,9 @@ return [
     'agent_form' => 'Agent form',
     'statuses' => 'Statuses',
     'finish' => 'Finish',
+    'price' => 'Price',
+    'active_mask' => 'Active mask',
+    'inactive_mask' => 'Inactive mask',
 
     'month' => 'Month',
     'days' => 'Days',

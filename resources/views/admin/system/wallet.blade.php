@@ -3,7 +3,7 @@
 @section('main')
     <div class="page-header">
         <h3>
-            System Wallet
+            {{ trans('admin/wallet.head') }}
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
                     <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
@@ -21,17 +21,17 @@
 
                     <div>
                         <div class="type_buyed">
-                            <div><b>buyed:</b> <span id="buyedVal">{{ $system->buyed }}</span></div>
+                            <div><b>{{ trans('admin/wallet.buyed') }}:</b> <span id="buyedVal">{{ $system->buyed }}</span></div>
 
                         </div>
 
                         <div class="type_earned">
-                            <div><b>earned:</b> <span id="earnedVal">{{  $system->earned }}</span></div>
+                            <div><b>{{ trans('admin/wallet.earned') }}:</b> <span id="earnedVal">{{  $system->earned }}</span></div>
 
                         </div>
 
                         <div class="type_wasted">
-                            <div><b>wasted:</b> <span id="wastedVal">{{  $system->wasted }}</span></div>
+                            <div><b>{{ trans('admin/wallet.wasted') }}:</b> <span id="wastedVal">{{  $system->wasted }}</span></div>
 
                         </div>
 
@@ -55,7 +55,7 @@
 
                             <input class="wallet_type" type="hidden" value="buyed">
 
-                            <input class="submit_button" type="submit" value="set">
+                            <input class="submit_button" type="submit" value="{{ trans('admin/wallet.set') }}">
                         </form>
 
                     </div>
@@ -76,7 +76,7 @@
 
                             <input class="wallet_type" type="hidden" value="earned">
 
-                            <input class="submit_button" type="submit" value="set">
+                            <input class="submit_button" type="submit" value="{{ trans('admin/wallet.set') }}">
                         </form>
                     </div>
 
@@ -96,7 +96,7 @@
 
                             <input class="wallet_type" type="hidden" value="wasted">
 
-                            <input class="submit_button" type="submit" value="set">
+                            <input class="submit_button" type="submit" value="{{ trans('admin/wallet.set') }}">
                         </form>
                     </div>
 
@@ -107,14 +107,14 @@
 
                     <thead>
                     <tr>
-                        <th>time</th>
-                        <th>amount</th>
-                        <th>after</th>
-                        <th>wallet type</th>
-                        <th>type</th>
-                        <th>transaction</th>
-                        <th>initiator user</th>
-                        <th>status</th>
+                        <th>{{ trans('admin/wallet.time') }}</th>
+                        <th>{{ trans('admin/wallet.amount') }}</th>
+                        <th>{{ trans('admin/wallet.after') }}</th>
+                        <th>{{ trans('admin/wallet.wallet_type') }}</th>
+                        <th>{{ trans('admin/wallet.type') }}</th>
+                        <th>{{ trans('admin/wallet.transaction') }}</th>
+                        <th>{{ trans('admin/wallet.initiator_user') }}</th>
+                        <th>{{ trans('admin/wallet.status') }}</th>
                     </tr>
                     </thead>
 
