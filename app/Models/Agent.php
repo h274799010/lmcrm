@@ -97,6 +97,11 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $this->hasOne('\App\Models\Wallet','user_id','id');
     }
 
+    public function agentSphere()
+    {
+        return $this->hasMany('\App\Models\AgentSphere', 'agent_id', 'id');
+    }
+
 
     /**
      * Все маски по всем сферам агента

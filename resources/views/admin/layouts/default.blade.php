@@ -28,7 +28,8 @@
     <style type="text/css">
         .form-group label.control-label, label.control-label {
             color: #3ebbdf;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: bold;
         }
         .form-control, .form-group .form-control {
             color: #333333;

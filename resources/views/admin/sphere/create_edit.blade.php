@@ -137,6 +137,8 @@
         #opt .panel-body .form-group.select-group label {
             margin-top: 0;
             padding-top: 0;
+            font-weight: normal;
+            font-size: 13px;
         }
     </style>
 @stop
