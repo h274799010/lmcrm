@@ -96,20 +96,44 @@ class Lead extends EloquentUser {
     ];
 
 
+    /**
+     * Метод создания нового лида
+     *
+     * для удобства, просто передаются параметры
+     * и весь процесс создания проходит сам
+     *
+     *
+     * @param  integer  $user_id
+     * @param  string  $name
+     * @param  string  $phone
+     * @param  string  $comment
+     *
+     * @return Lead
+     */
     public static function createNew( $user_id, $name, $phone, $comment='' )
     {
+        // выбираем модель агента по id
         $agent = Agent::find( $user_id );
 
+        // записываем телефон и получаем id записи
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $phone )] );
 
+        // создаем новый лид
         $lead = new Lead();
+        // записываем id телефона (связь с таблицей customer)
         $lead->customer_id = $customer->id;
+        // записываем id сферы
         $lead->sphere_id = $agent->sphere()->id;
+        // статус лида выставляем в 0
         $lead->status = 0;
+        // записываем имя
         $lead->name = $name;
+        // заносим комментарии
         $lead->comment = $comment;
+        // записываем id агента который занес лид
         $lead->agent_id = $user_id;
 
+        // сохранение лид с новыми данными
         $lead->save();
 
         return $lead;
