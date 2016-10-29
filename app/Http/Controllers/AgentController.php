@@ -74,9 +74,18 @@ class AgentController extends BaseController
         // получение данных по кошельку
         $wallet = $this->user->wallet()->first();
         // получение данных по сфере
-        $sphere = $this->user->sphere();
+        $this->sphere = $this->user->sphere();
+
+        // если сферы нет
+        if( !$this->sphere ){
+
+            return false;
+
+        }
+
+
         // id сферы
-        $sphere_id = $sphere->id;
+        $sphere_id = $this->sphere->id;
 
         // получение строки маски агента
         $this->mask = new AgentBitmask($sphere_id,$this->uid);

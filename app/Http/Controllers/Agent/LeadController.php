@@ -82,21 +82,35 @@ class LeadController extends AgentController {
         // данные агента
         if($salesman_id === false) {
             $agent = $this->user;
+
+            if( $this->sphere ){
+
+                $attr['lead_attr'] = $this->sphere->leadAttr;
+                $attr['agent_attr'] = $this->sphere->attributes;
+            }else{
+                $attr = false;
+            }
+
             $view = 'agent.lead.obtain';
         } else {
             $agent = Salesman::findOrFail($salesman_id);
             $view = 'agent.salesman.login.obtain';
         }
 
+//        dd($attr);
+
         // атрибуты лида (наверное)
-        $lead_attr = $agent->sphere()->leadAttr;
+//        $lead_attr = $agent->sphere()->leadAttr;
+
+//        dd($lead_attr);
 
         // атрибуты фильтра (агента)
-        $agent_attr = $agent->sphere()->attributes;
+//        $agent_attr = $agent->sphere()->attributes;
 
         return view($view)
-            ->with('agent_attr', $agent_attr)
-            ->with('lead_attr',$lead_attr)
+//            ->with('agent_attr', $agent_attr)
+//            ->with('lead_attr',$lead_attr)
+            ->with('attr', $attr)
             ->with('salesman_id', $salesman_id);
     }
 
