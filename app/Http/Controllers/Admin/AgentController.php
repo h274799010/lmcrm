@@ -173,10 +173,10 @@ class AgentController extends AdminController
             $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
 
             $agentSphere->save();
-            return response()->json([ 'error'=>false, 'message'=>'revenue share updated success' ]);
+            return response()->json([ 'error'=>false, 'message'=>trans('admin/agent.revenue_update') ]);
         }
 
-        return response()->json([ 'error'=>true, 'message'=>'revenue share not updated!' ]);
+        return response()->json([ 'error'=>true, 'message'=>trans('admin/agent.revenue_not_update') ]);
     }
 
 

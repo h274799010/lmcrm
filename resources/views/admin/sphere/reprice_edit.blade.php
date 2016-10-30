@@ -48,7 +48,7 @@
             {!! Form::open(array('route' => ['admin.sphere.reprice.update', $sphere->id, $mask_id], 'method' => 'put', 'class' => 'validate', 'files'=> false)) !!}
                 <div class="col-xs-8">
                     <div class="form-group label-floating">
-                        <label class="control-label" for="price">Price</label>
+                        <label class="control-label" for="price">{{ trans('admin/sphere.price') }}</label>
                     <div class="input-group">
                         {!! Form::text('price',(isset($price->lead_price))?$price->lead_price:NULL, array('class' => 'form-control','id'=>'price')) !!}
                         <div class="input-group-btn">
