@@ -211,6 +211,71 @@ class LeadController extends AgentController {
             $sphere_id=$agent->sphere()->id;
             $mask = new AgentBitmask($sphere_id,$agent->id);
             $user_id = $agent->id;
+
+            // получаем данные по все именам масок по всем сферам
+            $agentSpheres = $agent->spheresWithMasks;
+
+            $wallet = $agent->wallet[0];
+
+            // максимальная цена по маскам
+            $maxPrice = 0;
+
+            // добавление статуса и времени
+            $agentSpheres->map(function( $item ) use ( $wallet, &$maxPrice ){
+
+                // id сферы
+                $sphere_id = $item->id;
+
+                // добавление данных в маску
+                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
+
+                    // получение данных фильтра маски
+                    $agentMask = new AgentBitmask($sphere_id);
+                    $maskItem = $agentMask->find( $item->mask_id );
+
+                    if( $maskItem->status == 0){
+                        return false;
+                    }
+
+                    // количество лидов, которое агент может купить по этой маске
+                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
+
+
+                    // добавление статуса
+                    $item->status = $maskItem->status;
+                    // добавление даты
+                    $item->updated_at = $maskItem->updated_at;
+
+                    if( $maxPrice < $maskItem->lead_price ){
+                        $maxPrice = $maskItem->lead_price;
+                    }
+
+                    return $item;
+                });
+
+                return $item;
+            });
+
+            // минимальное количество лидо которое может купить агент
+            // сколько агент может купить лидов по маске с максимальным прайсом
+            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
+
+            // данные по забракованным лидам
+            $wasted = $wallet->wasted;
+
+            // данные по балансу в шапке
+            $balance =
+                [
+                    'wasted' => $wasted,
+                    'minLeadsToBuy' => $minLeadsToBuy,
+                    'allSpheres' => $agentSpheres
+                ];
+
+            // переводим данные по балансу в json
+            $balanceJSON = json_encode($balance);
+
+            // добавляем на страницу куки с данными по балансу
+            Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
         }
 
         // выборка всех лидов агента
