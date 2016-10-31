@@ -74,63 +74,76 @@ class AgentController extends BaseController
         // получение данных по кошельку
         $wallet = $this->user->wallet()->first();
         // получение данных по сфере
-        $sphere = $this->user->sphere();
-        // id сферы
-        $sphere_id = $sphere->id;
+        $this->sphere = $this->user->sphere();
 
-        // получение строки маски агента
-        $this->mask = new AgentBitmask($sphere_id,$this->uid);
-
-        // максимальная цена по маскам
-        $maxPrice = 0;
-
-        // получение всех сфер вместе с масками
-        $allSpheres = $this->user->spheresWithMasks;
-
-        // добавление статуса, времени и прайс
-        $allSpheres->map(function( $item ) use ( &$maxPrice, $wallet ){
+        // если сферы нет
+        if( $this->sphere ){
 
             // id сферы
-            $sphere_id = $item->id;
+            $sphere_id = $this->sphere->id;
 
-            // добавление данных в маску
-            $item->masks->map(function($item) use ( $sphere_id, &$maxPrice, $wallet ){
+            // получение строки маски агента
+            $this->mask = new AgentBitmask($sphere_id,$this->uid);
 
-                // получение данных фильтра маски
-                $agentMask = new AgentBitmask($sphere_id);
-                $maskItem = $agentMask->find( $item->mask_id );
+            // максимальная цена по маскам
+            $maxPrice = 0;
 
-                if( $maskItem->status == 0){
-                    return false;
-                }
+            // получение всех сфер вместе с масками
+            $allSpheres = $this->user->spheresWithMasks;
 
-                // количество лидов, которое агент может купить по этой маске
-                $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
+            // добавление статуса, времени и прайс
+            $allSpheres->map(function( $item ) use ( &$maxPrice, $wallet ){
+
+                // id сферы
+                $sphere_id = $item->id;
+
+                // добавление данных в маску
+                $item->masks->map(function($item) use ( $sphere_id, &$maxPrice, $wallet ){
+
+                    // получение данных фильтра маски
+                    $agentMask = new AgentBitmask($sphere_id);
+                    $maskItem = $agentMask->find( $item->mask_id );
+
+                    if( $maskItem->status == 0){
+                        return false;
+                    }
+
+                    // количество лидов, которое агент может купить по этой маске
+                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
 
 
-                // добавление статуса
-                $item->status = $maskItem->status;
-                // добавление даты
-                $item->lead_price = $maskItem->lead_price;
-                // добавление даты
-                $item->updated_at = $maskItem->updated_at;
+                    // добавление статуса
+                    $item->status = $maskItem->status;
+                    // добавление даты
+                    $item->lead_price = $maskItem->lead_price;
+                    // добавление даты
+                    $item->updated_at = $maskItem->updated_at;
 
-                if( $maxPrice < $maskItem->lead_price ){
-                    $maxPrice = $maskItem->lead_price;
-                }
+                    if( $maxPrice < $maskItem->lead_price ){
+                        $maxPrice = $maskItem->lead_price;
+                    }
+
+                    return $item;
+                });
 
                 return $item;
             });
 
-            return $item;
-        });
+            $this->allSphere = $allSpheres;
+
+            // минимальное количество лидо которое может купить агент
+            // сколько агент может купить лидов по маске с максимальным прайсом
+            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
+
+        } else{
+
+            $allSpheres = false;
+            $minLeadsToBuy = 0;
+
+        }
 
         // данные по забракованным лидам
         $wasted = $wallet->wasted;
-
-        // минимальное количество лидо которое может купить агент
-        // сколько агент может купить лидов по маске с максимальным прайсом
-        $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
 
         // данные по балансу в шапке
         $balance =

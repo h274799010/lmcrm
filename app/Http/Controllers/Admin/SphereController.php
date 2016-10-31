@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 
 use App\Models\Agent;
 use App\Models\AgentBitmask;
+use App\Models\AgentSphere;
 use App\Models\FormFiltersOptions;
 use App\Models\AdditionFormsOptions;
 
@@ -1604,6 +1605,14 @@ class SphereController extends AdminController {
                                     /*parent*/
                                     $option['parent']
                                 );
+
+                                $leadBitmask->copyAttr
+                                (
+                                    $agentAttr->id,
+                                    $newOption->id,
+                                    /*parent*/
+                                    $option['parent']
+                                );
                             }
                         }
                     });
@@ -1687,6 +1696,9 @@ class SphereController extends AdminController {
     public function destroy($id){
 
         $group = Sphere::find($id);
+
+        // удаление привязки агента к сфере
+        AgentSphere::where('sphere_id', $id)->delete();
 
         $leadBitmask = new LeadBitmask($group->id);
         $agentBitmask = new AgentBitmask($group->id);

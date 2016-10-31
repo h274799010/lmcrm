@@ -42,39 +42,39 @@ class SphereController extends AgentController {
         }
 
 
-        // получаем данные по все именам масок по всем сферам
-        $agentSpheres = $this->user->spheresWithMasks( $user_id )->get();
-
-
-        // todo это удалить потом, когда будут данные о статусе и дате в таблице масок пользователя
-        // добавление статуса и времени
-        $agentSpheres->map(function( $item ){
-
-            // id сферы
-            $sphere_id = $item->id;
-
-            // добавление данных в маску
-            $item->masks->map(function($item) use ($sphere_id){
-
-                // получение данных фильтра маски
-                $agentMask = new AgentBitmask($sphere_id);
-                $maskItem = $agentMask->find( $item->mask_id );
-
-                // добавление статуса
-                $item->status = $maskItem->status;
-                // добавление даты
-                $item->updated_at = $maskItem->updated_at;
-
-                return $item;
-            });
-
-            return $item;
-        });
+//        // получаем данные по все именам масок по всем сферам
+//        $agentSpheres = $this->user->spheresWithMasks( $user_id )->get();
+//
+//
+//        // todo это удалить потом, когда будут данные о статусе и дате в таблице масок пользователя
+//        // добавление статуса и времени
+//        $agentSpheres->map(function( $item ){
+//
+//            // id сферы
+//            $sphere_id = $item->id;
+//
+//            // добавление данных в маску
+//            $item->masks->map(function($item) use ($sphere_id){
+//
+//                // получение данных фильтра маски
+//                $agentMask = new AgentBitmask($sphere_id);
+//                $maskItem = $agentMask->find( $item->mask_id );
+//
+//                // добавление статуса
+//                $item->status = $maskItem->status;
+//                // добавление даты
+//                $item->updated_at = $maskItem->updated_at;
+//
+//                return $item;
+//            });
+//
+//            return $item;
+//        });
 
 
         return view('agent.sphere.index')
-            ->with('agentSpheres',$agentSpheres)
-            ->with('salesman_id', $salesman_id);
+            ->with( 'agentSpheres', $this->allSphere )
+            ->with( 'salesman_id', $salesman_id );
 
     }
 
