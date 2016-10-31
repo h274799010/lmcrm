@@ -76,6 +76,8 @@ class LeadController extends AgentController {
      * (только саму таблицу, строки добавляет метод obtainData)
      *
      *
+     * @param  boolean|integer  $salesman_id
+     *
      * @return object
      */
     public function obtain($salesman_id = false){
