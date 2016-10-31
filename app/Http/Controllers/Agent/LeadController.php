@@ -174,7 +174,7 @@ class LeadController extends AgentController {
 //            Cookie::unqueue('balance');
 
             // добавляем на страницу куки с данными по балансу
-            Cookie::queue('balance', $balanceJSON, null, null, null, false, false);
+            Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
 
 //            dd( Cookie::getQueuedCookies('balance') );
 

@@ -36,7 +36,7 @@
                         <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance['wasted']}} </a>
                     </li>
 
-                    <li class="credit_button dropdown balance_data_container" >
+                    <li class="credit_button dropdown salesman_balance_data_container" >
                         <a id="balance_data" data-target="#" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-copyright bg-blue"></i> {{$balance['minLeadsToBuy']}} {{ trans('navbar.credits') }}</a>
 
                         <ul id="salesman_balance_data_content" class="dropdown-menu" aria-labelledby="balance_data">
