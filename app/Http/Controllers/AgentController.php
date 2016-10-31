@@ -129,6 +129,8 @@ class AgentController extends BaseController
                 return $item;
             });
 
+            $this->allSphere = $allSpheres;
+
             // минимальное количество лидо которое может купить агент
             // сколько агент может купить лидов по маске с максимальным прайсом
             $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
