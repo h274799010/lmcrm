@@ -43,7 +43,7 @@ class Salesman extends EloquentUser implements AuthenticatableContract, CanReset
     }
 
     public function spheres(){
-        return $this->belongsToMany('\App\Models\Sphere','user_masks','user_id','sphere_id');
+        return $this->belongsToMany('\App\Models\Sphere','user_masks','user_id','sphere_id')->where('status', 1);
     }
 
     public function sphere(){
