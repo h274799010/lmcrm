@@ -282,7 +282,7 @@ $(function(){
 
     /** Контейнер выпадающего меню с балансом по всем маскам агента */
 
-    // наполнение контейнера с балансом данными, перед появлением
+    // наполнение контейнера с данными по балансу агента , перед появлением
     $('.balance_data_container').on('show.bs.dropdown', function () {
 
         // получаем данные баланса из куки и преобразовываем в json
@@ -379,9 +379,108 @@ $(function(){
 
         // очистка блока
         $('#balance_data_content').empty();
+    });
+
+    // наполнение контейнера с данными по балансу продавца, перед появлением
+    $('.salesman_balance_data_container').on('show.bs.dropdown', function () {
+
+        // получаем данные баланса из куки и преобразовываем в json
+        var balanceData = JSON.parse( getCookie('salesman_balance') );
+
+        // выбираем блок с контентом выпадающего меню
+        var balance = $('#salesman_balance_data_content');
+
+        if( balanceData.allSpheres ){
+            // перебираем все маски и заносим данные в выпадающее меню
+            $( balanceData.allSpheres ).each(function( key, val ){
+
+                // итем с именем маски
+                var li = $('<li />');
+
+                // дочерний блок в котором будут имена масок с количеством лидов по ним
+                var childrenUl = $('<ul />');
+
+                // добавление класса к основному блоку с масками выпадающего меню
+                childrenUl.addClass('balance_masks_block');
+
+                // добавляем имя сферы в блок
+                li.text( val.name.replace( '+', ' ' ) );
+
+                // добавляем в блок с именем сферы блок с его масками
+                li.append( childrenUl );
+
+
+                // проверка наличия масок в сфере
+
+                if( val.masks.length != 0 ){
+                    // если маски есть
+                    // перебираем все маски и добавляем название маски и количество лидов по ней
+
+                    $(val.masks).each(function( key, mask ){
+                        // перебираем все маски
+
+                        if( mask.status === undefined ){ return false; }
+
+                        // блок с именем
+                        var name = $('<span />');
+                        // блок с количеством лидов
+                        var count = $('<span />');
+
+                        // добавляем имя маски в блок с именем
+                        name.text( mask.name.replace('+',' ') );
+                        // добавляем количество лидво в блок с количеством
+                        count.text( mask.leadsCount );
+
+                        // создаем li дочернего ul блока
+                        var childrenLi = $('<li />');
+
+                        // добавляем блок с именем к дочернему li
+                        childrenLi.append(name);
+                        // добавляем блок с количеством лидов к дочернему li
+                        childrenLi.append(count);
+
+                        childrenUl.append(childrenLi);
+                    });
+                }
+
+
+                //Проверка на содержание блока со сферами
+                if( childrenUl.children().length == 0){
+                    // если масок нет
+                    // просто добавляем надпись что масок нет
+
+                    // li дочернего блока
+                    var childrenLi = $('<li />');
+                    // наполнение li дочернего блока
+                    childrenLi.text('no active masks ');
+                    // подключение li к дочернему ul
+                    childrenUl.append(childrenLi);
+                }
+
+                balance.append(li);
+            });
+
+        }else{
+            // если масок нет
+            // просто добавляем надпись что масок нет
+
+            // итем с именем маски
+            var li = $('<li />');
+            // наполнение li дочернего блока
+            li.text('no spheres ');
+            // подключение li к дочернему ul
+            balance.append(li);
+        }
 
     });
 
+    // очистка контейнера с балансом продавца, после его сворачивания
+    $('.salesman_balance_data_container').on('hidden.bs.dropdown', function () {
+
+        // очистка блока
+        $('#salesman_balance_data_content').empty();
+
+    });
 
 });
 

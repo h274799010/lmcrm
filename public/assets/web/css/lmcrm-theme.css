@@ -248,12 +248,12 @@ footer,.footer,#footer{
 }
 
 /* Основной контейнер выпадающего меню */
-#balance_data_content{
+.balance_data_menu{
 	font-weight: bold;
 }
 
 /* Основной контейнер выпадающего меню */
-#balance_data_content > li{
+.balance_data_menu > li{
     padding-left: 10px;
     padding-bottom: 10px;
     margin-bottom: 10px;
@@ -261,18 +261,18 @@ footer,.footer,#footer{
 }
 
 
-#balance_data_content  .balance_masks_block{
+.balance_data_menu  .balance_masks_block{
     font-weight: normal;
     padding-left: 10px;
     padding-right: 10px;
 
 }
 
-#balance_data_content  .balance_masks_block > li {
+.balance_data_menu  .balance_masks_block > li {
 
 }
 
-#balance_data_content  .balance_masks_block > li >span:last-child{
+.balance_data_menu  .balance_masks_block > li >span:last-child{
     float: right;
 
 }
