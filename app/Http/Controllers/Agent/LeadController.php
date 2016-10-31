@@ -27,6 +27,7 @@ use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
 use App\Http\Controllers\Notice;
 use App\Models\Auction;
+use Cookie;
 
 class LeadController extends AgentController {
 
@@ -91,8 +92,99 @@ class LeadController extends AgentController {
 
             $view = 'agent.lead.obtain';
         } else {
+            // если задан id продавца
+
+            $salesman = Salesman::find( $salesman_id );
+
+            $salesmanSphere = $salesman->sphere();
+
+            if( $salesmanSphere ){
+                $attr['lead_attr'] = $salesmanSphere->leadAttr;
+                $attr['agent_attr'] = $salesmanSphere->attributes;
+            }else{
+                $attr = false;
+            }
+
+            // получаем данные по все именам масок по всем сферам
+            $agentSpheres = $salesman->spheresWithMasks;
+
+            $wallet = $salesman->wallet[0];
+
+            // максимальная цена по маскам
+            $maxPrice = 0;
+
+            // добавление статуса и времени
+            $agentSpheres->map(function( $item ) use ( $wallet, &$maxPrice ){
+
+                // id сферы
+                $sphere_id = $item->id;
+
+                // добавление данных в маску
+                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
+
+                    // получение данных фильтра маски
+                    $agentMask = new AgentBitmask($sphere_id);
+                    $maskItem = $agentMask->find( $item->mask_id );
+
+                    if( $maskItem->status == 0){
+                        return false;
+                    }
+
+                    // количество лидов, которое агент может купить по этой маске
+                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
+
+
+                    // добавление статуса
+                    $item->status = $maskItem->status;
+                    // добавление даты
+                    $item->updated_at = $maskItem->updated_at;
+
+                    if( $maxPrice < $maskItem->lead_price ){
+                        $maxPrice = $maskItem->lead_price;
+                    }
+
+                    return $item;
+                });
+
+                return $item;
+            });
+
+            // минимальное количество лидо которое может купить агент
+            // сколько агент может купить лидов по маске с максимальным прайсом
+            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
+
+            // данные по забракованным лидам
+            $wasted = $wallet->wasted;
+
+            // данные по балансу в шапке
+            $balance =
+                [
+                    'wasted' => $wasted,
+                    'minLeadsToBuy' => $minLeadsToBuy,
+                    'allSpheres' => $agentSpheres
+                ];
+
+
+            // добавляем данные по балансу на страницу
+            view()->share('balance', $balance);
+
+            // переводим данные по балансу в json
+            $balanceJSON = json_encode($balance);
+
+//            Cookie::unqueue('balance');
+
+            // добавляем на страницу куки с данными по балансу
+            Cookie::queue('balance', $balanceJSON, null, null, null, false, false);
+
+//            dd( Cookie::getQueuedCookies('balance') );
+
             $view = 'agent.salesman.login.obtain';
+//            $view = 'agent.lead.obtain';
+
         }
+
+//        dd( Cookie::getQueuedCookies('balance') );
+
 
         return view($view)
             ->with('attr', $attr)

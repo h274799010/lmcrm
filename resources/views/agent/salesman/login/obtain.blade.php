@@ -4,12 +4,15 @@
 @section('content')
     <div class="_page-header" xmlns="http://www.w3.org/1999/html"></div>
 
-    <div class="alert alert-warning alert-dismissible fade in hidden" role="alert" id="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-        <div id="alertContent"></div>
-    </div>
+    @if( $attr )
 
-    <div class="dataTables_container">
+
+        <div class="alert alert-warning alert-dismissible fade in hidden" role="alert" id="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <div id="alertContent"></div>
+        </div>
+
+        <div class="dataTables_container">
         <div class="col-md-12">
             <select data-name="date" class="selectbox dataTables_filter">
                 <option></option>
@@ -39,14 +42,14 @@
                     <th><div>{{ trans("site/lead.phone") }}</div></th>
                     <th><div>{{ trans("site/lead.email") }}</div></th>
 
-                    @forelse($agent_attr as $attr)
-                        <th><div>{{ $attr->label }}</div></th>@php($i++)
+                    @forelse($attr['agent_attr'] as $agent_attr)
+                        <th><div>{{ $agent_attr->label }}</div></th>@php($i++)
                     @empty
                     @endforelse
 
                     @php($i=0)
-                    @forelse($lead_attr as $attr)
-                        <th><div>{{ $attr->label }}</div></th>@php($i++)
+                    @forelse($attr['lead_attr'] as $lead_attr)
+                        <th><div>{{ $lead_attr->label }}</div></th>@php($i++)
                     @empty
                     @endforelse
                 </tr>
@@ -56,6 +59,13 @@
             </table>
         </div>
     </div>
+
+    @else
+
+        <h4>@lang('NoMask')</h4>
+
+    @endif
+
 @stop
 
 @section('script')
