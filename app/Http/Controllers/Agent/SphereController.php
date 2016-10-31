@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
+use App\Models\Salesman;
 use App\Models\UserMasks;
 use Validator;
 use App\Models\Sphere;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
 use App\Models\AgentSphere;
-
+use Cookie;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -33,47 +34,86 @@ class SphereController extends AgentController {
         // проверка заданного параметра $salesman_id
         if(isset($salesman_id) && $salesman_id !== false) {
 
-            // если параметр задан
-            $user_id = $salesman_id;
+            // получаем данные по все именам масок по всем сферам
+            $agentSpheres = $this->user->spheresWithMasks( $salesman_id )->get();
+
+            $salesman = Salesman::find( $salesman_id );
+            $wallet = $salesman->wallet[0];
+
+            // максимальная цена по маскам
+            $maxPrice = 0;
+
+            // добавление статуса и времени
+            $agentSpheres->map(function( $item ) use ( $wallet, &$maxPrice ){
+
+                // id сферы
+                $sphere_id = $item->id;
+
+                // добавление данных в маску
+                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
+
+                    // получение данных фильтра маски
+                    $agentMask = new AgentBitmask($sphere_id);
+                    $maskItem = $agentMask->find( $item->mask_id );
+
+                    if( $maskItem->status == 0){
+                        return false;
+                    }
+
+                    // количество лидов, которое агент может купить по этой маске
+                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
+
+
+                    // добавление статуса
+                    $item->status = $maskItem->status;
+                    // добавление даты
+                    $item->updated_at = $maskItem->updated_at;
+
+                    if( $maxPrice < $maskItem->lead_price ){
+                        $maxPrice = $maskItem->lead_price;
+                    }
+
+                    return $item;
+                });
+
+                return $item;
+            });
+
+            // минимальное количество лидо которое может купить агент
+            // сколько агент может купить лидов по маске с максимальным прайсом
+            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
+
+            // данные по забракованным лидам
+            $wasted = $wallet->wasted;
+
+            // данные по балансу в шапке
+            $balance =
+                [
+                    'wasted' => $wasted,
+                    'minLeadsToBuy' => $minLeadsToBuy,
+                    'allSpheres' => $agentSpheres
+                ];
+
+
+
+            // добавляем данные по балансу на страницу
+            view()->share('balance', $balance);
+
+            // переводим данные по балансу в json
+            $balanceJSON = json_encode($balance);
+
+            // добавляем на страницу куки с данными по балансу
+            Cookie::queue('balance', $balanceJSON, null, null, null, false, false);
+
         } else {
 
             // если параметр не задан
-            $user_id = $this->uid;
+            $agentSpheres = $this->allSphere;
         }
 
 
-//        // получаем данные по все именам масок по всем сферам
-//        $agentSpheres = $this->user->spheresWithMasks( $user_id )->get();
-//
-//
-//        // todo это удалить потом, когда будут данные о статусе и дате в таблице масок пользователя
-//        // добавление статуса и времени
-//        $agentSpheres->map(function( $item ){
-//
-//            // id сферы
-//            $sphere_id = $item->id;
-//
-//            // добавление данных в маску
-//            $item->masks->map(function($item) use ($sphere_id){
-//
-//                // получение данных фильтра маски
-//                $agentMask = new AgentBitmask($sphere_id);
-//                $maskItem = $agentMask->find( $item->mask_id );
-//
-//                // добавление статуса
-//                $item->status = $maskItem->status;
-//                // добавление даты
-//                $item->updated_at = $maskItem->updated_at;
-//
-//                return $item;
-//            });
-//
-//            return $item;
-//        });
-
-
         return view('agent.sphere.index')
-            ->with( 'agentSpheres', $this->allSphere )
+            ->with( 'agentSpheres', $agentSpheres )
             ->with( 'salesman_id', $salesman_id );
 
     }
