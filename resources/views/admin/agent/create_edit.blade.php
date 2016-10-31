@@ -3,10 +3,10 @@
 @section('main')
     <div class="page-header">
         <h3>
-            @if (isset($agent)) {{ $agent->name }} @else @endif ({!! trans("admin/agent.agent") !!})
+            @if (isset($agent)) {{ $agent->name }} @else @endif ({{ trans("admin/agent.agent") }})
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
-                    <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
+                    <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
                 </a>
             </div>
         </h3>
@@ -14,9 +14,9 @@
 
     <div class="col-md-12" id="content">
         @if (isset($agent))
-        {!! Form::model($agent,array('route' => ['admin.agent.update', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) !!}
+        {{ Form::model($agent,array('route' => ['admin.agent.update', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) }}
         @else
-        {!! Form::open(array('route' => ['admin.agent.store'], 'method' => 'post', 'class' => 'validate', 'files'=> true)) !!}
+        {{ Form::open(array('route' => ['admin.agent.store'], 'method' => 'post', 'class' => 'validate', 'files'=> true)) }}
         @endif
         <!-- Tabs -->
         <ul class="nav nav-tabs">
@@ -46,59 +46,59 @@
             <div class="tab-pane active" id="tab-general">
 
         <div class="form-group  {{ $errors->has('spheres') ? 'has-error' : '' }}">
-            {!! Form::label('spheres', trans("admin/sphere.sphere"), array('class' => 'control-label')) !!}
+            {{ Form::label('spheres', trans("admin/sphere.sphere"), array('class' => 'control-label')) }}
             <div class="controls">
-                {!! Form::select('spheres[]',$spheres,(isset($agent))?$agent->spheres()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2','required'=>'required')) !!}
+                {{ Form::select('spheres[]',$spheres,(isset($agent))?$agent->spheres()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2','required'=>'required')) }}
                 <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
             </div>
         </div>
 
         <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
-            {!! Form::label('first_name', trans("admin/users.first_name"), array('class' => 'control-label')) !!}
+            {{ Form::label('first_name', trans("admin/users.first_name"), array('class' => 'control-label')) }}
             <div class="controls">
-                {!! Form::text('first_name', null, array('class' => 'form-control')) !!}
+                {{ Form::text('first_name', null, array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('first_name', ':message') }}</span>
             </div>
         </div>
         <div class="form-group  {{ $errors->has('last_name') ? 'has-error' : '' }}">
-            {!! Form::label('last_name', trans("admin/users.last_name"), array('class' => 'control-label')) !!}
+            {{ Form::label('last_name', trans("admin/users.last_name"), array('class' => 'control-label')) }}
             <div class="controls">
-                {!! Form::text('last_name', null, array('class' => 'form-control')) !!}
+                {{ Form::text('last_name', null, array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('last_name', ':message') }}</span>
             </div>
         </div>
         <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
-            {!! Form::label('name', trans("admin/users.username"), array('class' => 'control-label')) !!}
+            {{ Form::label('name', trans("admin/users.username"), array('class' => 'control-label')) }}
             <div class="controls">
-                {!! Form::text('name', null, array('class' => 'form-control')) !!}
+                {{ Form::text('name', null, array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('name', ':message') }}</span>
             </div>
         </div>
         <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
-            {!! Form::label('email', trans("admin/users.email"), array('class' => 'control-label')) !!}
+            {{ Form::label('email', trans("admin/users.email"), array('class' => 'control-label')) }}
             <div class="controls">
-                {!! Form::text('email', null, array('class' => 'form-control')) !!}
+                {{ Form::text('email', null, array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('email', ':message') }}</span>
             </div>
         </div>
         <div class="form-group  {{ $errors->has('password') ? 'has-error' : '' }}">
-            {!! Form::label('password', trans("admin/users.password"), array('class' => 'control-label')) !!}
+            {{ Form::label('password', trans("admin/users.password"), array('class' => 'control-label')) }}
             <div class="controls">
-                {!! Form::password('password', array('class' => 'form-control')) !!}
+                {{ Form::password('password', array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('password', ':message') }}</span>
             </div>
         </div>
         <div class="form-group  {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
-            {!! Form::label('password_confirmation', trans("admin/users.password_confirmation"), array('class' => 'control-label')) !!}
+            {{ Form::label('password_confirmation', trans("admin/users.password_confirmation"), array('class' => 'control-label')) }}
             <div class="controls">
-                {!! Form::password('password_confirmation', array('class' => 'form-control')) !!}
+                {{ Form::password('password_confirmation', array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('password_confirmation', ':message') }}</span>
             </div>
         </div>
         <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
-            {!! Form::label('role', trans("admin/users.role"), array('class' => 'control-label')) !!}
+            {{ Form::label('role', trans("admin/users.role"), array('class' => 'control-label')) }}
             <div class="controls">
-                {!! Form::select('role', ['leadbayer' => 'Lead bayer', 'partner' => 'Partner', 'dealmaker' => 'Deal maker'], $role, array('class' => 'form-control')) !!}
+                {{ Form::select('role', ['leadbayer' => 'Lead bayer', 'partner' => 'Partner', 'dealmaker' => 'Deal maker'], $role, array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('role', ':message') }}</span>
             </div>
         </div>
@@ -122,7 +122,7 @@
                         </button>
                     </div>
                 </div>
-                {!! Form::close() !!}
+                {{ Form::close() }}
 
     </div>
 
@@ -280,7 +280,7 @@
                 <div class="tab-pane" id="revenue">
 
                     @foreach($agentSpheres as $agentSphere)
-                        {!! Form::open(array('route' => ['admin.agent.revenue'], 'method' => 'post', 'class' => 'validate agent-sphere-form agentSphereForm', 'files'=> true)) !!}
+                        {{ Form::open(array('route' => ['admin.agent.revenue'], 'method' => 'post', 'class' => 'validate agent-sphere-form agentSphereForm', 'files'=> true)) }}
                         <div class="alert alert-success alert-dismissible fade in" role="alert" style="display: none;">
                             <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
                             <div class="alertContent"></div>
@@ -289,16 +289,16 @@
                         <h3>{{ trans('admin/sphere.name') }}: "{{ $agentSphere->sphere->name }}"</h3>
                         <div class="form-group-wrap">
                             <div class="form-group form-group-revenue  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
-                                {!! Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) !!}
+                                {{ Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) }}
                                 <div class="controls">
-                                    {!! Form::text('lead_revenue_share', (isset($agentSphere))?$agentSphere->lead_revenue_share:NULL, array('class' => 'form-control')) !!}
+                                    {{ Form::text('lead_revenue_share', (isset($agentSphere))?$agentSphere->lead_revenue_share:NULL, array('class' => 'form-control')) }}
                                     <span class="help-block">{{ $errors->first('lead_revenue_share', ':message') }}</span>
                                 </div>
                             </div>
                             <div class="form-group form-group-revenue  {{ $errors->has('payment_revenue_share') ? 'has-error' : '' }}">
-                                {!! Form::label('payment_revenue_share', trans("admin/users.payment_revenue_share"), array('class' => 'control-label')) !!}
+                                {{ Form::label('payment_revenue_share', trans("admin/users.payment_revenue_share"), array('class' => 'control-label')) }}
                                 <div class="controls">
-                                    {!! Form::text('payment_revenue_share', (isset($agentSphere))?$agentSphere->payment_revenue_share:NULL, array('class' => 'form-control')) !!}
+                                    {{ Form::text('payment_revenue_share', (isset($agentSphere))?$agentSphere->payment_revenue_share:NULL, array('class' => 'form-control')) }}
                                     <span class="help-block">{{ $errors->first('payment_revenue_share', ':message') }}</span>
                                 </div>
                             </div>
@@ -323,7 +323,7 @@
                                 </button>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        {{ Form::close() }}
                     @endforeach
 
                 </div>

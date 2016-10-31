@@ -91,6 +91,8 @@ class AgentController extends BaseController
             // получение всех сфер вместе с масками
             $allSpheres = $this->user->spheresWithMasks;
 
+            dd($allSpheres);
+
             // добавление статуса, времени и прайс
             $allSpheres->map(function( $item ) use ( &$maxPrice, $wallet ){
 
