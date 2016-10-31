@@ -46,7 +46,7 @@
                             <td>{{ $detail['wallet_type'] }}</td>
                             <td>{{ $detail['type'] }}</td>
                             <td>{{ $transaction['id'] }}</td>
-                            <td>{{ $transaction['initiator']['name'] }}</td>
+                            <td>{{ $transaction['initiator']['first_name'] }} {{ $transaction['initiator']['last_name'] }}</td>
                             <td>{{ $transaction['status'] }}</td>
                         </tr>
                     @endforeach

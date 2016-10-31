@@ -984,7 +984,7 @@ class SphereController extends AdminController {
                  * У лида может и не быть атрибутов
                  */
 
-                $sphereStatus = 0;
+                //$sphereStatus = 0;
                 $leadDataAttr = NULL;
 
 

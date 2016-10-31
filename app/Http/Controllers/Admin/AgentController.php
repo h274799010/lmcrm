@@ -206,8 +206,7 @@ class AgentController extends AdminController
 
         return Datatables::of($agents)
             ->remove_column('first_name')
-            ->remove_column('last_name')
-            ->add_column('name', function($model) { return view('admin.agent.datatables.username',['user'=>$model]); })
+            ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
             ->add_column('actions', function($model) { return view('admin.agent.datatables.control',['id'=>$model->id]); })
             ->remove_column('id')
             ->make();

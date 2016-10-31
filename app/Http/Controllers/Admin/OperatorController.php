@@ -30,15 +30,13 @@ class OperatorController extends AdminController {
             'users.id as id',
             'users.first_name as first_name',
             'users.last_name as last_name',
-            'users.name as name',
             'users.email as email',
             'users.created_at as created_at'
         );
 
         return Datatables::of($operators)
             ->remove_column('first_name')
-            ->remove_column('last_name')
-            ->add_column('name', function($model) { return view('admin.operator.datatables.username',['user'=>$model]); })
+            ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
             ->add_column('actions', function($model) { return view('admin.operator.datatables.control',['id'=>$model->id]); })
             ->remove_column('id')
             ->make();
@@ -93,7 +91,6 @@ class OperatorController extends AdminController {
 
         $operator->first_name = $request->input('first_name');
         $operator->last_name = $request->input('last_name');
-        $operator->name = $request->input('name');
         $operator->email = $request->input('email');
         $operator->save();
 
