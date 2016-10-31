@@ -1605,6 +1605,14 @@ class SphereController extends AdminController {
                                     /*parent*/
                                     $option['parent']
                                 );
+
+                                $leadBitmask->copyAttr
+                                (
+                                    $agentAttr->id,
+                                    $newOption->id,
+                                    /*parent*/
+                                    $option['parent']
+                                );
                             }
                         }
                     });
@@ -1688,7 +1696,7 @@ class SphereController extends AdminController {
     public function destroy($id){
 
         $group = Sphere::find($id);
-        
+
         // удаление привязки агента к сфере
         AgentSphere::where('sphere_id', $id)->delete();
 
