@@ -8,12 +8,12 @@
         <table class="table table-bordered table-striped table-hover openLeadsTable">
             <thead>
             <tr>
-                <th>{!! trans("site/lead.opened.icon") !!}</th>
-                <th>{!! trans('site/lead.opened.status') !!}</th>
-                <th>{!! trans('site/lead.opened.name') !!}</th>
-                <th>{!! trans('site/lead.opened.phone') !!}</th>
-                <th>{!! trans('site/lead.opened.email') !!}</th>
-                <th>{!! trans('site/lead.opened.maskname') !!}</th>
+                <th>{{ trans("site/lead.opened.icon") }}</th>
+                <th>{{ trans('site/lead.opened.status') }}</th>
+                <th>{{ trans('site/lead.opened.name') }}</th>
+                <th>{{ trans('site/lead.opened.phone') }}</th>
+                <th>{{ trans('site/lead.opened.email') }}</th>
+                <th>{{ trans('site/lead.opened.maskname') }}</th>
                 <th></th>
             </tr>
             </thead>
@@ -27,7 +27,7 @@
                             bad lead
                             {{-- впротивном случае вывод select со статусами --}}
                         @elseif( $openLead->state == 2 )
-                            {!! trans('site/lead.deal_closed') !!}
+                            {{ trans('site/lead.deal_closed') }}
                         @else
                             <select name="status" class="form">
                                 @if( $openLead->status == 0 )
@@ -39,7 +39,7 @@
                                 @foreach($openLead['lead']->sphereStatuses->statuses as $status)
                                     <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
                                 @endforeach
-                                <option value="closing_deal">{!! trans('site/lead.closing_deal') !!}</option>
+                                <option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>
                             </select>
                         @endif
                         {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
@@ -68,14 +68,14 @@
 
             <tr class="organizer_tr">
                 <td id="organizer_title" colspan="2" rowspan="1" >
-                    {!! trans("site/lead.opened.organizer.title") !!}
+                    {{ trans("site/lead.opened.organizer.title") }}
                 </td>
                 <td class="organizer_time_title">
-                    {!! trans("site/lead.opened.organizer.time") !!}
+                    {{ trans("site/lead.opened.organizer.time") }}
                 </td>
                 <td class="organizer_comments_title">
                     <div>
-                        {!! trans("site/lead.opened.organizer.comments") !!}
+                        {{ trans("site/lead.opened.organizer.comments") }}
                     </div>
                                     <span class="dropdown">
                                         <a class="dropdown-toggle" aria-expanded="true" role="button" data-toggle="dropdown" href="#">
@@ -83,8 +83,8 @@
                                         </a>
 
                                         <ul class="dropdown-menu myDropDown" role="menu">
-                                            <li> <a id="commentHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3">{!! trans("site/lead.opened.organizer.button.comment") !!}</a> </li>
-                                            <li> <a id="reminderHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3">{!! trans("site/lead.opened.organizer.button.reminder") !!}</a> </li>
+                                            <li> <a id="commentHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3">{{ trans("site/lead.opened.organizer.button.comment") }}</a> </li>
+                                            <li> <a id="reminderHref" class="dialog" href="http://lmcrm.cos/en/agent/lead/addReminder/3">{{ trans("site/lead.opened.organizer.button.reminder") }}</a> </li>
                                         </ul>
 
                                     </span>
@@ -105,24 +105,24 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="exampleModalLabel">
-                    {!! trans("site/lead.opened.modal.head") !!}
+                    {{ trans("site/lead.opened.modal.head") }}
                 </h4>
             </div>
 
             <div class="modal-body">
 
-                {!! trans("site/lead.opened.modal.body") !!}
+                {{ trans("site/lead.opened.modal.body") }}
 
             </div>
 
             <div class="modal-footer">
 
                 <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                    {!! trans("site/lead.opened.modal.button.Cancel") !!}
+                    {{ trans("site/lead.opened.modal.button.Cancel") }}
                 </button>
 
                 <button id="statusModalChange" type="button" class="btn btn-danger">
-                    {!! trans("site/lead.opened.modal.button.OK") !!}
+                    {{ trans("site/lead.opened.modal.button.OK") }}
                 </button>
             </div>
 
@@ -305,7 +305,7 @@
 
         $.extend( true, $.fn.dataTable.defaults, {
             "language": {
-                "url": '{!! asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') !!}'
+                "url": '{{ asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') }}'
             }
 
         });
@@ -812,7 +812,7 @@
                         } else if(data == 'pendingTimeExpire') {
                             // Если время pending_time истекло - выводим сообщение об ошибке
                             bootbox.dialog({
-                                message: '{!! trans('site/lead.opened.pending_time_expired') !!}',
+                                message: '{{ trans('site/lead.opened.pending_time_expired') }}',
                                 show: true
                             });
 
@@ -827,7 +827,7 @@
                                 selectBox.refresh();
                             }
                         } else if(data == 'setClosingDealStatus') {
-                            self.closest('td').html('{!! trans('site/lead.deal_closed') !!}');
+                            self.closest('td').html('{{ trans('site/lead.deal_closed') }}');
                         }else{
 
                             // todo вывести какое то сообщение об ошибке на сервере

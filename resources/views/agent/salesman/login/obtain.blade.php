@@ -28,16 +28,16 @@
             <table class="table table-bordered table-striped table-hover ajax-dataTable">
                 <thead>
                 <tr>@php($i=0)
-                    <th><div>{!! trans("site/lead.count") !!}</div></th>
-                    <th><div>{!! trans("main.open") !!}</div></th>
+                    <th><div>{{ trans("site/lead.count") }}</div></th>
+                    <th><div>{{ trans("main.open") }}</div></th>
                     @if( Sentinel::hasAccess(['agent.lead.openAll']) )
-                        <th><div>{!! trans("main.open.all") !!}</div></th>
+                        <th><div>{{ trans("main.open.all") }}</div></th>
                     @endif
-                    <th><div>{!! trans("site/lead.open.mask") !!}</div></th>
-                    <th><div>{!! trans("site/lead.updated") !!}</div></th>
-                    <th><div>{!! trans("site/lead.name") !!}</div></th>
-                    <th><div>{!! trans("site/lead.phone") !!}</div></th>
-                    <th><div>{!! trans("site/lead.email") !!}</div></th>
+                    <th><div>{{ trans("site/lead.open.mask") }}</div></th>
+                    <th><div>{{ trans("site/lead.updated") }}</div></th>
+                    <th><div>{{ trans("site/lead.name") }}</div></th>
+                    <th><div>{{ trans("site/lead.phone") }}</div></th>
+                    <th><div>{{ trans("site/lead.email") }}</div></th>
 
                     @forelse($agent_attr as $attr)
                         <th><div>{{ $attr->label }}</div></th>@php($i++)
@@ -62,7 +62,7 @@
     <script type="text/javascript">
         $.extend( true, $.fn.dataTable.defaults, {
             "language": {
-                "url": '{!! asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') !!}'
+                "url": '{{ asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') }}'
             },
             "ajax": {
                 "url": "{{ route('agent.salesman.obtain.data', ['salesman_id' => $salesman_id]) }}",
