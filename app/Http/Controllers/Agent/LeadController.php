@@ -171,20 +171,13 @@ class LeadController extends AgentController {
             // переводим данные по балансу в json
             $balanceJSON = json_encode($balance);
 
-//            Cookie::unqueue('balance');
-
             // добавляем на страницу куки с данными по балансу
             Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
-
-//            dd( Cookie::getQueuedCookies('balance') );
 
             $view = 'agent.salesman.login.obtain';
 //            $view = 'agent.lead.obtain';
 
         }
-
-//        dd( Cookie::getQueuedCookies('balance') );
-
 
         return view($view)
             ->with('attr', $attr)
