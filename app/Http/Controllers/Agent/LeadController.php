@@ -261,7 +261,8 @@ class LeadController extends AgentController {
      * Заполнение строк таблицы на странице obtain
      *
      *
-     * @param Request $request
+     * @param  Request  $request
+     * @param  boolean|integer  $salesman_id
      *
      * @return object
      */
@@ -351,8 +352,6 @@ class LeadController extends AgentController {
         // выборка всех лидов агента
         $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->with('lead') /*->with('maskName') */ ->get();
 
-//        dd($auctionData);
-
         // маска лида
         $leadBitmask = new LeadBitmask( $mask->getTableNum() );
 
@@ -385,7 +384,7 @@ class LeadController extends AgentController {
 
                 return view('agent.lead.datatables.obtain_count', [ 'opened'=>$data['lead']['opened'] ]);
             }, 1)
-            ->add_column('open',function( $data ) use ($agent){
+            ->add_column('open',function( $data ) use ( $agent, $salesman_id ){
 
                 // проверяем открыт ли этот лид у агента
                 $openLead = OpenLeads::where( 'lead_id', $data['lead']['id'] )->where( 'agent_id', $agent->id )->first();
@@ -395,7 +394,7 @@ class LeadController extends AgentController {
                     return view('agent.lead.datatables.obtain_already_open');
                 }else {
                     // если не открыт - отдаем ссылку на открытия
-                    return view('agent.lead.datatables.obtain_open', ['data' => $data]);
+                    return view('agent.lead.datatables.obtain_open', ['data' => $data, 'salesman_id' => $salesman_id]);
                 }
 
             }, 2)
@@ -943,16 +942,24 @@ class LeadController extends AgentController {
      *
      * @param integer $lead_id
      * @param integer $mask_id
+     * @param boolean|integer $salesman_id
      *
      * @return Response
      */
-    public function openLead( $lead_id, $mask_id ){
+    public function openLead( $lead_id, $mask_id, $salesman_id=false ){
 
         // находим лид
         $lead = Lead::find( $lead_id );
 
+        if( $salesman_id ){
+            $user = Salesman::find($salesman_id);
+        }else{
+            $user = $this->user;
+        }
+
+
         // пробуем открыть лид, статус записываем в переменную
-        $openResult = $lead->open( $this->user, $mask_id );
+        $openResult = $lead->open( $user, $mask_id );
 
         return response()->json( $openResult );
     }

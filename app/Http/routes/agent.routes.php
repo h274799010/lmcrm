@@ -11,6 +11,9 @@ Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] 
     // страница с открытыми лидами
     Route::get('openedLeads', ['as'=>'salesman.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
 
+    // страница открытия лида продавцом
+    Route::get('salesman/lead/open/{lead_id}/{mask_id}/{salesman_id}', ['as'=>'salesman.lead.open', 'uses'=>'Agent\LeadController@openLead']);
+
 });
 Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], function() {
 

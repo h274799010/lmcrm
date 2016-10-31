@@ -50,8 +50,17 @@ class Pay
         // получаем цену лида
         $price = $lead->price( $mask_id ) * $leadNumber;
 
+        // получение кошелька пользователя
+        $wallet = $agent->wallet;
+
+        // агента можно легко связать с таблицей кошельков, а salesman пользуется кошельком своего агента,
+        // получить его можно только через еще одну модель salesman_info, поэтому это всегда коллекция.
+        // Поэтому стоит проверка, если полученный объект Wallet, то возвращается он, если полученный объект
+        // Collection, то возвращается нулевой индекс.
+        $wallet = (get_class($wallet) === 'Illuminate\Database\Eloquent\Collection') ? $wallet[0] : $wallet;
+
         // проверка, может ли агент оплатить открытие лида
-        if( !$agent->wallet->isPossible( $price ) ){
+        if( !$wallet->isPossible( $price ) ){
 
             // отмена платежа из-за низкого баланса
             return [ 'status' => false, 'description' => trans('lead/lead.openlead.low_balance')];
