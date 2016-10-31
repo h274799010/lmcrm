@@ -16,9 +16,22 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('admin.sphere.reprice') }}">
-                    <i class="fa fa-list"></i> {{ trans('admin/sidebar.sphere_re_price') }}
+                <a href="#">
+                    <i class="fa fa-list"></i> {{ trans('admin/sidebar.sphere_masks') }}
+                    <span class="fa arrow"></span>
                 </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('admin.sphere.repriceAll') }}">
+                            <i class="fa fa-list"></i> {{ trans('admin/sidebar.all_masks') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.sphere.reprice') }}">
+                            <i class="fa fa-list"></i> {{ trans('admin/sidebar.sphere_re_price') }}
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <li>

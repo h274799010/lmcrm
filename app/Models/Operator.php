@@ -41,4 +41,9 @@ class Operator extends Model
         return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
     }
 
+    public function spheres()
+    {
+        return $this->belongsToMany('App\Models\Sphere', 'operator_sphere', 'operator_id', 'sphere_id');
+    }
+
 }

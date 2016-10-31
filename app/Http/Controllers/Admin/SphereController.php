@@ -1076,7 +1076,7 @@ class SphereController extends AdminController {
                 $sphereStatus = 0;
 //                return response()->json(FALSE);
 
-            }elseif(count($agentData['variables']) < 3) {
+            }elseif(count($agentData['variables']) < 1) {
                 /*
                  * Если у агента меньше 3-х атрибутов
                  * возвращаем FALSE
@@ -1736,8 +1736,30 @@ class SphereController extends AdminController {
             $mask = new AgentBitmask($sphere->id);
 
             // добавляем в массив (с ключем id сферы) все неактинвые маски сферы с агентами масок
-            $collection['notActive'][$sphere->id] = $mask->where('status', '=', 0)->with('user')->get();
-            $collection['active'][$sphere->id] = $mask->whereIn('status', [1])->with('user')->get();
+            $collection[$sphere->id] = $mask->where('status', '=', 0)->with('user')->get();
+        }
+
+        return view('admin.sphere.reprice')
+            ->with('collection',$collection)
+            ->with('spheres',Sphere::active()->lists('name','id'));
+    }
+
+    public function filtrationAll()
+    {
+        // выбираем активные сферы
+        $spheres = Sphere::active()->get();
+
+        // все неактивные маски пользователей
+        $collection = array();
+
+        // перебираем все сферы и находим их маски
+        foreach($spheres as $sphere){
+
+            // маска по сфере
+            $mask = new AgentBitmask($sphere->id);
+
+            // добавляем в массив (с ключем id сферы) все неактинвые маски сферы с агентами масок
+            $collection[$sphere->id] = $mask->whereIn('status', [0,1])->with('user')->get();
         }
 
         return view('admin.sphere.reprice')

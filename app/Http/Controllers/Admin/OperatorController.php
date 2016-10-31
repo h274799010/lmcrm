@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Requests\AdminUsersEditFormRequest;
+use App\Models\Operator;
+use App\Models\OperatorSphere;
+use App\Models\Sphere;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
@@ -43,7 +46,8 @@ class OperatorController extends AdminController {
 
     public function create()
     {
-        return view('admin.operator.create_edit');
+        $spheres = Sphere::active()->lists('name','id');
+        return view('admin.operator.create_edit')->with('spheres', $spheres);
     }
 
     public function store(Request $request)
@@ -53,14 +57,25 @@ class OperatorController extends AdminController {
         $role = \Sentinel::findRoleBySlug('operator');
         $user->roles()->attach($role);
 
+        $user = OperatorSphere::find($user->id);
+
+        foreach ($request->only('spheres') as $sphere) {
+            $user->spheres()->sync($sphere);
+        }
+
         return redirect()->route('admin.operator.index');
     }
 
     public function edit($id)
     {
-        $operator = Sentinel::findById($id);
+        //$operator = Sentinel::findById($id);
 
-        return view('admin.operator.create_edit', ['operator'=>$operator]);
+        $operator = OperatorSphere::find($id);
+
+        // данные сферы
+        $spheres = Sphere::active()->lists('name','id');
+
+        return view('admin.operator.create_edit', ['operator'=>$operator, 'spheres' => $spheres]);
     }
 
     public function update( Request $request, $id )
@@ -81,6 +96,9 @@ class OperatorController extends AdminController {
         $operator->name = $request->input('name');
         $operator->email = $request->input('email');
         $operator->save();
+
+        $operator = OperatorSphere::find($operator->id);
+        $operator->spheres()->sync($request->input('spheres'));
         /*$operator->update($request->except('password','password_confirmation'));
         dd($operator);*/
 
