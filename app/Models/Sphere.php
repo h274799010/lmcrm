@@ -15,10 +15,35 @@ class Sphere extends Model
         return $query->where('status','=',($status)?true:false);
     }
 
+
+    /**
+     * Получение данных фильтра сферы
+     *
+     *
+     * todo позже удалить
+     * todo в объекте есть похожее свойство которое можно перепутать
+     *
+     */
     public function attributes() {
         return $this->hasMany('App\Models\SphereFormFilters','sphere_id','id')->orderBy('position');
     }
 
+
+    /**
+     * Получение данных фильтра сферы
+     *
+     *
+     */
+    public function filterAttr() {
+        return $this->hasMany('App\Models\SphereFormFilters','sphere_id','id')->orderBy('position');
+    }
+
+
+    /**
+     * Получение дополнительных данных по сфере
+     *
+     *
+     */
     public function leadAttr() {
         return $this->hasMany('App\Models\SphereAdditionForms','sphere_id','id')->orderBy('position');
     }

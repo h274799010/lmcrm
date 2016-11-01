@@ -156,9 +156,9 @@ class LeadController extends AgentController {
         if($salesman_id === false) {
 
             if( $this->sphere ){
-                $attr['lead_attr'] = $this->sphere->leadAttr;
-                $attr['agent_attr'] = $this->sphere->attributes;
-                $spheres = $this->sphere;
+//                $attr['lead_attr'] = $this->sphere->leadAttr;
+//                $attr['agent_attr'] = $this->sphere->attributes;
+                $spheres = $this->spheres->load('filterAttr', 'leadAttr');
 
             }else{
                 $attr = false;
@@ -256,7 +256,7 @@ class LeadController extends AgentController {
         }
 
         return view($view)
-            ->with('attr', $attr)
+//            ->with('attr', $attr)
             ->with('spheres', $spheres)
             ->with('salesman_id', $salesman_id);
     }
