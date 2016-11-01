@@ -73,6 +73,11 @@ class AgentController extends BaseController
 
         // получение данных по кошельку
         $wallet = $this->user->wallet()->first();
+
+        // получение данных по сфере
+        $this->spheres = $this->user->spheres;
+
+        // todo удалить, вместе со всем что от него зависит, перейти на spheres
         // получение данных по сфере
         $this->sphere = $this->user->sphere();
 
@@ -88,6 +93,8 @@ class AgentController extends BaseController
             // максимальная цена по маскам
             $maxPrice = 0;
 
+            // todo выбор сфер сделать полностью на этом методе
+            // todo когда будет нормальный битмаск и тблица с именами масок
             // получение всех сфер вместе с масками
             $allSpheres = $this->user->spheresWithMasks;
 
