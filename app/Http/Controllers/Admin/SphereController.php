@@ -1547,6 +1547,13 @@ class SphereController extends AdminController {
 
                         });
 
+                    } elseif ($AttrOptionsInDB && !isset($attr['option']) ) {
+                        $AttrOptionsInDB->each(function ( $optionInDB ) use ( $sphere ) {
+                            $optionInDB->delete();
+
+                            $sphere->status = 0;
+                            $sphere->save();
+                        });
                     }
                 }
 
@@ -1617,6 +1624,9 @@ class SphereController extends AdminController {
                         }
                     });
 
+                } else {
+                    $sphere->status = 0;
+                    $sphere->save();
                 }
 
                 return true;
