@@ -32,10 +32,10 @@
 
                             {{-- Если лид был отмечен как плохой --}}
                             @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
-                                bad lead
+                                @lang('agent/openLeads.bad_lead')
                                 {{-- впротивном случае вывод select со статусами --}}
                             @elseif( $openLead->state == 2 )
-                                {{ trans('site/lead.deal_closed') }}
+                                @lang('site/lead.deal_closed')
                             @else
                                 <select name="status" class="form">
                                     @if( $openLead->status == 0 )
@@ -54,7 +54,7 @@
                         @else
                             {{-- если статусов нет --}}
 
-                            <div class="sphere_deleted">sphere deleted</div>
+                            <div class="sphere_deleted">@lang('agent/openLeads.sphere_deleted')</div>
 
                         @endif
                         {{-- Конец проверки на наличие статусов у сферы --}}
@@ -64,7 +64,7 @@
                     <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
                     <td><div>{{ $openLead['lead']['email'] }}</div></td>
                     {{--<td><div> {{ $openLead->maskName() }} </div></td>--}}
-                    <td>@if($openLead->maskName2)<div> {{ $openLead->maskName2->name }}</div> @else <div class="mask_deleted">mask deleted</div>  @endif</td>
+                    <td>@if($openLead->maskName2)<div> {{ $openLead->maskName2->name }}</div> @else <div class="mask_deleted">@lang('agent/openLeads.mask_deleted')</div>  @endif</td>
                     <td class="edit">
                         <div>
                             <a href="#">
