@@ -28,7 +28,9 @@ class SalesmanController extends AgentController {
     {
         // Show the page
         $salesmen = Agent::find($this->uid)->salesmen()->get();
-        return view('agent.salesman.index')->with('salesmen',$salesmen);
+        return view('agent.salesman.index')
+            ->with('salesmen',$salesmen)
+            ->with('salesman_id', false);
     }
 
     /**

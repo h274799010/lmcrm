@@ -59,6 +59,7 @@ class LeadController extends AgentController {
         if($salesman_id === false) {
             $leads = $this->user->leads()->with('phone')->get();
             return view('agent.lead.deposited')
+                ->with('salesman_id', $salesman_id)
                 ->with('leads',$leads);
         } else {
             $salesman = Salesman::findOrFail($salesman_id);
