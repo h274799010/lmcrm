@@ -14,6 +14,9 @@ Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] 
     // страница открытия лида продавцом
     Route::get('salesman/lead/open/{lead_id}/{mask_id}/{salesman_id}', ['as'=>'salesman.lead.open', 'uses'=>'Agent\LeadController@openLead']);
 
+    // страница максимального открытия лида продавцом
+    Route::get('salesman/lead/openAll/{lead_id}/{mask_id}/{salesman_id}', ['as'=>'salesman.lead.openAll', 'uses'=>'Agent\LeadController@openAllLeads']);
+
 });
 Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], function() {
 

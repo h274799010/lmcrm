@@ -398,7 +398,7 @@ class LeadController extends AgentController {
                 }
 
             }, 2)
-            ->add_column('openAll',function( $data ) use ($agent){
+            ->add_column('openAll',function( $data ) use ( $agent, $salesman_id ){
 
                 // проверяем открыт ли этот лид у других агентов
                 $openLead = OpenLeads::where( 'lead_id', $data['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
@@ -408,7 +408,7 @@ class LeadController extends AgentController {
                     return view('agent.lead.datatables.obtain_already_open');
                 }else {
                     // если не открыт - отдаем ссылку на открытие всех лидов
-                    return view('agent.lead.datatables.obtain_open_all', ['data' => $data]);
+                    return view('agent.lead.datatables.obtain_open_all', ['data' => $data, 'salesman_id' => $salesman_id]);
                 }
 
             }, 3)
@@ -977,19 +977,30 @@ class LeadController extends AgentController {
      *
      * @param integer $lead_id
      * @param integer $mask_id
+     * @param boolean|integer $salesman_id
      *
      * @return Response
      */
-    public function openAllLeads( $lead_id, $mask_id ){
+    public function openAllLeads( $lead_id, $mask_id, $salesman_id=false ){
 
         // находим лид
         $lead = Lead::find( $lead_id );
 
-        // агент
-        $agent = $this->user;
+        // проверка типа агента
+
+        if( $salesman_id ){
+            // если это salesman
+            // выбираем модель salesman
+            $user = Salesman::find($salesman_id);
+
+        }else{
+            // если это пользователь
+            // достаем уже существующие данные
+            $user = $this->user;
+        }
 
         // пробуем открыть лид, статус записываем в переменную
-        $openResult = $lead->openAll( $agent, $mask_id );
+        $openResult = $lead->openAll( $user, $mask_id );
 
         return response()->json( $openResult );
 
