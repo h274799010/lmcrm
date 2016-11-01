@@ -4,7 +4,7 @@
 @section('content')
     <div class="_page-header" xmlns="http://www.w3.org/1999/html"></div>
 
-    @foreach($spheres as $sphere)
+    @forelse($spheres as $sphere)
 
         <h3> {{ $sphere->name }} </h3>
 
@@ -61,8 +61,11 @@
             </div>
         </div>
 
-    @endforeach
+        @empty
 
+        <h4>@lang('agent/obtain.no_sphere')</h4>
+
+        @endforelse
 @stop
 
 @section('script')

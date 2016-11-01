@@ -182,7 +182,9 @@ class LeadController extends AgentController {
             }
 
             // получаем данные по все именам масок по всем сферам
-            $agentSpheres = $salesman->spheresWithMasks;
+            $spheres = $salesman->spheresWithMasks;
+
+            $spheres->load('filterAttr', 'leadAttr');
 
             $wallet = $salesman->wallet[0];
 
@@ -190,7 +192,7 @@ class LeadController extends AgentController {
             $maxPrice = 0;
 
             // добавление статуса и времени
-            $agentSpheres->map(function( $item ) use ( $wallet, &$maxPrice ){
+            $spheres->map(function( $item ) use ( $wallet, &$maxPrice ){
 
                 // id сферы
                 $sphere_id = $item->id;
@@ -237,7 +239,7 @@ class LeadController extends AgentController {
                 [
                     'wasted' => $wasted,
                     'minLeadsToBuy' => $minLeadsToBuy,
-                    'allSpheres' => $agentSpheres
+                    'allSpheres' => $spheres
                 ];
 
 
@@ -482,6 +484,8 @@ class LeadController extends AgentController {
 
             // добавляем столбец в таблицу
             $datatable->add_column( 'a_'.$index, function( $data ) use ( $attr, $fdMask ){
+
+                dd($fdMask);
 
                 // маска текущего лида
                 $leadMask = $fdMask[$data['lead']['id']];
