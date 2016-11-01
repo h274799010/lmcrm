@@ -951,12 +951,18 @@ class LeadController extends AgentController {
         // находим лид
         $lead = Lead::find( $lead_id );
 
+        // проверка типа агента
+
         if( $salesman_id ){
+            // если это salesman
+            // выбираем модель salesman
             $user = Salesman::find($salesman_id);
+
         }else{
+            // если это пользователь
+            // достаем уже существующие данные
             $user = $this->user;
         }
-
 
         // пробуем открыть лид, статус записываем в переменную
         $openResult = $lead->open( $user, $mask_id );
