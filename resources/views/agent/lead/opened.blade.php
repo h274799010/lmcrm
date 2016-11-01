@@ -1,102 +1,116 @@
 @extends('layouts.master')
 
 @section('content')
-        <!-- Page Content -->
-                <div class="row">
-                    <div id="main_table" class="col-md-12">
+<!-- Page Content -->
+<div class="row">
+    <div id="main_table" class="col-md-12">
 
-                        <table class="table table-bordered table-striped table-hover openLeadsTable">
-                            <thead>
-                                <tr>
-                                    <th>{{ trans("site/lead.opened.icon") }}</th>
-                                    <th>{{ trans('site/lead.opened.status') }}</th>
-                                    <th>{{ trans('site/lead.opened.name') }}</th>
-                                    <th>{{ trans('site/lead.opened.phone') }}</th>
-                                    <th>{{ trans('site/lead.opened.email') }}</th>
-                                    <th>{{ trans('site/lead.opened.maskname') }}</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ($openLeads as $openLead)
-                                <tr lead_id="{{ $openLead['lead']['id'] }}"  opened_Lead_Id="{{ $openLead['id'] }}">
-                                    <td><div></div></td>
-                                    <td class="select_cell">
-                                        {{-- Если лид был отмечен как плохой --}}
-                                        @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
-                                            bad lead
-                                        {{-- впротивном случае вывод select со статусами --}}
-                                        @elseif( $openLead->state == 2 )
-                                            {{ trans('site/lead.deal_closed') }}
-                                        @else
-                                            <select name="status" class="form">
-                                                @if( $openLead->status == 0 )
-                                                    <option selected="selected" class="emptyOption"></option>
-                                                @endif
-                                                @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
-                                                    <option value="bad" class="badOption">bad lead</option>
-                                                @endif
-                                                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                                                    <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                                                @endforeach
-                                                    <option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>
-                                            </select>
-                                        @endif
-                                        {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
-                                    </td>
-                                    <td><div>{{ $openLead['lead']['name'] }}</div></td>
-                                    <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
-                                    <td><div>{{ $openLead['lead']['email'] }}</div></td>
-                                    {{--<td><div> {{ $openLead->maskName() }} </div></td>--}}
-                                    <td>@if($openLead->maskName2)<div> {{ $openLead->maskName2->name }}</div> @else <div style="color:#9f191f">mask deleted</div>  @endif</td>
-                                    <td class="edit">
-                                        <div>
-                                            <a href="#">
-                                                <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+        <table class="table table-bordered table-striped table-hover openLeadsTable">
+            <thead>
+                <tr>
+                    <th>{{ trans("site/lead.opened.icon") }}</th>
+                    <th>{{ trans('site/lead.opened.status') }}</th>
+                    <th>{{ trans('site/lead.opened.name') }}</th>
+                    <th>{{ trans('site/lead.opened.phone') }}</th>
+                    <th>{{ trans('site/lead.opened.email') }}</th>
+                    <th>{{ trans('site/lead.opened.maskname') }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach ($openLeads as $openLead)
+                <tr lead_id="{{ $openLead['lead']['id'] }}"  opened_Lead_Id="{{ $openLead['id'] }}">
+                    <td><div></div></td>
+                    <td class="select_cell">
 
+                        {{-- Проверка на наличие статусов у сферы --}}
+
+                        {{--Если у сферы нет статусов, значить сфера удаленна--}}
+                        @if($openLead['lead']['sphereStatuses'])
+                            {{-- если статусы есть --}}
+
+                            {{-- Если лид был отмечен как плохой --}}
+                            @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
+                                bad lead
+                            {{-- впротивном случае вывод select со статусами --}}
+                            @elseif( $openLead->state == 2 )
+                                {{ trans('site/lead.deal_closed') }}
+                            @else
+
+                                <select name="status" class="form">
+                                    @if( $openLead->status == 0 )
+                                        <option selected="selected" class="emptyOption"></option>
+                                    @endif
+                                    @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
+                                        <option value="bad" class="badOption">bad lead</option>
+                                    @endif
+                                    @foreach($openLead['lead']->sphereStatuses->statuses as $status)
+                                        <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                    @endforeach
+                                        <option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>
+                                </select>
+                            @endif
+                        @else
+                            {{-- если статусов нет --}}
+
+                            <div class="sphere_deleted">sphere deleted</div>
+
+                        @endif
+                        {{-- Конец проверки на наличие статусов у сферы --}}
+
+                    </td>
+                    <td><div>{{ $openLead['lead']['name'] }}</div></td>
+                    <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
+                    <td><div>{{ $openLead['lead']['email'] }}</div></td>
+                    <td>@if($openLead->maskName2)<div> {{ $openLead->maskName2->name }}</div> @else <div class="mask_deleted">mask deleted</div>  @endif</td>
+                    <td class="edit">
+                        <div>
+                            <a href="#">
+                                <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+
+    </div>
+
+    <div id="info_table_block" class="col-md-3 hidden">
+
+        <table id="info_table" class="table table-bordered table-striped table-hover"  cellspacing="0" width="100%">
+
+            <tr class="organizer_tr">
+                <td id="organizer_title" colspan="2" rowspan="1" >
+                    {{ trans("site/lead.opened.organizer.title") }}
+                </td>
+                <td class="organizer_time_title">
+                    {{ trans("site/lead.opened.organizer.time") }}
+                </td>
+                <td class="organizer_comments_title">
+                    <div>
+                        {{ trans("site/lead.opened.organizer.comments") }}
                     </div>
+                    <span class="dropdown">
+                        <a class="dropdown-toggle" aria-expanded="true" role="button" data-toggle="dropdown" href="#">
+                            <i class="glyphicon glyphicon-plus"></i>
+                        </a>
 
-                    <div id="info_table_block" class="col-md-3 hidden">
+                        <ul class="dropdown-menu myDropDown" role="menu">
+                            <li> <a id="commentHref" class="dialog" href="">{{ trans("site/lead.opened.organizer.button.comment") }}</a> </li>
+                            <li> <a id="reminderHref" class="dialog" href="">{{ trans("site/lead.opened.organizer.button.reminder") }}</a> </li>
+                        </ul>
 
-                        <table id="info_table" class="table table-bordered table-striped table-hover"  cellspacing="0" width="100%">
-
-                            <tr class="organizer_tr">
-                                <td id="organizer_title" colspan="2" rowspan="1" >
-                                    {{ trans("site/lead.opened.organizer.title") }}
-                                </td>
-                                <td class="organizer_time_title">
-                                    {{ trans("site/lead.opened.organizer.time") }}
-                                </td>
-                                <td class="organizer_comments_title">
-                                    <div>
-                                        {{ trans("site/lead.opened.organizer.comments") }}
-                                    </div>
-                                    <span class="dropdown">
-                                        <a class="dropdown-toggle" aria-expanded="true" role="button" data-toggle="dropdown" href="#">
-                                            <i class="glyphicon glyphicon-plus"></i>
-                                        </a>
-
-                                        <ul class="dropdown-menu myDropDown" role="menu">
-                                            <li> <a id="commentHref" class="dialog" href="">{{ trans("site/lead.opened.organizer.button.comment") }}</a> </li>
-                                            <li> <a id="reminderHref" class="dialog" href="">{{ trans("site/lead.opened.organizer.button.reminder") }}</a> </li>
-                                        </ul>
-
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <!-- /.col-lg-10 -->
-                </div>
-                <!-- /.row -->
-            <!-- /.container -->
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- /.col-lg-10 -->
+</div>
+<!-- /.row -->
+<!-- /.container -->
 
 
 <div id="statusModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">

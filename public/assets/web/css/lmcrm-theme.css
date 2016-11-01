@@ -274,10 +274,15 @@ footer,.footer,#footer{
 
 .balance_data_menu  .balance_masks_block > li >span:last-child{
     float: right;
-
 }
 
+.sphere_deleted{
+	color: #9f191f;
+}
 
+.mask_deleted{
+	color: #9f191f;
+}
 
 
 

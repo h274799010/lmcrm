@@ -22,33 +22,49 @@
                 <tr lead_id="{{ $openLead['lead']['id'] }}"  opened_Lead_Id="{{ $openLead['id'] }}">
                     <td><div></div></td>
                     <td class="select_cell">
-                        {{-- Если лид был отмечен как плохой --}}
-                        @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
-                            bad lead
-                            {{-- впротивном случае вывод select со статусами --}}
-                        @elseif( $openLead->state == 2 )
-                            {{ trans('site/lead.deal_closed') }}
+
+                        {{-- Проверка на наличие статусов у сферы --}}
+
+                        {{--Если у сферы нет статусов, значить сфера удаленна--}}
+                        @if($openLead['lead']['sphereStatuses'])
+                            {{-- если статусы есть --}}
+
+
+                            {{-- Если лид был отмечен как плохой --}}
+                            @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
+                                bad lead
+                                {{-- впротивном случае вывод select со статусами --}}
+                            @elseif( $openLead->state == 2 )
+                                {{ trans('site/lead.deal_closed') }}
+                            @else
+                                <select name="status" class="form">
+                                    @if( $openLead->status == 0 )
+                                        <option selected="selected" class="emptyOption"></option>
+                                    @endif
+                                    @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
+                                        <option value="bad" class="badOption">bad lead</option>
+                                    @endif
+                                    @foreach($openLead['lead']->sphereStatuses->statuses as $status)
+                                        <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                    @endforeach
+                                    <option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>
+                                </select>
+                            @endif
+
                         @else
-                            <select name="status" class="form">
-                                @if( $openLead->status == 0 )
-                                    <option selected="selected" class="emptyOption"></option>
-                                @endif
-                                @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
-                                    <option value="bad" class="badOption">bad lead</option>
-                                @endif
-                                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                                    <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                                @endforeach
-                                <option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>
-                            </select>
+                            {{-- если статусов нет --}}
+
+                            <div class="sphere_deleted">sphere deleted</div>
+
                         @endif
-                        {{--{{ Form::select('status', $data->sphereStatuses->statuses->lists('stepname', 'id'), $data->openLeadStatus->status, [ 'class'=>'form', 'disabled_opt'=>$data->blockOptions ]) }}--}}
+                        {{-- Конец проверки на наличие статусов у сферы --}}
+
                     </td>
                     <td><div>{{ $openLead['lead']['name'] }}</div></td>
                     <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
                     <td><div>{{ $openLead['lead']['email'] }}</div></td>
                     {{--<td><div> {{ $openLead->maskName() }} </div></td>--}}
-                    <td>@if($openLead->maskName2)<div> {{ $openLead->maskName2->name }}</div> @else <div style="color:#9f191f">mask deleted</div>  @endif</td>
+                    <td>@if($openLead->maskName2)<div> {{ $openLead->maskName2->name }}</div> @else <div class="mask_deleted">mask deleted</div>  @endif</td>
                     <td class="edit">
                         <div>
                             <a href="#">

@@ -1178,8 +1178,6 @@ class LeadController extends AgentController {
             }])
             ->get();
 
-//        $return = [ 'openLeads' => $openLeads, 'salesman_id' => $salesman_id ];
-
         return view($view, [ 'openLeads'=>$openLeads, 'salesman_id'=>$salesman_id ]);
     }
 
