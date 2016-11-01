@@ -1547,6 +1547,13 @@ class SphereController extends AdminController {
 
                         });
 
+                    } elseif ($AttrOptionsInDB && !isset($attr['option']) ) {
+                        $AttrOptionsInDB->each(function ( $optionInDB ) use ( $sphere ) {
+                            $optionInDB->delete();
+
+                            $sphere->status = 0;
+                            $sphere->save();
+                        });
                     }
                 }
 
@@ -1617,6 +1624,9 @@ class SphereController extends AdminController {
                         }
                     });
 
+                } else {
+                    $sphere->status = 0;
+                    $sphere->save();
                 }
 
                 return true;
@@ -1722,10 +1732,58 @@ class SphereController extends AdminController {
         $chr = Sphere::select(['id','name', 'status', 'created_at']);
 
         return Datatables::of($chr)
-            ->edit_column('status', function($model) { return view('admin.sphere.datatables.status',['status'=>$model->status]); } )
+            ->edit_column('status', function($model) { return view('admin.sphere.datatables.status',['model'=>$model]); } )
             ->add_column('actions', function($model) { return view('admin.sphere.datatables.control',['id'=>$model->id]); } )
             ->remove_column('id')
             ->make();
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $sphere = Sphere::find($request->input('id'));
+
+        $statusFlag = true;
+
+        $required = [
+            'name',
+            'openLead',
+            'minLead',
+            'price_call_center',
+            'lead_auction_expiration_interval',
+            'lead_bad_status_interval',
+            'range_show_lead_interval',
+            'max_range',
+        ];
+
+        foreach ($required as $key) {
+            if( empty($sphere[$key]) ) {
+                $statusFlag = false;
+            }
+        }
+
+        $sphereAttr = $sphere->attributes()->get();
+
+        if(!count($sphereAttr)) {
+            $statusFlag = false;
+        } else {
+            foreach ($sphereAttr as $attr) {
+                if($attr->has('options')) {
+                    $options = $attr->options()->get();
+                    if(!count($options)) {
+                        $statusFlag = false;
+                    }
+                }
+            }
+        }
+
+        if(!$statusFlag) {
+            return response()->json( [ 'error'=>true, 'message'=>trans('admin/sphere.status_not_changed') ] );
+        }
+
+        $sphere->status = (bool)$request->input('status');
+        $sphere->save();
+
+        return response()->json( [ 'error'=>false, 'message'=>trans('admin/sphere.status_changed') ] );
     }
 
 

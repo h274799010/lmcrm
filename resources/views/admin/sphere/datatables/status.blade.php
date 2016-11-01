@@ -1,8 +1,8 @@
 <div class="">
     <div class="togglebutton">
       <label>
-        <input type="checkbox" @if($status) checked="checked" @endif disabled="disabled">
-        @if($status) @lang('admin/admin.yes') @else @lang('admin/admin.no') @endif
+        <input class="sphereChangeStatus" type="checkbox" value="{{ $model->id }}" @if($model->status) checked="checked" @endif {{--disabled="disabled"--}}>
+        <span class="status">@if($model->status) @lang('admin/admin.yes') @else @lang('admin/admin.no') @endif</span>
       </label>
   </div>
 </div>

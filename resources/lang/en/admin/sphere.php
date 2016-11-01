@@ -16,6 +16,8 @@ return [
     'price' => 'Price',
     'active_mask' => 'Active mask',
     'inactive_mask' => 'Inactive mask',
+    'status_not_changed' => 'Status not changed!',
+    'status_changed' => 'Status changed!',
 
     'month' => 'Month',
     'days' => 'Days',
