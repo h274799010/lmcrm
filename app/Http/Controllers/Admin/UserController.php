@@ -117,10 +117,12 @@ class UserController extends AdminController
      */
     public function data()
     {
-        $users = User::select(array('users.id', 'users.name', 'users.email', 'users.created_at'));
+        $users = User::select(array('users.id', 'users.last_name', 'users.first_name', 'users.email', 'users.created_at'));
 
         return Datatables::of($users)
+            ->edit_column('last_name',function($model) { return $model->last_name.' '.$model->first_name; })
             ->add_column('actions',function($model) { return view('admin.user.datatables.control',['id'=>$model->id]); })
+            ->remove_column('first_name')
             ->remove_column('id')
             ->make();
     }

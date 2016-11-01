@@ -8,6 +8,7 @@ use App\Models\AgentBitmask;
 use App\Models\Auction;
 use App\Models\LeadBitmask;
 use App\Models\Operator;
+use App\Models\OperatorSphere;
 use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -36,9 +37,11 @@ class SphereController extends Controller {
      */
     public function index()
     {
-
         //$leads = Lead::whereIn('status', [0,1])->with([ 'sphere', 'user' ])->get();
-        $leads = Lead::whereIn('status', [0,1])->with([ 'sphere', 'user' ])->get();
+        $operator = Sentinel::getUser();
+        $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
+
+        $leads = Lead::whereIn('status', [0,1])->whereIn('sphere_id', $spheres)->with([ 'sphere', 'user' ])->get();
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }

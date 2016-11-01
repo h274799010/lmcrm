@@ -13,7 +13,7 @@ class AlterUsers extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('name')->nullable()->after('last_name');
+            //$table->string('name')->nullable()->after('last_name');
             $table->string('confirmation_code')->nullable()->after('password');
         });
     }
@@ -26,7 +26,7 @@ class AlterUsers extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('name');
+            //$table->dropColumn('name');
             $table->dropColumn('confirmation_code');
         });
     }

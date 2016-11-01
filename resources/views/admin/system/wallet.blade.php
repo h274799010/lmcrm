@@ -129,7 +129,7 @@
                             <td>{{ $detail->wallet_type }}</td>
                             <td>{{ $detail->type }}</td>
                             <td>{{ $detail->transaction->id }}</td>
-                            <td>{{ $detail->transaction->initiator->name }}</td>
+                            <td>{{ $detail->transaction->initiator->first_name }} {{ $detail->transaction->initiator->last_name }}</td>
                             <td>{{ $detail->transaction->status }}</td>
                         </tr>
                     @endforeach

@@ -24,6 +24,14 @@
 
             <!-- General tab -->
             <div class="tab-pane active" id="tab-general">
+
+                <div class="form-group  {{ $errors->has('spheres') ? 'has-error' : '' }}">
+                    {!! Form::label('spheres', trans("admin/sphere.sphere"), array('class' => 'control-label')) !!}
+                    <div class="controls">
+                        {!! Form::select('spheres[]',$spheres,(isset($operator))?$operator->spheres()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2','required'=>'required')) !!}
+                        <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
+                    </div>
+                </div>
                 <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
                     {!! Form::label('first_name', trans("admin/users.first_name"), array('class' => 'control-label')) !!}
                     <div class="controls">
@@ -38,13 +46,13 @@
                         <span class="help-block">{{ $errors->first('last_name', ':message') }}</span>
                     </div>
                 </div>
-                <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
+                {{--<div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
                     {!! Form::label('name', trans("admin/users.username"), array('class' => 'control-label')) !!}
                     <div class="controls">
                         {!! Form::text('name', null, array('class' => 'form-control')) !!}
                         <span class="help-block">{{ $errors->first('name', ':message') }}</span>
                     </div>
-                </div>
+                </div>--}}
                 <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
                     {!! Form::label('email', trans("admin/users.email"), array('class' => 'control-label')) !!}
                     <div class="controls">
