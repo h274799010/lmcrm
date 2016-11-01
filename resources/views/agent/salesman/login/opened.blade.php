@@ -48,7 +48,7 @@
                     <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
                     <td><div>{{ $openLead['lead']['email'] }}</div></td>
                     {{--<td><div> {{ $openLead->maskName() }} </div></td>--}}
-                    <td><div> @if($openLead->maskName2) {{ $openLead->maskName2->name }} @else mask deleted @endif</div></td>
+                    <td>@if($openLead->maskName2)<div> {{ $openLead->maskName2->name }}</div> @else <div style="color:#9f191f">mask deleted</div>  @endif</td>
                     <td class="edit">
                         <div>
                             <a href="#">
