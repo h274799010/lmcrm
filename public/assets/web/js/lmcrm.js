@@ -229,6 +229,10 @@ $(function(){
     $('.ajax-dataTable').each(function() {
         var $table=$(this);
         var $container=$table.closest('.dataTables_container');
+
+        // выбираем id сферы
+        var sphereId = $table.attr('sphere_id');
+
         var dTable = $table.DataTable({
             "destroy": true,
             "searching": false,
@@ -243,11 +247,12 @@ $(function(){
                             filter[$(this).data('name')] = $(this).val();
                         }
                     });
-                    d['filter'] = filter;
-                },
+                    d['filter'] = filter; // данные фильтра
+                    d['sphere_id'] = sphereId; // id сферы
+                }
             },
 
-            "responsive": true,
+            "responsive": true
 
         });
         $container.find(".dataTables_filter").change(function () {

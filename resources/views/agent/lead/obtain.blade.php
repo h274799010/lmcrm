@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="col-md-12">
-                    <table class="table table-bordered table-striped table-hover ajax-dataTable">
+                    <table class="table table-bordered table-striped table-hover ajax-dataTable" sphere_id='{{ $spheres->id }}'>
                         <thead>
                         <tr>@php($i=0)
                             <th><div>{{ trans("site/lead.count") }}</div></th>
@@ -76,8 +76,8 @@
             "url": '{{ asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') }}'
         },
         "ajax": {
-            "url": "{{ route('agent.lead.obtain.data') }}",
-        },
+            "url": "{{ route('agent.lead.obtain.data') }}"
+        }
     });
 </script>
 @stop

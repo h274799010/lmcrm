@@ -158,6 +158,8 @@ class LeadController extends AgentController {
             if( $this->sphere ){
                 $attr['lead_attr'] = $this->sphere->leadAttr;
                 $attr['agent_attr'] = $this->sphere->attributes;
+                $spheres = $this->sphere;
+
             }else{
                 $attr = false;
             }
@@ -173,6 +175,8 @@ class LeadController extends AgentController {
             if( $salesmanSphere ){
                 $attr['lead_attr'] = $salesmanSphere->leadAttr;
                 $attr['agent_attr'] = $salesmanSphere->attributes;
+                $spheres = $salesmanSphere;
+
             }else{
                 $attr = false;
             }
@@ -253,6 +257,7 @@ class LeadController extends AgentController {
 
         return view($view)
             ->with('attr', $attr)
+            ->with('spheres', $spheres)
             ->with('salesman_id', $salesman_id);
     }
 
@@ -350,7 +355,7 @@ class LeadController extends AgentController {
         }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->with('lead') /*->with('maskName') */ ->get();
+        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->where( 'sphere_id', $request['sphere_id'] )->with('lead') /*->with('maskName') */ ->get();
 
         // маска лида
         $leadBitmask = new LeadBitmask( $mask->getTableNum() );
