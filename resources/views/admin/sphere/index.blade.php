@@ -18,6 +18,11 @@
         </h3>
     </div>
 
+    <div id="alert" class="alert alert-success alert-dismissible fade in" role="alert" style="display: none;">
+        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <div class="alertContent"></div>
+    </div>
+
     <table id="table" class="table table-striped table-hover">
         <thead>
         <tr>
@@ -33,4 +38,50 @@
 
 {{-- Scripts --}}
 @section('scripts')
+    <script type="text/javascript">
+        $(document).on('change', '.sphereChangeStatus', function (e) {
+            e.preventDefault();
+
+            var token = $('meta[name=csrf-token]').attr('content');
+
+            var $input = $(this);
+
+            var status = 0;
+            if($input.prop('checked') === true) {
+                status = 1;
+            }
+
+            if(status == 0) {
+                $input.siblings('span.status').html('@lang('admin/admin.no')');
+            } else {
+                $input.siblings('span.status').html('@lang('admin/admin.yes')');
+            }
+
+            var param = {
+                '_token': token,
+                'id': $input.val(),
+                'status': status
+            };
+
+            var $alert = $('#alert');
+
+            $alert.find('.close').on('click', function (e) {
+                e.preventDefault();
+                $alert.slideUp();
+            });
+
+            $.post('{{ route('admin.sphere.changeStatus') }}', param, function (data) {
+                console.log(data);
+                if(data['error'] == true) {
+                    $alert.removeClass('alert-success').addClass('alert-warning');
+                    $input.prop('checked', false);
+                    $input.siblings('span.status').html('@lang('admin/admin.no')');
+                } else {
+                    $alert.removeClass('alert-warning').addClass('alert-success');
+                }
+                $alert.find('.alertContent').html(data['message']);
+                $alert.slideDown();
+            });
+        });
+    </script>
 @stop

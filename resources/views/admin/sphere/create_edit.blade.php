@@ -244,7 +244,7 @@
                                 $this.prop('disabled',false);
                             } else {
                                 $this.prop('disabled',false);
-                                //window.location = '{{ route('admin.sphere.index') }}';
+                                window.location = '{{ route('admin.sphere.index') }}';
                             }
                         },
                         error: function (XMLHttpRequest, textStatus) {
