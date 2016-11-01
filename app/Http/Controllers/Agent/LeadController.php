@@ -1078,37 +1078,109 @@ class LeadController extends AgentController {
     /**
      * Выводит все открытые лиды агента
      *
+     *
+     * @param  boolean|integer  $salesman_id
+     *
      * @return object
      */
-    public function openedLeads($salesman_id = false){
-        // id пользователя
+    public function openedLeads( $salesman_id = false ){
+
+        // получаем пользователя
         if($salesman_id === false) {
-            $userId = Sentinel::getUser()->id;
+
+            // получаем данные агента
+            $user = $this->user;
+            // задаем вьюшку
+            $view = 'agent.lead.opened';
+
         } else {
-            $userId = (int)$salesman_id;
+
+            // получаем данные продавца
+            $user = Salesman::find( $salesman_id );
+
+            // получаем данные по все именам масок по всем сферам
+            $agentSpheres = $user->spheresWithMasks;
+
+            $wallet = $user->wallet[0];
+
+            // максимальная цена по маскам
+            $maxPrice = 0;
+
+            // добавление статуса и времени
+            $agentSpheres->map(function( $item ) use ( $wallet, &$maxPrice ){
+
+                // id сферы
+                $sphere_id = $item->id;
+
+                // добавление данных в маску
+                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
+
+                    // получение данных фильтра маски
+                    $agentMask = new AgentBitmask($sphere_id);
+                    $maskItem = $agentMask->find( $item->mask_id );
+
+                    if( $maskItem->status == 0){
+                        return false;
+                    }
+
+                    // количество лидов, которое агент может купить по этой маске
+                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
+
+
+                    // добавление статуса
+                    $item->status = $maskItem->status;
+                    // добавление даты
+                    $item->updated_at = $maskItem->updated_at;
+
+                    if( $maxPrice < $maskItem->lead_price ){
+                        $maxPrice = $maskItem->lead_price;
+                    }
+
+                    return $item;
+                });
+
+                return $item;
+            });
+
+            // минимальное количество лидо которое может купить агент
+            // сколько агент может купить лидов по маске с максимальным прайсом
+            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
+
+            // данные по забракованным лидам
+            $wasted = $wallet->wasted;
+
+            // данные по балансу в шапке
+            $balance =
+                [
+                    'wasted' => $wasted,
+                    'minLeadsToBuy' => $minLeadsToBuy,
+                    'allSpheres' => $agentSpheres
+                ];
+
+            // добавляем данные по балансу на страницу
+            view()->share('balance', $balance);
+
+            // переводим данные по балансу в json
+            $balanceJSON = json_encode($balance);
+
+            // добавляем на страницу куки с данными по балансу
+            Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
+
+            // задаем вьюшку
+            $view = 'agent.salesman.login.opened';
         }
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
-        where( 'agent_id', $userId )->with('maskName2')
+        where( 'agent_id', $user->id )->with('maskName2')
             ->with( ['lead' => function( $query ){
                 $query->with('sphereStatuses');
             }])
             ->get();
 
+//        $return = [ 'openLeads' => $openLeads, 'salesman_id' => $salesman_id ];
 
-//        dd( $openLeads[0]['lead']['sphereStatuses']['statuses'] );
-
-        if($salesman_id === false) {
-            $return = ['openLeads'=>$openLeads];
-            $view = 'agent.lead.opened';
-        } else {
-            $return = [ 'openLeads' => $openLeads, 'salesman_id' => (int)$salesman_id ];
-            $view = 'agent.salesman.login.opened';
-        }
-
-        //return view( 'agent.lead.opened', ['openLeads'=>$openLeads] );
-        return view($view, $return);
+        return view($view, [ 'openLeads'=>$openLeads, 'salesman_id'=>$salesman_id ]);
     }
 
 
