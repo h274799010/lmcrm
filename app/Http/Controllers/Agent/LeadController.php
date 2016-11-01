@@ -275,19 +275,18 @@ class LeadController extends AgentController {
      */
     public function obtainData(Request $request, $salesman_id = false)
     {
+
+        // находим заданную сферу
+        $sphere = Sphere::find( $request['sphere_id'] );
+
         if($salesman_id === false) {
             // данные агента
             $agent = $this->user;
 
             $user_id = $agent->id;
-
-            // конструктор маски агента
-            $mask=$this->mask;
         } else {
             // данные агента
             $agent = Salesman::findOrFail($salesman_id);
-            $sphere_id=$agent->sphere()->id;
-            $mask = new AgentBitmask($sphere_id,$agent->id);
             $user_id = $agent->id;
 
             // получаем данные по все именам масок по всем сферам
@@ -357,10 +356,10 @@ class LeadController extends AgentController {
         }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->where( 'sphere_id', $request['sphere_id'] )->with('lead') /*->with('maskName') */ ->get();
+        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->where( 'sphere_id', $sphere->id )->with('lead') /*->with('maskName') */ ->get();
 
         // маска лида
-        $leadBitmask = new LeadBitmask( $mask->getTableNum() );
+        $leadBitmask = new LeadBitmask( $sphere->id );
 
 
         if (count($request->only('filter'))) {
@@ -469,7 +468,7 @@ class LeadController extends AgentController {
         /**  ---  ЗАПОЛНЕНИЕ ПОЛЕЙ fb_ В ТАБЛИЦЕ obtain  ---  */
 
         // получаем все атрибуты агента
-        $agentAttributes = $agent->sphere()->attributes;
+        $agentAttributes = $sphere->filterAttr;
 
         // маска fb полей лидов
         // массив с ключами и значениями только fb_ полей
@@ -484,8 +483,6 @@ class LeadController extends AgentController {
 
             // добавляем столбец в таблицу
             $datatable->add_column( 'a_'.$index, function( $data ) use ( $attr, $fdMask ){
-
-                dd($fdMask);
 
                 // маска текущего лида
                 $leadMask = $fdMask[$data['lead']['id']];
@@ -538,7 +535,7 @@ class LeadController extends AgentController {
         /**  ---  ЗАПОЛНЕНИЕ ПОЛЕЙ ad_ В ТАБЛИЦЕ obtain  ---  */
 
         // получаем все атрибуты лида
-        $leadAttributes = $agent->sphere()->leadAttr;
+        $leadAttributes = $sphere->leadAttr;
 
         // маска ad полей лидов
         // массив с ключами и значениями только ad_ полей
