@@ -291,7 +291,7 @@ $(function(){
         // выбираем блок с контентом выпадающего меню
         var balance = $('#balance_data_content');
 
-        if( balanceData.allSpheres ){
+        if( balanceData.allSpheres != '' ){
             // перебираем все маски и заносим данные в выпадающее меню
             $( balanceData.allSpheres ).each(function( key, val ){
 
@@ -390,7 +390,7 @@ $(function(){
         // выбираем блок с контентом выпадающего меню
         var balance = $('#salesman_balance_data_content');
 
-        if( balanceData.allSpheres ){
+        if( balanceData.allSpheres != '' ){
             // перебираем все маски и заносим данные в выпадающее меню
             $( balanceData.allSpheres ).each(function( key, val ){
 
@@ -458,6 +458,14 @@ $(function(){
                 }
 
                 balance.append(li);
+
+                //alert(balance.children().length);
+                //
+                //if( balance.children().length == 0){
+                //    li.text( 'гы' );
+                //    balance.append(li);
+                //}
+
             });
 
         }else{
