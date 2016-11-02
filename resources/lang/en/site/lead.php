@@ -50,6 +50,15 @@ return [
     'opened.modal.reminder.add.title' => 'Add reminder:',
     'opened.modal.reminder.edit.title' => 'Edit reminder',
     'opened.modal.reminder.time' => 'Time:',
-    'opened.modal.reminder.body' => 'Text:'
+    'opened.modal.reminder.body' => 'Text:',
+
+
+    /*
+     * Admin leads details
+     */
+    'admin_details_data' => 'Data',
+    'admin_details_user' => 'User',
+    'admin_details_sum' => 'Sum',
+    'admin_details_type' => 'Type',
 
 ];

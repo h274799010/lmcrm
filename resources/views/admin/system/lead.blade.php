@@ -6,7 +6,7 @@
             Таблица с подробностями по лиду (id {{ $leadsInfo[0]['lead_id'] }})
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
-                    <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
+                    <span class="glyphicon glyphicon-backward"></span> @lang('admin/admin.back')
                 </a>
             </div>
         </h3>
@@ -18,10 +18,10 @@
 
             <thead>
             <tr>
-                <th>Дата транзакции</th>
-                <th>Пользователь</th>
-                <th>Сумма</th>
-                <th>Тип</th>
+                <th>@lang('site/lead.admin_details_data')</th>
+                <th>@lang('site/lead.admin_details_user')</th>
+                <th>@lang('site/lead.admin_details_sum')</th>
+                <th>@lang('site/lead.admin_details_type')</th>
             </tr>
             </thead>
 
