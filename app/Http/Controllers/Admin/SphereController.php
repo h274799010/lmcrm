@@ -1505,7 +1505,7 @@ class SphereController extends AdminController {
                 } else {
                     // если атрибута нет или он равен 0 создаем его
                     $agentAttr = new SphereFormFilters($attr);
-                    $attr = $sphere->attributes()->save($agentAttr);
+                    $sphere->attributes()->save($agentAttr);
                 }
 
 
@@ -1513,8 +1513,8 @@ class SphereController extends AdminController {
 
                 //dd($attr);
 
-                if( $attr['id'] != 0 ){
-                    $AttrOptionsInDB = FormFiltersOptions::where( 'attr_id', $attr['id'] )->get();
+                if( $agentAttr['id'] != 0 ){
+                    $AttrOptionsInDB = FormFiltersOptions::where( 'attr_id', $agentAttr['id'] )->get();
 
                     if( $AttrOptionsInDB && isset( $attr['option'] ) ){
 
