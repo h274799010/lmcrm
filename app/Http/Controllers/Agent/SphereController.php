@@ -249,7 +249,7 @@ class SphereController extends AgentController {
         // Флаг ( false - опции не изменились, true - опции изменились )
         $flagOptions = false;
         foreach ($maskOptions as $field => $index) {
-            if( ($mask[$field] === 0 && !in_array($index, $options)) || ($mask[$field] === 1 && in_array($index, $options)) ) {
+            if( ($mask[$field] == 0 && !in_array($index, $options)) || ($mask[$field] == 1 && in_array($index, $options)) ) {
                 // Если значение опции в маске совпадает со значением из $request - опция не изменилась (маску не пересохраняем)
                 $flagOptions = false;
             } else {
@@ -258,6 +258,7 @@ class SphereController extends AgentController {
                 break;
             }
         }
+
 
         if($flagOptions === true) {
             // сохраняем атрибуты
