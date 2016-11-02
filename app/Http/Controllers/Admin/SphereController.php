@@ -1710,6 +1710,9 @@ class SphereController extends AdminController {
         // удаление привязки агента к сфере
         AgentSphere::where('sphere_id', $id)->delete();
 
+        // удаление лидов сферы с таблица аукциоан
+        Auction::where( 'sphere_id', $id )->delete();
+
         $leadBitmask = new LeadBitmask($group->id);
         $agentBitmask = new AgentBitmask($group->id);
 
