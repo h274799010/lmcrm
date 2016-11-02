@@ -10,6 +10,9 @@ return [
     'hidden' => "Closed",
     'open.mask' => 'Mask',
 
+    // deposited
+    'sphere' => 'Sphere',
+
     // Opened leads
     'opened.icon' => 'Icon',
     'opened.status' => 'Status',
