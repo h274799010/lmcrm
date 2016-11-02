@@ -12,8 +12,16 @@ return [
     'obtainError' => 'Obtain error',
     'lowBalance' => 'Error: low balance',
     'Lead.not_at_auction' => 'Lead withdrawn from auction',
+
+
     'openlead.successfully_opened' => 'Lead successfully opened',
     'openlead.AllLead_successfully_opened' => 'All lead successfully opened',
+
+
     'openlead.low_balance' => 'Low balance',
     'openlead.already_open' => 'Already open',
+
+
+    'lead.sphere_deleted' => 'Sphere deleted',
+    'lead.sphere_off' => 'Sphere is off',
 ];

@@ -463,13 +463,13 @@ class Lead extends EloquentUser {
 
         // если сфера лида удалена
         if( !$lead->sphere ){
-            return trans('lead/lead.Lead.sphere_deleted');
+            return trans('lead/lead.lead.sphere_deleted');
         }
 
 
         // если сфера лида отключена
         if( $lead->sphere->status == 0 ){
-            return trans('lead/lead.Lead.sphere_off');
+            return trans('lead/lead.lead.sphere_off');
         }
 
 
@@ -532,16 +532,16 @@ class Lead extends EloquentUser {
         // лид
         $lead = $this;
 
-        
+
         // если сфера лида удалена
         if( !$lead->sphere ){
-            return trans('lead/lead.Lead.sphere_deleted');
+            return trans('lead/lead.lead.sphere_deleted');
         }
 
 
         // если сфера лида отключена
         if( $lead->sphere->status == 0 ){
-            return trans('lead/lead.Lead.sphere_off');
+            return trans('lead/lead.lead.sphere_off');
         }
 
 
