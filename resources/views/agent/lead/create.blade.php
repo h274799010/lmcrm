@@ -3,6 +3,14 @@
 @section('content')
     {!! Form::open(array('route' => ['agent.lead.store'], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) !!}
 
+    <div class="form-group  {{ $errors->has('sphere') ? 'has-error' : '' }}">
+        <div class="col-xs-10">
+            {!! Form::select('sphere', $spheres, array('class' => 'form-control','required'=>'required',)) !!}
+            <span class="help-block">{{ $errors->first('sphere', ':message') }}</span>
+        </div>
+
+    </div>
+
     <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
         <div class="col-xs-10">
             {!! Form::text('name', null, array('class' => 'form-control','placeholder'=>trans('lead/form.name'),'required'=>'required','data-rule-minLength'=>'2')) !!}

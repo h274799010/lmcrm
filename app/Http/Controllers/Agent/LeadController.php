@@ -1021,7 +1021,9 @@ class LeadController extends AgentController {
      */
     public function create()
     {
-        $spheres = Sphere::active()->lists('name','id');
+        // выделяем из коллекции сфер только имена и id
+        $spheres = $this->spheres->pluck('name', 'id');
+
         return view('agent.lead.create')->with('lead',[])->with('spheres',$spheres);
     }
 
@@ -1054,7 +1056,7 @@ class LeadController extends AgentController {
 
         $lead = new Lead($request->except('phone'));
         $lead->customer_id=$customer->id;
-        $lead->sphere_id = $agent->sphere()->id;
+        $lead->sphere_id = $request->sphere;
         $lead->status = 0;
 
 
