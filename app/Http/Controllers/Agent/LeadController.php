@@ -56,17 +56,27 @@ class LeadController extends AgentController {
      */
     public function deposited( $salesman_id = false ){
 
+        // определение пользователя
+
         if($salesman_id === false) {
-            $leads = $this->user->leads()->with('phone')->get();
-            return view('agent.lead.deposited')
-                ->with('salesman_id', $salesman_id)
-                ->with('leads',$leads);
+            // если не продавец
+
+            // находим все лиды с телефоном и сферой
+            $leads = $this->user->leads()->with('phone', 'sphere')->get();
+
+            // задаем имя вьюшки
+            $view = 'agent.lead.deposited';
+
         } else {
+            // если продавец
+
+            // находим данные продавца
             $salesman = Salesman::findOrFail($salesman_id);
 
             // получаем данные по все именам масок по всем сферам
             $agentSpheres = $salesman->spheresWithMasks;
 
+            // находим кошелек продавца (вернее, его агента)
             $wallet = $salesman->wallet[0];
 
             // максимальная цена по маскам
@@ -133,12 +143,19 @@ class LeadController extends AgentController {
             // добавляем на страницу куки с данными по балансу
             Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
 
-            
-            $leads = $salesman->leads()->with('phone')->get();
-            return view('agent.salesman.login.deposited')
-                ->with('leads',$leads)
-                ->with('salesman_id', $salesman_id);
+            // находим все лиды с телефоном и сферой
+            $leads = $salesman->leads()->with('phone', 'sphere')->get();
+
+            // задаем имя вьюшки
+            $view = 'agent.salesman.login.deposited';
+
         }
+
+        return view($view)
+            ->with('leads', $leads)
+            ->with('salesman_id', $salesman_id);
+
+
     }
 
 
