@@ -460,10 +460,24 @@ class Lead extends EloquentUser {
         // лид
         $lead = $this;
 
+
+        // если сфера лида удалена
+        if( !$lead->sphere ){
+            return trans('lead/lead.Lead.sphere_deleted');
+        }
+
+
+        // если сфера лида отключена
+        if( $lead->sphere->status == 0 ){
+            return trans('lead/lead.Lead.sphere_off');
+        }
+
+
         // если лид уже снят с аукциона, сообщаем об этом и выходим
         if( $lead->status != 3 ){
             return trans('lead/lead.Lead.not_at_auction');
         }
+
 
         // заносим лид в таблицу открытых лидов
         $openLead =
