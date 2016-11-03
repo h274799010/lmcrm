@@ -18,7 +18,8 @@ Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] 
     Route::get('salesman/lead/openAll/{lead_id}/{mask_id}/{salesman_id}', ['as'=>'salesman.lead.openAll', 'uses'=>'Agent\LeadController@openAllLeads']);
 
 });
-Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], function() {
+
+Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ], function() {
 
     // todo эти две страницы, похоже, несуществуют, проверить и удалить
 //    Route::get('/', ['as' => 'agent.index', 'uses' => 'Agent\AgentController@index']);
@@ -99,7 +100,7 @@ Route::group(['prefix' => 'agent','middleware' => ['auth', 'agent|salesman'] ], 
         // Группа роутов для которых проверяются разрешения
         Route::group([ 'middleware' => ['permissions'] ], function () {
             // страница всех масок агента по сферам
-            Route::get('sphere', ['as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
+            Route::get('sphere', ['middleware' => [ 'leadbayer|dealmaker' ], 'as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
 
             // страница всех масок агента по сферам (под продавцом)
             Route::get('sphere/{salesman_id?}', ['as' => 'agent.salesman.sphere.index', 'uses' => 'Agent\SphereController@index']);
