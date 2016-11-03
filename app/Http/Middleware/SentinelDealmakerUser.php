@@ -37,6 +37,8 @@ class SentinelDealmakerUser
         if ( $filteredRoles->count() == 0 ) {
             return redirect()->route('home');
         }
+
+        // продолжаем реквест
         return $next($request);
     }
 }

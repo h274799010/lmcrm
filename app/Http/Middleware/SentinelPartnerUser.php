@@ -16,12 +16,30 @@ class SentinelPartnerUser
      */
     public function handle($request, Closure $next)
     {
+        // текущий агент
         $user = Sentinel::getUser();
-        $admin = Sentinel::findRoleBySlug('partner');
+        // роль, которой агент должен соответствовать
+        $role = Sentinel::findRoleBySlug('partner');
 
-        if (!$user->inRole($admin)) {
+
+        // если такой роли не существует
+        if( !$role ){
+            // возвращаемся на главную страницу
             return redirect()->route('home');
         }
+
+        // фильтруем все роли агента, находим соответствие заданной роли
+        $filteredRoles = $user->roles->filter(function( $userRole ) use ($role){
+            // возвращаем роль если id роли агента соответствует id заданной роли
+            return $userRole->id == $role->id;
+        });
+
+        // если заданная роль не соответствует ни одной роли агента
+        if ( $filteredRoles->count() == 0 ) {
+            return redirect()->route('home');
+        }
+
+        // продолжаем реквест
         return $next($request);
     }
 }
