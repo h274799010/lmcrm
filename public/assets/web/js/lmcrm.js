@@ -301,20 +301,33 @@ $(function(){
         });
 
 
-        // обработка клика по открытию лида (на глазик в таблице)
-        $container.delegate('.ajax-link', 'click', function () {
+        // обработка клика по ссылке на открытие лида (на глазик в таблице выборки)
+        $container.delegate('.ajax-link.sphere_' + sphereId, 'click', function () {
+
+            // получение ссылки линка
             var href = $(this).attr('href');
+
+            // запрос на сервер
             $.ajax({
+                // ссылка
                 url: href,
+                // метод
                 method: 'GET',
+                // действия после получения ответа
                 success: function (resp) {
+                    // обновить контент таблицы
                     dTable.ajax.reload();
-                    $('#alertContent').html(resp);
-                    $('#alert').removeClass('hidden');
+                    // записываем в блок результата ответ с сервера
+                    $('#open_result_content_' + sphereId).html(resp);
+                    // делаем блок видимым
+                    $('#open_result_' + sphereId).removeClass('hidden');
                 }
             });
             return false;
         });
+
+
+        // обновление таблицы выборки
         dTable.ajax.reload();
     });
 

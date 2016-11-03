@@ -8,9 +8,9 @@
 
         <h3> {{ $sphere->name }} </h3>
 
-        <div class="alert alert-warning alert-dismissible fade in hidden" role="alert" id="alert">
+        <div class="alert alert-warning alert-dismissible fade in hidden" role="alert" id="open_result_{{ $sphere->id }}">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-            <div id="alertContent"></div>
+            <div id="open_result_content_{{ $sphere->id }}"></div>
         </div>
 
         <div class="dataTables_container_{{ $sphere->id }}">

@@ -6,7 +6,7 @@
         href="{{ route('agent.lead.openAll',[ 'lead_id'=>$data['lead']['id'], 'mask_id'=>$data['mask_id'] ]) }}"
         @endif
 
-        class="ajax-link"
+        class="ajax-link sphere_{{ $data['lead']['sphere_id']  }}"
     >
         <i class="fa fa-eye"></i>
     </a>
