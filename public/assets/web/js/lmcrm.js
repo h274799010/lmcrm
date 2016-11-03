@@ -227,11 +227,18 @@ $(function(){
 
     /** наполняет таблицу обтеин на странице где только одна таблица с масками */
     $('.ajax-dataTable').each(function() {
-        var $table=$(this);
-        var $container=$table.closest('.dataTables_container');
+
+        // выбираем таблицу с фильтром
+        var $table = $(this);
 
         // выбираем id сферы
         var sphereId = $table.attr('sphere_id');
+
+        // выбираем контейнер с таблицей лидов
+        //var $container = $table.closest('.dataTables_container_' + sphereId);
+        var $container = $('.dataTables_container_' + sphereId);
+
+
 
         var dTable = $table.DataTable({
             "destroy": true,
@@ -241,33 +248,60 @@ $(function(){
             "serverSide": true,
             "ajax": {
                 "data": function (d) {
+
+                    // переменная с данными по фильтру
                     var filter = {};
-                    $container.find(".dataTables_filter").each(function () {
+
+                    // перебираем фильтры и выбираем данные по ним
+                    $container.find('select.dataTables_filter').each(function () {
+
+                        // если есть name и нет js
                         if ($(this).data('name') && $(this).data('js') != 1) {
+
+                            // заносим в фильтр данные с именем name и значением опции
                             filter[$(this).data('name')] = $(this).val();
                         }
                     });
-                    d['filter'] = filter; // данные фильтра
-                    d['sphere_id'] = sphereId; // id сферы
+
+                    // данные фильтра
+                    d['filter'] = filter;
+                    // id сферы
+                    d['sphere_id'] = sphereId;
                 }
             },
 
             "responsive": true
         });
 
-        $container.find(".dataTables_filter").change(function () {
+
+        // обработка фильтров таблицы при изменении селекта
+        $container.find('select.dataTables_filter').change(function () {
+
+            // проверяем параметр data-js
             if ($(this).data('js') == '1') {
+                // если js равен 1
+
+                // перечисляем имена
                 switch ($(this).data('name')) {
+
+                    // если у селекта имя pageLength
                     case 'pageLength':
+                        // перерисовываем таблицу с нужным количеством строк
                         if ($(this).val()) dTable.page.len($(this).val()).draw();
                         break;
                     default:
                         ;
                 }
             } else {
+                // если js НЕ равен 1
+
+                // просто перезагружаем таблицу
                 dTable.ajax.reload();
             }
         });
+
+
+        // обработка клика по открытию лида (на глазик в таблице)
         $container.delegate('.ajax-link', 'click', function () {
             var href = $(this).attr('href');
             $.ajax({

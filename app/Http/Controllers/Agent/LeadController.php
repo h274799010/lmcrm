@@ -380,22 +380,59 @@ class LeadController extends AgentController {
         $leadBitmask = new LeadBitmask( $sphere->id );
 
 
-        if (count($request->only('filter'))) {
-            $eFilter = $request->only('filter')['filter'];
-            foreach ($eFilter as $eFKey => $eFVal) {
-                switch($eFKey) {
-                    case 'date':
-                        if($eFVal=='2d') {
-                            $date = new \DateTime();
-                            $date->sub(new \DateInterval('P2D'));
-                            $leads->where('leads.created_at','>=',$date->format('Y-m-d'));
-                        } elseif($eFVal=='1m') {
-                            $date = new \DateTime();
-                            $date->sub(new \DateInterval('P1M'));
-                            $leads->where('leads.created_at','>=',$date->format('Y-m-d'));
-                        } else {
+        /** Проверяем наличие фильтра */
 
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            // перебираем данные и проверяем на соответствие
+            foreach ($eFilter as $eFKey => $eFVal) {
+
+                // проверяем ключ
+                switch($eFKey) {
+
+                    // если фильтр по дате
+                    case 'date':
+
+                        // проверяем значение фильтра
+
+                        if($eFVal=='2d') {
+                            // два последних дня
+
+                            // находим время
+                            $date = new \DateTime();
+                            // выбираем интервал
+                            $date->sub(new \DateInterval('P2D'));
+
+                            // отфильтровуем с аукционе только то, что соответсвтует интервалу
+                            $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
+                                return $auction['lead']['created_at'] >= $date->format('Y-m-d');
+                            });
+
+
+                        } elseif($eFVal=='1m') {
+                            // последний месяц
+
+                            // находим время
+                            $date = new \DateTime();
+                            // выбираем интервал
+                            $date->sub(new \DateInterval('P1M'));
+
+                            // отфильтровуем с аукционе только то, что соответсвтует интервалу
+                            $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
+                                return $auction['lead']['created_at'] >= $date->format('Y-m-d');
+                            });
+
+
+                        } else {
+                            // если значения фильтра нет
+
+                            // ничего не делаем
                         }
+
                         break;
                     default: ;
                 }

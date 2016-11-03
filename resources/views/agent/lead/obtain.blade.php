@@ -13,7 +13,7 @@
             <div id="alertContent"></div>
         </div>
 
-        <div class="dataTables_container">
+        <div class="dataTables_container_{{ $sphere->id }}">
             <div class="col-md-12">
                 <select data-name="date" class="selectbox dataTables_filter">
                     <option></option>
