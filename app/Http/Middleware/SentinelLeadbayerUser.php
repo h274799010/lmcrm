@@ -21,7 +21,7 @@ class SentinelLeadbayerUser
         // роль, которой агент должен соответствовать
         $role = Sentinel::findRoleBySlug('leadbayer');
 
-        // если такой роли несуществует
+        // если такой роли не существует
         if( !$role ){
             // возвращаемся на главную страницу
             return redirect()->route('home');
