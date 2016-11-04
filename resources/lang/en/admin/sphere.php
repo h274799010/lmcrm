@@ -33,8 +33,23 @@ return [
     'button_add_field' => 'Add field',
 
     'errors' => [
+        'not_activated' => 'Sphere can not be activated for the following reasons:',
+
         'required' => [
-            'sphere_name' => 'Field "Form name" required!'
-        ]
+            'name'                              => 'Field "Form name" required!',
+            'openLead'                          => 'Field "Max lead" required!',
+            'minLead'                           => 'Field "Minimum lead to close 1 deal" required!',
+            'price_call_center'                 => 'Field "Price call center" required!',
+            'lead_auction_expiration_interval' => 'Field "Lead auction expiration interval" required!',
+            'lead_bad_status_interval'          => 'Field "Lead bad status interval" required!',
+            'range_show_lead_interval'          => 'Field "Range show lead interval" required!',
+            'max_range'                         => 'Field "Agent max range" required!'
+        ],
+
+        'agentForm' =>
+            [
+                'min_attributes'   => 'Sphere "Agent form" min attributes: '.config('sphere.agentForm.min_attributes'),
+                'min_options' => 'Sphere "Agent form" min attribute options: '.config('sphere.agentForm.min_options'),
+            ],
     ]
 ];
