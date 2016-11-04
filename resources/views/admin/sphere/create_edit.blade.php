@@ -242,6 +242,20 @@
                                 $('#alert').slideDown();
 
                                 $this.prop('disabled',false);
+                            } else if(data['errors']) {
+                                var errors = '<p>{{ trans('admin/sphere.errors.not_activated') }}</p>';
+                                $.each(data['errors'], function (i, error) {
+                                    errors += '<p>'+error+'</p>';
+                                });
+
+                                $('#modal-page .modal-body').append('<div class="alert alert-danger" role="alert">'+errors+'</div>');
+                                $('#modal-page .btn-info').remove();
+                                $('#modal-page .btn-save').on('click', function (e) {
+                                    e.preventDefault();
+
+                                    window.location = '{{ route('admin.sphere.index') }}';
+                                });
+                                $('#modal-page').modal();
                             } else {
                                 $this.prop('disabled',false);
                                 window.location = '{{ route('admin.sphere.index') }}';

@@ -945,15 +945,13 @@ class SphereController extends AdminController {
 
         // если Request пустой, возвращаем false
         // если Request пустой, возвращаем сообщение с ошибкой
-        if( !count($request->all()) ) { return response()->json( ['error'=>trans('admin/sphere.errors.required.sphere_name')] ); }
+        if( !count($request->all()) ) { return response()->json( ['error'=>trans('admin/sphere.errors.required.name')] ); }
 
         // данные формы сферы
         $sphereData = $request['opt']['data'];
 
         // данные формы лида
         $leadData = $request['lead']['data'];
-
-        $sphereStatus = $sphereData['variables']['status'];
 
 
         /**
@@ -984,7 +982,6 @@ class SphereController extends AdminController {
                  * У лида может и не быть атрибутов
                  */
 
-                //$sphereStatus = 0;
                 $leadDataAttr = NULL;
 
 
@@ -1034,7 +1031,6 @@ class SphereController extends AdminController {
             // todo добавить чтобы можно было сохранять и без атрибутов лида
             // у лида должно быть не меньше 3 атрибутов
 //            return response()->json(FALSE);
-            $sphereStatus = 0;
             $leadDataAttr = NULL;
         }
 
@@ -1074,7 +1070,6 @@ class SphereController extends AdminController {
                  * дальнейшая работа метода прекращается
                  */
 
-                $sphereStatus = 0;
 //                return response()->json(FALSE);
 
             }elseif(count($agentData['variables']) < 1) {
@@ -1082,7 +1077,6 @@ class SphereController extends AdminController {
                  * Если у агента меньше 3-х атрибутов
                  * возвращаем FALSE
                  */
-                    $sphereStatus = 0;
                     $agentDataAttr = collect( $agentData['variables'] );
 //                return response()->json( [ 'error'=>true, 'message'=>trans('admin/sphere.errors.minAgentForm') ] );
             }elseif( isset($agentData['variables'][0]) ){
@@ -1106,7 +1100,6 @@ class SphereController extends AdminController {
                  * работа метода останавливается
                  */
 
-                $sphereStatus = 0;
                 $agentDataAttr = NULL;
 //                return response()->json(FALSE);
 //                return response()->json([ 'error'=>true, 'message'=>trans('admin/sphere.errors.minAgentForm') ]);
@@ -1118,7 +1111,6 @@ class SphereController extends AdminController {
 
             // у агента должно быть не меньше 1 атрибута
             $agentDataAttr = NULL;
-            $sphereStatus = 0;
 
 //            return response()->json(FALSE);
         }
@@ -1216,12 +1208,6 @@ class SphereController extends AdminController {
         $interval_range = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
         $interval_range = $interval_range->timestamp - $timestamp;
 
-        if( !$minLead || !$sphereData['variables']['openLead'] || !$interval_auction || !$interval_bad
-            || !$interval_range || !$sphereData['variables']['price_call_center'] || !$sphereData['variables']['max_range'] ) {
-
-            $sphereStatus = 0;
-        }
-
         /**
          * Выбираем сферу по id, либо, создаем новую
          *
@@ -1230,7 +1216,7 @@ class SphereController extends AdminController {
             $sphere = Sphere::find($id);
             $sphere->name = $sphereData['variables']['name'];
             $sphere->minLead = $minLead;
-            $sphere->status = $sphereStatus;
+            $sphere->status = $sphereData['variables']['status'];;
             $sphere->openLead = $sphereData['variables']['openLead'];
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
@@ -1241,7 +1227,7 @@ class SphereController extends AdminController {
             $sphere = new Sphere();
             $sphere->name = $sphereData['variables']['name'];
             $sphere->minLead = $minLead;
-            $sphere->status = $sphereStatus;
+            $sphere->status = $sphereData['variables']['status'];;
             $sphere->openLead = $sphereData['variables']['openLead'];
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
@@ -1698,6 +1684,12 @@ class SphereController extends AdminController {
             });
         }
 
+        if($sphereData['variables']['status']) {
+            $errors = $this->sphereValidate($sphere->id);
+
+            return response()->json( ['errors' => $errors] );
+        }
+
         return response()->json(TRUE);
     }
 
@@ -1745,48 +1737,70 @@ class SphereController extends AdminController {
     {
         $sphere = Sphere::find($request->input('id'));
 
-        $statusFlag = true;
+        if((bool)$request->input('status')) {
+            $errors = $this->sphereValidate($request->input('id'));
 
-        $required = [
-            'name',
-            'openLead',
-            'minLead',
-            'price_call_center',
-            'lead_auction_expiration_interval',
-            'lead_bad_status_interval',
-            'range_show_lead_interval',
-            'max_range',
-        ];
-
-        foreach ($required as $key) {
-            if( empty($sphere[$key]) ) {
-                $statusFlag = false;
+            if($errors) {
+                return response()->json( [ 'errors'=>$errors, 'message'=>trans('admin/sphere.status_not_changed') ] );
             }
-        }
-
-        $sphereAttr = $sphere->attributes()->get();
-
-        if(!count($sphereAttr)) {
-            $statusFlag = false;
-        } else {
-            foreach ($sphereAttr as $attr) {
-                if($attr->has('options')) {
-                    $options = $attr->options()->get();
-                    if(!count($options)) {
-                        $statusFlag = false;
-                    }
-                }
-            }
-        }
-
-        if(!$statusFlag) {
-            return response()->json( [ 'error'=>true, 'message'=>trans('admin/sphere.status_not_changed') ] );
         }
 
         $sphere->status = (bool)$request->input('status');
         $sphere->save();
 
-        return response()->json( [ 'error'=>false, 'message'=>trans('admin/sphere.status_changed') ] );
+        return response()->json( [ 'errors'=>false, 'message'=>trans('admin/sphere.status_changed') ] );
+    }
+
+    /**
+     * Проверка сферы на возможность активации
+     *
+     * @param $sphere_id
+     * @return array|bool
+     */
+    private function sphereValidate($sphere_id)
+    {
+        $sphere = Sphere::find($sphere_id);
+
+        $required = config('sphere.required');
+
+        $errors = array();
+
+        // Проверка основных полей сферы
+        foreach ($required as $field => $flag) {
+            if( empty($sphere[$field]) && $flag === true ) {
+                $errors[$field] = trans('admin/sphere.errors.required.'.$field);
+            }
+        }
+
+        // Проверка атрибутова "Agent form"
+        $sphereAttr = $sphere->attributes()->get();
+
+        if( count($sphereAttr) < config('sphere.agentForm.min_attributes') ) {
+            $errors['min_attributes'] = trans('admin/sphere.errors.agentForm.min_attributes');
+        }
+
+        if( count($sphereAttr) ) {
+            foreach ($sphereAttr as $attr) {
+                if( $attr->has('options') ) {
+                    $options = $attr->options()->get();
+                    if( count($options) < config('sphere.agentForm.min_options') ) {
+                        $errors['min_options'] = trans('admin/sphere.errors.agentForm.min_options');
+                    }
+                } else {
+                    $errors['min_options'] = trans('admin/sphere.errors.agentForm.min_options');
+                }
+            }
+        } else {
+            $errors['min_options'] = trans('admin/sphere.errors.agentForm.min_options');
+        }
+
+        if( count($errors) > 0 ) {
+            $sphere->status = 0;
+            $sphere->save();
+            return $errors;
+        }
+
+        return false;
     }
 
 

@@ -71,15 +71,20 @@
             });
 
             $.post('{{ route('admin.sphere.changeStatus') }}', param, function (data) {
-                console.log(data);
-                if(data['error'] == true) {
+                if(data['errors'] == false) {
+                    $alert.removeClass('alert-warning').addClass('alert-success');
+                    $alert.find('.alertContent').html(data['message']);
+                } else {
                     $alert.removeClass('alert-success').addClass('alert-warning');
                     $input.prop('checked', false);
                     $input.siblings('span.status').html('@lang('admin/admin.no')');
-                } else {
-                    $alert.removeClass('alert-warning').addClass('alert-success');
+                    var errors = '';
+                    $.each(data['errors'], function (i, el) {
+                        errors += '<p>'+el+'</p>';
+                    });
+                    $.each();
+                    $alert.find('.alertContent').html('<p>'+data['message']+'</p>'+errors);
                 }
-                $alert.find('.alertContent').html(data['message']);
                 $alert.slideDown();
             });
         });
