@@ -71,6 +71,7 @@
     </div>
 </div>
 
+@yield('scripts_after')
 <script type="text/javascript">
     var oTable;
     $(document).ready(function () {

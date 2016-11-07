@@ -6,118 +6,124 @@
 
 {{-- Content --}}
 @section('main')
-    <div class="page-header">
-        <h3>
-            {{ trans("admin/sphere.sphere") }}
-        <div class="pull-right flip">
-            <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
-                <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
-            </a>
-        </div>
-        </h3>
-    </div>
-    <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert" style="display: none">
-        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
-        <div id="alertContent"></div>
-    </div>
-    <div id="content">
-        <div class="wizard">
-            <ul class="flexbox flex-justify">
-                <li class="flex-item step"><a href="#tab1" data-toggle="tab" class="btn btn-circle">1</a></li>
-                <li class="flex-item step"><a href="#tab2" data-toggle="tab" class="btn btn-circle">2</a></li>
-                <li class="flex-item step"><a href="#tab3" data-toggle="tab" class="btn btn-circle">3</a></li>
-                <li class="flex-item step"><a href="#tab4" data-toggle="tab" class="btn btn-circle">4</a></li>
-                <li class="flex-item step"><a href="#tab5" data-toggle="tab" class="btn btn-circle">5</a></li>
-            </ul>
-            <div class="progress progress-striped">
-                <div class="progress-bar progress-bar-info bar"></div>
+
+    <div ng-app="app">
+
+        <div class="page-header">
+            <h3>
+                {{ trans("admin/sphere.sphere") }}
+            <div class="pull-right flip">
+                <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
+                    <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
+                </a>
             </div>
-            <div class="tab-content">
-                <div class="tab-pane" id="tab1">
-                    <h3 class="page-header">{{trans('admin/sphere.settings')}}</h3>
-                    <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
-                        <div class="jSplash-data" id="opt"> Loading... </div>
-                    </form>
-                </div>
-                <div class="tab-pane" id="tab2">
-                    <h3 class="page-header">{{trans('admin/sphere.lead_form')}}</h3>
-                    <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                               <div class="row">
-                                    <div class="col-xs-10">
-                                    <div class="col-xs-11 col-xs-offset-1">
-                                        <div class="form-group">
-                                            <label class="control-label">@lang('lead/lead.name')</label>
-                                            {{ Form::text('name', null, array('class' => 'form-control','placeholder'=>trans('lead/form.name'),'required'=>'required','data-rule-minLength'=>'2')) }}
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="control-label">@lang('lead/lead.phone')</label>
-                                            {{ Form::text('phone', null, array('class' => 'form-control','placeholder'=>trans('lead/form.phone'),'required'=>'required', 'data-rule-phone'=>true)) }}
-                                        </div>
-
-                                        <div class="form-group ">
-                                            <label class="control-label">@lang('lead/lead.comments')</label>
-                                            {{ Form::textarea('comment', null, array('rows'=>'3','class' => 'form-control','placeholder'=>trans('lead/form.comments'))) }}
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                                <div class="form jSplash-data" id="lead"> Loading... </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="tab-pane" id="tab3">
-                    <h3 class="page-header">{{trans('admin/sphere.agent_form')}}</h3>
-                    <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
-                        <div class="jSplash-data" id="cform">
-                            Loading...
-                        </div>
-                    </form>
-                </div>
-                <div class="tab-pane" id="tab4">
-                    <h3 class="page-header">{{trans('admin/sphere.statuses')}}</h3>
-                    <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
-                        <div class="jSplash-data" id="threshold">
-                            Prepearing...
-                        </div>
-                    </form>
-                </div>
-                <div class="tab-pane" id="tab5">
-                    <h3 class="page-header">{{trans('admin/sphere.finish')}}</h3>
-                    <br class="clearfix">
-                    <button class="btn btn-warning btn-save btn-raised">{{trans('admin/modal.save')}}</button>
-                </div>
-                <ul class="pager wizard">
-                    <li class="previous first" style="display:none;"><a href="#">{{ trans('pagination.first') }}</a></li>
-                    <li class="previous"><a href="#">{{ trans('pagination.previous') }}</a></li>
-                    <li class="next last" style="display:none;"><a href="#">{{trans('pagination.last')}}</a></li>
-                    <li class="next"><a href="#">{{trans('pagination.next')}}</a></li>
+            </h3>
+        </div>
+        <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert" style="display: none">
+            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <div id="alertContent"></div>
+        </div>
+        <div id="content">
+            <div class="wizard">
+                <ul class="flexbox flex-justify">
+                    <li class="flex-item step"><a href="#tab1" data-toggle="tab" class="btn btn-circle">1</a></li>
+                    <li class="flex-item step"><a href="#tab2" data-toggle="tab" class="btn btn-circle">2</a></li>
+                    <li class="flex-item step"><a href="#tab3" data-toggle="tab" class="btn btn-circle">3</a></li>
+                    <li class="flex-item step"><a href="#tab4" data-toggle="tab" class="btn btn-circle">4</a></li>
+                    <li class="flex-item step"><a href="#tab5" data-toggle="tab" class="btn btn-circle">5</a></li>
                 </ul>
+                <div class="progress progress-striped">
+                    <div class="progress-bar progress-bar-info bar"></div>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane" id="tab1">
+                        <h3 class="page-header">{{trans('admin/sphere.settings')}}</h3>
+                        <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
+                            <div class="jSplash-data" id="opt"> Loading... </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane" id="tab2">
+                        <h3 class="page-header">{{trans('admin/sphere.lead_form')}}</h3>
+                        <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                   <div class="row">
+                                        <div class="col-xs-10">
+                                        <div class="col-xs-11 col-xs-offset-1">
+                                            <div class="form-group">
+                                                <label class="control-label">@lang('lead/lead.name')</label>
+                                                {{ Form::text('name', null, array('class' => 'form-control','placeholder'=>trans('lead/form.name'),'required'=>'required','data-rule-minLength'=>'2')) }}
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="control-label">@lang('lead/lead.phone')</label>
+                                                {{ Form::text('phone', null, array('class' => 'form-control','placeholder'=>trans('lead/form.phone'),'required'=>'required', 'data-rule-phone'=>true)) }}
+                                            </div>
+
+                                            <div class="form-group ">
+                                                <label class="control-label">@lang('lead/lead.comments')</label>
+                                                {{ Form::textarea('comment', null, array('rows'=>'3','class' => 'form-control','placeholder'=>trans('lead/form.comments'))) }}
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div class="form jSplash-data" id="lead"> Loading... </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane" id="tab3">
+                        <h3 class="page-header">{{trans('admin/sphere.agent_form')}}</h3>
+                        <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
+                            <div class="jSplash-data" id="cform">
+                                Loading...
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane" id="tab4">
+                        <h3 class="page-header">{{trans('admin/sphere.statuses')}}</h3>
+                        <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
+                            <div class="jSplash-data" id="threshold">
+                                Prepearing...
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane" id="tab5">
+                        <h3 class="page-header">{{trans('admin/sphere.finish')}}</h3>
+                        <br class="clearfix">
+                        <button class="btn btn-warning btn-save btn-raised">{{trans('admin/modal.save')}}</button>
+                    </div>
+                    <ul class="pager wizard">
+                        <li class="previous first" style="display:none;"><a href="#">{{ trans('pagination.first') }}</a></li>
+                        <li class="previous"><a href="#">{{ trans('pagination.previous') }}</a></li>
+                        <li class="next last" style="display:none;"><a href="#">{{trans('pagination.last')}}</a></li>
+                        <li class="next"><a href="#">{{trans('pagination.next')}}</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal fade" id="modal-page">
-        <div class="modal-dialog">
-            <form class="validate">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <div class="modal fade" id="modal-page">
+            <div class="modal-dialog">
+                <form class="validate">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        </div>
+
+                        <div class="modal-body"></div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info " data-dismiss="modal">{{trans('admin/modal.close')}}</button>
+                            <button type="button" class="btn btn-success btn-raised btn-save">{{trans('admin/modal.save')}}</button>
+                        </div>
                     </div>
-
-                    <div class="modal-body"></div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-info " data-dismiss="modal">{{trans('admin/modal.close')}}</button>
-                        <button type="button" class="btn btn-success btn-raised btn-save">{{trans('admin/modal.save')}}</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
+
     </div>
+
 @stop
 
 {{-- Styles --}}
@@ -144,22 +150,24 @@
 @stop
 {{-- Scripts --}}
 @section('scripts')
-    <script type="text/javascript" src="{{ asset('components/nouislider/js/nouislider.min.js') }}" async></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/Sortable/1.4.2/Sortable.min.js" async></script>
-    <script type="text/javascript" src="{{ asset('packages/spescina/mediabrowser/dist/mediabrowser-include.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('components/jSplash/doT.min.js') }}" async></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js"></script>
+{{--    <script type="text/javascript" src="{{ asset('components/nouislider/js/nouislider.min.js') }}" async></script>--}}
+    {{--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/Sortable/1.4.2/Sortable.min.js" async></script>--}}
+{{--    <script type="text/javascript" src="{{ asset('packages/spescina/mediabrowser/dist/mediabrowser-include.min.js') }}"></script>--}}
+    {{--<script type="text/javascript" src="{{ asset('components/jSplash/doT.min.js') }}" async></script>--}}
+    {{--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js"></script>--}}
     <script type="text/javascript" src="{{ asset('components/bootstrap-wizard/jquery.bootstrap.wizard.min.js') }}" ></script>
-    <script type="text/javascript" src="{{ asset('components/jSplash/markerclusterer.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('components/jSplash/GMapInit.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('components/jSplash/sly.min.js') }}" async></script>
-    <script type="text/javascript" src="{{ asset('components/jSplash/jSplash.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('components/jSplash/lang/jSplash.'.LaravelLocalization::getCurrentLocale().'.js') }}"></script>
+    {{--<script type="text/javascript" src="{{ asset('components/jSplash/markerclusterer.min.js') }}"></script>--}}
+    {{--<script type="text/javascript" src="{{ asset('components/jSplash/GMapInit.js') }}"></script>--}}
+    {{--<script type="text/javascript" src="{{ asset('components/jSplash/sly.min.js') }}" async></script>--}}
+    {{--<script type="text/javascript" src="{{ asset('components/jSplash/jSplash.js') }}"></script>--}}
+    {{--<script type="text/javascript" src="{{ asset('components/jSplash/lang/jSplash.'.LaravelLocalization::getCurrentLocale().'.js') }}"></script>--}}
+    <script type="text/javascript" src="/assets/admin/js/angular.min.js"></script>
+
     <script type="text/javascript">
         $(function(){
-            $(".jSplash-form").submit(function(){
-                return false;
-            });
+//            $(".jSplash-form").submit(function(){
+//                return false;
+//            });
             $('#alert .close').on('click', function (e) {
                 e.preventDefault();
                 $('#alert').slideUp();
@@ -318,4 +326,9 @@
             */
         });
     </script>
+@stop
+
+
+@section('scripts_after')
+    <script src="/assets/admin/js/sphere_editing.js"></script>
 @stop
