@@ -1,17 +1,17 @@
 @extends('admin.layouts.default')
 
 {{-- Web site Title --}}
-@section('title') {!! trans("admin/sphere.sphere") !!} :: @parent
+@section('title') {{ trans("admin/sphere.sphere") }} :: @parent
 @stop
 
 {{-- Content --}}
 @section('main')
     <div class="page-header">
         <h3>
-            {!! trans("admin/sphere.sphere") !!}
+            {{ trans("admin/sphere.sphere") }}
         <div class="pull-right flip">
             <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
-                <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
+                <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
             </a>
         </div>
         </h3>
@@ -49,17 +49,17 @@
                                     <div class="col-xs-11 col-xs-offset-1">
                                         <div class="form-group">
                                             <label class="control-label">@lang('lead/lead.name')</label>
-                                            {!! Form::text('name', null, array('class' => 'form-control','placeholder'=>trans('lead/form.name'),'required'=>'required','data-rule-minLength'=>'2')) !!}
+                                            {{ Form::text('name', null, array('class' => 'form-control','placeholder'=>trans('lead/form.name'),'required'=>'required','data-rule-minLength'=>'2')) }}
                                         </div>
 
                                         <div class="form-group">
                                             <label class="control-label">@lang('lead/lead.phone')</label>
-                                            {!! Form::text('phone', null, array('class' => 'form-control','placeholder'=>trans('lead/form.phone'),'required'=>'required', 'data-rule-phone'=>true)) !!}
+                                            {{ Form::text('phone', null, array('class' => 'form-control','placeholder'=>trans('lead/form.phone'),'required'=>'required', 'data-rule-phone'=>true)) }}
                                         </div>
 
                                         <div class="form-group ">
                                             <label class="control-label">@lang('lead/lead.comments')</label>
-                                            {!! Form::textarea('comment', null, array('rows'=>'3','class' => 'form-control','placeholder'=>trans('lead/form.comments'))) !!}
+                                            {{ Form::textarea('comment', null, array('rows'=>'3','class' => 'form-control','placeholder'=>trans('lead/form.comments'))) }}
                                         </div>
                                     </div>
                                     </div>
@@ -91,8 +91,8 @@
                     <button class="btn btn-warning btn-save btn-raised">{{trans('admin/modal.save')}}</button>
                 </div>
                 <ul class="pager wizard">
-                    <li class="previous first" style="display:none;"><a href="#">{!! trans('pagination.first') !!}</a></li>
-                    <li class="previous"><a href="#">{!! trans('pagination.previous') !!}</a></li>
+                    <li class="previous first" style="display:none;"><a href="#">{{ trans('pagination.first') }}</a></li>
+                    <li class="previous"><a href="#">{{ trans('pagination.previous') }}</a></li>
                     <li class="next last" style="display:none;"><a href="#">{{trans('pagination.last')}}</a></li>
                     <li class="next"><a href="#">{{trans('pagination.next')}}</a></li>
                 </ul>
