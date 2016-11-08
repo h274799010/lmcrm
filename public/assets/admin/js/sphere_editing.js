@@ -26,16 +26,16 @@ var app = angular.module('app', [])
             console.log( $scope.data.cform.values);
         };
 
-        var data = $.param({
-        });
 
-        var config = {
-            headers : {
-            }
-        };
-
-        $http.get(confUrl, data, config)
-            .success(function (data, status, headers, config) {
+        /**
+         * Получение данных по сфере с сервера и добавление на страницу
+         *
+         *
+         * некоторые данные приводятся к нужным типам
+         */
+        $http.get( confUrl )
+            .success(function ( data ) {
+                // преобразование данных и добавление на страницы
 
                 /** переключатель на статусе не понимает 1 и 0, приходится преобразовывать в булев тип */
                 // преобразовываем данные в булев тип
@@ -63,8 +63,8 @@ var app = angular.module('app', [])
                 // отдаем модель
                 $scope.data = data;
             })
-            .error(function (data, status, header, config) {
-
+            .error(function ( data ) {
+                // сообщение об ошибке при получении данных
                 alert('error');
             });
 
