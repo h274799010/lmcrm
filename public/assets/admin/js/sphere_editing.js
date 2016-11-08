@@ -7,6 +7,30 @@ var app = angular.module('app', [])
         /** Статусы */
 
         /**
+         * Форма добавления нового статуса
+         *
+         *
+         */
+        $scope.addStatus = function(){
+
+            // создаем новый статус
+            var newStatus =
+            {
+                id:0,       // id статуса
+                val:'',     // имя
+                vale:       // значения
+                    [
+                        0,  // значения переключателя min/max
+                        0   // процент
+                    ],
+                position: $scope.data.threshold.values.length + 1 // позиция
+            };
+
+            // добавляем статус в модель
+            $scope.data.threshold.values.push( newStatus );
+        };
+
+        /**
          * Удаление статуса
          *
          *
@@ -26,6 +50,8 @@ var app = angular.module('app', [])
             console.log( $scope.data.cform.values);
         };
 
+
+        /** Обмен данными с сервером */
 
         /**
          * Получение данных по сфере с сервера и добавление на страницу
@@ -68,6 +94,34 @@ var app = angular.module('app', [])
                 alert('error');
             });
 
+
+        /**
+         * Отправка данных на сервер для сохранения
+         *
+         */
+        $scope.saveData = function(){
+
+            //console.log($scope.data);
+
+            var data = $scope.data ;
+            //var data = { id:1 };
+
+
+            var config = {
+                headers : {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            };
+
+            $http.post( saveDataUrl, data, config)
+                .success(function (data, status, headers, config) {
+                    alert('Ok');
+                })
+                .error(function (data, status, header, config) {
+                    alert('Error');
+                });
+
+        };
 
     });
 

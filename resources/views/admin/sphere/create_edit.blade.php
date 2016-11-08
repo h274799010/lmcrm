@@ -1002,7 +1002,7 @@
 
                                             {{-- кнопка добавления нового статуса --}}
                                             <div class="col-xs-12">
-                                                <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
+                                                <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" ng-click="addStatus()" type="button">
                                                     <i class="entypo-plus"></i>
                                                 </button>
                                             </div>
@@ -1035,7 +1035,7 @@
                     <div class="tab-pane" id="tab5">
                         <h3 class="page-header">{{trans('admin/sphere.finish')}}</h3>
                         <br class="clearfix">
-                        <button class="btn btn-warning btn-save btn-raised">{{trans('admin/modal.save')}}</button>
+                        <button class="btn btn-warning btn-save btn-raised" ng-click="saveData()">{{trans('admin/modal.save')}}</button>
                     </div>
                     <ul class="pager wizard">
                         <li class="previous first" style="display:none;"><a href="#">{{ trans('pagination.first') }}</a></li>
@@ -1112,6 +1112,7 @@
     <script type="text/javascript">
 
         var confUrl = '{{ route('admin.attr.form', [$fid]) }}';
+        var saveDataUrl = '{{ route('admin.sphere.update', [$fid]) }}';
 
         $(function(){
 //            $(".jSplash-form").submit(function(){
@@ -1175,57 +1176,57 @@
                 {{--}--}}
             {{--});--}}
 
-            $('#content .btn-save').click(function(){
-                var postData = {};
-                var $jElements = $('#content .jSplash-data');
-                var $this = $(this);
-                for(var i=0; i<$jElements.length;i++) {
-                    postData[$jElements.eq(i).attr('id')] = $jElements.eq(i).data('splash').serialize();
-                }
-                postData['stat_minLead']=cntLead;
+            {{--$('#content .btn-save').click(function(){--}}
+                {{--var postData = {};--}}
+                {{--var $jElements = $('#content .jSplash-data');--}}
+                {{--var $this = $(this);--}}
+                {{--for(var i=0; i<$jElements.length;i++) {--}}
+                    {{--postData[$jElements.eq(i).attr('id')] = $jElements.eq(i).data('splash').serialize();--}}
+                {{--}--}}
+                {{--postData['stat_minLead']=cntLead;--}}
 
-                if(postData) {
-                    $this.prop('disabled',true);
-                    $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: '{{ route('admin.sphere.update',[$fid]) }}',
-                        method: 'POST',
-                        data: postData,
-                        success: function (data, textStatus) {
-                            if(data['error']) {
-                                $('#alertContent').html(data['error']);
-                                $('#alert').slideDown();
+                {{--if(postData) {--}}
+                    {{--$this.prop('disabled',true);--}}
+                    {{--$.ajax({--}}
+                        {{--headers: {--}}
+                            {{--'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+                        {{--},--}}
+                        {{--url: '{{ route('admin.sphere.update',[$fid]) }}',--}}
+                        {{--method: 'POST',--}}
+                        {{--data: postData,--}}
+                        {{--success: function (data, textStatus) {--}}
+                            {{--if(data['error']) {--}}
+                                {{--$('#alertContent').html(data['error']);--}}
+                                {{--$('#alert').slideDown();--}}
 
-                                $this.prop('disabled',false);
-                            } else if(data['errors']) {
-                                var errors = '<p>{{ trans('admin/sphere.errors.not_activated') }}</p>';
-                                $.each(data['errors'], function (i, error) {
-                                    errors += '<p>'+error+'</p>';
-                                });
+                                {{--$this.prop('disabled',false);--}}
+                            {{--} else if(data['errors']) {--}}
+                                {{--var errors = '<p>{{ trans('admin/sphere.errors.not_activated') }}</p>';--}}
+                                {{--$.each(data['errors'], function (i, error) {--}}
+                                    {{--errors += '<p>'+error+'</p>';--}}
+                                {{--});--}}
 
-                                $('#modal-page .modal-body').append('<div class="alert alert-danger" role="alert">'+errors+'</div>');
-                                $('#modal-page .btn-info').remove();
-                                $('#modal-page .btn-save').on('click', function (e) {
-                                    e.preventDefault();
+                                {{--$('#modal-page .modal-body').append('<div class="alert alert-danger" role="alert">'+errors+'</div>');--}}
+                                {{--$('#modal-page .btn-info').remove();--}}
+                                {{--$('#modal-page .btn-save').on('click', function (e) {--}}
+                                    {{--e.preventDefault();--}}
 
-                                    window.location = '{{ route('admin.sphere.index') }}';
-                                });
-                                $('#modal-page').modal();
-                            } else {
-                                $this.prop('disabled',false);
-                                window.location = '{{ route('admin.sphere.index') }}';
-                            }
-                        },
-                        error: function (XMLHttpRequest, textStatus) {
-                            alert(textStatus);
-                            $this.prop('disabled',false);
-                        }
-                    });
-                };
-                return false;
-            });
+                                    {{--window.location = '{{ route('admin.sphere.index') }}';--}}
+                                {{--});--}}
+                                {{--$('#modal-page').modal();--}}
+                            {{--} else {--}}
+                                {{--$this.prop('disabled',false);--}}
+                                {{--window.location = '{{ route('admin.sphere.index') }}';--}}
+                            {{--}--}}
+                        {{--},--}}
+                        {{--error: function (XMLHttpRequest, textStatus) {--}}
+                            {{--alert(textStatus);--}}
+                            {{--$this.prop('disabled',false);--}}
+                        {{--}--}}
+                    {{--});--}}
+                {{--};--}}
+                {{--return false;--}}
+            {{--});--}}
 
             function initSlider($sliderContaner,rangeVal,check){
                 var startVal = [0,50];
