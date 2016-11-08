@@ -6,7 +6,7 @@ var app = angular.module('app', [])
 
 
         $scope.log = function(){
-            console.log($scope.data.opt.variables.lead_auction_expiration_interval_days);
+            console.log( $scope.data.cform.values);
         };
 
         var data = $.param({

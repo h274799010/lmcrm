@@ -125,7 +125,7 @@
                                         {{-- День -формы времени истечения пребывания лида на аукционе --}}
                                         <div class="form-group select-group">
                                             <div class="col-xs-12">
-                                                <label class="control-label _col-sm-2" ng-click="log()">Days</label>
+                                                <label class="control-label _col-sm-2">Days</label>
                                                 <select ng-model="data.opt.variables.lead_auction_expiration_interval_days.values" class="form-control" type="text">
                                                     <option value="0">0</option>
                                                     <option value="1">1</option>
@@ -679,7 +679,23 @@
                                         </div>
                                         </div>
                                     </div>
-                                    <div class="form jSplash-data" id="lead"> Loading... </div>
+                                    <div class="form jSplash-data" id="lead">
+
+                                        <div class="list-group">
+
+                                        </div>
+
+                                        <div class="col-xs-12">
+                                            <div class="form-group">
+                                                <button class="btn btn-success btn-icon in-modal splash-create" data-toggle="modal" data-target="#modal-page" type="button">
+                                                    <i class="entypo-plus"></i>
+                                                    Add field
+                                                    <div class="ripple-container"></div>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -692,14 +708,120 @@
 
                                     <div class="panel-body">
 
-                                        <div class="list-group">
-                                            Loading...
+                                        <div ng-sortable="sortableOptions" class="list-group">
+
+                                            {{-- Добавляем все атрибуты --}}
+                                            <div ng-repeat="attr in data.cform.values" class="list-group-item">
+
+                                                {{-- Если тип radio --}}
+                                                <div ng-if="attr._type=='radio'" class="row">
+                                                    <span class="col-xs-10">
+                                                        <div class="col-xs-10" xmlns="http://www.w3.org/1999/html">
+
+                                                            <div class="row">
+                                                                <div class="form-group col-xs-2"></div>
+                                                                <div class="form-group col-xs-9">
+
+                                                                    {{-- Название атрибута --}}
+                                                                    <label class="control-label">@{{ attr.label }}</label>
+
+                                                                    {{-- Добавление всех опций атрибуту --}}
+                                                                    <div ng-repeat="option in attr.option">
+
+                                                                        <div class="radio">
+                                                                            <label>
+                                                                                <input type="radio" checked="checked" name="optionsRadios2">
+                                                                                <span class="circle"></span>
+                                                                                <span class="check"></span>
+                                                                                @{{ option.val }}
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </span>
+                                                    <span class="col-xs-2 form-group">
+                                                        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                                        <span class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
+                                                        <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
+                                                    </span>
+                                                </div>
+
+                                                {{-- Если тип select --}}
+                                                <div ng-if="attr._type=='select'" class="row">
+                                                    <span class="col-xs-10">
+                                                        <div class="col-xs-10" xmlns="http://www.w3.org/1999/html">
+
+                                                            <div class="row">
+                                                                <div class="form-group col-xs-2"></div>
+                                                                <div class="form-group col-xs-9">
+
+                                                                    {{-- Название атрибута --}}
+                                                                    <label class="control-label" ng-click="log()">@{{ attr.label }}</label>
+
+                                                                    {{-- Добавление всех опций атрибуту --}}
+                                                                    <select class="form-control">
+
+                                                                        <option ng-repeat="option in attr.option">@{{ option.val }}</option>
+
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </span>
+                                                    <span class="col-xs-2 form-group">
+                                                        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                                        <span class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
+                                                        <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
+                                                    </span>
+                                                </div>
+
+                                                {{-- Если тип select --}}
+                                                <div ng-if="attr._type=='checkbox'" class="row">
+                                                    <span class="col-xs-10">
+                                                        <div class="col-xs-10" xmlns="http://www.w3.org/1999/html">
+
+                                                            <div class="row">
+                                                                <div class="form-group col-xs-2"></div>
+                                                                <div class="form-group col-xs-9">
+
+                                                                    {{-- Название атрибута --}}
+                                                                    <label class="control-label" ng-click="log()">@{{ attr.label }}</label>
+
+                                                                    {{-- Добавление всех опций атрибуту --}}
+                                                                    <div ng-repeat="option in attr.option">
+
+                                                                        <div class="checkbox">
+                                                                            <label>
+                                                                                <input type="checkbox" checked="checked">
+                                                                                <span class="checkbox-material">
+                                                                                    <span class="check"></span>
+                                                                                </span>
+                                                                                @{{ option.val }}
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </span>
+                                                    <span class="col-xs-2 form-group">
+                                                        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                                        <span class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
+                                                        <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
+                                                    </span>
+                                                </div>
+
+                                            </div>
+
                                         </div>
 
 
                                         <div class="col-xs-12">
                                             <div class="form-group">
-                                                <button class="btn btn-success btn-icon in-modal splash-create" type="button">
+                                                <button class="btn btn-success btn-icon in-modal splash-create" data-toggle="modal" data-target="#modal-page" type="button">
                                                     <i class="entypo-plus"></i>
                                                     Add field
                                                 </button>
@@ -743,7 +865,9 @@
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         </div>
 
-                        <div class="modal-body"></div>
+                        <div class="modal-body">
+                            доработка
+                        </div>
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-info " data-dismiss="modal">{{trans('admin/modal.close')}}</button>
