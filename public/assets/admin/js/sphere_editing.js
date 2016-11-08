@@ -39,8 +39,25 @@ var app = angular.module('app', [])
          * на сервере этот элемент будет удален из базы
          */
         $scope.deleteStatus = function( status ){
-            // добавляем в модель статуса элемент delete
-            status.delete = true;
+
+            // проверка, был ли статус уже сохранен на сервере
+            // (есть или нет id)
+
+            if( status.id == 0){
+                // если статус еще небыл сохранен на сервере
+                // просто удаляе его
+
+                // находим индекс элемента
+                var index = $scope.data.threshold.values.indexOf(status);
+                // удаляем элемент
+                $scope.data.threshold.values.splice(index, 1);
+
+            }else{
+                // если статус уже сохранен на сервере
+
+                // добавляем в модель статуса элемент delete
+                status.delete = true;
+            }
         };
 
 
