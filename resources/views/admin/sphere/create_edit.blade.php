@@ -964,7 +964,7 @@
                                             </div>
 
                                             {{-- шаблон итема статуса --}}
-                                            <div ng-repeat="status in data.threshold.values" class="row duplicate duplicated">
+                                            <div ng-repeat="status in data.threshold.values" class="row duplicate duplicated" ng-class="status.delete ? 'hidden' : ''">
 
                                                 {{-- название статуса --}}
                                                 <div class="col-xs-5">
@@ -993,7 +993,7 @@
 
                                                 {{-- кнопка удаления статуса --}}
                                                 <div class="col-xs-2">
-                                                    <button class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
+                                                    <button class="btn btn-danger btn-duplicate-remove pull-right flip" ng-click="deleteStatus(status)" type="button">
                                                         <i class="entypo-cancel"></i>
                                                     </button>
                                                 </div>

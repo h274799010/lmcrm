@@ -3,7 +3,24 @@ var app = angular.module('app', [])
 
     .controller('SphereCtrl', function ( $scope, $http, $compile ) {
 
-        $scope.a = true;
+
+        /** Статусы */
+
+        /**
+         * Удаление статуса
+         *
+         *
+         * при удалении элемент скрывается
+         * и ему добавляется элемент delete
+         * на сервере этот элемент будет удален из базы
+         */
+        $scope.deleteStatus = function( status ){
+            // добавляем в модель статуса элемент delete
+            status.delete = true;
+        };
+
+
+
 
         $scope.log = function(){
             console.log( $scope.data.cform.values);
@@ -23,7 +40,7 @@ var app = angular.module('app', [])
                 /** переключатель на статусе не понимает 1 и 0, приходится преобразовывать в булев тип */
                 // преобразовываем данные в булев тип
                 $.each(data.threshold.values, function( key, val){
-                    val.vale[0] = val.vale[0] == 1;
+                    val.vale[0] = (val.vale[0] == 1);
                 });
 
                 /** Преобразовываем поля int в строки */
