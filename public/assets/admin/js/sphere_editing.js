@@ -3,7 +3,7 @@ var app = angular.module('app', [])
 
     .controller('SphereCtrl', function ( $scope, $http, $compile ) {
 
-
+        $scope.a = true;
 
         $scope.log = function(){
             console.log( $scope.data.cform.values);
@@ -19,6 +19,12 @@ var app = angular.module('app', [])
 
         $http.get(confUrl, data, config)
             .success(function (data, status, headers, config) {
+
+                /** переключатель на статусе не понимает 1 и 0, приходится преобразовывать в булев тип */
+                // преобразовываем данные в булев тип
+                $.each(data.threshold.values, function( key, val){
+                    val.vale[0] = val.vale[0] == 1;
+                });
 
                 /** Преобразовываем поля int в строки */
                 // срок пребывания на аукциона

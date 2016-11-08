@@ -682,7 +682,121 @@
                                     <div class="form jSplash-data" id="lead">
 
                                         <div class="list-group">
+                                            <div ng-repeat="attr in data.lead.values" class="list-group-item">
+                                                <div class="row">
 
+                                                    <span class="col-xs-10">
+
+                                                        <div class="col-xs-10" xmlns="http://www.w3.org/1999/html">
+                                                            <div class="row">
+                                                                <div class="form-group col-xs-2"> </div>
+                                                                <div class="form-group col-xs-9">
+
+                                                                    {{-- Подпись поля атрибута лида --}}
+                                                                    <label class="control-label">@{{ attr.label }}</label>
+
+                                                                    {{-- представление атрибута типа checkbox --}}
+                                                                    <div ng-if="attr._type== 'checkbox'">
+                                                                        <div ng-repeat="option in attr.option" class="checkbox">
+                                                                            <label>
+                                                                                <input type="checkbox">
+                                                                                <span class="checkbox-material">
+                                                                                    <span class="check"></span>
+                                                                                </span>
+                                                                                @{{ option.val }}
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {{-- представление атрибута типа radio --}}
+                                                                    <div ng-if="attr._type== 'radio'">
+                                                                        <div ng-repeat="option in attr.option" class="radio">
+                                                                            <label>
+                                                                                <input type="radio">
+                                                                                <span class="circle"></span>
+                                                                                <span class="check"></span>
+                                                                                @{{ option.val }}
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {{-- представление атрибута типа select --}}
+                                                                    <div ng-if="attr._type== 'select'">
+                                                                        <select class="form-control">
+                                                                            <option ng-repeat="option in attr.option">
+                                                                                @{{ option.val }}
+                                                                            </option>
+                                                                        </select>
+                                                                        <span class="material-input"></span>
+                                                                    </div>
+
+                                                                    {{-- представление атрибута типа email --}}
+                                                                    <div ng-if="attr._type== 'email'">
+                                                                        <input class="form-control" type="text" placeholder="">
+                                                                        <span class="material-input"></span>
+                                                                    </div>
+
+                                                                    {{-- представление атрибута типа textarea --}}
+                                                                    <div ng-if="attr._type== 'textarea'">
+                                                                        <textarea class="form-control" placeholder=""></textarea>
+                                                                        <span class="material-input"></span>
+                                                                    </div>
+
+                                                                    {{-- представление атрибута типа input --}}
+                                                                    <div ng-if="attr._type== 'input'">
+                                                                        <input class="form-control" type="text" placeholder="">
+                                                                        <span class="material-input"></span>
+                                                                    </div>
+
+                                                                    {{-- представление атрибута типа calendar --}}
+                                                                    <div ng-if="attr._type== 'calendar'">
+                                                                        <div class="input-group">
+                                                                            <input class="form-control datepicker" type="text" data-format="dd-MM-yyyy">
+                                                                            <div class="input-group-addon">
+                                                                                <i class="entypo-calendar"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <script>
+                                                                            if ($.isFunction($.fn.datepicker))
+                                                                                {
+                                                                                    $(".datepicker").each(function (i, el)
+                                                                                    {
+                                                                                        var $this = $(el),
+                                                                                        opts =
+                                                                                            {
+                                                                                                format: attrDefault($this, 'format', 'mm/dd/yyyy'),
+                                                                                                startDate: attrDefault($this, 'startDate', ''),
+                                                                                                endDate: attrDefault($this, 'endDate', ''),
+                                                                                                daysOfWeekDisabled: attrDefault($this, 'disabledDays', ''),
+                                                                                                startView: attrDefault($this, 'startView', 0),
+                                                                                            },
+                                                                                        $n = $this.next();
+                                                                                        $this.datepicker(opts);
+
+                                                                                        if ($n.is('.input-group-addon') && $n.has('a')) {
+
+                                                                                            $n.on('click', function (ev) {
+                                                                                                ev.preventDefault();
+                                                                                                $this.datepicker('show');
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                        </script>
+                                                                        <span class="material-input"></span>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </span>
+                                                    <span class="col-xs-2 form-group">
+                                                        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                                        <span class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
+                                                        <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="col-xs-12">
@@ -838,7 +952,83 @@
                         <h3 class="page-header">{{trans('admin/sphere.statuses')}}</h3>
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
                             <div class="jSplash-data" id="threshold">
-                                Prepearing...
+                                <div class="statuses">
+
+                                    {{-- Статусы --}}
+                                    <div class="row row-container">
+                                        <div class="form-group col-xs-12 is-empty">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label class="control-label">Statuses:</label>
+                                                </div>
+                                            </div>
+
+                                            {{-- шаблон итема статуса --}}
+                                            <div ng-repeat="status in data.threshold.values" class="row duplicate duplicated">
+
+                                                {{-- название статуса --}}
+                                                <div class="col-xs-5">
+                                                    <input ng-model="status.val" class="form-control pull-left flip select" type="text" value="" >
+                                                </div>
+
+                                                {{-- переключатель статуса min/max --}}
+                                                <div class="col-xs-2">
+                                                    <div class="togglebutton">
+                                                        <label>
+                                                            min
+                                                            <input ng-model="status.vale[0]" class="extend" type="checkbox">
+                                                            <span class="toggle"></span>
+                                                            max
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                {{-- процент по статусу --}}
+                                                <div class="col-xs-3">
+                                                    <div class="input-group">
+                                                        <input ng-model="status.vale[1]" class="form-control extend" type="text" value="">
+                                                        <span class="input-group-addon">%</span>
+                                                    </div>
+                                                </div>
+
+                                                {{-- кнопка удаления статуса --}}
+                                                <div class="col-xs-2">
+                                                    <button class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
+                                                        <i class="entypo-cancel"></i>
+                                                    </button>
+                                                </div>
+
+                                            </div>
+
+                                            {{-- кнопка добавления нового статуса --}}
+                                            <div class="col-xs-12">
+                                                <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
+                                                    <i class="entypo-plus"></i>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    {{-- Со скольки лидов вести статистику --}}
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div class="form-group _label-floating">
+                                                <label class="control-label" for="recLead">Minimum lead to close 1 deal</label>
+                                                <div class="input-group">
+                                                    <input ng-model="data.threshold.settings.stat.minLead" class="form-control" type="text" value="44">
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-info btn-fab btn-fab-mini btn-calc" type="button">
+                                                            <i class="entypo-cw"></i>
+                                                            <div class="ripple-container"></div>
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
                         </form>
                     </div>
