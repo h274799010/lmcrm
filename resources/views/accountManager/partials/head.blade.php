@@ -33,6 +33,27 @@
 <link href="{{ asset('assets/web/css/lmcrm-theme.css')}}" rel="stylesheet" type="text/css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
 
+<style type="text/css">
+    .sidebar ul li {
+        text-align: left;
+    }
+    .sidebar .collapse {
+        display: none;
+    }
+    .sidebar .collapse.in {
+        display: block;
+    }
+    .sidebar .nav > li > a.active {
+        color: #98dbee;
+    }
+    .sidebar ul li.active {
+        border: none;
+    }
+    .sidebar ul {
+        padding-left: 15px;
+    }
+</style>
+
 @yield('styles')
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -75,5 +96,6 @@
 <script src="{{ asset('assets/web/js/sb-admin.js')}}"></script>
 @section('script') @show
 <script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/admin/js/admin.js') }}"></script>
 
 <link rel="shortcut icon" href="{!! asset('assets/web/ico/favicon.ico')  !!} ">

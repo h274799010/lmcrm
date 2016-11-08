@@ -1198,3 +1198,6 @@ table.dataTable thead .sorting:after {
     max-width: 128px;
     max-height: 128px;
 }
+.sidebar .nav > li > ul {
+    padding-left: 15px;
+}

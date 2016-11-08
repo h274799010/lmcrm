@@ -601,5 +601,7 @@ function getCookie(name) {
 }
 
 
+// Получение/обновление данных по балансу
+function updateBalance() {
 
-
+}

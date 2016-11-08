@@ -92,6 +92,9 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
     // получение подробной информации об открытом лиде
     Route::post('openedLeadsAjax', ['as'=>'agent.lead.openedAjax','uses'=>'Agent\LeadController@openedLeadsAjax']);
 
+
+    Route::post('getBalance', ['as'=>'agent.sphere.getBalance','uses'=>'Agent\SphereController@getBalance']);
+
     #Route::get('lead/{id}/edit',['as'=>'agent.lead.edit', 'uses' => 'Agent\LeadController@edit']);
     #Route::match(['put','post'],'lead/{id}',['as'=>'agent.lead.update', 'uses' => 'Agent\LeadController@update']);
     //Route::resource('lead','Agent\LeadController@create');
