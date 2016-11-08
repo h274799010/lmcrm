@@ -80,6 +80,20 @@ class AgentController extends AdminController
         $agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
         $agentInfo->save();
 
+        $agentSpheres = AgentSphere::where('agent_id', '=', $user->id)->get();
+
+        if( count($agentSpheres) > 0 ) {
+            foreach ($agentSpheres as $agentSphere) {
+                if($agentSphere->lead_revenue_share <= 0) {
+                    $agentSphere->lead_revenue_share = $request->input('lead_revenue_share');
+                }
+                if($agentSphere->payment_revenue_share <= 0) {
+                    $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+                }
+                $agentSphere->save();
+            }
+        }
+
         // Создаем кошелек
         $wallet = new Wallet();
         $wallet->user_id = $user->id;
@@ -155,6 +169,26 @@ class AgentController extends AdminController
         $agent->update($request->except('password','password_confirmation', 'spheres','info'));
 
         $agent->spheres()->sync($request->input('spheres'));
+
+        $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
+        $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
+        $agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
+        $agentInfo->save();
+
+        $agentSpheres = AgentSphere::where('agent_id', '=', $agent->id)->get();
+
+        if( count($agentSpheres) > 0 ) {
+            foreach ($agentSpheres as $agentSphere) {
+                if($agentSphere->lead_revenue_share <= 0) {
+                    $agentSphere->lead_revenue_share = $request->input('lead_revenue_share');
+                }
+                if($agentSphere->payment_revenue_share <= 0) {
+                    $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+                }
+                $agentSphere->save();
+            }
+        }
+
         return redirect()->route('admin.agent.index');
     }
 
