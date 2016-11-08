@@ -627,6 +627,8 @@ class SphereController extends AdminController {
     public function update(Request $request, $id)
     {
 
+//        return response()->json( $request );
+
         /**
          *  ===+==-  Структура Request  -==+===
          *
@@ -948,10 +950,13 @@ class SphereController extends AdminController {
         if( !count($request->all()) ) { return response()->json( ['error'=>trans('admin/sphere.errors.required.name')] ); }
 
         // данные формы сферы
-        $sphereData = $request['opt']['data'];
+//        $sphereData = $request['opt']['data'];
+        $sphereData = $request['opt'];
+
 
         // данные формы лида
-        $leadData = $request['lead']['data'];
+//        $leadData = $request['lead']['data'];
+        $leadData = $request['lead'];
 
 
         /**
@@ -1035,8 +1040,8 @@ class SphereController extends AdminController {
         }
 
         // данные формы агента
-        $agentData = $request['cform']['data'];
-
+//        $agentData = $request['cform']['data'];
+        $agentData = $request['cform'];
 
         $agentDataAttr = NULL;
 
@@ -1115,11 +1120,13 @@ class SphereController extends AdminController {
 //            return response()->json(FALSE);
         }
 
-        // минимальное количество лидов
-        $minLead = $request['stat_minLead'];
+        // todo минимальное количество лидов
+//        $minLead = $request['stat_minLead'];
+        $minLead = $request['threshold']['settings']['stat']['minLead'];
 
         // статусы
-        $statusData = ($request['threshold']['data']) ? collect( $request['threshold']['data'] ) : FALSE;
+//        $statusData = ($request['threshold']['data']) ? collect( $request['threshold']['data'] ) : FALSE;
+        $statusData = ($request['threshold']) ? collect( $request['threshold'] ) : FALSE;
 
 
         /** ----- КОНЕЦ ОБРАБОТКИ ДАННЫХ ПОЛУЧЕННЫХ С ФРОНТЕНДА ---------- */
@@ -1178,30 +1185,30 @@ class SphereController extends AdminController {
 
         // Считаем интервалы времени прибывания лида на укционе и времени на статус bad
 
-        $months = $sphereData['variables']['lead_auction_expiration_interval_month'];
-        $days = $sphereData['variables']['lead_auction_expiration_interval_days'];
-        $hours = $sphereData['variables']['lead_auction_expiration_interval_hours'];
-        $minutes = $sphereData['variables']['lead_auction_expiration_interval_minutes'];
+        $months = $sphereData['variables']['lead_auction_expiration_interval_month']['values'];
+        $days = $sphereData['variables']['lead_auction_expiration_interval_days']['values'];
+        $hours = $sphereData['variables']['lead_auction_expiration_interval_hours']['values'];
+        $minutes = $sphereData['variables']['lead_auction_expiration_interval_minutes']['values'];
 
         $now = Carbon::now();
         $timestamp = $now->timestamp;
         $interval_auction = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
         $interval_auction = $interval_auction->timestamp - $timestamp;
 
-        $months = $sphereData['variables']['lead_bad_status_interval_month'];
-        $days = $sphereData['variables']['lead_bad_status_interval_days'];
-        $hours = $sphereData['variables']['lead_bad_status_interval_hours'];
-        $minutes = $sphereData['variables']['lead_bad_status_interval_minutes'];
+        $months = $sphereData['variables']['lead_bad_status_interval_month']['values'];
+        $days = $sphereData['variables']['lead_bad_status_interval_days']['values'];
+        $hours = $sphereData['variables']['lead_bad_status_interval_hours']['values'];
+        $minutes = $sphereData['variables']['lead_bad_status_interval_minutes']['values'];
 
         $now = Carbon::now();
         $timestamp = $now->timestamp;
         $interval_bad = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
         $interval_bad = $interval_bad->timestamp - $timestamp;
 
-        $months = $sphereData['variables']['range_show_lead_interval_month'];
-        $days = $sphereData['variables']['range_show_lead_interval_days'];
-        $hours = $sphereData['variables']['range_show_lead_interval_hours'];
-        $minutes = $sphereData['variables']['range_show_lead_interval_minutes'];
+        $months = $sphereData['variables']['range_show_lead_interval_month']['values'];
+        $days = $sphereData['variables']['range_show_lead_interval_days']['values'];
+        $hours = $sphereData['variables']['range_show_lead_interval_hours']['values'];
+        $minutes = $sphereData['variables']['range_show_lead_interval_minutes']['values'];
 
         $now = Carbon::now();
         $timestamp = $now->timestamp;
@@ -1214,15 +1221,15 @@ class SphereController extends AdminController {
          */
         if($id) {
             $sphere = Sphere::find($id);
-            $sphere->name = $sphereData['variables']['name'];
+            $sphere->name = $sphereData['variables']['name']['values'];
             $sphere->minLead = $minLead;
-            $sphere->status = $sphereData['variables']['status'];;
-            $sphere->openLead = $sphereData['variables']['openLead'];
+            $sphere->status = $sphereData['variables']['status']['values'];
+            $sphere->openLead = $sphereData['variables']['openLead']['values'];
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
             $sphere->range_show_lead_interval = $interval_range;
-            $sphere->price_call_center = $sphereData['variables']['price_call_center'];
-            $sphere->max_range = $sphereData['variables']['max_range'];
+            $sphere->price_call_center = $sphereData['variables']['price_call_center']['values'];
+            $sphere->max_range = $sphereData['variables']['max_range']['values'];
         } else {
             $sphere = new Sphere();
             $sphere->name = $sphereData['variables']['name'];
@@ -1626,7 +1633,6 @@ class SphereController extends AdminController {
          * Обработка статусов
          */
         if($statusData){
-
         // УДАЛЕНИЕ СТАТУСА ИЗ БД
             // если с фронтенда не пришел статус с таким id как у статуса в БД - статус удаляется
 
@@ -1639,8 +1645,10 @@ class SphereController extends AdminController {
                 // переключатель, если true статус удаляется из БД
                 $delete = true;
 
+                // преобразовываем данные в коллекцию
+                $collectStatusData = collect($statusData['values']);
                 // перебираем все полученные статусы с фронтенда
-                $statusData->each(function( $newStatus ) use( $dbStatus, &$delete ) {
+                $collectStatusData->each(function( $newStatus ) use( $dbStatus, &$delete ) {
                     // если в таблице статусов есть запись с таким же id как и на фронтенде
                     // переключатель $delete переводится в состояние false
                     if($newStatus['id'] == $dbStatus['id']){
@@ -1655,8 +1663,10 @@ class SphereController extends AdminController {
 
         // СОЗДАЕМ НОВЫЙ СТАТУС ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ
 
+            // преобразовываем данные в коллекцию
+            $collectStatusData = collect($statusData['values']);
             // перебираем все атрибуты, создаем/обновляем его данные
-            $statusData->each(function($status) use($sphere){
+            $collectStatusData->each(function($status) use($sphere){
 
                 // если у атрибуте есть id и он НЕ равен '0'
                 if (isset($status['id']) && $status['id']) {
