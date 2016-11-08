@@ -7,7 +7,7 @@
 {{-- Content --}}
 @section('main')
 
-    <div ng-app="app">
+    <div ng-app="app" ng-controller="SphereCtrl">
 
         <div class="page-header">
             <h3>
@@ -38,10 +38,622 @@
                 <div class="tab-content">
                     <div class="tab-pane" id="tab1">
                         <h3 class="page-header">{{trans('admin/sphere.settings')}}</h3>
+
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
-                            <div class="jSplash-data" id="opt"> Loading... </div>
+                            <div class="jSplash-data" id="opt">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <div class="panel-title"></div>
+                                    </div>
+
+                                    <div class="panel-body">
+
+                                        {{-- Название сферы --}}
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Form name</label>
+                                                <input ng-model="data.opt.variables.name.values" class="form-control" type="text" value="" required="required" >
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Цена за обработку оператором --}}
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Price call center</label>
+                                                <input ng-model="data.opt.variables.price_call_center.values" class="form-control" type="text" data-integer="true" value="">
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Максимальное открытие лида --}}
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Max lead</label>
+                                                <input ng-model="data.opt.variables.openLead.values" class="form-control" type="text" data-integer="true" value="">
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Статус сферы --}}
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Status</label>
+                                                <select ng-model="data.opt.variables.status.values" class="form-control" type="text" >
+                                                    <option value="1">on</option>
+                                                    <option value="0">off</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Лейбл -формы времени истечения пребывания лида на аукционе --}}
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Lead auction expiration interval</label>
+                                            </div>
+                                        </div>
+
+                                        {{-- Месяц -формы времени истечения пребывания лида на аукционе --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Month</label>
+                                                <select ng-model="data.opt.variables.lead_auction_expiration_interval_month.values" class="form-control" type="text">
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- День -формы времени истечения пребывания лида на аукционе --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2" ng-click="log()">Days</label>
+                                                <select ng-model="data.opt.variables.lead_auction_expiration_interval_days.values" class="form-control" type="text">
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                    <option value="25">25</option>
+                                                    <option value="26">26</option>
+                                                    <option value="27">27</option>
+                                                    <option value="28">28</option>
+                                                    <option value="29">29</option>
+                                                    <option value="30">30</option>
+                                                    <option value="31">31</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Часы -формы времени истечения пребывания лида на аукционе --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Hours</label>
+                                                <select ng-model="data.opt.variables.lead_auction_expiration_interval_hours.values" class="form-control" type="text">
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Минуты -формы времени истечения пребывания лида на аукционе --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Minutes</label>
+                                                <select ng-model="data.opt.variables.lead_auction_expiration_interval_minutes.values" class="form-control" type="text" >
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                    <option value="25">25</option>
+                                                    <option value="26">26</option>
+                                                    <option value="27">27</option>
+                                                    <option value="28">28</option>
+                                                    <option value="29">29</option>
+                                                    <option value="30">30</option>
+                                                    <option value="31">31</option>
+                                                    <option value="32">32</option>
+                                                    <option value="33">33</option>
+                                                    <option value="34">34</option>
+                                                    <option value="35">35</option>
+                                                    <option value="36">36</option>
+                                                    <option value="37">37</option>
+                                                    <option value="38">38</option>
+                                                    <option value="39">39</option>
+                                                    <option value="40">40</option>
+                                                    <option value="41">41</option>
+                                                    <option value="42">42</option>
+                                                    <option value="43">43</option>
+                                                    <option value="44">44</option>
+                                                    <option value="45">45</option>
+                                                    <option value="46">46</option>
+                                                    <option value="47">47</option>
+                                                    <option value="48">48</option>
+                                                    <option value="49">49</option>
+                                                    <option value="50">50</option>
+                                                    <option value="51">51</option>
+                                                    <option value="52">52</option>
+                                                    <option value="53">53</option>
+                                                    <option value="54">54</option>
+                                                    <option value="55">55</option>
+                                                    <option value="56">56</option>
+                                                    <option value="57">57</option>
+                                                    <option value="58">58</option>
+                                                    <option value="59">59</option>
+                                                    <option value="60">60</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Лейбл -формы установки интервала на выбор bad --}}
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Lead bad status interval</label>
+                                            </div>
+                                        </div>
+
+                                        {{-- Месяц -формы установки интервала на выбор bad --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Month</label>
+                                                <select ng-model="data.opt.variables.lead_bad_status_interval_month.values" class="form-control" type="text" >
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- День -формы установки интервала на выбор bad --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Days</label>
+                                                <select ng-model="data.opt.variables.lead_bad_status_interval_days.values" class="form-control" type="text" >
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                    <option value="25">25</option>
+                                                    <option value="26">26</option>
+                                                    <option value="27">27</option>
+                                                    <option value="28">28</option>
+                                                    <option value="29">29</option>
+                                                    <option value="30">30</option>
+                                                    <option value="31">31</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Часы -формы установки интервала на выбор bad --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Hours</label>
+                                                <select ng-model="data.opt.variables.lead_bad_status_interval_hours.values" class="form-control" type="text">
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Минуты -формы установки интервала на выбор bad --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Minutes</label>
+                                                <select ng-model="data.opt.variables.lead_bad_status_interval_minutes.values" class="form-control" type="text">
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                    <option value="25">25</option>
+                                                    <option value="26">26</option>
+                                                    <option value="27">27</option>
+                                                    <option value="28">28</option>
+                                                    <option value="29">29</option>
+                                                    <option value="30">30</option>
+                                                    <option value="31">31</option>
+                                                    <option value="32">32</option>
+                                                    <option value="33">33</option>
+                                                    <option value="34">34</option>
+                                                    <option value="35">35</option>
+                                                    <option value="36">36</option>
+                                                    <option value="37">37</option>
+                                                    <option value="38">38</option>
+                                                    <option value="39">39</option>
+                                                    <option value="40">40</option>
+                                                    <option value="41">41</option>
+                                                    <option value="42">42</option>
+                                                    <option value="43">43</option>
+                                                    <option value="44">44</option>
+                                                    <option value="45">45</option>
+                                                    <option value="46">46</option>
+                                                    <option value="47">47</option>
+                                                    <option value="48">48</option>
+                                                    <option value="49">49</option>
+                                                    <option value="50">50</option>
+                                                    <option value="51">51</option>
+                                                    <option value="52">52</option>
+                                                    <option value="53">53</option>
+                                                    <option value="54">54</option>
+                                                    <option value="55">55</option>
+                                                    <option value="56">56</option>
+                                                    <option value="57">57</option>
+                                                    <option value="58">58</option>
+                                                    <option value="59">59</option>
+                                                    <option value="60">60</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Максимальный ранг агентов --}}
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Agent max range</label>
+                                                <input ng-model="data.opt.variables.max_range.values" class="form-control" type="text" value="">
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Лейбл -формы установки интервала на показывание лида по рангу --}}
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Range show lead interval</label>
+                                            </div>
+                                        </div>
+
+                                        {{-- Месяц -формы установки интервала на показывание лида по рангу --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Month</label>
+                                                <select ng-model="data.opt.variables.range_show_lead_interval_month.values" class="form-control" type="text" >
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- День -формы установки интервала на показывание лида по рангу --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Days</label>
+                                                <select ng-model="data.opt.variables.range_show_lead_interval_days.values" class="form-control" type="text">
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                    <option value="25">25</option>
+                                                    <option value="26">26</option>
+                                                    <option value="27">27</option>
+                                                    <option value="28">28</option>
+                                                    <option value="29">29</option>
+                                                    <option value="30">30</option>
+                                                    <option value="31">31</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Часы -формы установки интервала на показывание лида по рангу --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Hours</label>
+                                                <select ng-model="data.opt.variables.range_show_lead_interval_hours.values" class="form-control" type="text" >
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                        {{-- Минуты -формы установки интервала на показывание лида по рангу --}}
+                                        <div class="form-group select-group">
+                                            <div class="col-xs-12">
+                                                <label class="control-label _col-sm-2">Minutes</label>
+                                                <select ng-model="data.opt.variables.range_show_lead_interval_minutes.values" class="form-control" type="text" >
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                    <option value="25">25</option>
+                                                    <option value="26">26</option>
+                                                    <option value="27">27</option>
+                                                    <option value="28">28</option>
+                                                    <option value="29">29</option>
+                                                    <option value="30">30</option>
+                                                    <option value="31">31</option>
+                                                    <option value="32">32</option>
+                                                    <option value="33">33</option>
+                                                    <option value="34">34</option>
+                                                    <option value="35">35</option>
+                                                    <option value="36">36</option>
+                                                    <option value="37">37</option>
+                                                    <option value="38">38</option>
+                                                    <option value="39">39</option>
+                                                    <option value="40">40</option>
+                                                    <option value="41">41</option>
+                                                    <option value="42">42</option>
+                                                    <option value="43">43</option>
+                                                    <option value="44">44</option>
+                                                    <option value="45">45</option>
+                                                    <option value="46">46</option>
+                                                    <option value="47">47</option>
+                                                    <option value="48">48</option>
+                                                    <option value="49">49</option>
+                                                    <option value="50">50</option>
+                                                    <option value="51">51</option>
+                                                    <option value="52">52</option>
+                                                    <option value="53">53</option>
+                                                    <option value="54">54</option>
+                                                    <option value="55">55</option>
+                                                    <option value="56">56</option>
+                                                    <option value="57">57</option>
+                                                    <option value="58">58</option>
+                                                    <option value="59">59</option>
+                                                    <option value="60">60</option>
+                                                </select>
+                                                <div class="text-danger"></div>
+                                            </div>
+                                            <span class="material-input"></span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
                         </form>
+
                     </div>
+
                     <div class="tab-pane" id="tab2">
                         <h3 class="page-header">{{trans('admin/sphere.lead_form')}}</h3>
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
@@ -76,7 +688,27 @@
                         <h3 class="page-header">{{trans('admin/sphere.agent_form')}}</h3>
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
                             <div class="jSplash-data" id="cform">
-                                Loading...
+                                <div class="panel panel-default">
+
+                                    <div class="panel-body">
+
+                                        <div class="list-group">
+                                            Loading...
+                                        </div>
+
+
+                                        <div class="col-xs-12">
+                                            <div class="form-group">
+                                                <button class="btn btn-success btn-icon in-modal splash-create" type="button">
+                                                    <i class="entypo-plus"></i>
+                                                    Add field
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -164,6 +796,9 @@
     <script type="text/javascript" src="/assets/admin/js/angular.min.js"></script>
 
     <script type="text/javascript">
+
+        var confUrl = '{{ route('admin.attr.form', [$fid]) }}';
+
         $(function(){
 //            $(".jSplash-form").submit(function(){
 //                return false;
@@ -188,43 +823,43 @@
             }});
 
             var cntLead = 1;
-            $.ajax({
-                url:  '{{ route('admin.attr.form',[$fid]) }}',
-                method: 'GET',
-                dataType: 'json',
-                success: function(resp){
-                    for(var k in resp) {
-                       var $el = $('#content').find('#'+k);
-
-                        if($el.length) $el.jSplash({
-                            event:{
-                                onShow:function(){
-                                    $.material.init();
-                                    $('#content .jSplash-data .btn-calc').click(function(){
-                                        cntLead = 1;
-                                        var $rows = $(".statuses").find(".duplicated");
-                                        for(var j=$rows.length-1;j>=0;j--){
-                                            var $ext = $rows.eq(j).find('.extend');
-                                            var range = $ext.eq(0).is(":checked")? 100-$ext.eq(1).val():$ext.eq(1).val()
-                                            if(range) cntLead = parseInt(cntLead / range * 100);
-                                        }
-                                        $(".statuses #recLead").val(cntLead).trigger('change');
-                                    });
-                                    $(".statuses #recLead").off().change(function(){
-                                        cntLead = $(this).val();
-                                        $el.data('splash').settings('stat.minLead',$(this).val());
-                                    });
-                                },
-                                onEdit:function(){
-                                    $.material.init();
-                                },
-                                onModal:function($el){
-                                    $.material.init($el);
-                                }
-                            }}).data('splash').load({data:resp[k]},false,{}).show();
-                    }
-                }
-            });
+            {{--$.ajax({--}}
+                {{--url:  '{{ route('admin.attr.form',[$fid]) }}',--}}
+                {{--method: 'GET',--}}
+                {{--dataType: 'json',--}}
+                {{--success: function(resp){--}}
+{{--//                    for(var k in resp) {--}}
+{{--//                       var $el = $('#content').find('#'+k);--}}
+{{--//--}}
+{{--//                        if($el.length) $el.jSplash({--}}
+{{--//                            event:{--}}
+{{--//                                onShow:function(){--}}
+{{--//                                    $.material.init();--}}
+{{--//                                    $('#content .jSplash-data .btn-calc').click(function(){--}}
+{{--//                                        cntLead = 1;--}}
+{{--//                                        var $rows = $(".statuses").find(".duplicated");--}}
+{{--//                                        for(var j=$rows.length-1;j>=0;j--){--}}
+{{--//                                            var $ext = $rows.eq(j).find('.extend');--}}
+{{--//                                            var range = $ext.eq(0).is(":checked")? 100-$ext.eq(1).val():$ext.eq(1).val()--}}
+{{--//                                            if(range) cntLead = parseInt(cntLead / range * 100);--}}
+{{--//                                        }--}}
+{{--//                                        $(".statuses #recLead").val(cntLead).trigger('change');--}}
+{{--//                                    });--}}
+{{--//                                    $(".statuses #recLead").off().change(function(){--}}
+{{--//                                        cntLead = $(this).val();--}}
+{{--//                                        $el.data('splash').settings('stat.minLead',$(this).val());--}}
+{{--//                                    });--}}
+{{--//                                },--}}
+{{--//                                onEdit:function(){--}}
+{{--//                                    $.material.init();--}}
+{{--//                                },--}}
+{{--//                                onModal:function($el){--}}
+{{--//                                    $.material.init($el);--}}
+{{--//                                }--}}
+{{--//                            }}).data('splash').load({data:resp[k]},false,{}).show();--}}
+{{--//                    }--}}
+                {{--}--}}
+            {{--});--}}
 
             $('#content .btn-save').click(function(){
                 var postData = {};
