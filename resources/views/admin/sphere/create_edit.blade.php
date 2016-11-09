@@ -840,7 +840,7 @@
                                                                     <label class="control-label">@{{ attr.label }}</label>
 
                                                                     {{-- Добавление всех опций атрибуту --}}
-                                                                    <div ng-repeat="option in attr.option">
+                                                                    <div ng-repeat="option in attr.option" ng-hide="option.delete">
 
                                                                         <div class="radio">
                                                                             <label>
@@ -877,8 +877,8 @@
                                                                     {{-- Добавление всех опций атрибуту --}}
                                                                     <select class="form-control">
 
-                                                                        <option ng-repeat="option in attr.option">@{{ option.val }}</option>
-
+                                                                        <option value="0"> </option>
+                                                                        <option ng-repeat="option in attr.option" ng-hide="option.delete">@{{ option.val }}</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -904,7 +904,7 @@
                                                                     <label class="control-label" ng-click="log()">@{{ attr.label }}</label>
 
                                                                     {{-- Добавление всех опций атрибуту --}}
-                                                                    <div ng-repeat="option in attr.option">
+                                                                    <div ng-repeat="option in attr.option" ng-hide="option.delete">
 
                                                                         <div class="checkbox">
                                                                             <label>
@@ -1115,7 +1115,7 @@
                                         </div>
 
                                         {{-- сама опция с данными --}}
-                                        <div ng-repeat="option in attrEditor.agentAttrData.option" class="row duplicate duplicated">
+                                        <div ng-repeat="option in attrEditor.agentAttrData.option" class="row duplicate duplicated" ng-hide="option.delete">
 
                                             {{-- переключатель --}}
                                             <div class="col-xs-4">
@@ -1143,7 +1143,7 @@
 
                                             {{-- кнопка удаления опции --}}
                                             <div class="col-xs-2">
-                                                <button class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
+                                                <button ng-click="deleteAgentOption( option )" class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
                                                     <i class="entypo-cancel"></i>
                                                 </button>
                                             </div>

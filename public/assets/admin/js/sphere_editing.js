@@ -119,6 +119,28 @@ var app = angular.module('app', [])
             $scope.attrEditor.agentAttrData.option.push( newOption );
         };
 
+        // удаление опции атрибута
+        $scope.deleteAgentOption = function( option ){
+
+            // проверка, была ли опция уже сохранен на сервере
+            // (есть или нет id)
+            if( option.id == 0){
+                // если статус еще небыл сохранен на сервере
+                // просто удаляем его
+
+                // находим индекс элемента
+                var index = $scope.attrEditor.agentAttrData.option.indexOf(option);
+                // удаляем элемент
+                $scope.attrEditor.agentAttrData.option.splice(index, 1);
+
+            }else{
+                // если статус уже сохранен на сервере
+
+                // добавляем в модель статуса элемент delete
+                option.delete = true;
+            }
+        };
+
         // сохранение атрибута агента в модели
         $scope.saveAgentAttr = function(){
 
@@ -148,6 +170,7 @@ var app = angular.module('app', [])
         $('#modal-page').on('hidden.bs.modal', function (e) {
 
             // возвращаем данные редактора в начальное состояние
+            // редактор атрибутов
             $scope.attrEditor = {
                 // блок выбора типа атрибута
                 typeSelection: false,
@@ -165,7 +188,7 @@ var app = angular.module('app', [])
                 // кнопка сохранения
                 saveButton: false,
                 // индекс редактируемого атрибута агента
-                agentAttrIndex: 0,
+                agentAttrIndex: 'null',
                 // шаблон данных атрибута агента
                 agentAttrData:
                 {
