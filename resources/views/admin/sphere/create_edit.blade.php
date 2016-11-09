@@ -1130,12 +1130,12 @@
                                             </div>
 
                                             {{-- название атрибута --}}
-                                            <div class="col-xs-5">
+                                            <div ng-class="option.id != 0 ? 'col-xs-5': 'col-xs-6' ">
                                                 <input ng-model="option.val" class="form-control pull-left flip select" type="text"  value="">
                                             </div>
 
                                             {{-- кнопка создания разветвления --}}
-                                            <div class="col-xs-1">
+                                            <div class="col-xs-1" ng-show="option.id != 0">
                                                 <a class="btn-split">
                                                     <i class="entypo-flow-branch"></i>
                                                 </a>
@@ -1152,7 +1152,7 @@
 
                                         {{-- кнопка добавления опции в атрибут --}}
                                         <div class="col-xs-12">
-                                            <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
+                                            <button ng-click="addAgentOption()" class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
                                                 <i class="entypo-plus"></i>
                                             </button>
                                         </div>

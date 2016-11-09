@@ -72,8 +72,9 @@ var app = angular.module('app', [])
         // форма редактирования атрибута агента
         $scope.editAgentAttr = function( attr ){
 
-            // заносим модель агента в редактор
-            $scope.attrEditor.agentAttrData = attr;
+            // заносим модель агента в модель редактора
+            $scope.attrEditor.agentAttrData = JSON.parse( JSON.stringify( attr ) );
+
             // показываем редактор
             $scope.attrEditor.editor = true;
             // показываем кнопку "сохранить"
@@ -91,6 +92,26 @@ var app = angular.module('app', [])
                 // показываем редактор агента с нужными данными
                 showAgentNewAttrEditor( $scope.attrEditor.agentSelectedType );
             }
+        };
+
+        // добавление опции атрибуту агента
+        $scope.addAgentOption = function(){
+
+            // создаем новую опцию
+            var newOption =
+            {
+                id: 0,       // id статуса
+                val: '',     // имя
+                vale:       // значения
+                    [
+                        0,     // подумат над значениями при сохранении переключателя
+                        null   // незнаю что за значение
+                    ]
+                //position: attr.option.length + 1 // позиция
+            };
+
+            // добавляем статус в модель
+            $scope.attrEditor.agentAttrData.option.push( newOption );
         };
 
 
