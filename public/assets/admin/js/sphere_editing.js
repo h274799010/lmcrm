@@ -4,6 +4,22 @@ var app = angular.module('app', [])
     .controller('SphereCtrl', function ( $scope, $http, $compile ) {
 
 
+        /** Атрибуты агента */
+
+        /**
+         * Показ модального окна создания атрибута агента
+         *
+         */
+        $scope.agentAddAttrShow = function(){
+
+            $('#modal-page').modal();
+
+        };
+
+
+
+
+
         /** Статусы */
 
         /**

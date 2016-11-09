@@ -932,10 +932,10 @@
 
                                         </div>
 
-
+                                        {{-- кнопка вызова окна добавления нового атрибута --}}
                                         <div class="col-xs-12">
                                             <div class="form-group">
-                                                <button class="btn btn-success btn-icon in-modal splash-create" data-toggle="modal" data-target="#modal-page" type="button">
+                                                <button class="btn btn-success btn-icon in-modal splash-create" ng-click="agentAddAttrShow()" type="button">
                                                     <i class="entypo-plus"></i>
                                                     Add field
                                                 </button>
