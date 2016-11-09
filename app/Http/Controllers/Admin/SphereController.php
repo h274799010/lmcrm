@@ -1633,54 +1633,40 @@ class SphereController extends AdminController {
          * Обработка статусов
          */
         if($statusData){
-        // УДАЛЕНИЕ СТАТУСА ИЗ БД
-            // если с фронтенда не пришел статус с таким id как у статуса в БД - статус удаляется
+        // СОЗДАЕМ НОВЫЙ СТАТУС ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ, ИЛИ УДАЛЯЕМ, ЕСЛИ ЕСТЬ УКАЗАНИЕ НА УДАЛЕНИЕ
 
-            // все статусы сферы из базы данных
-            $dbStatuses =  $sphere->statuses;
-
-            // перебираем все id статуса в БД
-            $dbStatuses->each(function( $dbStatus ) use( $statusData ) {
-
-                // переключатель, если true статус удаляется из БД
-                $delete = true;
-
-                // преобразовываем данные в коллекцию
-                $collectStatusData = collect($statusData['values']);
-                // перебираем все полученные статусы с фронтенда
-                $collectStatusData->each(function( $newStatus ) use( $dbStatus, &$delete ) {
-                    // если в таблице статусов есть запись с таким же id как и на фронтенде
-                    // переключатель $delete переводится в состояние false
-                    if($newStatus['id'] == $dbStatus['id']){
-                        $delete=false;
-                    }
-                });
-
-                // если $delete==false - запись не удаляется, иначе - удаляется
-                if($delete){ $dbStatus->delete(); }
-            });
-
-
-        // СОЗДАЕМ НОВЫЙ СТАТУС ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ
+            // в эту переменную собираются id статусов сферы, которые нужно удалить
+            $deleteId = false;
 
             // преобразовываем данные в коллекцию
             $collectStatusData = collect($statusData['values']);
             // перебираем все атрибуты, создаем/обновляем его данные
-            $collectStatusData->each(function($status) use($sphere){
+            $collectStatusData->each(function($status) use( $sphere, &$deleteId ){
 
                 // если у атрибуте есть id и он НЕ равен '0'
                 if (isset($status['id']) && $status['id']) {
-                    // выбираем его
-                    $dbStatus = SphereStatuses::find($status['id']);
 
-                    $dbStatus->stepname = $status['val'];
-                    $dbStatus->minmax = $status['vale'][0];
-                    $dbStatus->percent = $status['vale'][1];
-                    $dbStatus->position = (isset($status['position'])) ? $status['position'] : 0;
+                    // проверка на удаление, если нет указание на удаление - просто сохраняем новые данные
+                    if( isset( $status['delete'] ) ){
+                        // если задан элемент delete (указание на удаление)
 
+                        // заносим id статуса в список на удаление
+                        // после всего цикла все элементы из этого списка будут удалены
+                        $deleteId[] = $status['id'];
 
-                    // и обновляем
-                    $dbStatus->save();
+                    }else{
+                        // выбираем его
+                        $dbStatus = SphereStatuses::find($status['id']);
+
+                        // заносим туда данные
+                        $dbStatus->stepname = $status['val'];
+                        $dbStatus->minmax = $status['vale'][0];
+                        $dbStatus->percent = $status['vale'][1];
+                        $dbStatus->position = (isset($status['position'])) ? $status['position'] : 0;
+
+                        // и обновляем
+                        $dbStatus->save();
+                    }
 
                 } else {
                     // если атрибута нет или он равен 0 создаем его
@@ -1692,6 +1678,13 @@ class SphereController extends AdminController {
                     $sphere->statuses()->save($newStatus);
                 }
             });
+
+            // если есть статусы сферы для удаления
+            if($deleteId){
+                // удаляем их
+                SphereStatuses::whereIn('id', $deleteId)->delete();
+            }
+
         }
 
         if($sphereData['variables']['status']) {
