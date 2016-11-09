@@ -144,8 +144,6 @@ var app = angular.module('app', [])
         // удаление опции атрибута
         $scope.deleteAgentAttr = function( attr ){
 
-            console.log(attr);
-
             // проверка, была ли опция уже сохранен на сервере
             // (есть или нет id)
             if( attr.id == 0){
