@@ -1115,14 +1115,14 @@
                                         </div>
 
                                         {{-- сама опция с данными --}}
-                                        <div class="row duplicate duplicated">
+                                        <div ng-repeat="option in attrEditor.agentAttrData.option" class="row duplicate duplicated">
 
                                             {{-- переключатель --}}
                                             <div class="col-xs-4">
                                                 <div class="togglebutton">
                                                     <label>
                                                         no
-                                                        <input class="default extend" type="checkbox" value="1">
+                                                        <input ng-model="option.vale[0]" class="default extend" type="checkbox" value=''>
                                                         <span class="toggle"></span>
                                                         yes
                                                     </label>
@@ -1131,7 +1131,7 @@
 
                                             {{-- название атрибута --}}
                                             <div class="col-xs-5">
-                                                <input class="form-control pull-left flip select" type="text" data-extend="1" value="billiards">
+                                                <input ng-model="option.val" class="form-control pull-left flip select" type="text"  value="">
                                             </div>
 
                                             {{-- кнопка создания разветвления --}}

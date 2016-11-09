@@ -80,8 +80,6 @@ var app = angular.module('app', [])
             $scope.attrEditor.saveButton = true;
             // показывает модальное окно
             $('#modal-page').modal();
-
-            console.log( $scope.attrEditor.agentAttrData );
         };
 
         // действие по выбору селекта
