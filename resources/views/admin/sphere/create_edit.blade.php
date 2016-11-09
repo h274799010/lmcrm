@@ -1166,7 +1166,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-info " data-dismiss="modal">{{trans('admin/modal.close')}}</button>
-                            <button type="button" class="btn btn-success btn-raised btn-save" ng-show="attrEditor.saveButton">{{trans('admin/modal.save')}}</button>
+                            <button ng-click="saveAgentAttr()" type="button" class="btn btn-success btn-raised btn-save" ng-show="attrEditor.saveButton">{{trans('admin/modal.save')}}</button>
                         </div>
                     </div>
                 </form>

@@ -23,6 +23,8 @@ var app = angular.module('app', [])
             editor: false,
             // кнопка сохранения
             saveButton: false,
+            // индекс редактируемого атрибута агента
+            agentAttrIndex: 'null',
             // шаблон данных атрибута агента
             agentAttrData:
             {
@@ -72,6 +74,9 @@ var app = angular.module('app', [])
         // форма редактирования атрибута агента
         $scope.editAgentAttr = function( attr ){
 
+            // сохраняем индекс атрибута
+            $scope.attrEditor.agentAttrIndex = $scope.data.cform.values.indexOf(attr);
+
             // заносим модель агента в модель редактора
             $scope.attrEditor.agentAttrData = JSON.parse( JSON.stringify( attr ) );
 
@@ -114,6 +119,27 @@ var app = angular.module('app', [])
             $scope.attrEditor.agentAttrData.option.push( newOption );
         };
 
+        // сохранение атрибута агента в модели
+        $scope.saveAgentAttr = function(){
+
+            // проверка атрибута, новый или изменить существующий
+            if( $scope.attrEditor.agentAttrIndex == 'null' ){
+                // атрибут новый, только создается
+
+                // создаем новый атрибут
+                $scope.data.cform.values.push( $scope.attrEditor.agentAttrData );
+
+            }else{
+                // атрибут уже есть в модели, его нужно просто обновить
+
+                // изменяем содержание атрибута
+                $scope.data.cform.values[ $scope.attrEditor.agentAttrIndex ] = JSON.parse( JSON.stringify( $scope.attrEditor.agentAttrData ) );
+            }
+
+            // убираем модальное окно
+            $('#modal-page').modal('hide');
+        };
+
 
         /** Общее */
 
@@ -138,6 +164,8 @@ var app = angular.module('app', [])
                 editor: false,
                 // кнопка сохранения
                 saveButton: false,
+                // индекс редактируемого атрибута агента
+                agentAttrIndex: 0,
                 // шаблон данных атрибута агента
                 agentAttrData:
                 {
