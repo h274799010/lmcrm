@@ -69,6 +69,21 @@ var app = angular.module('app', [])
             $scope.attrEditor.saveButton = true;
         }
 
+        // форма редактирования атрибута агента
+        $scope.editAgentAttr = function( attr ){
+
+            // заносим модель агента в редактор
+            $scope.attrEditor.agentAttrData = attr;
+            // показываем редактор
+            $scope.attrEditor.editor = true;
+            // показываем кнопку "сохранить"
+            $scope.attrEditor.saveButton = true;
+            // показывает модальное окно
+            $('#modal-page').modal();
+
+            console.log( $scope.attrEditor.agentAttrData );
+        };
+
         // действие по выбору селекта
         $scope.selectedTypeAction = function(){
 

@@ -857,7 +857,7 @@
                                                     </span>
                                                     <span class="col-xs-2 form-group">
                                                         <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
-                                                        <span class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
+                                                        <span ng-click="editAgentAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
                                                         <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
                                                 </div>
@@ -886,12 +886,12 @@
                                                     </span>
                                                     <span class="col-xs-2 form-group">
                                                         <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
-                                                        <span class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
+                                                        <span ng-click="editAgentAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
                                                         <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
                                                 </div>
 
-                                                {{-- Если тип select --}}
+                                                {{-- Если тип checkbox --}}
                                                 <div ng-if="attr._type=='checkbox'" class="row">
                                                     <span class="col-xs-10">
                                                         <div class="col-xs-10" xmlns="http://www.w3.org/1999/html">
@@ -923,7 +923,7 @@
                                                     </span>
                                                     <span class="col-xs-2 form-group">
                                                         <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
-                                                        <span class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
+                                                        <span ng-click="editAgentAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
                                                         <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
                                                 </div>
