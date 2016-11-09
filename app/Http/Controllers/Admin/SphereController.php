@@ -1411,6 +1411,9 @@ class SphereController extends AdminController {
 
                 // если у атрибуте есть id и он НЕ равен '0'
                 if (isset($attr['id']) && $attr['id']) {
+
+                    // todo добавить метод на удаление
+
                     // выбираем его
                     $agentAttr = SphereFormFilters::find($attr['id']);
                     // и обновляем
@@ -1423,80 +1426,36 @@ class SphereController extends AdminController {
                 }
 
 
-            // УДАЛЕНИЕ ОПЦИЙ АТРИБУТА
-
-                if( $agentAttr['id'] != 0 ){
-                    $AttrOptionsInDB = FormFiltersOptions::where( 'attr_id', $agentAttr['id'] )->get();
-
-                    if( $AttrOptionsInDB && isset( $attr['option'] ) ){
-
-                        // если в атрибуте только одна опция то она помещается в option без массива
-                        // чтобы обработка была правильной, просто помещаем его в массив
-                        if( isset( $attr['option']['id']) ){
-                            $attr['option'] = [ $attr['option'] ];
-                        }
-
-
-                        $siteOptions = [];
-
-                        foreach( $attr['option'] as $option){
-
-                            $siteOptions[ $option['id'] ] = $option;
-
-                        }
-
-//                    dd( $siteOptions );
-
-
-                        $AttrOptionsInDB->each(function( $optionInDB ) use ( $siteOptions ){
-
-                            if( !isset( $siteOptions[ $optionInDB->id ] ) ){
-
-//                            dd( $optionInDB->id );
-                                $optionInDB->delete();
-                            }
-
-
-                        });
-
-                    } elseif ($AttrOptionsInDB && !isset($attr['option']) ) {
-                        $AttrOptionsInDB->each(function ( $optionInDB ) use ( $sphere ) {
-                            $optionInDB->delete();
-
-                            $sphere->status = 0;
-                            $sphere->save();
-                        });
-                    }
-                }
-
-
-
             // ОБРАБОТКА ОПЦИЙ АТРИБУТА (предполагается что у атрибута есть только опции, валидаций и прочего нет)
 
                 if (isset($attr['option'])) {
                     // контрольная проверка наличия опций
-                    // по идее опции должны быть, в начале метода стоит проверка
-
-                    // если в атрибуте только одна опция то она помещается в option без массива
-                    // чтобы обработка была правильной, просто помещаем его в массив
-                    if( isset( $attr['option']['id']) ){
-                        $attr['option'] = [ $attr['option'] ];
-                    }
 
                     // перебираем все опции и либо создаем новую,
                     // либо обновляем существующую запись опции
+                    // или удаляем, если есть указание на удаление
                     $optionCollection = collect($attr['option']);
                     $optionCollection->each(function ($option) use (&$agentAttr, &$agentBitmask, &$leadBitmask) {
 
                         if ( $option['id'] ) {
                             // у опции ЕСТЬ id, т.е. опция уже есть в БД
 
-                            // выбираем данные опции из БД
-                            $dbOption = FormFiltersOptions::find($option['id']);
-                            // присваиваем опции новые значения
-                            $dbOption->name = $option['val'];
-                            // сохраняем
-                            $dbOption->save();
+                            if(isset($option['delete'])){
+
+                                $agentBitmask->removeAttr($agentAttr->id, $option['id']);
+                                $leadBitmask->removeAttr($agentAttr->id, $option['id']);
+
+                                FormFiltersOptions::where('id', $option['id'])->delete();
+
+
+                            }else{
+                                // выбираем данные опции из БД
+                                $dbOption = FormFiltersOptions::find($option['id']);
+                                // присваиваем опции новые значения
+                                $dbOption->name = $option['val'];
+                                // сохраняем
+                                $dbOption->save();
+                            }
 
                         } else {
                             // у опции НЕТ id
@@ -1513,6 +1472,8 @@ class SphereController extends AdminController {
                             $agentBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean');
                             $leadBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean');
 
+
+                            // todo доработать ветвление
 
                             /** смысл этой конструкции я не понял */
                             if (isset($option['parent'])) {
