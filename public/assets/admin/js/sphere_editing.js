@@ -141,6 +141,30 @@ var app = angular.module('app', [])
             }
         };
 
+        // удаление опции атрибута
+        $scope.deleteAgentAttr = function( attr ){
+
+            console.log(attr);
+
+            // проверка, была ли опция уже сохранен на сервере
+            // (есть или нет id)
+            if( attr.id == 0){
+                // если статус еще небыл сохранен на сервере
+                // просто удаляем его
+
+                // находим индекс элемента
+                var index = $scope.data.cform.values.indexOf(attr);
+                // удаляем элемент
+                $scope.data.cform.values.splice(index, 1);
+
+            }else{
+                // если статус уже сохранен на сервере
+
+                // добавляем в модель статуса элемент delete
+                attr.delete = true;
+            }
+        };
+
         // сохранение атрибута агента в модели
         $scope.saveAgentAttr = function(){
 
