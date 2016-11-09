@@ -1059,7 +1059,7 @@
                             <div class="row">
 
                                 {{-- Выбор типа атрибута фильтра агента --}}
-                                <div class="col-xs-12">
+                                <div class="col-xs-12" ng-show="modalShow">
                                     <label class="control-label">select field type</label>
                                     <select id="ftype" class="pull-left form-control" name="ftype">
                                         <option selected="" value=""></option>
