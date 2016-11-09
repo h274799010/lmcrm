@@ -1073,6 +1073,7 @@
                             {{-- Редактор атрибутов --}}
                             <div ng-show="attrEditor.editor">
 
+                                {{-- Иконка --}}
                                 <div class="row">
                                     <div class="col-xs-5">
                                         <div class="input-group">
@@ -1090,16 +1091,20 @@
                                     </div>
                                 </div>
 
+                                {{-- название --}}
                                 <div class="row">
                                     <div class="form-group col-xs-12">
                                         <label class="control-label">label:</label>
-                                        <input class="form-control" type="text" value="CheckBox" name="label">
+                                        <input ng-model="attrEditor.agentAttrData.label" class="form-control" type="text" value="">
                                         <span class="material-input"></span>
                                     </div>
                                 </div>
 
+                                {{-- опции --}}
                                 <div class="row">
                                     <div class="form-group col-xs-12 is-empty">
+
+                                        {{-- подписи полей --}}
                                         <div class="row">
                                             <div class="col-xs-3">
                                                 <label class="control-label text-center">add to agent form</label>
@@ -1108,8 +1113,11 @@
                                                 <label class="control-label">option:</label>
                                             </div>
                                         </div>
+
+                                        {{-- сама опция с данными --}}
                                         <div class="row duplicate duplicated">
 
+                                            {{-- переключатель --}}
                                             <div class="col-xs-4">
                                                 <div class="togglebutton">
                                                     <label>
@@ -1121,16 +1129,19 @@
                                                 </div>
                                             </div>
 
+                                            {{-- название атрибута --}}
                                             <div class="col-xs-5">
                                                 <input class="form-control pull-left flip select" type="text" data-extend="1" value="billiards">
                                             </div>
 
+                                            {{-- кнопка создания разветвления --}}
                                             <div class="col-xs-1">
                                                 <a class="btn-split">
                                                     <i class="entypo-flow-branch"></i>
                                                 </a>
                                             </div>
 
+                                            {{-- кнопка удаления опции --}}
                                             <div class="col-xs-2">
                                                 <button class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
                                                     <i class="entypo-cancel"></i>
@@ -1138,6 +1149,8 @@
                                             </div>
 
                                         </div>
+
+                                        {{-- кнопка добавления опции в атрибут --}}
                                         <div class="col-xs-12">
                                             <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
                                                 <i class="entypo-plus"></i>

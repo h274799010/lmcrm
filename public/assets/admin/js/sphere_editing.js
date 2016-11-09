@@ -15,7 +15,7 @@ var app = angular.module('app', [])
             // названия типов
             selectedTypeName:
             {
-                checkbox: 'Checkbox',
+                checkbox: 'CheckBox',
                 radio: 'Radio',
                 select: 'Dropdown'
             },
@@ -23,6 +23,16 @@ var app = angular.module('app', [])
             editor: false,
             // кнопка сохранения
             saveButton: false,
+            // шаблон данных атрибута агента
+            agentAttrData:
+            {
+                id: 0,
+                _type: '',
+                label: '',
+                icon: '',
+                position: '',
+                option: []
+            }
         };
 
         /**
@@ -38,10 +48,18 @@ var app = angular.module('app', [])
         };
 
         // функция отображения редактора атрибутов агента
-        function showAgentEditor( type ){
+        function showAgentNewAttrEditor( type ){
 
-            // тип атрибута
-            //console.log( $scope.attrEditor.selectedTypeName[ type ] );
+            // модель агента
+            $scope.attrEditor.agentAttrData =
+            {
+                id: 0,
+                _type: type,
+                label: $scope.attrEditor.selectedTypeName[ type ],
+                icon: '',
+                position: $scope.data.cform.values.length + 1,
+                option: []
+            };
 
             // выключаем показ селекта с выбором типа атрибута
             $scope.attrEditor.typeSelection = false;
@@ -55,10 +73,10 @@ var app = angular.module('app', [])
         $scope.selectedTypeAction = function(){
 
             // проверка выбранно что-то в селекте или нет
-            if($scope.attrEditor.selectedType != 0){
+            if($scope.attrEditor.agentSelectedType != 0){
                 // если селектор выбран
                 // показываем редактор агента с нужными данными
-                showAgentEditor( $scope.attrEditor.selectedType );
+                showAgentNewAttrEditor( $scope.attrEditor.agentSelectedType );
             }
         };
 
@@ -78,7 +96,7 @@ var app = angular.module('app', [])
                 // названия типов
                 selectedTypeName:
                 {
-                    checkbox: 'Checkbox',
+                    checkbox: 'CheckBox',
                     radio: 'Radio',
                     select: 'Dropdown'
                 },
@@ -86,6 +104,16 @@ var app = angular.module('app', [])
                 editor: false,
                 // кнопка сохранения
                 saveButton: false,
+                // шаблон данных атрибута агента
+                agentAttrData:
+                {
+                    id: 0,
+                    _type: '',
+                    label: '',
+                    icon: '',
+                    position: '',
+                    option: []
+                }
             };
             $scope.$apply($scope.attrEditor);
         });
