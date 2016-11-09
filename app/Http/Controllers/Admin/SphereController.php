@@ -627,8 +627,6 @@ class SphereController extends AdminController {
     public function update(Request $request, $id)
     {
 
-//        return response()->json( $request );
-
         /**
          *  ===+==-  Структура Request  -==+===
          *
@@ -950,12 +948,10 @@ class SphereController extends AdminController {
         if( !count($request->all()) ) { return response()->json( ['error'=>trans('admin/sphere.errors.required.name')] ); }
 
         // данные формы сферы
-//        $sphereData = $request['opt']['data'];
         $sphereData = $request['opt'];
 
 
         // данные формы лида
-//        $leadData = $request['lead']['data'];
         $leadData = $request['lead'];
 
 
@@ -1040,92 +1036,16 @@ class SphereController extends AdminController {
         }
 
         // данные формы агента
-//        $agentData = $request['cform']['data'];
         $agentData = $request['cform'];
 
-        $agentDataAttr = NULL;
+        // todo доделать
+        $agentDataAttr = $agentData['values'];
 
-        // проверка атрибутов агента
-        // массив атрибутов агента может выглядеть по разному, на каждый вариант своя обработка
-        if(isset($agentData['variables'])){
-            // переменная существует (ее может и не быть)
-
-            if(isset($agentData['_type'])) {
-                // наличие переменной '_type' в массиве
-
-                /*
-                 * если у агента только одни атрибут,
-                 * он приходит с фронтенда просто как массив 'variables', без индексов,
-                 * (при этом у него всегда бует переменная '_type')
-                 * в этом случае переменная просто помещается в массив
-                 */
-
-                $agentDataAttr = collect( [ $agentData['variables'] ] );
-
-            }elseif( $agentData['variables']==["email" => "", "textarea" => "", "input" => "", "checkbox" => "", "radio" => "", "select" => "", "calendar" => "", "submit" => ""] ) {
-                // 'variables' состоит из массива с ключами из типов полей
-                // агент должен иметь не меньше одного атрибута
-                // работа метода останавливается
-
-                /*
-                 * когда у агента нет атрибутов
-                 * переменная 'variables' может принимать такой вид (описанный выше)
-                 * агент должен иметь не меньше одного атрибута
-                 * поэтому в этом случае возвращается FALSE
-                 * дальнейшая работа метода прекращается
-                 */
-
-//                return response()->json(FALSE);
-
-            }elseif(count($agentData['variables']) < 1) {
-                /*
-                 * Если у агента меньше 3-х атрибутов
-                 * возвращаем FALSE
-                 */
-                    $agentDataAttr = collect( $agentData['variables'] );
-//                return response()->json( [ 'error'=>true, 'message'=>trans('admin/sphere.errors.minAgentForm') ] );
-            }elseif( isset($agentData['variables'][0]) ){
-                // 'variables' массив у которого есть хотя бы один атрибут
-
-                /*
-                 * массив просто преобразовывается в коллекцию
-                 * чтобы было проще дальше обрабатывать
-                 */
-
-                $agentDataAttr = collect( $agentData['variables'] );
-
-            }else{
-                // ничего из вышеперечисленного не подошло
-
-                /*
-                 * если ничего вышеперечисленное не подошло
-                 * нужно либо добавить обработчик,
-                 * либо это ошибка фронтенда
-                 *
-                 * работа метода останавливается
-                 */
-
-                $agentDataAttr = NULL;
-//                return response()->json(FALSE);
-//                return response()->json([ 'error'=>true, 'message'=>trans('admin/sphere.errors.minAgentForm') ]);
-            }
-
-        }else{
-            // у агента нет атрибутов
-            // работа метода останавливается
-
-            // у агента должно быть не меньше 1 атрибута
-            $agentDataAttr = NULL;
-
-//            return response()->json(FALSE);
-        }
 
         // todo минимальное количество лидов
-//        $minLead = $request['stat_minLead'];
         $minLead = $request['threshold']['settings']['stat']['minLead'];
 
         // статусы
-//        $statusData = ($request['threshold']['data']) ? collect( $request['threshold']['data'] ) : FALSE;
         $statusData = ($request['threshold']) ? collect( $request['threshold'] ) : FALSE;
 
 
@@ -1448,12 +1368,13 @@ class SphereController extends AdminController {
         }
 
 
-
         /**
          * Обработка атрибутов агента
          */
         if($agentDataAttr){
 
+            // преобразовываем массив в коллекцию
+            $agentDataAttr = collect($agentDataAttr);
             // перебираем все атрибуты, создаем/обновляем его данные
             $agentDataAttr->each(function( $attr )  use( $sphere, &$agentBitmask, &$leadBitmask ) {
 
@@ -1503,8 +1424,6 @@ class SphereController extends AdminController {
 
 
             // УДАЛЕНИЕ ОПЦИЙ АТРИБУТА
-
-                //dd($attr);
 
                 if( $agentAttr['id'] != 0 ){
                     $AttrOptionsInDB = FormFiltersOptions::where( 'attr_id', $agentAttr['id'] )->get();
