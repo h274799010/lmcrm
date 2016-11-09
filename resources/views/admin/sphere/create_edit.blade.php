@@ -1058,10 +1058,10 @@
                         <div class="modal-body">
 
                             {{-- Выбор типа атрибута фильтра агента --}}
-                            <div class="row" ng-show="modalShow">
+                            <div class="row" ng-show="attrEditor.typeSelection">
                                 <div class="col-xs-12">
                                     <label class="control-label">select field type</label>
-                                    <select id="ftype" class="pull-left form-control" name="ftype">
+                                    <select ng-model="attrEditor.agentSelectedType" ng-change="selectedTypeAction()" class="pull-left form-control">
                                         <option selected="" value="0"></option>
                                         <option value="checkbox">Checkbox</option>
                                         <option value="radio">Radio</option>
@@ -1070,7 +1070,8 @@
                                 </div>
                             </div>
 
-                            <div >
+                            {{-- Редактор атрибутов --}}
+                            <div ng-show="attrEditor.editor">
 
                                 <div class="row">
                                     <div class="col-xs-5">
@@ -1152,7 +1153,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-info " data-dismiss="modal">{{trans('admin/modal.close')}}</button>
-                            <button type="button" class="btn btn-success btn-raised btn-save">{{trans('admin/modal.save')}}</button>
+                            <button type="button" class="btn btn-success btn-raised btn-save" ng-show="attrEditor.saveButton">{{trans('admin/modal.save')}}</button>
                         </div>
                     </div>
                 </form>
@@ -1189,7 +1190,7 @@
 @section('scripts')
 {{--    <script type="text/javascript" src="{{ asset('components/nouislider/js/nouislider.min.js') }}" async></script>--}}
     {{--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/Sortable/1.4.2/Sortable.min.js" async></script>--}}
-{{--    <script type="text/javascript" src="{{ asset('packages/spescina/mediabrowser/dist/mediabrowser-include.min.js') }}"></script>--}}
+    <script type="text/javascript" src="{{ asset('packages/spescina/mediabrowser/dist/mediabrowser-include.min.js') }}"></script>
     {{--<script type="text/javascript" src="{{ asset('components/jSplash/doT.min.js') }}" async></script>--}}
     {{--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js"></script>--}}
     <script type="text/javascript" src="{{ asset('components/bootstrap-wizard/jquery.bootstrap.wizard.min.js') }}" ></script>

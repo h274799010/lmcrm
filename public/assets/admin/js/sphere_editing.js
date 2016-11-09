@@ -6,8 +6,24 @@ var app = angular.module('app', [])
 
         /** Атрибуты агента */
 
-        // показывает/скрывает селект с выбором типа атрибута агента
-        $scope.modalShow = false;
+        // редактор атрибутов
+        $scope.attrEditor = {
+            // блок выбора типа атрибута
+            typeSelection: false,
+            // селектор типа агента по умолчанию
+            agentSelectedType: 0,
+            // названия типов
+            selectedTypeName:
+            {
+                checkbox: 'Checkbox',
+                radio: 'Radio',
+                select: 'Dropdown'
+            },
+            // сам редактор
+            editor: false,
+            // кнопка сохранения
+            saveButton: false,
+        };
 
         /**
          * Показ модального окна создания атрибута агента
@@ -16,9 +32,34 @@ var app = angular.module('app', [])
         $scope.agentAddAttrShow = function(){
 
             // показывает селект с выбором типа атрибута агента
-            $scope.modalShow = true;
+            $scope.attrEditor.typeSelection = true;
             // показывает модальное окно
             $('#modal-page').modal();
+        };
+
+        // функция отображения редактора атрибутов агента
+        function showAgentEditor( type ){
+
+            // тип атрибута
+            //console.log( $scope.attrEditor.selectedTypeName[ type ] );
+
+            // выключаем показ селекта с выбором типа атрибута
+            $scope.attrEditor.typeSelection = false;
+            // показываем редактор
+            $scope.attrEditor.editor = true;
+            // показываем кнопку "сохранить"
+            $scope.attrEditor.saveButton = true;
+        }
+
+        // действие по выбору селекта
+        $scope.selectedTypeAction = function(){
+
+            // проверка выбранно что-то в селекте или нет
+            if($scope.attrEditor.selectedType != 0){
+                // если селектор выбран
+                // показываем редактор агента с нужными данными
+                showAgentEditor( $scope.attrEditor.selectedType );
+            }
         };
 
 
@@ -28,9 +69,25 @@ var app = angular.module('app', [])
         // по идее обнуление всех переменных модели
         $('#modal-page').on('hidden.bs.modal', function (e) {
 
-            // скрывает селект с выбором типа атрибута агента
-            $scope.modalShow = false;
-            $scope.$apply($scope.modalShow);
+            // возвращаем данные редактора в начальное состояние
+            $scope.attrEditor = {
+                // блок выбора типа атрибута
+                typeSelection: false,
+                // селектор типа агента по умолчанию
+                agentSelectedType: 0,
+                // названия типов
+                selectedTypeName:
+                {
+                    checkbox: 'Checkbox',
+                    radio: 'Radio',
+                    select: 'Dropdown'
+                },
+                // сам редактор
+                editor: false,
+                // кнопка сохранения
+                saveButton: false,
+            };
+            $scope.$apply($scope.attrEditor);
         });
 
 
