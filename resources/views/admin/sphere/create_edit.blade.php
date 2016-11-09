@@ -1056,21 +1056,98 @@
                         </div>
 
                         <div class="modal-body">
-                            <div class="row">
 
-                                {{-- Выбор типа атрибута фильтра агента --}}
-                                <div class="col-xs-12" ng-show="modalShow">
+                            {{-- Выбор типа атрибута фильтра агента --}}
+                            <div class="row" ng-show="modalShow">
+                                <div class="col-xs-12">
                                     <label class="control-label">select field type</label>
                                     <select id="ftype" class="pull-left form-control" name="ftype">
-                                        <option selected="" value=""></option>
+                                        <option selected="" value="0"></option>
                                         <option value="checkbox">Checkbox</option>
                                         <option value="radio">Radio</option>
                                         <option value="select">Dropdown</option>
                                     </select>
                                 </div>
+                            </div>
 
+                            <div >
+
+                                <div class="row">
+                                    <div class="col-xs-5">
+                                        <div class="input-group">
+                                            <div class="form-group is-empty">
+                                                <input class="form-control" type="text" name="icon" value="">
+                                                <span class="material-input"></span>
+                                            </div>
+                                            <span class="input-group-btn">
+                                                <a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">
+                                                    <span class="glyphicon glyphicon-folder-open"></span>
+                                                    <div class="ripple-container"></div>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group col-xs-12">
+                                        <label class="control-label">label:</label>
+                                        <input class="form-control" type="text" value="CheckBox" name="label">
+                                        <span class="material-input"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group col-xs-12 is-empty">
+                                        <div class="row">
+                                            <div class="col-xs-3">
+                                                <label class="control-label text-center">add to agent form</label>
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <label class="control-label">option:</label>
+                                            </div>
+                                        </div>
+                                        <div class="row duplicate duplicated">
+
+                                            <div class="col-xs-4">
+                                                <div class="togglebutton">
+                                                    <label>
+                                                        no
+                                                        <input class="default extend" type="checkbox" value="1">
+                                                        <span class="toggle"></span>
+                                                        yes
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-5">
+                                                <input class="form-control pull-left flip select" type="text" data-extend="1" value="billiards">
+                                            </div>
+
+                                            <div class="col-xs-1">
+                                                <a class="btn-split">
+                                                    <i class="entypo-flow-branch"></i>
+                                                </a>
+                                            </div>
+
+                                            <div class="col-xs-2">
+                                                <button class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
+                                                    <i class="entypo-cancel"></i>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-xs-12">
+                                            <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
+                                                <i class="entypo-plus"></i>
+                                            </button>
+                                        </div>
+                                        <span class="material-input"></span>
+                                    </div>
+                                </div>
 
                             </div>
+
                         </div>
 
                         <div class="modal-footer">
