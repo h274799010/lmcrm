@@ -111,25 +111,23 @@ var app = angular.module('app', [])
                 alert('error');
             });
 
-
         /**
          * Отправка данных на сервер для сохранения
          *
          */
         $scope.saveData = function(){
 
-            //console.log($scope.data);
-
+            // данные для отправки на сервер
             var data = $scope.data ;
-            //var data = { id:1 };
 
-
+            // отправка токена
             var config = {
                 headers : {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             };
 
+            // запрос на сервер для обработки и сохранения данных
             $http.post( saveDataUrl, data, config)
                 .success(function (data, status, headers, config) {
                     alert('Ok');
