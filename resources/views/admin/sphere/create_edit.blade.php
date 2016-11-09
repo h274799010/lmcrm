@@ -1056,7 +1056,21 @@
                         </div>
 
                         <div class="modal-body">
-                            доработка
+                            <div class="row">
+
+                                {{-- Выбор типа атрибута фильтра агента --}}
+                                <div class="col-xs-12">
+                                    <label class="control-label">select field type</label>
+                                    <select id="ftype" class="pull-left form-control" name="ftype">
+                                        <option selected="" value=""></option>
+                                        <option value="checkbox">Checkbox</option>
+                                        <option value="radio">Radio</option>
+                                        <option value="select">Dropdown</option>
+                                    </select>
+                                </div>
+
+
+                            </div>
                         </div>
 
                         <div class="modal-footer">
