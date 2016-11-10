@@ -7,7 +7,7 @@ var app = angular.module('app', [])
         /** Атрибуты агента */
 
         // редактор атрибутов
-        $scope.attrEditor = {
+        var attrEditorData = {
             // блок выбора типа атрибута агента
             typeSelection: false,
             // селектор типа агента по умолчанию
@@ -40,6 +40,8 @@ var app = angular.module('app', [])
                 option: []
             }
         };
+
+        $scope.attrEditor = JSON.parse( JSON.stringify( attrEditorData ) );
 
         /**
          * Показ модального окна создания атрибута агента
@@ -195,7 +197,7 @@ var app = angular.module('app', [])
          * Показ модального окна создания атрибута лида
          *
          */
-        $scope.agentAddAttrShow = function(){
+        $scope.leadAddAttrShow = function(){
 
             // показывает селект с выбором типа атрибута лида
             $scope.attrEditor.leadTypeSelection = true;
@@ -217,39 +219,7 @@ var app = angular.module('app', [])
 
             // возвращаем данные редактора в начальное состояние
             // редактор атрибутов
-            $scope.attrEditor = {
-                // блок выбора типа атрибута агента
-                typeSelection: false,
-                // селектор типа агента по умолчанию
-                agentSelectedType: 0,
-                // блок выбора типа атрибута лида
-                leadTypeSelection: false,
-                // селектор типа лида по умолчанию
-                leadSelectedType: 0,
-                // названия типов
-                selectedTypeName:
-                {
-                    checkbox: 'CheckBox',
-                    radio: 'Radio',
-                    select: 'Dropdown'
-                },
-                // сам редактор
-                editor: false,
-                // кнопка сохранения
-                saveButton: false,
-                // индекс редактируемого атрибута агента
-                agentAttrIndex: 'null',
-                // шаблон данных атрибута агента
-                agentAttrData:
-                {
-                    id: 0,
-                    _type: '',
-                    label: '',
-                    icon: '',
-                    position: '',
-                    option: []
-                }
-            };
+            $scope.attrEditor = JSON.parse( JSON.stringify( attrEditorData ) );
             $scope.$apply($scope.attrEditor);
         });
 
