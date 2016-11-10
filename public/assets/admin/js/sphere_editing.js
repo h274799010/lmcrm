@@ -440,21 +440,21 @@ var app = angular.module('app', [])
             switch ( attr._type ){
 
                 case 'email':
-                    // данные атрибута с типом 'email'
+                    // заносим в модель данные атрибута с типом 'email'
                     $scope.attrEditor.lead.editors.email.data = JSON.parse( JSON.stringify( attr ) );
                     // показываем редактор
                     $scope.attrEditor.lead.editors.email.switch = true;
                     break;
 
                 case 'textarea':
-                    // todo
+                    // заносим в модель данные атрибута с типом 'textarea'
                     $scope.attrEditor.lead.editors.textarea.data = JSON.parse( JSON.stringify( attr ) );
                     // показываем редактор
                     $scope.attrEditor.lead.editors.textarea.switch = true;
                     break;
 
                 case 'input':
-                    // todo
+                    // заносим в модель данные атрибута с типом 'input'
                     $scope.attrEditor.lead.editors.textinput.data = JSON.parse( JSON.stringify( attr ) );
                     // показываем редактор
                     $scope.attrEditor.lead.editors.textinput.switch = true;
@@ -463,14 +463,14 @@ var app = angular.module('app', [])
                 case 'checkbox':
                 case 'radio':
                 case 'select':
-                    // todo
+                    // заносим в модель данные атрибута с типом 'checkbox', 'radio' или 'select'
                     $scope.attrEditor.lead.editors.selective.data = JSON.parse( JSON.stringify( attr ) );
                     // показываем редактор
                     $scope.attrEditor.lead.editors.selective.switch = true;
                     break;
 
                 case 'calendar':
-                    // todo
+                    // заносим в модель данные атрибута с типом 'calendar'
                     $scope.attrEditor.lead.editors.calendar.data = JSON.parse( JSON.stringify( attr ) );
                     // показываем редактор
                     $scope.attrEditor.lead.editors.calendar.switch = true;
@@ -571,8 +571,6 @@ var app = angular.module('app', [])
             // убираем модальное окно
             $('#modal-page').modal('hide');
         };
-
-
 
         /**
          * Действие по выбору селекта типа атрибута лида
