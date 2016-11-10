@@ -43,8 +43,10 @@ var app = angular.module('app', [])
                 selectedType: 0,
                 // кнопка сохранения атрибута лида
                 saveButton: false,
+                // тип редактируемого атрибута
+                currentType: '',
                 // индекс редактируемого атрибута
-                currentIndex: 0,
+                currentIndex: 'null',
                 // типы редактора
                 editors:
                 {
@@ -428,6 +430,8 @@ var app = angular.module('app', [])
 
             // сохраняем индекс атрибута
             $scope.attrEditor.lead.currentIndex = $scope.data.lead.values.indexOf( attr );
+            // сохраняем текущий тип атрибута
+            $scope.attrEditor.lead.currentType = attr._type;
 
             // выключаем показ селекта с выбором типа атрибута
             $scope.attrEditor.lead.typeSelection = false;
@@ -481,6 +485,94 @@ var app = angular.module('app', [])
             // показывает модальное окно
             $('#modal-page').modal();
         };
+
+        /**
+         * Редактирование атрибута лида
+         *
+         */
+        $scope.saveLeadAttr = function(){
+
+            // проверка атрибута, новый или изменить существующий
+            if( $scope.attrEditor.lead.currentIndex == 'null' ){
+                // атрибут новый, только создается
+
+                // действие в зависимости от типа атрибута
+                switch ( $scope.attrEditor.lead.currentType ){
+
+                    case 'email':
+                        // создаем новый атрибут с типом email
+                        $scope.data.lead.values.push( $scope.attrEditor.lead.editors.email.data );
+                        break;
+
+                    case 'textarea':
+                        // создаем новый атрибут с типом textarea
+                        $scope.data.lead.values.push( $scope.attrEditor.lead.editors.textarea.data );
+                        break;
+
+                    case 'input':
+                        // создаем новый атрибут с типом input
+                        $scope.data.lead.values.push( $scope.attrEditor.lead.editors.textinput.data );
+                        break;
+
+                    case 'checkbox':
+                    case 'radio':
+                    case 'select':
+                        // создаем новый атрибут с типом 'checkbox', 'radio' или 'select'
+                        $scope.data.lead.values.push( $scope.attrEditor.lead.editors.selective.data );
+                        break;
+
+                    case 'calendar':
+                        // создаем новый атрибут с типом calendar
+                        $scope.data.lead.values.push( $scope.attrEditor.lead.editors.calendar.data );
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }else{
+                // атрибут уже есть в модели, его нужно просто обновить
+
+                // действие в зависимости от типа атрибута
+                switch ( $scope.attrEditor.lead.currentType ){
+
+                    case 'email':
+                        // изменяем содержание атрибута с типом email
+                        $scope.data.lead.values[ $scope.attrEditor.lead.currentIndex ] = JSON.parse( JSON.stringify( $scope.attrEditor.lead.editors.email.data ) );
+                        break;
+
+                    case 'textarea':
+                        // изменяем содержание атрибута с типом textarea
+                        $scope.data.lead.values[ $scope.attrEditor.lead.currentIndex ] = JSON.parse( JSON.stringify( $scope.attrEditor.lead.editors.textarea.data ) );
+                        break;
+
+                    case 'input':
+                        // изменяем содержание атрибута с типом input
+                        $scope.data.lead.values[ $scope.attrEditor.lead.currentIndex ] = JSON.parse( JSON.stringify( $scope.attrEditor.lead.editors.textinput.data ) );
+                        break;
+
+                    case 'checkbox':
+                    case 'radio':
+                    case 'select':
+                        // изменяем содержание атрибута с типом email
+                        $scope.data.lead.values[ $scope.attrEditor.lead.currentIndex ] = JSON.parse( JSON.stringify( $scope.attrEditor.lead.editors.selective.data ) );
+                        break;
+
+                    case 'calendar':
+                        // изменяем содержание атрибута с типом email
+                        $scope.data.lead.values[ $scope.attrEditor.lead.currentIndex ] = JSON.parse( JSON.stringify( $scope.attrEditor.lead.editors.calendar.data ) );
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            // убираем модальное окно
+            $('#modal-page').modal('hide');
+        };
+
+
 
         /**
          * Действие по выбору селекта типа атрибута лида
