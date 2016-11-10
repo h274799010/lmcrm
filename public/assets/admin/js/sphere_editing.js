@@ -138,7 +138,7 @@ var app = angular.module('app', [])
             // сохраняем индекс атрибута
             $scope.attrEditor.agentAttrIndex = $scope.data.cform.values.indexOf(attr);
 
-            // заносим модель агента в модель редактора
+            // заносим данные атрибута агента в модель редактора
             $scope.attrEditor.agentAttrData = JSON.parse( JSON.stringify( attr ) );
 
             // показываем редактор
