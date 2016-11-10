@@ -697,7 +697,7 @@
 
                                                                     {{-- представление атрибута типа checkbox --}}
                                                                     <div ng-if="attr._type== 'checkbox'">
-                                                                        <div ng-repeat="option in attr.option" class="checkbox">
+                                                                        <div ng-repeat="option in attr.option" class="checkbox" ng-hide="option.delete">
                                                                             <label>
                                                                                 <input type="checkbox">
                                                                                 <span class="checkbox-material">
@@ -710,7 +710,7 @@
 
                                                                     {{-- представление атрибута типа radio --}}
                                                                     <div ng-if="attr._type== 'radio'">
-                                                                        <div ng-repeat="option in attr.option" class="radio">
+                                                                        <div ng-repeat="option in attr.option" class="radio" ng-hide="option.delete">
                                                                             <label>
                                                                                 <input type="radio">
                                                                                 <span class="circle"></span>
@@ -723,7 +723,7 @@
                                                                     {{-- представление атрибута типа select --}}
                                                                     <div ng-if="attr._type== 'select'">
                                                                         <select class="form-control">
-                                                                            <option ng-repeat="option in attr.option">
+                                                                            <option ng-repeat="option in attr.option" ng-hide="option.delete">
                                                                                 @{{ option.val }}
                                                                             </option>
                                                                         </select>
@@ -1230,7 +1230,7 @@
 
                                             {{-- кнопка удаления опции --}}
                                             <div class="col-xs-3">
-                                                <button ng-click="deleteAgentOption( option )" class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
+                                                <button ng-click="deleteLeadOption( option )" class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
                                                     <i class="entypo-cancel"></i>
                                                 </button>
                                             </div>

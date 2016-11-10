@@ -572,6 +572,28 @@ var app = angular.module('app', [])
             $('#modal-page').modal('hide');
         };
 
+        // удаление опции атрибута
+        $scope.deleteLeadOption = function( option ){
+
+            // проверка, была ли опция уже сохранен на сервере
+            // (есть или нет id)
+            if( option.id == 0){
+                // если статус еще небыл сохранен на сервере
+                // просто удаляем его
+
+                // находим индекс элемента
+                var index = $scope.attrEditor.lead.editors.selective.option.indexOf(option);
+                // удаляем элемент
+                $scope.attrEditor.lead.editors.selective.option.splice(index, 1);
+
+            }else{
+                // если статус уже сохранен на сервере
+
+                // добавляем в модель статуса элемент delete
+                option.delete = true;
+            }
+        };
+
         /**
          * Действие по выбору селекта типа атрибута лида
          *
