@@ -727,6 +727,31 @@ var app = angular.module('app', [])
             }
         };
 
+        /**
+         * Удаление опции атрибута
+         *
+         */
+        $scope.deleteLeadAttr = function( attr ){
+
+            // проверка, был ли атрибут уже сохранен на сервере
+            // (есть или нет id)
+            if( attr.id == 0){
+                // если атрибут еще не был сохранен на сервере
+                // просто удаляем его
+
+                // находим индекс элемента
+                var index = $scope.data.lead.values.indexOf(attr);
+                // удаляем элемент
+                $scope.data.lead.values.splice(index, 1);
+
+            }else{
+                // если атрибут уже сохранен на сервере
+
+                // добавляем в модель атрибута элемент delete
+                attr.delete = true;
+            }
+        };
+
 
         /** Общее */
 

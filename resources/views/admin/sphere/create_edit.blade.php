@@ -682,7 +682,7 @@
                                     <div class="form jSplash-data" id="lead">
 
                                         <div class="list-group">
-                                            <div ng-repeat="attr in data.lead.values" class="list-group-item">
+                                            <div ng-repeat="attr in data.lead.values" class="list-group-item" ng-hide="attr.delete">
                                                 <div class="row">
 
                                                     <span class="col-xs-10">
@@ -793,7 +793,7 @@
                                                     <span class="col-xs-2 form-group">
                                                         <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
                                                         <span ng-click="showLeadEditAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
-                                                        <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
+                                                        <span ng-click="deleteLeadAttr( attr )" class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
                                                 </div>
                                             </div>
