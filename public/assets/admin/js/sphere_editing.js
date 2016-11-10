@@ -381,19 +381,21 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типом "TextArea"
-         * todo
+         *
          */
         function showLeadTextareaNewAttr( type ){
-            // модель агента
-            //$scope.attrEditor.agentAttrData =
-            //{
-            //    id: 0,
-            //    _type: type,
-            //    label: $scope.attrEditor.selectedTypeName[ type ],
-            //    icon: '',
-            //    position: $scope.data.cform.values.length + 1,
-            //    option: []
-            //};
+
+            // модель атрибута лида с типом 'email'
+            $scope.attrEditor.lead.editors.textarea.data =
+            {
+                id: 0,
+                _type: type,
+                label: $scope.attrEditor.selectedTypeName[ type ],
+                icon: '',
+                position: $scope.data.lead.values.length + 1,
+                option: [],
+                validate: []
+            };
 
             // выключаем показ селекта с выбором типа атрибута
             $scope.attrEditor.lead.typeSelection = false;
