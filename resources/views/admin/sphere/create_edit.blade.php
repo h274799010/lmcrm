@@ -1078,7 +1078,7 @@
                                         <option selected="" value="0"></option>
                                         <option value="email">E-mail</option>
                                         <option value="textarea">Text area</option>
-                                        <option value="textinput">Text input</option>
+                                        <option value="input">Text input</option>
                                         <option value="checkbox">Checkbox</option>
                                         <option value="radio">Radio</option>
                                         <option value="select">Dropdown</option>

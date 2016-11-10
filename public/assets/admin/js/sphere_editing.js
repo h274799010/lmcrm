@@ -20,7 +20,7 @@ var app = angular.module('app', [])
                 select: 'Dropdown',
                 email: 'E-mail',
                 textarea: 'Text Area',
-                textinput: 'Text Input',
+                input: 'Text Input',
                 calendar: 'Calendar'
             },
             // сам редактор
@@ -407,19 +407,21 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типом "TextInput"
-         * todo
+         * 
          */
         function showLeadTextinputNewAttr( type ){
-            // модель агента
-            //$scope.attrEditor.agentAttrData =
-            //{
-            //    id: 0,
-            //    _type: type,
-            //    label: $scope.attrEditor.selectedTypeName[ type ],
-            //    icon: '',
-            //    position: $scope.data.cform.values.length + 1,
-            //    option: []
-            //};
+
+            // модель атрибута лида с типом 'email'
+            $scope.attrEditor.lead.editors.textinput.data =
+            {
+                id: 0,
+                _type: type,
+                label: $scope.attrEditor.selectedTypeName[ type ],
+                icon: '',
+                position: $scope.data.lead.values.length + 1,
+                option: [],
+                validate: []
+            };
 
             // выключаем показ селекта с выбором типа атрибута
             $scope.attrEditor.lead.typeSelection = false;
@@ -717,7 +719,7 @@ var app = angular.module('app', [])
                         showLeadTextareaNewAttr($scope.attrEditor.lead.selectedType);
                         break;
 
-                    case 'textinput':
+                    case 'input':
                         showLeadTextinputNewAttr($scope.attrEditor.lead.selectedType);
                         break;
 
