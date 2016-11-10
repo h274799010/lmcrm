@@ -1411,6 +1411,102 @@
 
                             </div>
 
+                            {{-- todo Редактор атрибутов лида, выборочный (textinput) --}}
+                            <div ng-show="attrEditor.leadEditorTextinput">
+
+                                {{-- Иконка --}}
+                                <div class="row">
+                                    <div class="col-xs-5">
+                                        <div class="input-group">
+                                            <div class="form-group is-empty">
+                                                <input class="form-control" type="text" name="icon" value="">
+                                                <span class="material-input"></span>
+                                            </div>
+                                            <span class="input-group-btn">
+                                                <a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">
+                                                    <span class="glyphicon glyphicon-folder-open"></span>
+                                                    <div class="ripple-container"></div>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- название --}}
+                                <div class="row">
+                                    <div class="form-group col-xs-12">
+                                        <label class="control-label">label:</label>
+                                        <input ng-model="attrEditor.agentAttrData.label" class="form-control" type="text" value="">
+                                        <span class="material-input"></span>
+                                    </div>
+                                </div>
+
+                                {{-- плэйсхолдер --}}
+                                <div class="row">
+                                    <div class="form-group col-xs-12 is-empty">
+                                        {{-- подпись плэйсхолдера --}}
+                                        <label class="control-label">placeholder:</label>
+                                        {{-- поле плэйсхолдера --}}
+                                        <input class="form-control" type="text" value="">
+                                        <span class="material-input"></span>
+                                    </div>
+                                </div>
+
+                                {{-- валидация --}}
+                                <div class="row">
+                                    <div class="form-group col-xs-12 is-empty">
+
+                                        {{-- подпись --}}
+                                        <label class="control-label">validate:</label>
+
+                                        {{-- все валидации элемента --}}
+                                        <div class="row duplicate duplicated">
+
+                                            {{-- селект с выбором валидаций --}}
+                                            <div class="col-xs-7">
+                                                <select class="form-control select pull-left">
+                                                    <option value="0"></option>
+                                                    <option value="email">email</option>
+                                                    <option value="url">url</option>
+                                                    <option value="number">number</option>
+                                                    <option value="date">date</option>
+                                                    <option value="digits">digits</option>
+                                                    <option value="dateISO">dateISO</option>
+                                                    <option value="creditcard">creditcard</option>
+                                                    <option data-extend="1" value="min">min</option>
+                                                    <option data-extend="1" value="max">max</option>
+                                                    <option data-extend="1" value="minlength">minlength</option>
+                                                    <option data-extend="1" value="maxlength">maxlength</option>
+                                                    <option data-extend="1" value="equalTo">equalTo</option>
+                                                </select>
+                                            </div>
+
+                                            {{-- дополнительное поле todo дорабтать блокировку --}}
+                                            <div class="col-xs-3">
+                                                <input class="form-control extend" type="text" value="" disabled="">
+                                            </div>
+
+                                            {{-- кнопка удаления опции --}}
+                                            <div class="col-xs-2">
+                                                <button class="btn btn-warning btn-duplicate-remove pull-right flip" type="button">
+                                                    <i class="entypo-cancel"></i>
+                                                </button>
+                                            </div>
+
+                                        </div>
+
+                                        {{-- кнопка добавления валидации --}}
+                                        <div class="col-xs-12">
+                                            <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
+                                                <i class="entypo-plus"></i>
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <div class="modal-footer">
