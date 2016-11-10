@@ -1403,7 +1403,7 @@
                                     <div class="col-xs-5">
                                         <div class="input-group">
                                             <div class="form-group is-empty">
-                                                <input class="form-control" type="text" name="icon" value="">
+                                                <input ng-model="attrEditor.lead.editors.textinput.data.icon" class="form-control" type="text" name="icon" value="">
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
@@ -1420,7 +1420,7 @@
                                 <div class="row">
                                     <div class="form-group col-xs-12">
                                         <label class="control-label">label:</label>
-                                        <input ng-model="attrEditor.agentAttrData.label" class="form-control" type="text" value="">
+                                        <input ng-model="attrEditor.lead.editors.textinput.data.label" class="form-control" type="text" value="">
                                         <span class="material-input"></span>
                                     </div>
                                 </div>
@@ -1444,11 +1444,11 @@
                                         <label class="control-label">validate:</label>
 
                                         {{-- все валидации элемента --}}
-                                        <div class="row duplicate duplicated">
+                                        <div ng-repeat="validate in attrEditor.lead.editors.textinput.data.validate" class="row duplicate duplicated">
 
                                             {{-- селект с выбором валидаций --}}
                                             <div class="col-xs-7">
-                                                <select class="form-control select pull-left">
+                                                <select ng-model="validate.val" class="form-control select pull-left">
                                                     <option value="0"></option>
                                                     <option value="email">email</option>
                                                     <option value="url">url</option>
@@ -1467,7 +1467,7 @@
 
                                             {{-- дополнительное поле todo дорабтать блокировку --}}
                                             <div class="col-xs-3">
-                                                <input class="form-control extend" type="text" value="" disabled="">
+                                                <input ng-model="validate.vale" class="form-control extend" type="text" value="" disabled="">
                                             </div>
 
                                             {{-- кнопка удаления опции --}}

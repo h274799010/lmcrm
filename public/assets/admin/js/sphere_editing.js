@@ -126,7 +126,8 @@ var app = angular.module('app', [])
                             label: '',
                             icon: '',
                             position: '',
-                            option: []
+                            option: [],
+                            validate: []
                         }
                     }
                 }
