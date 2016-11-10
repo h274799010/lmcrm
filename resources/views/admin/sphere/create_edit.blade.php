@@ -1507,6 +1507,38 @@
 
                             </div>
 
+                            {{-- todo Редактор атрибутов лида, выборочный (calendar) --}}
+                            <div ng-show="attrEditor.leadEditorCalendar">
+
+                                {{-- Иконка --}}
+                                <div class="row">
+                                    <div class="col-xs-5">
+                                        <div class="input-group">
+                                            <div class="form-group is-empty">
+                                                <input class="form-control" type="text" name="icon" value="">
+                                                <span class="material-input"></span>
+                                            </div>
+                                            <span class="input-group-btn">
+                                                <a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">
+                                                    <span class="glyphicon glyphicon-folder-open"></span>
+                                                    <div class="ripple-container"></div>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- название --}}
+                                <div class="row">
+                                    <div class="form-group col-xs-12">
+                                        <label class="control-label">label:</label>
+                                        <input ng-model="attrEditor.agentAttrData.label" class="form-control" type="text" value="">
+                                        <span class="material-input"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <div class="modal-footer">
