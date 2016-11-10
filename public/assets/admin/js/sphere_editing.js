@@ -307,20 +307,20 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типами "select", "radio" и "checkBox"
-         * todo
+         *
          */
         function showLeadSelectiveNewAttr( type ){
 
-            // модель агента
-            //$scope.attrEditor.agentAttrData =
-            //{
-            //    id: 0,
-            //    _type: type,
-            //    label: $scope.attrEditor.selectedTypeName[ type ],
-            //    icon: '',
-            //    position: $scope.data.cform.values.length + 1,
-            //    option: []
-            //};
+            // модель атрибута лида с типом 'selective'
+            $scope.attrEditor.lead.editors.selective.data =
+            {
+                id: 0,
+                _type: type,
+                label: $scope.attrEditor.selectedTypeName[ type ],
+                icon: '',
+                position: $scope.data.lead.values.length + 1,
+                option: []
+            };
 
             // выключаем показ селекта с выбором типа атрибута
             $scope.attrEditor.lead.typeSelection = false;
@@ -385,7 +385,7 @@ var app = angular.module('app', [])
          */
         function showLeadTextareaNewAttr( type ){
 
-            // модель атрибута лида с типом 'email'
+            // модель атрибута лида с типом 'textarea'
             $scope.attrEditor.lead.editors.textarea.data =
             {
                 id: 0,
@@ -407,11 +407,11 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типом "TextInput"
-         * 
+         *
          */
         function showLeadTextinputNewAttr( type ){
 
-            // модель атрибута лида с типом 'email'
+            // модель атрибута лида с типом 'textinput'
             $scope.attrEditor.lead.editors.textinput.data =
             {
                 id: 0,
