@@ -1499,7 +1499,7 @@
                                     <div class="col-xs-5">
                                         <div class="input-group">
                                             <div class="form-group is-empty">
-                                                <input class="form-control" type="text" name="icon" value="">
+                                                <input ng-model="attrEditor.lead.editors.calendar.data.icon" class="form-control" type="text" name="icon" value="">
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
@@ -1516,7 +1516,7 @@
                                 <div class="row">
                                     <div class="form-group col-xs-12">
                                         <label class="control-label">label:</label>
-                                        <input ng-model="attrEditor.agentAttrData.label" class="form-control" type="text" value="">
+                                        <input ng-model="attrEditor.lead.editors.calendar.data.label" class="form-control" type="text" value="">
                                         <span class="material-input"></span>
                                     </div>
                                 </div>
