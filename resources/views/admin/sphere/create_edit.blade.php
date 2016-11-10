@@ -1339,11 +1339,11 @@
                                         <label class="control-label">validate:</label>
 
                                         {{-- все валидации элемента --}}
-                                        <div ng-repeat="option in attrEditor.lead.editors.textarea.data.option" class="row duplicate duplicated">
+                                        <div ng-repeat="validate in attrEditor.lead.editors.textarea.data.validate" class="row duplicate duplicated">
 
                                             {{-- селект с выбором валидаций --}}
                                             <div class="col-xs-7">
-                                                <select ng-model="option.val" class="form-control select pull-left">
+                                                <select ng-model="validate.val" class="form-control select pull-left">
                                                     <option value="0"></option>
                                                     <option value="email">email</option>
                                                     <option value="url">url</option>
@@ -1362,7 +1362,7 @@
 
                                             {{-- дополнительное поле todo дорабтать блокировку --}}
                                             <div class="col-xs-3">
-                                                <input ng-model="option.vale" class="form-control extend" type="text" value="" disabled="">
+                                                <input ng-model="validate.val" class="form-control extend" type="text" value="" disabled="">
                                             </div>
 
                                             {{-- кнопка удаления опции --}}
