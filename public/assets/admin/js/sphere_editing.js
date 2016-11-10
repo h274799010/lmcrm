@@ -43,6 +43,8 @@ var app = angular.module('app', [])
                 selectedType: 0,
                 // кнопка сохранения атрибута лида
                 saveButton: false,
+                // индекс редактируемого атрибута
+                currentIndex: 0,
                 // типы редактора
                 editors:
                 {
@@ -59,8 +61,7 @@ var app = angular.module('app', [])
                             label: '',
                             icon: '',
                             position: '',
-                            option: [],
-                            validate: []
+                            option: []
                         }
                     },
 
@@ -69,6 +70,15 @@ var app = angular.module('app', [])
                     {
                         // переключатель (включить/выключить редактор)
                         switch: false,
+                        data:
+                        {
+                            id: 0,
+                            _type: '',
+                            label: '',
+                            icon: '',
+                            position: '',
+                            option: []
+                        }
                     },
 
                     // Календарь
@@ -76,6 +86,15 @@ var app = angular.module('app', [])
                     {
                         // переключатель (включить/выключить редактор)
                         switch: false,
+                        data:
+                        {
+                            id: 0,
+                            _type: '',
+                            label: '',
+                            icon: '',
+                            position: '',
+                            option: []
+                        }
                     },
 
                     // Textarea
@@ -83,6 +102,16 @@ var app = angular.module('app', [])
                     {
                         // переключатель (включить/выключить редактор)
                         switch: false,
+                        data:
+                        {
+                            id: 0,
+                            _type: '',
+                            label: '',
+                            icon: '',
+                            position: '',
+                            option: [],
+                            validate: []
+                        }
                     },
 
                     // Textinput
@@ -90,6 +119,15 @@ var app = angular.module('app', [])
                     {
                         // переключатель (включить/выключить редактор)
                         switch: false,
+                        data:
+                        {
+                            id: 0,
+                            _type: '',
+                            label: '',
+                            icon: '',
+                            position: '',
+                            option: []
+                        }
                     }
                 }
             }
@@ -380,6 +418,73 @@ var app = angular.module('app', [])
             // показываем кнопку "сохранить"
             $scope.attrEditor.lead.saveButton = true;
         }
+
+
+
+
+        /**
+         * Редактирование атрибута лида
+         *
+         */
+        $scope.showLeadEditAttr = function( attr ){
+
+            // сохраняем индекс атрибута
+            $scope.attrEditor.lead.currentIndex = $scope.data.lead.values.indexOf( attr );
+
+            // выключаем показ селекта с выбором типа атрибута
+            $scope.attrEditor.lead.typeSelection = false;
+
+            // действия в зависимости от типа атрибута
+            switch ( attr._type ){
+
+                case 'email':
+                    // данные атрибута с типом 'email'
+                    $scope.attrEditor.lead.editors.email.data = JSON.parse( JSON.stringify( attr ) );
+                    // показываем редактор
+                    $scope.attrEditor.lead.editors.email.switch = true;
+                    break;
+
+                case 'textarea':
+                    // todo
+                    $scope.attrEditor.lead.editors.textarea.data = JSON.parse( JSON.stringify( attr ) );
+                    // показываем редактор
+                    $scope.attrEditor.lead.editors.textarea.switch = true;
+                    break;
+
+                case 'input':
+                    // todo
+                    $scope.attrEditor.lead.editors.textinput.data = JSON.parse( JSON.stringify( attr ) );
+                    // показываем редактор
+                    $scope.attrEditor.lead.editors.textinput.switch = true;
+                    break;
+
+                case 'checkbox':
+                case 'radio':
+                case 'select':
+                    // todo
+                    $scope.attrEditor.lead.editors.selective.data = JSON.parse( JSON.stringify( attr ) );
+                    // показываем редактор
+                    $scope.attrEditor.lead.editors.selective.switch = true;
+                    break;
+
+                case 'calendar':
+                    // todo
+                    $scope.attrEditor.lead.editors.calendar.data = JSON.parse( JSON.stringify( attr ) );
+                    // показываем редактор
+                    $scope.attrEditor.lead.editors.calendar.switch = true;
+                    break;
+
+                default:
+                    break;
+            }
+
+            // показываем кнопку "сохранить"
+            $scope.attrEditor.lead.saveButton = true;
+            // показывает модальное окно
+            $('#modal-page').modal();
+        };
+
+
 
         /**
          * Действие по выбору селекта типа атрибута лида

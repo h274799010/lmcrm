@@ -659,7 +659,7 @@
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
                             <div class="panel panel-default">
                                 <div class="panel-body">
-                                   <div class="row">
+                                    <div class="row">
                                         <div class="col-xs-10">
                                         <div class="col-xs-11 col-xs-offset-1">
                                             <div class="form-group">
@@ -792,7 +792,7 @@
                                                     </span>
                                                     <span class="col-xs-2 form-group">
                                                         <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
-                                                        <span class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
+                                                        <span ng-click="showLeadEditAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
                                                         <span class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
                                                 </div>
@@ -1257,7 +1257,7 @@
                                     <div class="col-xs-5">
                                         <div class="input-group">
                                             <div class="form-group is-empty">
-                                                <input class="form-control" type="text" name="icon" value="">
+                                                <input ng-model="attrEditor.lead.editors.email.data.icon" class="form-control" type="text" name="icon" value="">
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
@@ -1274,7 +1274,7 @@
                                 <div class="row">
                                     <div class="form-group col-xs-12">
                                         <label class="control-label">label:</label>
-                                        <input ng-model="attrEditor.agentAttrData.label" class="form-control" type="text" value="">
+                                        <input ng-model="attrEditor.lead.editors.email.data.label" class="form-control" type="text" value="">
                                         <span class="material-input"></span>
                                     </div>
                                 </div>
@@ -1282,24 +1282,8 @@
                                 {{-- плейсхолдер --}}
                                 <div class="row">
                                     <div class="form-group col-xs-12 is-empty">
-
-                                        {{-- подписи поля --}}
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <label class="control-label">option:</label>
-                                            </div>
-                                        </div>
-
-                                        {{-- плайсхолдер --}}
-                                        <div class="row">
-                                            {{-- выбор плейсхолдера --}}
-                                            <div class="form-group col-xs-12">
-                                                <label class="control-label">placeholder:</label>
-                                                <input class="form-control" type="text" data-validate="required" value="email@mail.com" name="placeholder">
-                                                <span class="material-input"></span>
-                                            </div>
-                                        </div>
-
+                                        <label class="control-label">placeholder:</label>
+                                        <input class="form-control" type="text" data-validate="required" value="email@mail.com" name="placeholder">
                                         <span class="material-input"></span>
                                     </div>
                                 </div>
@@ -1314,7 +1298,7 @@
                                     <div class="col-xs-5">
                                         <div class="input-group">
                                             <div class="form-group is-empty">
-                                                <input class="form-control" type="text" name="icon" value="">
+                                                <input ng-model="attrEditor.lead.editors.textarea.data.icon" class="form-control" type="text" name="icon" value="">
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
@@ -1331,7 +1315,7 @@
                                 <div class="row">
                                     <div class="form-group col-xs-12">
                                         <label class="control-label">label:</label>
-                                        <input ng-model="attrEditor.agentAttrData.label" class="form-control" type="text" value="">
+                                        <input ng-model="attrEditor.lead.editors.textarea.data.label" class="form-control" type="text" value="">
                                         <span class="material-input"></span>
                                     </div>
                                 </div>
@@ -1355,11 +1339,11 @@
                                         <label class="control-label">validate:</label>
 
                                         {{-- все валидации элемента --}}
-                                        <div class="row duplicate duplicated">
+                                        <div ng-repeat="option in attrEditor.lead.editors.textarea.data.option" class="row duplicate duplicated">
 
                                             {{-- селект с выбором валидаций --}}
                                             <div class="col-xs-7">
-                                                <select class="form-control select pull-left">
+                                                <select ng-model="option.val" class="form-control select pull-left">
                                                     <option value="0"></option>
                                                     <option value="email">email</option>
                                                     <option value="url">url</option>
@@ -1378,7 +1362,7 @@
 
                                             {{-- дополнительное поле todo дорабтать блокировку --}}
                                             <div class="col-xs-3">
-                                                <input class="form-control extend" type="text" value="" disabled="">
+                                                <input ng-model="option.vale" class="form-control extend" type="text" value="" disabled="">
                                             </div>
 
                                             {{-- кнопка удаления опции --}}
