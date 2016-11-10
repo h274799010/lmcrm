@@ -1179,7 +1179,7 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, выборочный (select, radio, checkBox) --}}
+                            {{-- Редактор атрибутов лида, выборочный (select, radio, checkBox) --}}
                             <div ng-show="attrEditor.lead.editors.selective.switch">
 
                                 {{-- Иконка --}}
@@ -1249,7 +1249,7 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, email --}}
+                            {{-- Редактор атрибутов лида, email --}}
                             <div ng-show="attrEditor.lead.editors.email.switch">
 
                                 {{-- Иконка --}}
@@ -1290,7 +1290,7 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, textarea --}}
+                            {{-- Редактор атрибутов лида, textarea --}}
                             <div ng-show="attrEditor.lead.editors.textarea.switch">
 
                                 {{-- Иконка --}}
@@ -1395,7 +1395,7 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, textinput --}}
+                            {{-- Редактор атрибутов лида, textinput --}}
                             <div ng-show="attrEditor.lead.editors.textinput.switch">
 
                                 {{-- Иконка --}}
@@ -1491,7 +1491,7 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, calendar --}}
+                            {{-- Редактор атрибутов лида, calendar --}}
                             <div ng-show="attrEditor.lead.editors.calendar.switch">
 
                                 {{-- Иконка --}}
