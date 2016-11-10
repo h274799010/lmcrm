@@ -1239,7 +1239,7 @@
 
                                         {{-- кнопка добавления опции в атрибут --}}
                                         <div class="col-xs-12">
-                                            <button ng-click="" class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
+                                            <button ng-click="addLeadOption()" class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
                                                 <i class="entypo-plus"></i>
                                             </button>
                                         </div>

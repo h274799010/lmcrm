@@ -572,7 +572,27 @@ var app = angular.module('app', [])
             $('#modal-page').modal('hide');
         };
 
-        // удаление опции атрибута
+        // добавление опции атрибуту лида
+        $scope.addLeadOption = function(){
+
+            // создаем новую опцию
+            var newOption =
+            {
+                id: 0,       // id статуса
+                val: '',     // имя
+                vale:       // значения
+                    [
+                        0,     // подумат над значениями при сохранении переключателя
+                        null   // незнаю что за значение
+                    ]
+                //position: attr.option.length + 1 // позиция
+            };
+
+            // добавляем статус в модель
+            $scope.attrEditor.lead.editors.selective.data.option.push( newOption );
+        };
+
+        // удаление опции атрибута лида
         $scope.deleteLeadOption = function( option ){
 
             // проверка, была ли опция уже сохранен на сервере
@@ -582,9 +602,9 @@ var app = angular.module('app', [])
                 // просто удаляем его
 
                 // находим индекс элемента
-                var index = $scope.attrEditor.lead.editors.selective.option.indexOf(option);
+                var index = $scope.attrEditor.lead.editors.selective.data.option.indexOf(option);
                 // удаляем элемент
-                $scope.attrEditor.lead.editors.selective.option.splice(index, 1);
+                $scope.attrEditor.lead.editors.selective.data.option.splice(index, 1);
 
             }else{
                 // если статус уже сохранен на сервере
