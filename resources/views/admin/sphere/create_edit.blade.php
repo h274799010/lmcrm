@@ -1071,10 +1071,10 @@
                             </div>
 
                             {{-- Выбор типа атрибута доп. полей лида --}}
-                            <div class="row" ng-show="attrEditor.leadTypeSelection">
+                            <div class="row" ng-show="attrEditor.lead.typeSelection">
                                 <div class="col-xs-12">
                                     <label class="control-label">select field type</label>
-                                    <select ng-model="attrEditor.leadSelectedType" ng-change="leadSelectedTypeAction()" class="pull-left form-control">
+                                    <select ng-model="attrEditor.lead.selectedType" ng-change="leadSelectedTypeAction()" class="pull-left form-control">
                                         <option selected="" value="0"></option>
                                         <option value="email">E-mail</option>
                                         <option value="textarea">Text area</option>
@@ -1180,7 +1180,7 @@
                             </div>
 
                             {{-- todo Редактор атрибутов лида, выборочный (select, radio, checkBox) --}}
-                            <div ng-show="attrEditor.leadEditorSelective">
+                            <div ng-show="attrEditor.lead.editors.selective.switch">
 
                                 {{-- Иконка --}}
                                 <div class="row">
@@ -1249,8 +1249,8 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, выборочный (email) --}}
-                            <div ng-show="attrEditor.leadEditorEmail">
+                            {{-- todo Редактор атрибутов лида, email --}}
+                            <div ng-show="attrEditor.lead.editors.email.switch">
 
                                 {{-- Иконка --}}
                                 <div class="row">
@@ -1306,8 +1306,8 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, выборочный (textarea) --}}
-                            <div ng-show="attrEditor.leadEditorTextarea">
+                            {{-- todo Редактор атрибутов лида, textarea --}}
+                            <div ng-show="attrEditor.lead.editors.textarea.switch">
 
                                 {{-- Иконка --}}
                                 <div class="row">
@@ -1411,8 +1411,8 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, выборочный (textinput) --}}
-                            <div ng-show="attrEditor.leadEditorTextinput">
+                            {{-- todo Редактор атрибутов лида, textinput --}}
+                            <div ng-show="attrEditor.lead.editors.textinput.switch">
 
                                 {{-- Иконка --}}
                                 <div class="row">
@@ -1507,8 +1507,8 @@
 
                             </div>
 
-                            {{-- todo Редактор атрибутов лида, выборочный (calendar) --}}
-                            <div ng-show="attrEditor.leadEditorCalendar">
+                            {{-- todo Редактор атрибутов лида, calendar --}}
+                            <div ng-show="attrEditor.lead.editors.calendar.switch">
 
                                 {{-- Иконка --}}
                                 <div class="row">
@@ -1544,6 +1544,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-info " data-dismiss="modal">{{trans('admin/modal.close')}}</button>
                             <button ng-click="saveAgentAttr()" type="button" class="btn btn-success btn-raised btn-save" ng-show="attrEditor.saveButton">{{trans('admin/modal.save')}}</button>
+                            <button ng-click="saveAgentAttr()" type="button" class="btn btn-success btn-raised btn-save" ng-show="attrEditor.lead.saveButton">{{trans('admin/modal.save')}}</button>
                         </div>
                     </div>
                 </form>

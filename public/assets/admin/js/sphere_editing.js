@@ -12,10 +12,6 @@ var app = angular.module('app', [])
             typeSelection: false,
             // селектор типа агента по умолчанию
             agentSelectedType: 0,
-            // блок выбора типа атрибута лида
-            leadTypeSelection: false,
-            // селектор типа лида по умолчанию
-            leadSelectedType: 0,
             // названия типов
             selectedTypeName:
             {
@@ -38,9 +34,68 @@ var app = angular.module('app', [])
                 icon: '',
                 position: '',
                 option: []
+            },
+            lead:
+            {
+                // блок выбора типа атрибута лида
+                typeSelection: false,
+                // селектор типа лида по умолчанию
+                selectedType: 0,
+                // кнопка сохранения атрибута лида
+                saveButton: false,
+                // типы редактора
+                editors:
+                {
+                    // Е-mail
+                    email:
+                    {
+                        // переключатель (включить/выключить редактор)
+                        switch: false,
+                        // данные
+                        data:
+                        {
+                            id: 0,
+                            _type: '',
+                            label: '',
+                            icon: '',
+                            position: '',
+                            option: [],
+                            validate: []
+                        }
+                    },
+
+                    // выборочный тип (select, radio, checkBox)
+                    selective:
+                    {
+                        // переключатель (включить/выключить редактор)
+                        switch: false,
+                    },
+
+                    // Календарь
+                    calendar:
+                    {
+                        // переключатель (включить/выключить редактор)
+                        switch: false,
+                    },
+
+                    // Textarea
+                    textarea:
+                    {
+                        // переключатель (включить/выключить редактор)
+                        switch: false,
+                    },
+
+                    // Textinput
+                    textinput:
+                    {
+                        // переключатель (включить/выключить редактор)
+                        switch: false,
+                    }
+                }
             }
         };
 
+        // подключаем данные
         $scope.attrEditor = JSON.parse( JSON.stringify( attrEditorData ) );
 
         /**
@@ -200,14 +255,171 @@ var app = angular.module('app', [])
         $scope.leadAddAttrShow = function(){
 
             // показывает селект с выбором типа атрибута лида
-            $scope.attrEditor.leadTypeSelection = true;
+            $scope.attrEditor.lead.typeSelection = true;
             // показывает модальное окно
             $('#modal-page').modal();
         };
 
-        // действие по выбору селекта типа атрибута лида
+        /**
+         * Новый атрибут лида с типами "select", "radio" и "checkBox"
+         *
+         */
+        function showLeadSelectiveNewAttr( type ){
+
+            // модель агента
+            //$scope.attrEditor.agentAttrData =
+            //{
+            //    id: 0,
+            //    _type: type,
+            //    label: $scope.attrEditor.selectedTypeName[ type ],
+            //    icon: '',
+            //    position: $scope.data.cform.values.length + 1,
+            //    option: []
+            //};
+
+            // выключаем показ селекта с выбором типа атрибута
+            $scope.attrEditor.lead.typeSelection = false;
+            // показываем редактор
+            $scope.attrEditor.lead.editors.selective.switch = true;
+            // показываем кнопку "сохранить"
+            $scope.attrEditor.lead.saveButton = true;
+        }
+
+        /**
+         * Новый атрибут лида с типом "email"
+         *
+         */
+        function showLeadEmailNewAttr( type ){
+            // модель агента
+            //$scope.attrEditor.agentAttrData =
+            //{
+            //    id: 0,
+            //    _type: type,
+            //    label: $scope.attrEditor.selectedTypeName[ type ],
+            //    icon: '',
+            //    position: $scope.data.cform.values.length + 1,
+            //    option: []
+            //};
+
+            // выключаем показ селекта с выбором типа атрибута
+            $scope.attrEditor.lead.typeSelection = false;
+            // показываем редактор
+            $scope.attrEditor.lead.editors.email.switch = true;
+            // показываем кнопку "сохранить"
+            $scope.attrEditor.lead.saveButton = true;
+        }
+
+        /**
+         * Новый атрибут лида с типом "calendar"
+         *
+         */
+        function showLeadCalendarNewAttr( type ){
+            // модель агента
+            //$scope.attrEditor.agentAttrData =
+            //{
+            //    id: 0,
+            //    _type: type,
+            //    label: $scope.attrEditor.selectedTypeName[ type ],
+            //    icon: '',
+            //    position: $scope.data.cform.values.length + 1,
+            //    option: []
+            //};
+
+            // выключаем показ селекта с выбором типа атрибута
+            $scope.attrEditor.lead.typeSelection = false;
+            // показываем редактор
+            $scope.attrEditor.lead.editors.calendar.switch = true;
+            // показываем кнопку "сохранить"
+            $scope.attrEditor.lead.saveButton = true;
+        }
+
+        /**
+         * Новый атрибут лида с типом "TextArea"
+         *
+         */
+        function showLeadTextareaNewAttr( type ){
+            // модель агента
+            //$scope.attrEditor.agentAttrData =
+            //{
+            //    id: 0,
+            //    _type: type,
+            //    label: $scope.attrEditor.selectedTypeName[ type ],
+            //    icon: '',
+            //    position: $scope.data.cform.values.length + 1,
+            //    option: []
+            //};
+
+            // выключаем показ селекта с выбором типа атрибута
+            $scope.attrEditor.lead.typeSelection = false;
+            // показываем редактор
+            $scope.attrEditor.lead.editors.textarea.switch = true;
+            // показываем кнопку "сохранить"
+            $scope.attrEditor.lead.saveButton = true;
+        }
+
+        /**
+         * Новый атрибут лида с типом "TextInput"
+         *
+         */
+        function showLeadTextinputNewAttr( type ){
+            // модель агента
+            //$scope.attrEditor.agentAttrData =
+            //{
+            //    id: 0,
+            //    _type: type,
+            //    label: $scope.attrEditor.selectedTypeName[ type ],
+            //    icon: '',
+            //    position: $scope.data.cform.values.length + 1,
+            //    option: []
+            //};
+
+            // выключаем показ селекта с выбором типа атрибута
+            $scope.attrEditor.lead.typeSelection = false;
+            // показываем редактор
+            $scope.attrEditor.lead.editors.textinput.switch = true;
+            // показываем кнопку "сохранить"
+            $scope.attrEditor.lead.saveButton = true;
+        }
+
+        /**
+         * Действие по выбору селекта типа атрибута лида
+         *
+         */
         $scope.leadSelectedTypeAction = function(){
 
+            // проверка выбранно что-то в селекте или нет
+            if($scope.attrEditor.lead.selectedType != 0){
+                // если выбранно
+
+                // выбор типа формы редактора в завичимости от типа атрибута
+                switch ( $scope.attrEditor.lead.selectedType ) {
+
+                    case 'email':
+                        showLeadEmailNewAttr($scope.attrEditor.lead.selectedType);
+                        break;
+
+                    case 'textarea':
+                        showLeadTextareaNewAttr($scope.attrEditor.lead.selectedType);
+                        break;
+
+                    case 'textinput':
+                        showLeadTextinputNewAttr($scope.attrEditor.lead.selectedType);
+                        break;
+
+                    case 'checkbox':
+                    case 'radio':
+                    case 'select':
+                        showLeadSelectiveNewAttr($scope.attrEditor.lead.selectedType);
+                        break;
+
+                    case 'calendar':
+                        showLeadCalendarNewAttr($scope.attrEditor.lead.selectedType);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         };
 
 
