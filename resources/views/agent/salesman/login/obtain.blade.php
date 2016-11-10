@@ -13,7 +13,7 @@
             <div id="alertContent"></div>
         </div>
 
-        <div class="dataTables_container">
+        <div class="dataTables_container_{{ $sphere->id }}">
             <div class="col-md-12">
                 <select data-name="date" class="selectbox dataTables_filter">
                     <option></option>
@@ -69,15 +69,15 @@
 
 @stop
 
-@section('script')
+@section('scripts')
     <script type="text/javascript">
         $.extend( true, $.fn.dataTable.defaults, {
             "language": {
                 "url": '{{ asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') }}'
             },
             "ajax": {
-                "url": "{{ route('agent.salesman.obtain.data', ['salesman_id' => $salesman_id]) }}",
-            },
+                "url": "{{ route('agent.salesman.obtain.data', ['salesman_id' => $salesman_id]) }}"
+            }
         });
     </script>
 @stop

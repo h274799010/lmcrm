@@ -238,13 +238,14 @@ class SphereController extends Controller {
         });
 
 
-        /** --  вычитание из системы стоимость обслуживание лида  -- */
-
-        // todo переделать по новой системе
-
-        PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
 
         if($typeRequest == 'toAuction') {
+            /** --  вычитание из системы стоимость обслуживание лида  -- */
+
+            // todo переделать по новой системе
+
+            PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
+
             /** --  уведомление Агентов которым этот лид подходит  -- */
 
             // выбираем маску лида
