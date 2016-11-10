@@ -17,4 +17,5 @@ return [
     'photo_albums' => 'Photo albums',
     'photo_items' => 'Photo items',
     'users' => 'Users',
+    'updated_at' => 'Updated at'
 	];
