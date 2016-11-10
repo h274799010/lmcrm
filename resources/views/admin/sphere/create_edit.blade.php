@@ -1362,7 +1362,7 @@
 
                                             {{-- дополнительное поле todo дорабтать блокировку --}}
                                             <div class="col-xs-3">
-                                                <input ng-model="validate.val" class="form-control extend" type="text" value="" disabled="">
+                                                <input ng-model="validate.vale" class="form-control extend" type="text" value="" disabled="">
                                             </div>
 
                                             {{-- кнопка удаления опции --}}
@@ -1376,7 +1376,7 @@
 
                                         {{-- кнопка добавления валидации --}}
                                         <div class="col-xs-12">
-                                            <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
+                                            <button ng-click="addLeadValidate()" class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
                                                 <i class="entypo-plus"></i>
                                             </button>
                                         </div>
@@ -1481,7 +1481,7 @@
 
                                         {{-- кнопка добавления валидации --}}
                                         <div class="col-xs-12">
-                                            <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
+                                            <button ng-click="addLeadValidate()"  class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" type="button">
                                                 <i class="entypo-plus"></i>
                                             </button>
                                         </div>

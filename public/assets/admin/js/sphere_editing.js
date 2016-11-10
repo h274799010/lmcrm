@@ -614,6 +614,39 @@ var app = angular.module('app', [])
             }
         };
 
+        // добавление валидации атрибуту лида
+        $scope.addLeadValidate = function(){
+
+            // создаем новую опцию
+            var newValidate =
+            {
+                id: 0,       // id валидации
+                val: '',     // название валидации
+                vale: ''     // значение
+                //position: attr.option.length + 1 // позиция
+            };
+
+            // добавление валидации в атрибут соответствующего типа
+            switch ($scope.attrEditor.lead.currentType){
+
+                // атрибут с типом 'textarea'
+                case 'textarea':
+                    // добавляем валидацию в модель
+                    $scope.attrEditor.lead.editors.textarea.data.validate.push( newValidate );
+                    break;
+
+                // атрибут с типом 'input'
+                case 'input':
+                    // добавляем валидацию в модель
+                    $scope.attrEditor.lead.editors.textinput.data.validate.push( newValidate );
+                    break;
+
+                default:
+                    break;
+            }
+        };
+
+
         /**
          * Действие по выбору селекта типа атрибута лида
          *
