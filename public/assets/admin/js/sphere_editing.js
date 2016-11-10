@@ -357,19 +357,20 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типом "calendar"
-         * todo
+         *
          */
         function showLeadCalendarNewAttr( type ){
-            // модель агента
-            //$scope.attrEditor.agentAttrData =
-            //{
-            //    id: 0,
-            //    _type: type,
-            //    label: $scope.attrEditor.selectedTypeName[ type ],
-            //    icon: '',
-            //    position: $scope.data.cform.values.length + 1,
-            //    option: []
-            //};
+
+            // модель атрибута лида с типом 'calendar'
+            $scope.attrEditor.lead.editors.calendar.data =
+            {
+                id: 0,
+                _type: type,
+                label: $scope.attrEditor.selectedTypeName[ type ],
+                icon: '',
+                position: $scope.data.lead.values.length + 1,
+                option: []
+            };
 
             // выключаем показ селекта с выбором типа атрибута
             $scope.attrEditor.lead.typeSelection = false;
