@@ -420,9 +420,6 @@ var app = angular.module('app', [])
             $scope.attrEditor.lead.saveButton = true;
         }
 
-
-
-
         /**
          * Редактирование атрибута лида
          *
@@ -484,8 +481,6 @@ var app = angular.module('app', [])
             // показывает модальное окно
             $('#modal-page').modal();
         };
-
-
 
         /**
          * Действие по выбору селекта типа атрибута лида
