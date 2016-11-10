@@ -1339,7 +1339,7 @@
                                         <label class="control-label">validate:</label>
 
                                         {{-- все валидации элемента --}}
-                                        <div ng-repeat="validate in attrEditor.lead.editors.textarea.data.validate" class="row duplicate duplicated">
+                                        <div ng-repeat="validate in attrEditor.lead.editors.textarea.data.validate" class="row duplicate duplicated" ng-hide="validate.delete">
 
                                             {{-- селект с выбором валидаций --}}
                                             <div class="col-xs-7">
@@ -1367,7 +1367,7 @@
 
                                             {{-- кнопка удаления опции --}}
                                             <div class="col-xs-2">
-                                                <button class="btn btn-warning btn-duplicate-remove pull-right flip" type="button">
+                                                <button ng-click="deleteLeadValidate(validate)" class="btn btn-warning btn-duplicate-remove pull-right flip" type="button">
                                                     <i class="entypo-cancel"></i>
                                                 </button>
                                             </div>
@@ -1444,7 +1444,7 @@
                                         <label class="control-label">validate:</label>
 
                                         {{-- все валидации элемента --}}
-                                        <div ng-repeat="validate in attrEditor.lead.editors.textinput.data.validate" class="row duplicate duplicated">
+                                        <div ng-repeat="validate in attrEditor.lead.editors.textinput.data.validate" class="row duplicate duplicated" ng-hide="validate.delete">
 
                                             {{-- селект с выбором валидаций --}}
                                             <div class="col-xs-7">
@@ -1472,7 +1472,7 @@
 
                                             {{-- кнопка удаления опции --}}
                                             <div class="col-xs-2">
-                                                <button class="btn btn-warning btn-duplicate-remove pull-right flip" type="button">
+                                                <button ng-click="deleteLeadValidate(validate)" class="btn btn-warning btn-duplicate-remove pull-right flip" type="button">
                                                     <i class="entypo-cancel"></i>
                                                 </button>
                                             </div>

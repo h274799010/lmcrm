@@ -646,6 +646,45 @@ var app = angular.module('app', [])
             }
         };
 
+        // удаление валидации атрибута лида
+        $scope.deleteLeadValidate = function( validate ){
+
+            // проверка, была ли валидация уже сохранен на сервере
+            // (есть или нет id)
+            if( validate.id == 0){
+                // если валидация еще небыла сохранен на сервере
+                // просто удаляем ее
+
+                // удаление валидации атрибута по типу
+                switch ($scope.attrEditor.lead.currentType){
+
+                    // атрибут с типом 'textarea'
+                    case 'textarea':
+                        // находим индекс элемента
+                        var index = $scope.attrEditor.lead.editors.textarea.data.validate.indexOf(validate);
+                        // удаляем элемент
+                        $scope.attrEditor.lead.editors.textarea.data.validate.splice(index, 1);
+                        break;
+
+                    // атрибут с типом 'input'
+                    case 'input':
+                        // находим индекс элемента
+                        var index = $scope.attrEditor.lead.editors.textinput.data.validate.indexOf(validate);
+                        // удаляем элемент
+                        $scope.attrEditor.lead.editors.textinput.data.validate.splice(index, 1);
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }else{
+                // если валидация уже сохранена на сервере
+
+                // добавляем в модель валидации элемент delete
+                validate.delete = true;
+            }
+        };
 
         /**
          * Действие по выбору селекта типа атрибута лида
