@@ -17,7 +17,11 @@ var app = angular.module('app', [])
             {
                 checkbox: 'CheckBox',
                 radio: 'Radio',
-                select: 'Dropdown'
+                select: 'Dropdown',
+                email: 'E-mail',
+                textarea: 'Text Area',
+                textinput: 'Text Input',
+                calendar: 'Calendar'
             },
             // сам редактор
             editor: false,
@@ -40,7 +44,7 @@ var app = angular.module('app', [])
                 // блок выбора типа атрибута лида
                 typeSelection: false,
                 // селектор типа лида по умолчанию
-                selectedType: 0,
+                seadminlectedType: 0,
                 // кнопка сохранения атрибута лида
                 saveButton: false,
                 // тип редактируемого атрибута
@@ -303,7 +307,7 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типами "select", "radio" и "checkBox"
-         *
+         * todo
          */
         function showLeadSelectiveNewAttr( type ){
 
@@ -331,16 +335,17 @@ var app = angular.module('app', [])
          *
          */
         function showLeadEmailNewAttr( type ){
-            // модель агента
-            //$scope.attrEditor.agentAttrData =
-            //{
-            //    id: 0,
-            //    _type: type,
-            //    label: $scope.attrEditor.selectedTypeName[ type ],
-            //    icon: '',
-            //    position: $scope.data.cform.values.length + 1,
-            //    option: []
-            //};
+
+            // модель атрибута лида с типом 'email'
+            $scope.attrEditor.lead.editors.email.data =
+            {
+                id: 0,
+                _type: type,
+                label: $scope.attrEditor.selectedTypeName[ type ],
+                icon: '',
+                position: $scope.data.lead.values.length + 1,
+                option: []
+            };
 
             // выключаем показ селекта с выбором типа атрибута
             $scope.attrEditor.lead.typeSelection = false;
@@ -352,7 +357,7 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типом "calendar"
-         *
+         * todo
          */
         function showLeadCalendarNewAttr( type ){
             // модель агента
@@ -376,7 +381,7 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типом "TextArea"
-         *
+         * todo
          */
         function showLeadTextareaNewAttr( type ){
             // модель агента
@@ -400,7 +405,7 @@ var app = angular.module('app', [])
 
         /**
          * Новый атрибут лида с типом "TextInput"
-         *
+         * todo
          */
         function showLeadTextinputNewAttr( type ){
             // модель агента
@@ -695,6 +700,9 @@ var app = angular.module('app', [])
             // проверка выбранно что-то в селекте или нет
             if($scope.attrEditor.lead.selectedType != 0){
                 // если выбранно
+
+                // задаем текущий тип атрибута
+                $scope.attrEditor.lead.currentType = $scope.attrEditor.lead.selectedType;
 
                 // выбор типа формы редактора в завичимости от типа атрибута
                 switch ( $scope.attrEditor.lead.selectedType ) {
