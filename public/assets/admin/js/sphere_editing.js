@@ -8,10 +8,14 @@ var app = angular.module('app', [])
 
         // редактор атрибутов
         $scope.attrEditor = {
-            // блок выбора типа атрибута
+            // блок выбора типа атрибута агента
             typeSelection: false,
             // селектор типа агента по умолчанию
             agentSelectedType: 0,
+            // блок выбора типа атрибута лида
+            leadTypeSelection: false,
+            // селектор типа лида по умолчанию
+            leadSelectedType: 0,
             // названия типов
             selectedTypeName:
             {
@@ -88,7 +92,7 @@ var app = angular.module('app', [])
             $('#modal-page').modal();
         };
 
-        // действие по выбору селекта
+        // действие по выбору селекта агента
         $scope.selectedTypeAction = function(){
 
             // проверка выбранно что-то в селекте или нет
@@ -185,6 +189,26 @@ var app = angular.module('app', [])
         };
 
 
+        /** Дополнительные поля лида */
+
+        /**
+         * Показ модального окна создания атрибута лида
+         *
+         */
+        $scope.agentAddAttrShow = function(){
+
+            // показывает селект с выбором типа атрибута лида
+            $scope.attrEditor.leadTypeSelection = true;
+            // показывает модальное окно
+            $('#modal-page').modal();
+        };
+
+        // действие по выбору селекта типа атрибута лида
+        $scope.leadSelectedTypeAction = function(){
+
+        };
+
+
         /** Общее */
 
         // действия при закрытия модального окна добавления атрибутов
@@ -194,10 +218,14 @@ var app = angular.module('app', [])
             // возвращаем данные редактора в начальное состояние
             // редактор атрибутов
             $scope.attrEditor = {
-                // блок выбора типа атрибута
+                // блок выбора типа атрибута агента
                 typeSelection: false,
                 // селектор типа агента по умолчанию
                 agentSelectedType: 0,
+                // блок выбора типа атрибута лида
+                leadTypeSelection: false,
+                // селектор типа лида по умолчанию
+                leadSelectedType: 0,
                 // названия типов
                 selectedTypeName:
                 {

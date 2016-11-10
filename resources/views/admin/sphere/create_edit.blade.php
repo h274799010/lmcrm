@@ -801,7 +801,7 @@
 
                                         <div class="col-xs-12">
                                             <div class="form-group">
-                                                <button class="btn btn-success btn-icon in-modal splash-create" data-toggle="modal" data-target="#modal-page" type="button">
+                                                <button ng-click="agentAddAttrShow()" class="btn btn-success btn-icon in-modal splash-create" type="button">
                                                     <i class="entypo-plus"></i>
                                                     Add field
                                                     <div class="ripple-container"></div>
@@ -1066,6 +1066,23 @@
                                         <option value="checkbox">Checkbox</option>
                                         <option value="radio">Radio</option>
                                         <option value="select">Dropdown</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Выбор типа атрибута доп. полей лида --}}
+                            <div class="row" ng-show="attrEditor.leadTypeSelection">
+                                <div class="col-xs-12">
+                                    <label class="control-label">select field type</label>
+                                    <select ng-model="attrEditor.leadSelectedType" ng-change="leadSelectedTypeAction()" class="pull-left form-control">
+                                        <option selected="" value="0"></option>
+                                        <option value="email">E-mail</option>
+                                        <option value="textarea">Text area</option>
+                                        <option value="textinput">Text input</option>
+                                        <option value="checkbox">Checkbox</option>
+                                        <option value="radio">Radio</option>
+                                        <option value="select">Dropdown</option>
+                                        <option value="calendar">Calendar</option>
                                     </select>
                                 </div>
                             </div>
