@@ -1279,15 +1279,6 @@
                                     </div>
                                 </div>
 
-                                {{-- плейсхолдер --}}
-                                <div class="row">
-                                    <div class="form-group col-xs-12 is-empty">
-                                        <label class="control-label">placeholder:</label>
-                                        <input class="form-control" type="text" data-validate="required" value="email@mail.com" name="placeholder">
-                                        <span class="material-input"></span>
-                                    </div>
-                                </div>
-
                             </div>
 
                             {{-- Редактор атрибутов лида, textarea --}}
@@ -1316,17 +1307,6 @@
                                     <div class="form-group col-xs-12">
                                         <label class="control-label">label:</label>
                                         <input ng-model="attrEditor.lead.editors.textarea.data.label" class="form-control" type="text" value="">
-                                        <span class="material-input"></span>
-                                    </div>
-                                </div>
-
-                                {{-- плэйсхолдер --}}
-                                <div class="row">
-                                    <div class="form-group col-xs-12 is-empty">
-                                        {{-- подпись плэйсхолдера --}}
-                                        <label class="control-label">placeholder:</label>
-                                        {{-- поле плэйсхолдера --}}
-                                        <input class="form-control" type="text" value="">
                                         <span class="material-input"></span>
                                     </div>
                                 </div>
@@ -1384,15 +1364,6 @@
                                     </div>
                                 </div>
 
-                                {{-- минимальная высота --}}
-                                <div class="row">
-                                    <div class="form-group col-xs-12">
-                                        <label class="control-label">minHeight, px:</label>
-                                        <input class="form-control" type="text" data-validate="number" value="120" name="minHeight">
-                                        <span class="material-input"></span>
-                                    </div>
-                                </div>
-
                             </div>
 
                             {{-- Редактор атрибутов лида, textinput --}}
@@ -1421,17 +1392,6 @@
                                     <div class="form-group col-xs-12">
                                         <label class="control-label">label:</label>
                                         <input ng-model="attrEditor.lead.editors.textinput.data.label" class="form-control" type="text" value="">
-                                        <span class="material-input"></span>
-                                    </div>
-                                </div>
-
-                                {{-- плэйсхолдер --}}
-                                <div class="row">
-                                    <div class="form-group col-xs-12 is-empty">
-                                        {{-- подпись плэйсхолдера --}}
-                                        <label class="control-label">placeholder:</label>
-                                        {{-- поле плэйсхолдера --}}
-                                        <input class="form-control" type="text" value="">
                                         <span class="material-input"></span>
                                     </div>
                                 </div>
