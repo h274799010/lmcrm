@@ -1191,10 +1191,15 @@
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
-                                                <a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">
+                                                {{--<a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">--}}
+                                                    {{--<span class="glyphicon glyphicon-folder-open"></span>--}}
+                                                    {{--<div class="ripple-container"></div>--}}
+                                                {{--</a>--}}
+                                                <a class="btn btn-xs" type="button" href="">
                                                     <span class="glyphicon glyphicon-folder-open"></span>
                                                     <div class="ripple-container"></div>
                                                 </a>
+
                                             </span>
                                         </div>
                                     </div>
@@ -1261,10 +1266,15 @@
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
-                                                <a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">
+                                                {{--<a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">--}}
+                                                    {{--<span class="glyphicon glyphicon-folder-open"></span>--}}
+                                                    {{--<div class="ripple-container"></div>--}}
+                                                {{--</a>--}}
+                                                <a class="btn btn-xs" type="button" href="">
                                                     <span class="glyphicon glyphicon-folder-open"></span>
                                                     <div class="ripple-container"></div>
                                                 </a>
+
                                             </span>
                                         </div>
                                     </div>
@@ -1293,7 +1303,11 @@
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
-                                                <a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">
+                                                {{--<a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">--}}
+                                                    {{--<span class="glyphicon glyphicon-folder-open"></span>--}}
+                                                    {{--<div class="ripple-container"></div>--}}
+                                                {{--</a>--}}
+                                                <a class="btn btn-xs" type="button" href="">
                                                     <span class="glyphicon glyphicon-folder-open"></span>
                                                     <div class="ripple-container"></div>
                                                 </a>
@@ -1378,7 +1392,11 @@
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
-                                                <a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">
+                                                {{--<a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">--}}
+                                                    {{--<span class="glyphicon glyphicon-folder-open"></span>--}}
+                                                    {{--<div class="ripple-container"></div>--}}
+                                                {{--</a>--}}
+                                                <a class="btn btn-xs" type="button" href="">
                                                     <span class="glyphicon glyphicon-folder-open"></span>
                                                     <div class="ripple-container"></div>
                                                 </a>
@@ -1463,7 +1481,11 @@
                                                 <span class="material-input"></span>
                                             </div>
                                             <span class="input-group-btn">
-                                                <a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">
+                                                {{--<a class="btn btn-xs mediabrowser-js" type="button" href="/mediabrowser/icon" data-fancybox-type="iframe">--}}
+                                                    {{--<span class="glyphicon glyphicon-folder-open"></span>--}}
+                                                    {{--<div class="ripple-container"></div>--}}
+                                                {{--</a>--}}
+                                                <a class="btn btn-xs" type="button" href="">
                                                     <span class="glyphicon glyphicon-folder-open"></span>
                                                     <div class="ripple-container"></div>
                                                 </a>
