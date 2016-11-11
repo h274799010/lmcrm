@@ -950,7 +950,6 @@ class SphereController extends AdminController {
         // данные формы сферы
         $sphereData = $request['opt'];
 
-
         // данные формы лида
         $leadData = $request['lead'];
 
@@ -1038,11 +1037,13 @@ class SphereController extends AdminController {
         // данные формы агента
         $agentData = $request['cform'];
 
-        // todo доделать
+        // данные агента
         $agentDataAttr = $agentData['values'];
 
+        // данные лида
+        $leadDataAttr = $leadData['values'];
 
-        // todo минимальное количество лидов
+        // минимальное количество лидов
         $minLead = $request['threshold']['settings']['stat']['minLead'];
 
         // статусы
@@ -1051,57 +1052,6 @@ class SphereController extends AdminController {
 
         /** ----- КОНЕЦ ОБРАБОТКИ ДАННЫХ ПОЛУЧЕННЫХ С ФРОНТЕНДА ---------- */
 
-
-        /** ----- ПРОВЕРКИ НА ОШИБКИ ---------- */
-
-        // переменная указывающая на ошибки, если $error = true работа метода останавливается
-        $error = false;
-        /* проверка атрибутов формы лида на ошибки */
-//        if( $leadDataAttr ){
-//
-//            /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
-//               хотя бы одна */
-//            // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
-//            $leadDataAttr->each(function( $attr ) use( &$error ){
-//
-//                // если у атрибута тип checkbox, radio или select
-//                if( ($attr['_type']=='checkbox') || ($attr['_type']=='radio') || ($attr['_type']=='select') ){
-//                    // и при этом у него нет опций, либо их количество равно 0
-//                    if( !isset($attr['option']) || (count($attr['option']) == 0) ){
-//                        // помечаем ошибку
-//                        $error = true;
-//                    }
-//                }
-//            });
-//        }
-
-        /* проверка атрибутов формы агента на ошибки */
-//        if( $agentDataAttr ){
-//
-//            /* у атрибутов с типом checkbox, radio, select обязательно должны быть опции,
-//               хотя бы одна */
-//            // перебрать атрибуты лидов и агентов и проверить опции по соответствующим типам
-//            $agentDataAttr->each(function( $attr ) use( &$error ){
-//
-//                // если у атрибута тип checkbox, radio или select
-//                if( ($attr['_type']=='checkbox') && ($attr['_type']=='radio') && ($attr['_type']=='select') ){
-//                    // и при этом у него нет опций, либо их количество равно 0
-//                    if( !isset($attr['option']) && (count($attr['option']) == 0) ){
-//                        // помечаем ошибку
-//                        $error = true;
-//                    }
-//                }
-//            });
-//        }
-
-        // если есть ошибка, функция вернет ошибку и остановится
-//        if($error){ return response()->json(FALSE); }
-
-        if(empty($sphereData['variables']['name'])) {
-            return response( ['error'=>trans('admin/sphere.errors.required.sphere_name')] );
-        }
-
-        /** ----- КОНЕЦ ПРОВЕРОК НА ОШИБКИ ---------- */
 
         // Считаем интервалы времени прибывания лида на укционе и времени на статус bad
 
@@ -1185,11 +1135,13 @@ class SphereController extends AdminController {
         // перебираем их и обрабатываем
         if($leadDataAttr){
 
+            // преобразовываем массив в коллекцию
+            $leadDataAttr = collect($leadDataAttr);
             // создаем/обновляем атрибут с его опциями
             $leadDataAttr->each(function( $attr )  use( $sphere, &$leadBitmask ){
 
 
-            // ЕСЛИ '_status'=='DELETE' УДАЛЯЕМ АТРИБУТ
+            // todo ЕСЛИ '_status'=='DELETE' УДАЛЯЕМ АТРИБУТ
 
                 // проверяем есть ли задание на удаление
                 if( isset( $attr['_status'] ) ){
@@ -1240,7 +1192,7 @@ class SphereController extends AdminController {
                 }
 
 
-            // ДЕЙСТВИЯ НАД ДАННЫМИ АТРИБУТА В ЗАВИСИМОСТИ ОТ ЕГО ТИПА
+            // ДЕЙСТВИЯ НАД ОПЦИЯМИ АТРИБУТА В ЗАВИСИМОСТИ ОТ ЕГО ТИПА
             //    - типы 'checkbox','radio', 'select'
             //    - типы 'textarea', 'input'
             //    - типы 'email', 'calendar'
@@ -1364,7 +1316,6 @@ class SphereController extends AdminController {
 
                 return true;
             });
-
         }
 
 
@@ -1379,40 +1330,12 @@ class SphereController extends AdminController {
             $agentDataAttr->each(function( $attr )  use( $sphere, &$agentBitmask, &$leadBitmask ) {
 
 
-            // ЕСЛИ '_status'=='DELETE' УДАЛЯЕМ АТРИБУТ
-
-                // проверяем есть ли задание на удаление
-//                if (isset($attr['_status'])) {
-//                    if ($attr['_status'] == 'DELETE') {
-//                        // удаляем атрибуд из БД
-//
-//                        // выбираем атрибут по его id
-//                        $dbAttribute = $sphere->attributes()->where('id', '=', $attr['id']);
-//
-//                        // удаление всех опций атрибутов
-//                        $dbAttribute->each(function($option){
-//                            $option->options()->delete();
-//                        });
-//
-//                        // удаление атрибута
-//                        $dbAttribute->delete();
-//
-//                        // удаление полей в битмаске агента и лида
-//                        $agentBitmask->removeAttr($attr['id'], null);
-//                        $leadBitmask->removeAttr($attr['id'], null);
-//
-//                        // останавливаем дальнейшую обработку
-//                        return false;
-//                    }
-//                }
-
-
             // СОЗДАЕМ НОВЫЙ АТРИБУТ ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ
 
                 // если у атрибуте есть id и он НЕ равен '0'
                 if (isset($attr['id']) && $attr['id']) {
 
-                    // todo добавить метод на удаление
+                    // выбор действия над атрибутом, либо удаляется, либо обновляется
 
                     if( isset($attr['delete']) ){
                         // удаляем атрибуд из БД
