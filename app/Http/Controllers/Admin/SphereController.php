@@ -953,87 +953,6 @@ class SphereController extends AdminController {
         // данные формы лида
         $leadData = $request['lead'];
 
-
-        /**
-         * todo у лида может не быть атрибутов вообще, поправить этот момент
-         *
-         */
-
-        // проверка атрибутов лида
-        // массив атрибутов лида может выглядеть по разному, на каждый вариант своя обработка
-        if(isset($leadData['variables'])){
-            // переменная существует (ее может и не быть)
-
-            if(isset($leadData['variables']['_type'])){
-                // наличие переменной '_type' в массиве
-
-                /*
-                 * если у лида только одни атрибут,
-                 * он может просто находится в 'variables', без индексов,
-                 * (при этом у него всегда бует переменная '_type')
-                 */
-
-//                return response()->json(FALSE);
-
-            }elseif( $leadData['variables']==["email" => "", "textarea" => "", "input" => "", "checkbox" => "", "radio" => "", "select" => "", "calendar" => "", "submit" => ""] ){
-                // 'variables' состоит из массива с ключами из типов полей
-
-                /*
-                 * У лида может и не быть атрибутов
-                 */
-
-                $leadDataAttr = NULL;
-
-
-            }elseif(isset($leadData['variables'][0])){
-                // 'variables' массив элемент с ключом "0" (по идее в других вариантах его быть недолжно)
-
-//                if( count($leadData['variables']) < 3 ){
-//                    // если у лида меньше 3 атрибутов
-//                    // работа метода останавливается
-//
-//                    // у лида должно быть не меньше 3 атрибутов
-//                    return response()->json(FALSE);
-//
-//                }else{
-//                    // у лида 3 и больше атрибутов
-//
-//                    /*
-//                     * массив просто преобразовывается в коллекцию
-//                     * чтобы было проще дальше обрабатывать
-//                     */
-//
-//                    $leadDataAttr = collect( $leadData['variables'] );
-//                }
-
-                // todo если все есть - возвращаем просто данные в коллекции
-                $leadDataAttr = collect( $leadData['variables'] );
-
-
-            }else{
-                // ничего из вышеперечисленного не подошло
-
-                /*
-                 * если ничего вышеперечисленное не подошло
-                 * нужно либо добавить обработчик,
-                 * либо это ошибка фронтенда
-                 *
-                 * работа метода останавливается
-                 */
-
-                return response()->json(FALSE);
-            }
-
-        }else{
-            // у лида нет атрибутов
-            // работа метода останавливается
-
-            // todo добавить чтобы можно было сохранять и без атрибутов лида
-            // у лида должно быть не меньше 3 атрибутов
-//            return response()->json(FALSE);
-            $leadDataAttr = NULL;
-        }
-
         // данные формы агента
         $agentData = $request['cform'];
 
@@ -1051,7 +970,6 @@ class SphereController extends AdminController {
 
 
         /** ----- КОНЕЦ ОБРАБОТКИ ДАННЫХ ПОЛУЧЕННЫХ С ФРОНТЕНДА ---------- */
-
 
         // Считаем интервалы времени прибывания лида на укционе и времени на статус bad
 
@@ -1141,40 +1059,11 @@ class SphereController extends AdminController {
             $leadDataAttr->each(function( $attr )  use( $sphere, &$leadBitmask ){
 
 
-            // todo ЕСЛИ '_status'=='DELETE' УДАЛЯЕМ АТРИБУТ
-
-                // проверяем есть ли задание на удаление
-//                if( isset( $attr['_status'] ) ){
-//                    if( $attr['_status'] == 'DELETE' ){
-//                        // удаляем атрибут из БД
-//
-//                        // выбираем атрибут по его id
-//                        $dbAttribute = $sphere->leadAttr()->where('id', '=', $attr['id']);
-//
-//                        // удаление всех опций атрибутов
-//                        $dbAttribute->each(function($option){
-//                            $option->allFormsOptions()->delete();
-//                        });
-//
-//                        // удаление атрибута
-//                        $dbAttribute->delete();
-//
-//                        // удаление полей в маске атрибута
-//                        $leadBitmask->removeAd($attr['id'], null);
-//
-//                        // останавливаем дальнейшую обработку
-//                        return true;
-//                    }
-//                }
-
-
             // СОЗДАЕМ НОВЫЙ АТРИБУТ, ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ ЛИБО УДАЛЯЕМ
 
                 // если у атрибуте есть id и он НЕ равен '0'
                 if (isset($attr['id']) && $attr['id']) {
 
-
-                    // todo добавить удаление атрибута
                     // выбор действия над атрибутом, либо удаляется, либо обновляется
                     if( isset($attr['delete']) ){
                         // если задан 'delete' - удаляем атрибут из БД
@@ -1226,7 +1115,6 @@ class SphereController extends AdminController {
             //    - типы 'checkbox','radio', 'select'
             //    - типы 'textarea', 'input'
             //    - типы 'email', 'calendar'
-
 
                 if( ($attr['_type']=='checkbox') || ($attr['_type']=='radio') || ($attr['_type']=='select') ){
                     // обработка атрибутов с типом 'checkbox','radio', 'select'
@@ -1307,21 +1195,7 @@ class SphereController extends AdminController {
                     if( isset($attr['validate']) ) {
                         // у атрибута есть поле валидации
 
-                        // обработка значений переменной
-                        // данные могут быть либо в одном массиве, либо в массиве с ключами
-                        if(isset($attr['validate']['val'])){
-                            // если один массив помещаем его в массив
-                            // т.е. будет массив с одним ключоьм "0"
-                            // создаем объект collect
-
-                            $validateCollection = collect( [ $attr['validate'] ] );
-
-                        }else{
-                            // массив с ключами
-                            // просто создаем объект collect
-
-                            $validateCollection = collect( $attr['validate'] );
-                        }
+                        $validateCollection = collect( $attr['validate'] );
 
                         // перебираем все валидации и либо создаем новую,
                         // либо обновляем существующую запись валидации
@@ -1329,17 +1203,26 @@ class SphereController extends AdminController {
 
                             if ($validate['id']) {
                                 // у валидации ЕСТЬ id, т.е. валидация уже есть в БД
-                                // (обновляем существующую запись)
 
-                                // выбираем данные валидации из БД
-                                $dbValidate = AdditionFormsOptions::find($validate['id']);
-                                // присваиваем валидации новые значения
-                                $dbValidate->_type = 'validate';
-                                $dbValidate->name = $validate['val'];
-                                $dbValidate->value = (isset($validate['vale'])) ? $validate['vale'] : '';
+                                if(isset($validate['delete'])) {
+                                    // удаление опции атрибута
 
-                                // сохраняем
-                                $dbValidate->save();
+                                    // удаляем опцию в таблице
+                                    AdditionFormsOptions::where('id', $validate['id'])->delete();
+
+                                }else {
+                                    // (обновляем существующую запись)
+
+                                    // выбираем данные валидации из БД
+                                    $dbValidate = AdditionFormsOptions::find($validate['id']);
+                                    // присваиваем валидации новые значения
+                                    $dbValidate->_type = 'validate';
+                                    $dbValidate->name = $validate['val'];
+                                    $dbValidate->value = '';
+
+                                    // сохраняем
+                                    $dbValidate->save();
+                                }
 
                             } else {
                                 // у валидации НЕТ id
@@ -1350,7 +1233,7 @@ class SphereController extends AdminController {
                                 // присваиваем валидации новые значения
                                 $newValidate->_type = 'validate';
                                 $newValidate->name = $validate['val'];
-                                $newValidate->value = (isset($validate['vale'])) ? $validate['vale'] : '';
+                                $newValidate->value = '';
                                 // сохраняем
                                 $leadAttr->validators()->save($newValidate);
                             }
@@ -1497,7 +1380,6 @@ class SphereController extends AdminController {
 
                 return true;
             });
-
         }
 
 
@@ -1560,6 +1442,8 @@ class SphereController extends AdminController {
 
         }
 
+        // валидация, проверка на ошибки
+        // если есть ошибки, переключатель сферы переходит в off
         if($sphereData['variables']['status']) {
             $errors = $this->sphereValidate($sphere->id);
 
