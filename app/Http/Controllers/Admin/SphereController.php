@@ -1144,9 +1144,40 @@ class SphereController extends AdminController {
             // todo ЕСЛИ '_status'=='DELETE' УДАЛЯЕМ АТРИБУТ
 
                 // проверяем есть ли задание на удаление
-                if( isset( $attr['_status'] ) ){
-                    if( $attr['_status'] == 'DELETE' ){
-                        // удаляем атрибут из БД
+//                if( isset( $attr['_status'] ) ){
+//                    if( $attr['_status'] == 'DELETE' ){
+//                        // удаляем атрибут из БД
+//
+//                        // выбираем атрибут по его id
+//                        $dbAttribute = $sphere->leadAttr()->where('id', '=', $attr['id']);
+//
+//                        // удаление всех опций атрибутов
+//                        $dbAttribute->each(function($option){
+//                            $option->allFormsOptions()->delete();
+//                        });
+//
+//                        // удаление атрибута
+//                        $dbAttribute->delete();
+//
+//                        // удаление полей в маске атрибута
+//                        $leadBitmask->removeAd($attr['id'], null);
+//
+//                        // останавливаем дальнейшую обработку
+//                        return true;
+//                    }
+//                }
+
+
+            // СОЗДАЕМ НОВЫЙ АТРИБУТ, ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ ЛИБО УДАЛЯЕМ
+
+                // если у атрибуте есть id и он НЕ равен '0'
+                if (isset($attr['id']) && $attr['id']) {
+
+
+                    // todo добавить удаление атрибута
+                    // выбор действия над атрибутом, либо удаляется, либо обновляется
+                    if( isset($attr['delete']) ){
+                        // если задан 'delete' - удаляем атрибут из БД
 
                         // выбираем атрибут по его id
                         $dbAttribute = $sphere->leadAttr()->where('id', '=', $attr['id']);
@@ -1161,20 +1192,19 @@ class SphereController extends AdminController {
 
                         // удаление полей в маске атрибута
                         $leadBitmask->removeAd($attr['id'], null);
+
                         // останавливаем дальнейшую обработку
-                        return false;
+                        return true;
+
+                    }else{
+                        // обновляем значение атрибута
+
+                        // выбираем его
+                        $leadAttr = SphereAdditionForms::find($attr['id']);
+                        // и обновляем
+                        $leadAttr->update($attr);
                     }
-                }
 
-
-            // СОЗДАЕМ НОВЫЙ АТРИБУТ ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ
-
-                // если у атрибуте есть id и он НЕ равен '0'
-                if (isset($attr['id']) && $attr['id']) {
-                    // выбираем его
-                    $leadAttr = SphereAdditionForms::find($attr['id']);
-                    // и обновляем
-                    $leadAttr->update($attr);
 
                 } else {
                     // если атрибута нет или он равен 0 создаем его
@@ -1232,7 +1262,8 @@ class SphereController extends AdminController {
                                 // присваиваем опции новые значения
                                 $newOption->_type = 'option';
                                 $newOption->name = $option['val'];
-                                $newOption->value = (isset($option['vale'])) ? $option['vale'] : '';
+                                // todo добавить позиционирование и vale
+                                $newOption->value = 0;
                                 // сохраняем
                                 $leadAttr->options()->save($newOption);
 
@@ -1330,15 +1361,15 @@ class SphereController extends AdminController {
             $agentDataAttr->each(function( $attr )  use( $sphere, &$agentBitmask, &$leadBitmask ) {
 
 
-            // СОЗДАЕМ НОВЫЙ АТРИБУТ ЛИБО ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ
+            // СОЗДАЕМ НОВЫЙ АТРИБУТ, ОБНОВЛЯЕМ УЖЕ СУЩЕСТВУЮЩИЙ ЛИБО УДАЛЯЕМ
 
                 // если у атрибуте есть id и он НЕ равен '0'
                 if (isset($attr['id']) && $attr['id']) {
 
-                    // выбор действия над атрибутом, либо удаляется, либо обновляется
 
+                    // выбор действия над атрибутом, либо удаляется, либо обновляется
                     if( isset($attr['delete']) ){
-                        // удаляем атрибуд из БД
+                        // если задан 'delete' - удаляем атрибут из БД
 
                         // выбираем атрибут по его id
                         $attribute = $sphere->attributes()->where('id', '=', $attr['id']);
@@ -1355,9 +1386,12 @@ class SphereController extends AdminController {
                         $agentBitmask->removeAttr($attr['id'], null);
                         $leadBitmask->removeAttr($attr['id'], null);
 
+                        // останавливаем дальнейшую обработку
                         return true;
 
                     }else{
+                        // обновляем значение атрибута
+
                         // выбираем его
                         $agentAttr = SphereFormFilters::find($attr['id']);
                         // и обновляем
