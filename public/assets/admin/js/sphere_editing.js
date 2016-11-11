@@ -140,7 +140,7 @@ var app = angular.module('app', [])
             }
         };
 
-        // подключаем данные
+        // подключаем данные, клонируем модель чтобы не перебивать данные
         $scope.attrEditor = JSON.parse( JSON.stringify( attrEditorData ) );
 
         /**
@@ -773,7 +773,7 @@ var app = angular.module('app', [])
         $('#modal-page').on('hidden.bs.modal', function (e) {
 
             // возвращаем данные редактора в начальное состояние
-            // редактор атрибутов
+            // клонируем модель чтобы не перебивать данные
             $scope.attrEditor = JSON.parse( JSON.stringify( attrEditorData ) );
             $scope.$apply($scope.attrEditor);
         });
