@@ -1239,19 +1239,32 @@ class SphereController extends AdminController {
                         // перебираем все опции и либо создаем новую,
                         // либо обновляем существующую запись опции
                         $optionCollection = collect($attr['option']);
-                        $optionCollection->each(function( $option ) use ( &$leadAttr, &$leadBitmask ){
+                        $optionCollection->each(function( $option ) use ( $attr, &$leadAttr, &$leadBitmask ){
 
                             if($option['id']){
                                 // у опции ЕСТЬ id, т.е. опция уже есть в БД
 
-                                // выбираем данные опции из БД
-                                $dbOption = AdditionFormsOptions::find($option['id']);
-                                // присваиваем опции новые значения
-                                $dbOption->_type = 'option';
-                                $dbOption->name = $option['val'];
-                                $dbOption->value = (isset($option['vale'])) ? $option['vale'] : '';
-                                // сохраняем
-                                $dbOption->save();
+                                if(isset($option['delete'])){
+                                    // удаление опции атрибута
+
+                                    // удаляем опцию в маске лида
+                                    $leadBitmask->removeAd($leadAttr->id, $option['id']);
+
+                                    // удаляем опцию в таблице
+                                    AdditionFormsOptions::where('id', $option['id'])->delete();
+
+                                }else {
+                                    // выбираем данные опции из БД
+                                    $dbOption = AdditionFormsOptions::find($option['id']);
+                                    // присваиваем опции новые значения
+                                    $dbOption->_type = 'option';
+                                    $dbOption->name = $option['val'];
+                                    // $dbOption->value = (isset($option['vale'])) ? $option['vale'] : '';
+                                    // todo добавить позиционирование и vale
+                                    $dbOption->value = 0;
+                                    // сохраняем
+                                    $dbOption->save();
+                                }
 
                             }else{
                                 // у опции НЕТ id
@@ -1421,11 +1434,12 @@ class SphereController extends AdminController {
 
                             if(isset($option['delete'])){
 
+                                // удаляем опцию в масках лида и агента
                                 $agentBitmask->removeAttr($agentAttr->id, $option['id']);
                                 $leadBitmask->removeAttr($agentAttr->id, $option['id']);
 
+                                // удаляем опцию в таблице
                                 FormFiltersOptions::where('id', $option['id'])->delete();
-
 
                             }else{
                                 // выбираем данные опции из БД
