@@ -653,7 +653,6 @@
                         </form>
 
                     </div>
-
                     <div class="tab-pane" id="tab2">
                         <h3 class="page-header">{{trans('admin/sphere.lead_form')}}</h3>
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
@@ -1087,7 +1086,7 @@
                                 </div>
                             </div>
 
-                            {{-- Редактор атрибутов --}}
+                            {{-- Редактор атрибутов агента --}}
                             <div ng-show="attrEditor.editor">
 
                                 {{-- Иконка --}}
@@ -1346,17 +1345,17 @@
                                                     <option value="digits">digits</option>
                                                     <option value="dateISO">dateISO</option>
                                                     <option value="creditcard">creditcard</option>
-                                                    <option data-extend="1" value="min">min</option>
-                                                    <option data-extend="1" value="max">max</option>
-                                                    <option data-extend="1" value="minlength">minlength</option>
-                                                    <option data-extend="1" value="maxlength">maxlength</option>
-                                                    <option data-extend="1" value="equalTo">equalTo</option>
+                                                    <option value="min">min</option>
+                                                    <option value="max">max</option>
+                                                    <option value="minlength">minlength</option>
+                                                    <option value="maxlength">maxlength</option>
+                                                    <option value="equalTo">equalTo</option>
                                                 </select>
                                             </div>
 
-                                            {{-- дополнительное поле todo дорабтать блокировку --}}
+                                            {{-- дополнительное поле --}}
                                             <div class="col-xs-3">
-                                                <input ng-model="validate.vale" class="form-control extend" type="text" value="" disabled="">
+                                                <input ng-model="validate.vale" class="form-control extend" type="text" value="" ng-disabled="IsAdditionalValidationFieldDisabled( validate.val )">
                                             </div>
 
                                             {{-- кнопка удаления опции --}}
@@ -1443,9 +1442,9 @@
                                                 </select>
                                             </div>
 
-                                            {{-- дополнительное поле todo дорабтать блокировку --}}
+                                            {{-- дополнительное поле --}}
                                             <div class="col-xs-3">
-                                                <input ng-model="validate.vale" class="form-control extend" type="text" value="" disabled="">
+                                                <input ng-model="validate.vale" class="form-control extend" type="text" value="" ng-disabled="IsAdditionalValidationFieldDisabled( validate.val )">
                                             </div>
 
                                             {{-- кнопка удаления опции --}}

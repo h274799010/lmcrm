@@ -51,6 +51,24 @@ var app = angular.module('app', ['angular-sortable-view'])
                 currentType: '',
                 // индекс редактируемого атрибута
                 currentIndex: 'null',
+                // дополнительное поле валидации лида
+                additionalValidationFieldDisabled: {
+                    '': true,
+                    0: true,
+                    email: true,
+                    url: true,
+                    number: true,
+                    date: true,
+                    digits: true,
+                    dateISO: true,
+                    creditcard: true,
+                    min: false,
+                    max: false,
+                    minlength: false,
+                    maxlength: false,
+                    equalTo: false
+
+                },
                 // типы редактора
                 editors:
                 {
@@ -766,6 +784,18 @@ var app = angular.module('app', ['angular-sortable-view'])
                 // добавляем в модель атрибута элемент delete
                 attr.delete = true;
             }
+        };
+
+        /**
+         * Блокировка дополнительного поля валидации лида
+         *
+         * при некоторых полях валидации, дополнительное поле не требуется
+         * поэтому блокируется
+         */
+        $scope.IsAdditionalValidationFieldDisabled = function( field ){
+            // данные о полях, которые нужно блокировать, а какие нет
+            // храняться в модели редактора атрибутов
+            return $scope.attrEditor.lead.additionalValidationFieldDisabled[ field ];
         };
 
 
