@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
+use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\UserMasks;
 use Validator;
@@ -387,6 +388,12 @@ class SphereController extends AgentController {
     {
         Agent::findOrFail($this->uid)->leads()->whereIn([$id])->delete();
         return response()->route('agent.lead.index');
+    }
+
+    public function getBalance()
+    {
+        $agent = Agent::findOrFail( $this->uid );
+        dd($agent);
     }
 
 

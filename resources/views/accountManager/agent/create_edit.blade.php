@@ -3,28 +3,29 @@
 @section('content')
     <div class="page-header">
         <h3>
-            @if (isset($agent)) {{ $agent->name }} @else @endif ({!! trans("admin/agent.agent") !!})
+            @if (isset($agent)) {{ $agent->name }} @else @endif ({{ trans("admin/agent.agent") }})
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
-                    <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}
+                    <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
                 </a>
             </div>
         </h3>
     </div>
 
     <div class="col-md-12" id="content">
-    {!! Form::model($agent,array('route' => ['accountManager.agent.update'], 'method' => 'post', 'class' => 'validate', 'files'=> true)) !!}
-        <input type="hidden" name="agent_id" value="{{ $agent->id }}">
+    @if (isset($agent))
+        {{ Form::model($agent,array('route' => ['accountManager.agent.update', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) }}
+    @else
+        {{ Form::open(array('route' => ['accountManager.agent.store'], 'method' => 'post', 'class' => 'validate', 'files'=> true)) }}
+    @endif
     <!-- Tabs -->
         <ul class="nav nav-tabs">
             <li class="active"><a href="#tab-general" data-toggle="tab"> {{
                     trans("admin/modal.general") }}</a>
             </li>
-
-            @if (isset($agent))
-                <li><a href="#wallet" data-toggle="tab">
-                        {{-- посадить на trans() --}}
-                        Wallet </a>
+            @if(isset($agentSpheres))
+                <li><a href="#revenue" data-toggle="tab">
+                        {{ trans('admin/modal.revenue') }} </a>
                 </li>
             @endif
 
@@ -39,230 +40,147 @@
             <div class="tab-pane active" id="tab-general">
 
                 <div class="form-group  {{ $errors->has('spheres') ? 'has-error' : '' }}">
-                    {!! Form::label('spheres', trans("admin/sphere.sphere"), array('class' => 'control-label')) !!}
+                    {{ Form::label('spheres', trans("admin/sphere.sphere"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {!! Form::select('spheres[]',$spheres,$agent->spheres()->get()->lists('id')->toArray(), array('multiple'=>'multiple', 'class' => 'form-control notSelectBoxIt select2','required'=>'required')) !!}
+                        {{ Form::select('spheres[]',$spheres,(isset($agent))?$agent->spheres()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2 notSelectBoxIt','required'=>'required')) }}
                         <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
                     </div>
                 </div>
 
                 <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
-                    {!! Form::label('first_name', trans("admin/users.first_name"), array('class' => 'control-label')) !!}
+                    {{ Form::label('first_name', trans("admin/users.first_name"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {!! Form::text('first_name', null, array('class' => 'form-control')) !!}
+                        {{ Form::text('first_name', null, array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('first_name', ':message') }}</span>
                     </div>
                 </div>
                 <div class="form-group  {{ $errors->has('last_name') ? 'has-error' : '' }}">
-                    {!! Form::label('last_name', trans("admin/users.last_name"), array('class' => 'control-label')) !!}
+                    {{ Form::label('last_name', trans("admin/users.last_name"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {!! Form::text('last_name', null, array('class' => 'form-control')) !!}
+                        {{ Form::text('last_name', null, array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('last_name', ':message') }}</span>
                     </div>
                 </div>
-                <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
-                    {!! Form::label('name', trans("admin/users.username"), array('class' => 'control-label')) !!}
-                    <div class="controls">
-                        {!! Form::text('name', null, array('class' => 'form-control')) !!}
-                        <span class="help-block">{{ $errors->first('name', ':message') }}</span>
-                    </div>
-                </div>
-                <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
-                    {!! Form::label('email', trans("admin/users.email"), array('class' => 'control-label')) !!}
-                    <div class="controls">
-                        {!! Form::text('email', null, array('class' => 'form-control')) !!}
-                        <span class="help-block">{{ $errors->first('email', ':message') }}</span>
-                    </div>
-                </div>
-
                 <div class="form-group  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
-                    {!! Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) !!}
+                    {{ Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {!! Form::text('lead_revenue_share', (isset($agent))?$agent->agentInfo->lead_revenue_share:NULL, array('class' => 'form-control')) !!}
+                        {{ Form::text('lead_revenue_share', (isset($agent))?$agent->agentInfo->lead_revenue_share:NULL, array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('lead_revenue_share', ':message') }}</span>
                     </div>
                 </div>
                 <div class="form-group  {{ $errors->has('payment_revenue_share') ? 'has-error' : '' }}">
-                    {!! Form::label('payment_revenue_share', trans("admin/users.payment_revenue_share"), array('class' => 'control-label')) !!}
+                    {{ Form::label('payment_revenue_share', trans("admin/users.payment_revenue_share"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {!! Form::text('payment_revenue_share', (isset($agent))?$agent->agentInfo->payment_revenue_share:NULL, array('class' => 'form-control')) !!}
+                        {{ Form::text('payment_revenue_share', (isset($agent))?$agent->agentInfo->payment_revenue_share:NULL, array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('payment_revenue_share', ':message') }}</span>
                     </div>
                 </div>
-
-                <div class="form-group  {{ $errors->has('password') ? 'has-error' : '' }}">
-                    {!! Form::label('password', trans("admin/users.password"), array('class' => 'control-label')) !!}
+                <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
+                    {{ Form::label('email', trans("admin/users.email"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {!! Form::password('password', array('class' => 'form-control')) !!}
+                        {{ Form::text('email', null, array('class' => 'form-control')) }}
+                        <span class="help-block">{{ $errors->first('email', ':message') }}</span>
+                    </div>
+                </div>
+                <div class="form-group  {{ $errors->has('password') ? 'has-error' : '' }}">
+                    {{ Form::label('password', trans("admin/users.password"), array('class' => 'control-label')) }}
+                    <div class="controls">
+                        {{ Form::password('password', array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('password', ':message') }}</span>
                     </div>
                 </div>
                 <div class="form-group  {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
-                    {!! Form::label('password_confirmation', trans("admin/users.password_confirmation"), array('class' => 'control-label')) !!}
+                    {{ Form::label('password_confirmation', trans("admin/users.password_confirmation"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {!! Form::password('password_confirmation', array('class' => 'form-control')) !!}
+                        {{ Form::password('password_confirmation', array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('password_confirmation', ':message') }}</span>
                     </div>
                 </div>
                 <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
-                    {!! Form::label('role', trans("admin/users.role"), array('class' => 'control-label')) !!}
+                    {{ Form::label('role', trans("admin/users.role"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {!! Form::select('role', ['leadbayer' => 'Lead bayer', 'partner' => 'Partner', 'dealmaker' => 'Deal maker'], $role, array('class' => 'form-control')) !!}
+                        {{ Form::select('role', ['leadbayer' => 'Lead bayer', 'partner' => 'Partner', 'dealmaker' => 'Deal maker'], $role, array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('role', ':message') }}</span>
                     </div>
                 </div>
-                {!! Form::close() !!}
 
-            </div>
-
-            <!-- история кредитов с возможностью добавления -->
-            @if (isset($agent))
-
-                <div class="tab-pane" id="wallet">
-
-                    <div class="agent_wallet">
-
-                        <div>
-                            <div class="type_buyed">
-                                <div><b>buyed:</b> <span id="buyedVal">{{ $userInfo->buyed }}</span></div>
-
-                            </div>
-
-                            <div class="type_earned">
-                                <div><b>earned:</b> <span id="earnedVal">{{  $userInfo->earned }}</span></div>
-
-                            </div>
-
-                            <div class="type_wasted">
-                                <div><b>wasted:</b> <span id="wastedVal">{{  $userInfo->wasted }}</span></div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="wallet_form_block">
-
-
-
-                            <form id="buyed_form" class="wallet_form">
-
-                                <div>
-                                    <label for="buyed-plus" class="label_plus">+</label>
-                                    <input id="buyed-plus" class="plus" placeholder="0" type="text">
-                                </div>
-
-                                <div>
-                                    <label for="buyed-minus" class="label_minus">-</label>
-                                    <input id="buyed-minus" class="minus" placeholder="0" type="text">
-                                </div>
-
-                                <input class="wallet_type" type="hidden" value="buyed">
-
-                                <input class="submit_button" type="submit" value="set">
-                            </form>
-
-                        </div>
-
-
-                        <div class="wallet_form_block second">
-                            <form id="earned_form" class="wallet_form">
-
-                                <div>
-                                    <label for="earned-plus" class="label_plus">+</label>
-                                    <input id="earned-plus" class="plus" placeholder="0" type="text">
-                                </div>
-
-                                <div>
-                                    <label for="earned-minus" class="label_minus">-</label>
-                                    <input id="earned-minus" class="minus" placeholder="0" type="text">
-                                </div>
-
-                                <input class="wallet_type" type="hidden" value="earned">
-
-                                <input class="submit_button" type="submit" value="set">
-                            </form>
-                        </div>
-
-
-                        <div class="wallet_form_block second">
-                            <form id="earned_form" class="wallet_form">
-
-                                <div>
-                                    <label for="wasted-plus" class="label_plus">+</label>
-                                    <input id="wasted-plus" class="plus" placeholder="0" type="text">
-                                </div>
-
-                                <div>
-                                    <label for="wasted-minus" class="label_minus">-</label>
-                                    <input id="wasted-minus" class="minus" placeholder="0" type="text">
-                                </div>
-
-                                <input class="wallet_type" type="hidden" value="wasted">
-
-                                <input class="submit_button" type="submit" value="set">
-                            </form>
-                        </div>
-
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                            <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                        </a>
+                        <button type="reset" class="btn btn-sm btn-default">
+                            <span class="glyphicon glyphicon-remove-circle"></span> {{
+                        trans("admin/modal.reset") }}
+                        </button>
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <span class="glyphicon glyphicon-ok-circle"></span>
+                            @if	(isset($agent))
+                                {{ trans("admin/modal.update") }}
+                            @else
+                                {{trans("admin/modal.create") }}
+                            @endif
+                        </button>
                     </div>
-
-
-                    <table id="creditTable" class="table">
-
-                        <thead>
-                        <tr>
-                            <th>time</th>
-                            <th>amount</th>
-                            <th>after</th>
-                            <th>wallet type</th>
-                            <th>type</th>
-                            <th>transaction</th>
-                            <th>initiator user</th>
-                            <th>status</th>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-
-                        @foreach( $userInfo->details as $detail )
-
-                            <tr class="@if( $detail->amount > 0 ) wallet_add @else wallet_decrease @endif">
-                                <td>{{ $detail->transaction->created_at }}</td>
-                                <td> {{ $detail->amount }}</td>
-                                <td>{{ $detail->after }}</td>
-                                <td>{{ $detail->wallet_type }}</td>
-                                <td>{{ $detail->type }}</td>
-                                <td>{{ $detail->transaction->id }}</td>
-                                <td>{{ $detail->transaction->initiator->name }}</td>
-                                <td>{{ $detail->transaction->status }}</td>
-                            </tr>
-                        @endforeach
-
-                        </tbody>
-
-                    </table>
-
                 </div>
+                {{ Form::close() }}
 
-            @endif
-
-
-            <div class="form-group">
-                <div class="col-md-12">
-                    <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
-                        <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
-                    </a>
-                    <button type="submit" class="btn btn-sm btn-success">
-                        <span class="glyphicon glyphicon-ok-circle"></span>
-                        update and activate
-                    </button>
-                </div>
             </div>
 
+            @if(isset($agentSpheres))
+                <div class="tab-pane" id="revenue">
+
+                    @foreach($agentSpheres as $agentSphere)
+                        {{ Form::open(array('route' => ['accountManager.agent.revenue'], 'method' => 'post', 'class' => 'validate agent-sphere-form agentSphereForm', 'files'=> true)) }}
+                        <div class="alert alert-success alert-dismissible fade in" role="alert" style="display: none;">
+                            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            <div class="alertContent"></div>
+                        </div>
+                        <input type="hidden" name="agentSphere_id" value="{{ $agentSphere->id }}">
+                        <h3>{{ trans('admin/sphere.name') }}: "{{ $agentSphere->sphere->name }}"</h3>
+                        <div class="form-group-wrap">
+                            <div class="form-group form-group-revenue  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
+                                {{ Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) }}
+                                <div class="controls">
+                                    {{ Form::text('lead_revenue_share', (isset($agentSphere))?$agentSphere->lead_revenue_share:NULL, array('class' => 'form-control')) }}
+                                    <span class="help-block">{{ $errors->first('lead_revenue_share', ':message') }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-revenue  {{ $errors->has('payment_revenue_share') ? 'has-error' : '' }}">
+                                {{ Form::label('payment_revenue_share', trans("admin/users.payment_revenue_share"), array('class' => 'control-label')) }}
+                                <div class="controls">
+                                    {{ Form::text('payment_revenue_share', (isset($agentSphere))?$agentSphere->payment_revenue_share:NULL, array('class' => 'form-control')) }}
+                                    <span class="help-block">{{ $errors->first('payment_revenue_share', ':message') }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <div class="col-md-12">
+                                <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                                    <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                                </a>
+                                <button type="reset" class="btn btn-sm btn-default">
+                                    <span class="glyphicon glyphicon-remove-circle"></span> {{
+                            trans("admin/modal.reset") }}
+                                </button>
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-ok-circle"></span>
+                                    @if	(isset($agent))
+                                        {{ trans("admin/modal.update") }}
+                                    @else
+                                        {{trans("admin/modal.create") }}
+                                    @endif
+                                </button>
+                            </div>
+                        </div>
+                        {{ Form::close() }}
+                    @endforeach
+
+                </div>
+            @endif
         </div>
     </div>
-    <script type="text/javascript">
-        $('.select2').select2();
-    </script>
 @stop
 
 @section('styles')
@@ -335,6 +253,24 @@
             color: #833B53;
         }
 
+        .form-group-revenue {
+            width: 49%;
+            float: left;
+            margin-top: 0;
+        }
+
+        .form-group-revenue:last-child {
+            float: right;
+        }
+        .form-group-wrap:after, .clearfix:after {
+            content: " ";
+            display: block;
+            clear: both;
+        }
+        .agent-sphere-form {
+            margin-bottom: 36px;
+        }
+
     </style>
 @stop
 
@@ -345,98 +281,27 @@
 
         @if (isset($agent))
 
+        $('.agentSphereForm').on('submit', function (e) {
+            e.preventDefault();
 
-        $(function(){
+            var param = $(this).serialize();
 
-            /**
-             * Обработка формы купленных средств агента
-             *
-             */
-            $('.wallet_form').on('submit', function( event ) {
+            var $alert = $(this).find('.alert');
 
-                // отменяем действия по умолчанию
-                event.preventDefault();
-
-                // выбираем данные из формы
-                var plus = $(this).find('.plus').val();
-                var minus = $(this).find('.minus').val();
-                var wallet_type = $(this).find('.wallet_type').val();
-
-                // определяем величину на которую нужно изменить сумму
-                var amount = false;
-
-                // если есть значение - записываем его в переменные
-                if ( plus != '' && plus != 0 ) {
-
-                    amount = plus;
-
-                } else if ( minus != '' && minus != 0 ) {
-
-                    amount = minus * (-1);
-                }
-
-                // если значение есть, отправляем его на сервер
-                if (amount) {
-
-                    // получение токена
-                    var token = $('meta[name=csrf-token]').attr('content');
-
-                    $.post(
-                            '{{ route('manual.wallet.change', [ 'user_id'=>$agent->id ]) }}',
-                            {
-                                _token: token,
-                                amount: amount,
-                                wallet_type: wallet_type
-                            },
-                            function (data)
-                            {
-
-
-                                $( '#' + wallet_type + 'Val').text(data.after);
-
-                                var tr = $('<tr />');
-
-                                if( data.amount > 0 ) {
-                                    $(tr).addClass('wallet_add');
-                                }
-                                else{
-                                    $(tr).addClass('wallet_decrease');
-                                }
-
-                                // добавляем в строку время
-                                $('<td />').text(data.time).appendTo(tr);
-                                // добавляем в строку сумму
-                                $('<td />').text(data.amount).appendTo(tr);
-                                // сумма которая была и стала
-                                $('<td />').text(data.after ).appendTo(tr);
-                                // какое именно хранилище кошелька
-                                $('<td />').text(data.wallet_type).appendTo(tr);
-                                // тип транзакции
-                                $('<td />').text(data.type).appendTo(tr);
-                                // id транзакции
-                                $('<td />').text(data.transaction).appendTo(tr);
-                                // инициатор транзакции
-                                $('<td />').text(data.initiator).appendTo(tr);
-                                // статус транзакции
-                                $('<td />').text(data.status).appendTo(tr);
-
-
-                                // таблица с историей кредитов
-                                $('#creditTable').prepend(tr);
-                            }
-                    );
-                }
-
-                // обнуление всех значений
-                $('#buyed-plus').val('');
-                $('#buyed-minus').val('');
-                $('#earned-plus').val('');
-                $('#earned-minus').val('');
-                $('#wasted-plus').val('');
-                $('#wasted-minus').val('');
+            $alert.find('.close').on('click', function (e) {
+                e.preventDefault();
+                $alert.slideUp();
             });
 
-
+            $.post('{{ route('accountManager.agent.revenue') }}', param, function (data) {
+                if(data['error'] == true) {
+                    $alert.removeClass('alert-success').addClass('alert-warning');
+                } else {
+                    $alert.removeClass('alert-warning').addClass('alert-success');
+                }
+                $alert.find('.alertContent').html(data['message']);
+                $alert.slideDown();
+            });
         });
 
         @endif

@@ -7,12 +7,14 @@ use App\Helper\PayMaster\PayInfo;
 use App\Helper\PayMaster\Pay;
 use App\Http\Controllers\AgentController;
 use App\Models\AgentBitmask;
+use App\Models\CheckClosedDeals;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\File;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
@@ -388,53 +390,55 @@ class LeadController extends AgentController {
             // получаем данные фильтра
             $eFilter = $request->only('filter')['filter'];
 
-            // перебираем данные и проверяем на соответствие
-            foreach ($eFilter as $eFKey => $eFVal) {
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
 
-                // проверяем ключ
-                switch($eFKey) {
+                    // проверяем ключ
+                    switch($eFKey) {
 
-                    // если фильтр по дате
-                    case 'date':
+                        // если фильтр по дате
+                        case 'date':
 
-                        // проверяем значение фильтра
+                            // проверяем значение фильтра
 
-                        if($eFVal=='2d') {
-                            // два последних дня
+                            if($eFVal=='2d') {
+                                // два последних дня
 
-                            // находим время
-                            $date = new \DateTime();
-                            // выбираем интервал
-                            $date->sub(new \DateInterval('P2D'));
+                                // находим время
+                                $date = new \DateTime();
+                                // выбираем интервал
+                                $date->sub(new \DateInterval('P2D'));
 
-                            // отфильтровуем с аукционе только то, что соответсвтует интервалу
-                            $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
-                                return $auction['lead']['created_at'] >= $date->format('Y-m-d');
-                            });
-
-
-                        } elseif($eFVal=='1m') {
-                            // последний месяц
-
-                            // находим время
-                            $date = new \DateTime();
-                            // выбираем интервал
-                            $date->sub(new \DateInterval('P1M'));
-
-                            // отфильтровуем с аукционе только то, что соответсвтует интервалу
-                            $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
-                                return $auction['lead']['created_at'] >= $date->format('Y-m-d');
-                            });
+                                // отфильтровуем с аукционе только то, что соответсвтует интервалу
+                                $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
+                                    return $auction['lead']['created_at'] >= $date->format('Y-m-d');
+                                });
 
 
-                        } else {
-                            // если значения фильтра нет
+                            } elseif($eFVal=='1m') {
+                                // последний месяц
 
-                            // ничего не делаем
-                        }
+                                // находим время
+                                $date = new \DateTime();
+                                // выбираем интервал
+                                $date->sub(new \DateInterval('P1M'));
 
-                        break;
-                    default: ;
+                                // отфильтровуем с аукционе только то, что соответсвтует интервалу
+                                $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
+                                    return $auction['lead']['created_at'] >= $date->format('Y-m-d');
+                                });
+
+
+                            } else {
+                                // если значения фильтра нет
+
+                                // ничего не делаем
+                            }
+
+                            break;
+                        default: ;
+                    }
                 }
             }
         }
@@ -1398,9 +1402,11 @@ class LeadController extends AgentController {
 
         // Если сделка отмечается закрытой
         if($status == 'closing_deal') {
-
+            if(empty($request->price)) {
+                return response()->json('priceRequired');
+            }
             // закрываем сделку
-            $openedLead->closeDeal();
+            $openedLead->closeDeal($request->price);
 
             return response()->json('setClosingDealStatus');
         }
@@ -1419,6 +1425,46 @@ class LeadController extends AgentController {
             // присылаем подтверждение что статус изменен
             return response()->json('statusChanged');
         }
+    }
+
+    public function checkUpload(Request $request)
+    {
+        $open_lead_id = $request->input('open_lead_id');
+
+        return \Plupload::file('file', function($file) use ($open_lead_id) {
+
+            $original_name = $file->getClientOriginalName();
+            $file_name = md5_file( $file->getRealPath() ) . '.' . File::extension( $original_name );
+            $directory = 'uploads/agent/'.$this->uid.'/';
+
+            if(!File::exists($directory.$file_name)) {
+
+                // Store the uploaded file
+                $file->move(public_path($directory), $file_name);
+
+                $check = new CheckClosedDeals();
+                $check->open_lead_id = $open_lead_id;
+                $check->url = $directory;
+                $check->name = $original_name;
+                $check->file_name = $file_name;
+                $check->save();
+
+                // This will be included in JSON response result
+                return [
+                    'success'   => true,
+                    'message'   => 'Upload successful.',
+                    'file'      => $original_name,
+                    //'id'        => $photo->id,
+                    // 'url'       => $photo->getImageUrl($filename, 'medium'),
+                    // 'deleteUrl' => action('MediaController@deleteDelete', [$photo->id])
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'The file already exists!'
+                ];
+            }
+        });
     }
 
 

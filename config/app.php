@@ -175,6 +175,11 @@ return [
          */
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
 
+        /*
+         * Laravel Plupload
+         */
+        Jenky\LaravelPlupload\PluploadServiceProvider::class,
+
     ],
 
     /*
@@ -233,6 +238,8 @@ return [
         'LaravelLocalization'   => Mcamara\LaravelLocalization\Facades\LaravelLocalization::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
+
+        'Plupload' => Jenky\LaravelPlupload\Facades\Plupload::class,
 
     ],
 

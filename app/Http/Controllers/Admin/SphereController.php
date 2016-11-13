@@ -1650,7 +1650,7 @@ class SphereController extends AdminController {
             ->with('sphere', $sphere)
             ->with('mask_id', $mask_id)
             ->with('mask', $bitmask)
-            ->with('price', $mask->status);
+            ->with('price', $mask);
     }
 
 

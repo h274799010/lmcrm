@@ -479,19 +479,20 @@ class Lead extends EloquentUser {
         }
 
 
+
+        // снимаем оплату за открытие лида
+        $payment = Pay::openLead($lead, $agent, $mask_id);
+
+        // выход если платеж не произведен
+        if (!$payment['status']) {
+            return trans('lead/lead.openlead.low_balance');
+        }
+
         // заносим лид в таблицу открытых лидов
         $openLead =
         OpenLeads::makeOpen( $lead, $agent->id, $mask_id );
 
         if( $openLead ) {
-
-            // снимаем оплату за открытие лида
-            $payment = Pay::openLead($lead, $agent, $mask_id);
-
-            // выход если платеж не произведен
-            if (!$payment['status']) {
-                return trans('lead/lead.openlead.low_balance');
-            }
 
 
             // если лид открыт максимальное количество раз

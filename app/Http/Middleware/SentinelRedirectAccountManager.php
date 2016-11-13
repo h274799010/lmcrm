@@ -21,7 +21,7 @@ class SentinelRedirectAccountManager
             $accountManager = Sentinel::findRoleBySlug('account_manager');
 
             if ($user->inRole($accountManager)) {
-                return redirect()->intended('accountManager/agent/list');
+                return redirect()->route('accountManager.agent.index');
             }
         }
         return $next($request);

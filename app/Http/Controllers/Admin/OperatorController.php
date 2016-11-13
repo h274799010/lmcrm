@@ -5,6 +5,7 @@ use App\Http\Requests\AdminUsersEditFormRequest;
 use App\Models\Operator;
 use App\Models\OperatorSphere;
 use App\Models\Sphere;
+use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
@@ -99,6 +100,12 @@ class OperatorController extends AdminController {
         /*$operator->update($request->except('password','password_confirmation'));
         dd($operator);*/
 
+        return redirect()->route('admin.operator.index');
+    }
+
+    public function destroy($id)
+    {
+        User::findOrFail($id)->delete();
         return redirect()->route('admin.operator.index');
     }
 

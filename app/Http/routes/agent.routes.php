@@ -85,12 +85,17 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
     // установка статуса лида
     Route::post('lead/setOpenLeadStatus',['as'=>'agent.lead.setOpenLeadStatus', 'uses' => 'Agent\LeadController@setOpenLeadStatus']);
 
+    Route::post('lead/checkUpload',['as'=>'agent.lead.checkUpload', 'uses' => 'Agent\LeadController@checkUpload']);
+
     // todo удалить, установка следующего по счету статуса лида
     Route::get('lead/nextStatus/{id}',['as'=>'agent.lead.nextStatus', 'uses' => 'Agent\LeadController@nextStatus']);
 
 
     // получение подробной информации об открытом лиде
     Route::post('openedLeadsAjax', ['as'=>'agent.lead.openedAjax','uses'=>'Agent\LeadController@openedLeadsAjax']);
+
+
+    Route::post('getBalance', ['as'=>'agent.sphere.getBalance','uses'=>'Agent\SphereController@getBalance']);
 
     #Route::get('lead/{id}/edit',['as'=>'agent.lead.edit', 'uses' => 'Agent\LeadController@edit']);
     #Route::match(['put','post'],'lead/{id}',['as'=>'agent.lead.update', 'uses' => 'Agent\LeadController@update']);

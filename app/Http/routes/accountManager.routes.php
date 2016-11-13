@@ -2,68 +2,35 @@
 
 Route::group(['prefix' => 'accountManager','middleware' => ['auth'] ], function() {
 
-    // Список всех агентов
-    Route::get('agent/list', ['as' => 'accountManager.agent.list', 'uses' => 'AccountManager\AgentController@agentList']);
+    /*
+     * Agents routes
+     */
+    Route::get('agent', ['as' => 'accountManager.agent.index', 'uses' => 'AccountManager\AgentController@index']);
+    Route::get('agent/data', ['as' => 'accountManager.agent.data', 'uses' => 'AccountManager\AgentController@data']);
+    Route::get('agent/create',['as'=>'accountManager.agent.create', 'uses' => 'AccountManager\AgentController@create']);
+    Route::post('agent/store',['as'=>'accountManager.agent.store', 'uses' => 'AccountManager\AgentController@store']);
+    Route::post('agent/revenue',['as'=>'accountManager.agent.revenue', 'uses' => 'AccountManager\AgentController@revenueUpdate']);
+    Route::get('agent/{id}/edit',['as'=>'accountManager.agent.edit', 'uses' => 'AccountManager\AgentController@edit']);
+    Route::match(['put','post'],'agent/{id}/update',['as'=>'accountManager.agent.update', 'uses' => 'AccountManager\AgentController@update']);
+    Route::get('agent/{id}/destroy', ['as'=>'accountManager.agent.delete', 'uses' => 'AccountManager\AgentController@destroy']);
 
-    // Подробная информация о агенте
-    Route::get('agent/info/{agent_id}', [ 'as' => 'accountManager.agent.info', 'uses' => 'AccountManager\AgentController@agentInfo' ]);
+    /*
+     * Operators routes
+     */
+    Route::get('operator', ['as' => 'accountManager.operator.index', 'uses' => 'AccountManager\OperatorController@index']);
+    Route::get('operator/data', ['as' => 'accountManager.operator.data', 'uses' => 'AccountManager\OperatorController@data']);
+    Route::get('operator/create',['as'=>'accountManager.operator.create', 'uses' => 'AccountManager\OperatorController@create']);
+    Route::post('operator/store',['as'=>'accountManager.operator.store', 'uses' => 'AccountManager\OperatorController@store']);
+    Route::get('operator/{id}/edit',['as'=>'accountManager.operator.edit', 'uses' => 'AccountManager\OperatorController@edit']);
+    Route::match(['put','post'],'operator/{id}/update',['as'=>'accountManager.operator.update', 'uses' => 'AccountManager\OperatorController@update']);
+    Route::get('operator/{id}/destroy', ['as'=>'accountManager.operator.delete', 'uses' => 'AccountManager\OperatorController@destroy']);
 
-    // Подробная информация о агенте
-    Route::get('agent/edit/{agent_id}', [ 'as' => 'accountManager.agent.edit', 'uses' => 'AccountManager\AgentController@agentEdit' ]);
-
-    // Подробная информация о агенте
-    Route::post('agent/update', [ 'as' => 'accountManager.agent.update', 'uses' => 'AccountManager\AgentController@update' ]);
-
-    // Группы агентов
-    Route::get('agentGroups/list', [ 'as' => 'accountManager.agentGroups.list', 'uses' => 'AccountManager\AgentGroupsController@groups' ]);
-
-    // Вызов форми для создания группы агентов
-    Route::get('agentGroups/create', [ 'as' => 'accountManager.agentGroups.create', 'uses' => 'AccountManager\AgentGroupsController@create' ]);
-
-    // Сохранение группы агентов
-    Route::post('agentGroups/store', [ 'as' => 'accountManager.agentGroups.store', 'uses' => 'AccountManager\AgentGroupsController@store' ]);
-
-    // Удаление группы агентов
-    Route::post('agentGroups/delete/{group_id}', [ 'as' => 'accountManager.agentGroups.delete', 'uses' => 'AccountManager\AgentGroupsController@delete' ]);
-
-    // Просмотр агентов в группе
-    Route::get('agentGroups/agents/{group_id}', [ 'as' => 'accountManager.agentGroups.agents', 'uses' => 'AccountManager\AgentGroupsController@agents' ]);
-
-    // Страница добавления агентов в группу
-    Route::get('agentGroups/addAgents/{group_id}', [ 'as' => 'accountManager.agentGroups.addAgents', 'uses' => 'AccountManager\AgentGroupsController@addAgents' ]);
-
-    // Добавление агента в группу
-    Route::post('agentGroups/addAgent', [ 'as' => 'accountManager.agentGroups.addAgent', 'uses' => 'AccountManager\AgentGroupsController@putAgent' ]);
-
-    // Удаление агента из группы
-    Route::post('agentGroups/deleteAgent', [ 'as' => 'accountManager.agentGroups.deleteAgent', 'uses' => 'AccountManager\AgentGroupsController@deleteAgent' ]);
-
-
-    // Список всех операторов
-    Route::get('operators/list', ['as' => 'accountManager.operators.list', 'uses' => 'AccountManager\OperatorController@operatorsList']);
-
-    // Группы операторов
-    Route::get('operatorGroups/list', [ 'as' => 'accountManager.operatorGroups.list', 'uses' => 'AccountManager\OperatorGroupsController@groups' ]);
-
-    // Вызов форми для создания группы операторов
-    Route::get('operatorGroups/create', [ 'as' => 'accountManager.operatorGroups.create', 'uses' => 'AccountManager\OperatorGroupsController@create' ]);
-
-    // Сохранение группы операторов
-    Route::post('operatorGroups/store', [ 'as' => 'accountManager.operatorGroups.store', 'uses' => 'AccountManager\OperatorGroupsController@store' ]);
-
-    // Удаление группы операторов
-    Route::post('operatorGroups/delete/{group_id}', [ 'as' => 'accountManager.operatorGroups.delete', 'uses' => 'AccountManager\OperatorGroupsController@delete' ]);
-
-    // Просмотр операторов в группе
-    Route::get('operatorGroups/operators/{group_id}', [ 'as' => 'accountManager.operatorGroups.operators', 'uses' => 'AccountManager\OperatorGroupsController@operators' ]);
-
-    // Страница добавления операторов в группу
-    Route::get('operatorGroups/addOperators/{group_id}', [ 'as' => 'accountManager.operatorGroups.addOperators', 'uses' => 'AccountManager\OperatorGroupsController@addOperators' ]);
-
-    // Добавление оператора в группу
-    Route::post('operatorGroups/addOperator', [ 'as' => 'accountManager.operatorGroups.addOperator', 'uses' => 'AccountManager\OperatorGroupsController@putOperator' ]);
-
-    // Удаление оператора из группы
-    Route::post('operatorGroups/deleteOperator', [ 'as' => 'accountManager.operatorGroups.deleteOperator', 'uses' => 'AccountManager\OperatorGroupsController@deleteOperator' ]);
+    /*
+     * Spheres routes
+     */
+    Route::get('sphere/filters/reprice', ['as' => 'accountManager.sphere.reprice', 'uses' => 'AccountManager\SphereController@filtration']);
+    Route::get('sphere/filters/maskAll', ['as' => 'accountManager.sphere.repriceAll', 'uses' => 'AccountManager\SphereController@filtrationAll']);
+    Route::get('sphere/{sphere}/filters/reprice/{id}/edit/{mask_id}', ['as' => 'accountManager.sphere.reprice.edit', 'uses' => 'AccountManager\SphereController@filtrationEdit']);
+    Route::match(['put','post'],'sphere/{sphere}/filters/reprice/{id}', ['as' => 'accountManager.sphere.reprice.update', 'uses' => 'AccountManager\SphereController@filtrationUpdate']);
 
 });

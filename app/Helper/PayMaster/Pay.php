@@ -2,6 +2,7 @@
 
 namespace App\Helper\PayMaster;
 
+use App\Models\SalesmanInfo;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
@@ -105,13 +106,29 @@ class Pay
     {
 
         // получаем цену за закрытие сделки по лиду
-        $price = Price::closeDeal( $agent );
+        if($agent->inRole('salesman')) {
+            $salesmanInfo = SalesmanInfo::where('salesman_id', '=', $agent->id)->first();
+            $agentParent = Agent::find($salesmanInfo->agent_id);
 
-        // проверка, может ли агент оплатить сделку
-        if( !$agent->wallet->isPossible( $price ) ){
+            $price = Price::closeDeal( $agentParent->id, $lead->sphere_id );
+            $user_id = $agentParent->id;
 
-            // отмена платежа из-за низкого баланса
-            return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
+            // проверка, может ли агент оплатить сделку
+            if( !$agentParent->wallet->isPossible( $price ) ){
+
+                // отмена платежа из-за низкого баланса
+                return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
+            }
+        } else {
+            $price = Price::closeDeal( $agent->id, $lead->sphere_id );
+            $user_id = $agent->id;
+
+            // проверка, может ли агент оплатить сделку
+            if( !$agent->wallet->isPossible( $price ) ){
+
+                // отмена платежа из-за низкого баланса
+                return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
+            }
         }
 
         // оплачиваем закрытие сделки
@@ -119,7 +136,7 @@ class Pay
             Payment::toSystem(
                 [
                     'initiator_id'  => $agent->id,  // id инициатора платежа
-                    'user_id'       => $agent->id,  // id пользователя, с кошелька которого снимается сумма
+                    'user_id'       => $user_id,  // id пользователя, с кошелька которого снимается сумма
                     'type'          => 'closingDeal',  // тип транзакции
                     'amount'        => $price,      // снимаемая с пользователя сумма
                     'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже

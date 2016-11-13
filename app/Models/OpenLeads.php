@@ -253,7 +253,7 @@ class OpenLeads extends Model {
      * Закрытие сделки по открытому лиду
      *
      */
-    public function closeDeal()
+    public function closeDeal($price)
     {
 
         // если у агента уже заключена сделка
@@ -283,6 +283,15 @@ class OpenLeads extends Model {
             $this->state = 2;
             $this->save();
 
+            $closedDeal = new ClosedDeals();
+            $closedDeal->open_lead_id = $this['lead_id'];
+            $closedDeal->agent_id = $agent->id;
+            $closedDeal->sender = $agent->id;
+            $closedDeal->source = $agent->id;
+            $closedDeal->comments = '';
+            $closedDeal->price = $price;
+            $closedDeal->created_at = new \DateTime();
+            $closedDeal->save();
         }
 
         return true;

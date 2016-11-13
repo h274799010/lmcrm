@@ -2,6 +2,7 @@
 
 namespace App\Helper\PayMaster;
 
+use App\Models\AgentSphere;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Wallet;
@@ -62,14 +63,15 @@ class Price
      *
      * @return double
      */
-    public static function closeDeal( $agent )
+    public static function closeDeal( $agent_id, $sphere_id )
     {
 
         // находим платежные данные агента
-        $agentInfo = AgentInfo::where( 'agent_id', $agent->id )->first();
+        //$agentInfo = AgentInfo::where( 'agent_id', $agent_id )->first();
+        $agentSphere = AgentSphere::where( 'agent_id', '=', $agent_id )->whereAnd( 'sphere_id', '=', $sphere_id )->first();
 
         // процент агента за закрытие сделки по лиду
-        $paymentRevenueShare = $agentInfo->payment_revenue_share * 20;
+        $paymentRevenueShare = $agentSphere->payment_revenue_share * 20;
 
         return $paymentRevenueShare;
 
