@@ -1,10 +1,10 @@
 
-var app = angular.module('app', [])
+var app = angular.module('app', ['angular-sortable-view'])
 
     .controller('SphereCtrl', function ( $scope, $http, $compile ) {
 
 
-        /** Атрибуты агента */
+        /** Модель редактора атрибутов */
 
         // редактор атрибутов
         var attrEditorData = {
@@ -139,6 +139,9 @@ var app = angular.module('app', [])
                 }
             }
         };
+
+
+        /** Атрибуты агента */
 
         // подключаем данные, клонируем модель чтобы не перебивать данные
         $scope.attrEditor = JSON.parse( JSON.stringify( attrEditorData ) );
@@ -766,20 +769,6 @@ var app = angular.module('app', [])
         };
 
 
-        /** Общее */
-
-        // действия при закрытия модального окна добавления атрибутов
-        // по идее обнуление всех переменных модели
-        $('#modal-page').on('hidden.bs.modal', function (e) {
-
-            // возвращаем данные редактора в начальное состояние
-            // клонируем модель чтобы не перебивать данные
-            $scope.attrEditor = JSON.parse( JSON.stringify( attrEditorData ) );
-            $scope.$apply($scope.attrEditor);
-        });
-
-
-
         /** Статусы */
 
         /**
@@ -837,10 +826,34 @@ var app = angular.module('app', [])
         };
 
 
+        /** Общее */
 
+        /**
+         * Позиционирование елементов по индексу
+         * Обнуление всех переменных модели
+         */
+        $('#modal-page').on('hidden.bs.modal', function (e) {
 
-        $scope.log = function(){
-            console.log( $scope.data.cform.values);
+            // возвращаем данные редактора в начальное состояние
+            // клонируем модель чтобы не перебивать данные
+            $scope.attrEditor = JSON.parse( JSON.stringify( attrEditorData ) );
+            $scope.$apply($scope.attrEditor);
+        });
+
+        /**
+         * Позиционирование елементов по индексу
+         *
+         *
+         * Индекс итема соответствует позиции,
+         * если сортировка идет по 'position'.
+         * Поэтому позиция элемента == индекс+1
+         */
+        $scope.positioning = function( list ){
+            // перебираем список и выставляем соответствующую позицию каждому элементу
+            list.forEach(function(item, i) {
+                // проставляем позицию
+                item.position = i+1;
+            });
         };
 
 

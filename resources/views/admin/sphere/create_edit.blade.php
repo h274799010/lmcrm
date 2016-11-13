@@ -681,8 +681,8 @@
                                     </div>
                                     <div class="form jSplash-data" id="lead">
 
-                                        <div class="list-group">
-                                            <div ng-repeat="attr in data.lead.values" class="list-group-item" ng-hide="attr.delete">
+                                        <div sv-root sv-part="data.lead.values" sv-on-sort="positioning($partFrom)" class="list-group">
+                                            <div ng-repeat="attr in data.lead.values | orderBy:'pisition'" sv-element class="list-group-item" ng-hide="attr.delete">
                                                 <div class="row">
 
                                                     <span class="col-xs-10">
@@ -791,7 +791,7 @@
                                                         </div>
                                                     </span>
                                                     <span class="col-xs-2 form-group">
-                                                        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                                        <span sv-handle class="glyphicon glyphicon-move" aria-hidden="true"></span>
                                                         <span ng-click="showLeadEditAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
                                                         <span ng-click="deleteLeadAttr( attr )" class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
@@ -1557,6 +1557,7 @@
     {{--<script type="text/javascript" src="{{ asset('components/jSplash/jSplash.js') }}"></script>--}}
     {{--<script type="text/javascript" src="{{ asset('components/jSplash/lang/jSplash.'.LaravelLocalization::getCurrentLocale().'.js') }}"></script>--}}
     <script type="text/javascript" src="/assets/admin/js/angular.min.js"></script>
+    <script type="text/javascript" src="/assets/admin/js/angular-sortable-view.min.js"></script>
 
     <script type="text/javascript">
 
