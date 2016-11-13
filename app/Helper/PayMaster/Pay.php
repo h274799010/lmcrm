@@ -120,7 +120,7 @@ class Pay
                 return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
             }
         } else {
-            $price = Price::closeDeal( $agent, $lead->sphere_id );
+            $price = Price::closeDeal( $agent->id, $lead->sphere_id );
             $user_id = $agent->id;
 
             // проверка, может ли агент оплатить сделку

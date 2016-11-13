@@ -85,6 +85,8 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
     // установка статуса лида
     Route::post('lead/setOpenLeadStatus',['as'=>'agent.lead.setOpenLeadStatus', 'uses' => 'Agent\LeadController@setOpenLeadStatus']);
 
+    Route::post('lead/checkUpload',['as'=>'agent.lead.checkUpload', 'uses' => 'Agent\LeadController@checkUpload']);
+
     // todo удалить, установка следующего по счету статуса лида
     Route::get('lead/nextStatus/{id}',['as'=>'agent.lead.nextStatus', 'uses' => 'Agent\LeadController@nextStatus']);
 
