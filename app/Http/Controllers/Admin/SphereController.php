@@ -1218,7 +1218,7 @@ class SphereController extends AdminController {
                                     // присваиваем валидации новые значения
                                     $dbValidate->_type = 'validate';
                                     $dbValidate->name = $validate['val'];
-                                    $dbValidate->value = '';
+                                    $dbValidate->value = $validate['vale'];
 
                                     // сохраняем
                                     $dbValidate->save();
@@ -1233,7 +1233,7 @@ class SphereController extends AdminController {
                                 // присваиваем валидации новые значения
                                 $newValidate->_type = 'validate';
                                 $newValidate->name = $validate['val'];
-                                $newValidate->value = '';
+                                $newValidate->value = $validate['vale'];
                                 // сохраняем
                                 $leadAttr->validators()->save($newValidate);
                             }
@@ -1349,9 +1349,7 @@ class SphereController extends AdminController {
                             $leadBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean');
 
 
-                            // todo доработать ветвление
-
-                            /** смысл этой конструкции я не понял */
+                            /** копирование данных, если опция была создана ветвлением */
                             if (isset($option['parent'])) {
                                 // копирование атрибутов
                                 $agentBitmask->copyAttr
