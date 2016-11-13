@@ -822,10 +822,10 @@
 
                                     <div class="panel-body">
 
-                                        <div ng-sortable="sortableOptions" class="list-group">
+                                        <div sv-root sv-part="data.cform.values" sv-on-sort="positioning($partFrom)" class="list-group">
 
                                             {{-- Добавляем все атрибуты --}}
-                                            <div ng-repeat="attr in data.cform.values" class="list-group-item" ng-hide="attr.delete">
+                                            <div ng-repeat="attr in data.cform.values" class="list-group-item" sv-element ng-hide="attr.delete">
 
                                                 {{-- Если тип radio --}}
                                                 <div ng-if="attr._type=='radio'" class="row">
@@ -856,7 +856,7 @@
                                                         </div>
                                                     </span>
                                                     <span class="col-xs-2 form-group">
-                                                        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                                        <span sv-handle class="glyphicon glyphicon-move" aria-hidden="true"></span>
                                                         <span ng-click="editAgentAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
                                                         <span ng-click="deleteAgentAttr( attr )" class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
@@ -885,7 +885,7 @@
                                                         </div>
                                                     </span>
                                                     <span class="col-xs-2 form-group">
-                                                        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                                        <span sv-handle class="glyphicon glyphicon-move" aria-hidden="true"></span>
                                                         <span ng-click="editAgentAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
                                                         <span ng-click="deleteAgentAttr( attr )" class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
@@ -922,7 +922,7 @@
                                                         </div>
                                                     </span>
                                                     <span class="col-xs-2 form-group">
-                                                        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                                        <span sv-handle class="glyphicon glyphicon-move" aria-hidden="true"></span>
                                                         <span ng-click="editAgentAttr( attr )" class="glyphicon glyphicon-pencil in-modal splash-edit" aria-hidden="true"></span>
                                                         <span ng-click="deleteAgentAttr( attr )" class="glyphicon glyphicon-trash splash-delete" aria-hidden="true"></span>
                                                     </span>
