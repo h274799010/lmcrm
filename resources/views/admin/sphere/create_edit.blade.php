@@ -1336,7 +1336,7 @@
 
                                             {{-- селект с выбором валидаций --}}
                                             <div class="col-xs-7">
-                                                <select ng-model="validate.val" class="form-control select pull-left">
+                                                <select ng-model="validate.val" ng-change="clearAdditionalValidationField(validate)" class="form-control select pull-left">
                                                     <option value="0"></option>
                                                     <option value="email">email</option>
                                                     <option value="url">url</option>
@@ -1425,7 +1425,7 @@
 
                                             {{-- селект с выбором валидаций --}}
                                             <div class="col-xs-7">
-                                                <select ng-model="validate.val" class="form-control select pull-left">
+                                                <select ng-model="validate.val" ng-change="clearAdditionalValidationField(validate)" class="form-control select pull-left">
                                                     <option value="0"></option>
                                                     <option value="email">email</option>
                                                     <option value="url">url</option>

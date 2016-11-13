@@ -798,6 +798,13 @@ var app = angular.module('app', ['angular-sortable-view'])
             return $scope.attrEditor.lead.additionalValidationFieldDisabled[ field ];
         };
 
+        /**
+         * Очистка дополнительного поля валидации при смене селекта
+         */
+        $scope.clearAdditionalValidationField = function(validate){
+            validate.vale = '';
+        };
+
 
         /** Статусы */
 
