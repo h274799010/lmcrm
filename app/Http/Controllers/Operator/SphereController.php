@@ -10,6 +10,7 @@ use App\Models\LeadBitmask;
 use App\Models\Operator;
 use App\Models\OperatorSphere;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -32,27 +33,35 @@ class SphereController extends Controller {
 
 
     /**
-     * Display a listing of the resource.
+     * Список лидов, на редактирование оператору
      *
-     * @return Response
+     * @return View
      */
     public function index()
     {
-        //$leads = Lead::whereIn('status', [0,1])->with([ 'sphere', 'user' ])->get();
+        // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
+        // получаем все сферы оператора
         $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
-
+        // все лиды по сфере
         $leads = Lead::whereIn('status', [0,1])->whereIn('sphere_id', $spheres)->with([ 'sphere', 'user' ])->get();
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
 
 
+    /**
+     * Список отредактированных лидов оператором
+     *
+     * @return View
+     */
     public function editedLids()
     {
+        // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
-
+        // получаем id всех лидов, которые редактировал оператор
         $leadsId = Operator::where('operator_id', '=', $operator->id)->with('editedLeads')->get()->lists('lead_id');
+        // получаем все лиды оператора
         $leads = Lead::whereNotIn('status', [0, 1])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
 
         return view('sphere.lead.editedList')->with( 'leads', $leads );
