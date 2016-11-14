@@ -9,6 +9,7 @@ use App\Models\Auction;
 use App\Models\LeadBitmask;
 use App\Models\Operator;
 use App\Models\OperatorSphere;
+use Illuminate\Support\Facades\Redirect;
 use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -69,6 +70,7 @@ class SphereController extends Controller {
      */
     public function edit( $sphere, $id )
     {
+
         $operator = Sentinel::getUser();
         $leadEdited = Operator::where('lead_id', '=', $id)->where('operator_id', '=', $operator->id)->first();
 
@@ -153,19 +155,19 @@ class SphereController extends Controller {
             return redirect()->route('operator.sphere.index')->withErrors(['lead_closed' => 'Лид уже отредактирован другим оператором!']);
         }
 
-        // если оператор отметил лид как плохой
-        if( $request->input('bad') ){
-
-            // расчитываем лид
-            $lead->operatorBad();
-
-            // выходим из метода
-            if( $request->ajax() ){
-                return response()->json();
-            } else {
-                return redirect()->route('operator.sphere.index');
-            }
-        }
+        // todo если оператор отметил лид как плохой
+//        if( $request->input('bad') ){
+//
+//            // расчитываем лид
+//            $lead->operatorBad();
+//
+//            // выходим из метода
+//            if( $request->ajax() ){
+//                return response()->json();
+//            } else {
+//                return redirect()->route('operator.sphere.index');
+//            }
+//        }
 
         /** --  П О Л Я  лида  -- */
 
@@ -288,6 +290,27 @@ class SphereController extends Controller {
             return redirect()->route('operator.sphere.index');
         }
     }
+
+
+    /**
+     * Устанавливаес лиду статус badLead
+     *
+     * @param  integer  $lead_id
+     *
+     * @return Redirect
+     */
+    public function setBadLead( $lead_id ){
+
+        // находим лид
+        $lead = Lead::find( $lead_id );
+
+        // расчитываем лид
+        $lead->operatorBad();
+
+        // переходим на главную страницу
+        return redirect()->route('operator.sphere.index');
+    }
+
 
 
     /**

@@ -14,6 +14,8 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
 
     Route::post('check', ['as' => 'operator.sphere.lead.check', 'uses' => 'Operator\SphereController@checkLead']);
 
+    // устанавливает лиду статус badLead и делает полный расчет по нему
+    Route::get('setBad/lead/{id}',['as'=>'set.bad.lead', 'uses' => 'Operator\SphereController@setBadLead']);
+
     //Route::resource('customer/filter','Operator\CustomerFilterController@create');
 });
-?>
