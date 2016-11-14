@@ -234,11 +234,8 @@ var app = angular.module('app', ['angular-sortable-view'])
             {
                 id: 0,       // id статуса
                 val: '',     // имя
-                vale:       // значения
-                    [
-                        0,     // подумат над значениями при сохранении переключателя
-                        null   // незнаю что за значение
-                    ]
+                vale: true      // значения
+
                 //position: attr.option.length + 1 // позиция
             };
 
@@ -902,9 +899,18 @@ var app = angular.module('app', ['angular-sortable-view'])
                 // преобразование данных и добавление на страницы
 
                 /** переключатель на статусе не понимает 1 и 0, приходится преобразовывать в булев тип */
-                // преобразовываем данные в булев тип
+                // преобразовываем данные статусов в булев тип
                 $.each(data.threshold.values, function( key, val){
                     val.vale[0] = (val.vale[0] == 1);
+                });
+
+                // преобразовываем данные фильтра агента в булев тип
+                $.each(data.cform.values, function( key, val ){
+                    //val.vale[0] = (val.vale[0] == 1);
+                    $.each(val.option, function( key, opt ){
+                        opt.vale = (opt.vale == 1);
+                    });
+
                 });
 
                 /** Преобразовываем поля int в строки */
@@ -926,6 +932,7 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 // отдаем модель
                 $scope.data = data;
+                console.log(data);
             })
             .error(function ( data ) {
                 // сообщение об ошибке при получении данных

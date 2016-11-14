@@ -1131,39 +1131,49 @@
                                         </div>
 
                                         {{-- сама опция с данными --}}
-                                        <div ng-repeat="option in attrEditor.agentAttrData.option" class="row duplicate duplicated" ng-hide="option.delete">
+                                        <div
+                                                sv-root
+                                                sv-part="attrEditor.agentAttrData.option"
+                                                sv-on-sort="positioning($partFrom)"
+                                        >
+                                            <div ng-repeat="option in attrEditor.agentAttrData.option" sv-element class="row duplicate duplicated" ng-hide="option.delete">
 
-                                            {{-- переключатель --}}
-                                            <div class="col-xs-4">
-                                                <div class="togglebutton">
-                                                    <label>
-                                                        no
-                                                        <input ng-model="option.vale[0]" class="default extend" type="checkbox" value=''>
-                                                        <span class="toggle"></span>
-                                                        yes
-                                                    </label>
+                                                {{-- переключатель --}}
+                                                <div class="col-xs-4">
+                                                    <div class="togglebutton">
+                                                        <label>
+                                                            no
+                                                            <input ng-model="option.vale" class="default extend" type="checkbox" value=''>
+                                                            <span class="toggle"></span>
+                                                            yes
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                {{-- кнопка перемещения --}}
+                                                <div class="col-xs-1 ">
+                                                    <div sv-handle class="glyphicon glyphicon-move lead_option_handle" aria-hidden="true"></div>
+                                                </div>
+
+                                                {{-- название атрибута --}}
+                                                <div ng-class="option.id != 0 ? 'col-xs-4': 'col-xs-5' ">
+                                                    <input ng-model="option.val" class="form-control pull-left flip select" type="text"  value="">
+                                                </div>
+
+                                                {{-- кнопка создания разветвления --}}
+                                                <div class="col-xs-1" ng-show="option.id != 0">
+                                                    <a class="btn-split">
+                                                        <i class="entypo-flow-branch"></i>
+                                                    </a>
+                                                </div>
+
+                                                {{-- кнопка удаления опции --}}
+                                                <div class="col-xs-2">
+                                                    <button ng-click="deleteAgentOption( option )" class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
+                                                        <i class="entypo-cancel"></i>
+                                                    </button>
                                                 </div>
                                             </div>
-
-                                            {{-- название атрибута --}}
-                                            <div ng-class="option.id != 0 ? 'col-xs-5': 'col-xs-6' ">
-                                                <input ng-model="option.val" class="form-control pull-left flip select" type="text"  value="">
-                                            </div>
-
-                                            {{-- кнопка создания разветвления --}}
-                                            <div class="col-xs-1" ng-show="option.id != 0">
-                                                <a class="btn-split">
-                                                    <i class="entypo-flow-branch"></i>
-                                                </a>
-                                            </div>
-
-                                            {{-- кнопка удаления опции --}}
-                                            <div class="col-xs-2">
-                                                <button ng-click="deleteAgentOption( option )" class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
-                                                    <i class="entypo-cancel"></i>
-                                                </button>
-                                            </div>
-
                                         </div>
 
                                         {{-- кнопка добавления опции в атрибут --}}

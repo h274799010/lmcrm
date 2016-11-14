@@ -1205,4 +1205,5 @@ table.dataTable thead .sorting:after {
 
 .lead_option_handle{
     padding: 10px 10px;
+    cursor: move;
 }

@@ -1332,6 +1332,8 @@ class SphereController extends AdminController {
                                 $dbOption = FormFiltersOptions::find($option['id']);
                                 // присваиваем опции новые значения
                                 $dbOption->name = $option['val'];
+                                $dbOption->value = $option['vale'];
+                                $dbOption->position = $option['position'];
                                 // сохраняем
                                 $dbOption->save();
                             }
@@ -1344,6 +1346,8 @@ class SphereController extends AdminController {
                             $newOption = new FormFiltersOptions();
                             // присваиваем опции новые значения
                             $newOption->name = $option['val'];
+                            $newOption->value = $option['vale'];
+                            $newOption->position = $option['position'];
                             // сохраняем
                             $agentAttr->options()->save($newOption);
 
