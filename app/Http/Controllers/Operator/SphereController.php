@@ -9,8 +9,10 @@ use App\Models\Auction;
 use App\Models\LeadBitmask;
 use App\Models\Operator;
 use App\Models\OperatorSphere;
+use App\Models\OperatorOrganizer;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use PhpParser\Node\Expr\Cast\Object_;
 use Validator;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -305,6 +307,49 @@ class SphereController extends Controller {
 
 
     /**
+     * Установка времени оповещения
+     *
+     * @param  Request  $request
+     *
+     * @return boolean
+     */
+    public function setReminderTime( Request $request ){
+
+        // преобразовываем дату
+        $a = explode( ' ', $request->reqDate );
+        $v = explode('/', $a[0]);
+        $f = explode(':', $a[1]);
+        $t = $v[1] .'/' .$v[0] .'/' .$v[2] .' ' .$f[0] .':'.$f[1];
+
+        // дата для записи в БД
+        $remDate = date( "Y-m-d H:i:s", strtotime($t) );
+        // id лида
+        $lead_id = $request->leadId;
+
+        $operator = OperatorOrganizer::where('lead_id', $lead_id)->first();
+
+        if( $operator ){
+
+            $operator->lead_id = $lead_id;
+
+            $operator->time_reminder = $remDate;
+
+        }else{
+
+            $operator = new OperatorOrganizer;
+
+            $operator->lead_id = $lead_id;
+
+            $operator->time_reminder = $remDate;
+        }
+
+        $operator->save();
+
+        return 'true';
+    }
+
+
+    /**
      * Устанавливаес лиду статус badLead
      *
      * @param  integer  $lead_id
@@ -336,6 +381,7 @@ class SphereController extends Controller {
         Agent::findOrFail(\Sentinel::getUser()->id)->leads()->whereIn([$id])->delete();
         return response()->route('agent.lead.index');
     }
+
 
     /**
      * Проверка редактируется ли лид другим оператором

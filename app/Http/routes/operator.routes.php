@@ -17,5 +17,9 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // устанавливает лиду статус badLead и делает полный расчет по нему
     Route::get('setBad/lead/{id}',['as'=>'set.bad.lead', 'uses' => 'Operator\SphereController@setBadLead']);
 
+    // установка напоминания на звонок
+    Route::post('operator/set/reminder/time', ['as' => 'operator.set.reminder.time', 'uses' => 'Operator\SphereController@setReminderTime']);
+
+
     //Route::resource('customer/filter','Operator\CustomerFilterController@create');
 });

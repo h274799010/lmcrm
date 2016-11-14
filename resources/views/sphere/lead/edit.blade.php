@@ -224,11 +224,19 @@
 
         // событие по клику на кнопку установки времени
         $('#timeSetter').bind('click', function(){
-//           alert( $('input#time_reminder').val() );
 
-            $.post( "test.php", { func: "getNameAndTime" }, function( data ) {
-                console.log( data.name ); // John
-                console.log( data.time ); // 2pm
+
+            // получение токена
+            var token = $('meta[name=csrf-token]').attr('content');
+
+            var date = $('input#time_reminder').val();
+
+
+
+            // отправка данных на сервер
+            $.post( "{{  route('operator.set.reminder.time') }}", { reqDate: date, leadId: '{{ $lead['id'] }}', '_token': token }, function( data ) {
+//                console.log( data.name ); // John
+//                console.log( data.time ); // 2pm
             }, "json");
 
         });

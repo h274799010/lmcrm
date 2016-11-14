@@ -1636,6 +1636,9 @@ class LeadController extends AgentController {
      */
     public function updateOrganizer( Request $request )
     {
+
+        dd($request);
+
         $organizer = Organizer::find($request->id);
 
         // временная метка напоминания
