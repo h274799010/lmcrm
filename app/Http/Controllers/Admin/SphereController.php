@@ -471,7 +471,7 @@ class SphereController extends AdminController {
 
             "values"=>
             [
-                ["id"=>0,"val"=>'bad lead',"vale"=>[1,15],"position"=>1],
+                ["id"=>0,"val"=>'First step',"vale"=>[1,15],"position"=>1],
             ],
 
             "settings"=>
@@ -957,10 +957,10 @@ class SphereController extends AdminController {
         $agentData = $request['cform'];
 
         // данные агента
-        $agentDataAttr = $agentData['values'];
+        $agentDataAttr = isset($agentData['values']) ? $agentData['values'] : false;
 
         // данные лида
-        $leadDataAttr = $leadData['values'];
+        $leadDataAttr = isset($leadData['values']) ? $leadData['values'] : false;
 
         // минимальное количество лидов
         $minLead = $request['threshold']['settings']['stat']['minLead'];
@@ -1020,15 +1020,15 @@ class SphereController extends AdminController {
             $sphere->max_range = $sphereData['variables']['max_range']['values'];
         } else {
             $sphere = new Sphere();
-            $sphere->name = $sphereData['variables']['name'];
+            $sphere->name = $sphereData['variables']['name']['values'];
             $sphere->minLead = $minLead;
-            $sphere->status = $sphereData['variables']['status'];;
-            $sphere->openLead = $sphereData['variables']['openLead'];
+            $sphere->status = $sphereData['variables']['status']['values'];
+            $sphere->openLead = $sphereData['variables']['openLead']['values'];
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
             $sphere->range_show_lead_interval = $interval_range;
-            $sphere->price_call_center = $sphereData['variables']['price_call_center'];
-            $sphere->max_range = $sphereData['variables']['max_range'];
+            $sphere->price_call_center = $sphereData['variables']['price_call_center']['values'];
+            $sphere->max_range = $sphereData['variables']['max_range']['values'];
         }
 
         $sphere->save();
