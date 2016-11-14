@@ -1161,7 +1161,7 @@
                                                 </div>
 
                                                 {{-- кнопка создания разветвления --}}
-                                                <div class="col-xs-1" ng-show="option.id != 0">
+                                                <div ng-click="addAgentBranch($index)" class="col-xs-1 agent_branch_button" ng-show="option.id != 0">
                                                     <a class="btn-split">
                                                         <i class="entypo-flow-branch"></i>
                                                     </a>

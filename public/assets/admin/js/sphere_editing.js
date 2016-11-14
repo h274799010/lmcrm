@@ -234,13 +234,31 @@ var app = angular.module('app', ['angular-sortable-view'])
             {
                 id: 0,       // id статуса
                 val: '',     // имя
-                vale: true      // значения
-
-                //position: attr.option.length + 1 // позиция
+                vale: true,      // значения
+                position: $scope.attrEditor.agentAttrData.option.length + 1 // позиция
             };
 
             // добавляем статус в модель
             $scope.attrEditor.agentAttrData.option.push( newOption );
+        };
+
+        // деление опции атрибута агента
+        $scope.addAgentBranch = function( parent ){
+
+            // создаем новую опцию
+            var newOption =
+            {
+                id: 0,       // id статуса
+                val: '',     // имя
+                vale: true,      // значения
+                position: $scope.attrEditor.agentAttrData.option.length + 1, // позиция
+                parent: $scope.attrEditor.agentAttrData.option[parent].id
+            };
+
+            // добавляем статус в модель
+            $scope.attrEditor.agentAttrData.option.splice( parent+1, 0, newOption );
+
+            $scope.positioning($scope.attrEditor.agentAttrData.option);
         };
 
         // удаление опции атрибута
@@ -932,7 +950,6 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 // отдаем модель
                 $scope.data = data;
-                console.log(data);
             })
             .error(function ( data ) {
                 // сообщение об ошибке при получении данных

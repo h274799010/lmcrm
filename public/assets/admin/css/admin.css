@@ -1207,3 +1207,7 @@ table.dataTable thead .sorting:after {
     padding: 10px 10px;
     cursor: move;
 }
+
+.agent_branch_button{
+    cursor: pointer;
+}
