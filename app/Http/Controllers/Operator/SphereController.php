@@ -44,7 +44,10 @@ class SphereController extends Controller {
         // получаем все сферы оператора
         $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
         // все лиды по сфере
-        $leads = Lead::whereIn('status', [0,1])->whereIn('sphere_id', $spheres)->with([ 'sphere', 'user' ])->get();
+        $leads = Lead::whereIn('status', [0,1])->whereIn('sphere_id', $spheres)->with([ 'sphere', 'user', 'operatorOrganizer' ])->get();
+
+//        dd($leads[0]);
+
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }

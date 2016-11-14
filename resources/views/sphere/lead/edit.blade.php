@@ -147,7 +147,7 @@
         {{-- кнопка на установку BadLead --}}
         <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
         {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
-        <button class="btn btn-primary"> Call Later </button>
+        <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
         {{ Form::submit(trans('Auction'),['class'=>'btn btn-success', 'id'=>'leadToAuction']) }}
 
         {{ Form::close() }}
@@ -175,6 +175,27 @@
     </div>
 
 
+    {{-- Модальное окно на установку времени оповещения --}}
+    <div class="modal fade set_time_reminder" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Set the time reminder</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control valid" name="time" id="time_reminder" aria-invalid="false">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="timeSetter" class="btn btn-primary"> Set Time </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 @stop
 @section('scripts')
     <script type="text/javascript">
@@ -190,5 +211,31 @@
             $('#typeFrom').val('toAuction');
             $(this).closest('form').submit();
         });
+
+    $(function(){
+
+        // подключаем календарь
+        $('input#time_reminder').datetimepicker({
+            // минимальное значение даты и времени в календаре
+            minDate: new Date(),
+            // формат даты и времени
+            format: 'DD/MM/YYYY HH:mm'
+        });
+
+        // событие по клику на кнопку установки времени
+        $('#timeSetter').bind('click', function(){
+//           alert( $('input#time_reminder').val() );
+
+            $.post( "test.php", { func: "getNameAndTime" }, function( data ) {
+                console.log( data.name ); // John
+                console.log( data.time ); // 2pm
+            }, "json");
+
+        });
+
+
+
+    });
+
     </script>
 @endsection

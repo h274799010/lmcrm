@@ -13,30 +13,35 @@
     <table class="table table-bordered table-striped table-hover dataTableOperatorLeads">
         <thead>
         <tr>
-            <th>{!! trans("site/lead.name") !!}</th>
-            <th>{!! trans("main.status") !!}</th>
+            <th>{{ trans("site/lead.name") }}</th>
+            <th>{{ trans("main.status") }}</th>
 
-            <th>{!! trans("main.user") !!}</th>
-            <th>{!! trans("main.sphere") !!}</th>
+            <th>reminder for phone call</th>
+
+            <th>{{ trans("main.user") }}</th>
+            <th>{{ trans("main.sphere") }}</th>
 
 
-            <th>{!! trans("main.updated_at") !!}</th>
-            <th>{!! trans("main.action") !!}</th>
+            <th>{{ trans("main.updated_at") }}</th>
+            <th>{{ trans("main.action") }}</th>
         </tr>
         </thead>
         <tbody>
         @forelse($leads as $lead)
             <tr>
-                <td>{!! $lead->name !!}</td>
-                <td>{!! $lead->statusName() !!}</td>
+                <td>{{ $lead->name }}</td>
+                <td>{{ $lead->statusName() }}</td>
 
-                <td>{!! $lead->user->agentInfo()->first()->company !!}</td>
-
-                <td>{!! $lead->sphere->name !!}</td>
+                <td>{{ isset( $lead->operatorOrganizer->time_reminder ) ? $lead->operatorOrganizer->time_reminder : 'No reminder'  }}</td>
 
 
+                <td>{{ $lead->user->agentInfo()->first()->company }}</td>
 
-                <td>{!! $lead->updated_at !!}</td>
+                <td>{{ $lead->sphere->name }}</td>
+
+
+
+                <td>{{ $lead->updated_at }}</td>
 
                 <td>
                     {{--@if(!\App\Models\Operator::with('lead')->where('lead_id', '=', $lead->id)->first())--}}
@@ -117,18 +122,18 @@
                         {{--<table class="table table-bordered table-striped table-hover dataTable">--}}
                             {{--<thead>--}}
                             {{--<tr>--}}
-                                {{--<th>{!! trans("site/lead.name") !!}</th>--}}
-                                {{--<th>{!! trans("main.status") !!}</th>--}}
-                                {{--<th>{!! trans("main.updated_at") !!}</th>--}}
-                                {{--<th>{!! trans("main.action") !!}</th>--}}
+                                {{--<th>{{ trans("site/lead.name") }}</th>--}}
+                                {{--<th>{{ trans("main.status") }}</th>--}}
+                                {{--<th>{{ trans("main.updated_at") }}</th>--}}
+                                {{--<th>{{ trans("main.action") }}</th>--}}
                             {{--</tr>--}}
                             {{--</thead>--}}
                             {{--<tbody>--}}
                             {{--@forelse($sphere->leadsFoOperator as $lead)--}}
                                 {{--<tr>--}}
-                                    {{--<td>{!! $lead->name !!}</td>--}}
+                                    {{--<td>{{ $lead->name }}</td>--}}
                                     {{--<td>@if($sphere->status) <span class="label label-success">on</span> @else <span class="label label-danger">off</span> @endif</td>--}}
-                                    {{--<td>{!! $lead->updated_at !!}</td>--}}
+                                    {{--<td>{{ $lead->updated_at }}</td>--}}
                                     {{--<td><a href="{{ route('operator.sphere.lead.edit',['sphere'=>$sphere->id,'id'=>$lead->id]) }}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>--}}
                                 {{--</tr>--}}
                             {{--@empty--}}

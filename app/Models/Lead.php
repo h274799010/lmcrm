@@ -139,6 +139,17 @@ class Lead extends EloquentUser {
         return $lead;
     }
 
+
+    /**
+     * Связь лида с таблицей органайзера операторов
+     *
+     */
+    public function operatorOrganizer()
+    {
+        return $this->hasOne('App\Models\OperatorOrganizer', 'lead_id', 'id');
+    }
+
+
     public function SphereFormFilters($sphere_id=NULL){
         $relation = $this->hasMany('App\Models\SphereFormFilters', 'sphere_id', 'sphere_id');
 

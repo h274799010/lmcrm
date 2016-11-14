@@ -19,8 +19,8 @@ class CreateClosedDealsTable extends Migration
             $table->integer('sender');          // id пользователя который отдал лид агенту (оператор или партнерНовогоТипа)
             $table->integer('source');          // кто добавил: оператор, партнер...
             $table->string('comments');         // описание
-            //$table->double('price', 10, 2);     // цена за сделку. добавляет агент при закрытии сделки
-            $table->string('price');     // цена за сделку. добавляет агент при закрытии сделки
+            //$table->double('price', 10, 2);   // цена за сделку. добавляет агент при закрытии сделки
+            $table->string('price');            // цена за сделку. добавляет агент при закрытии сделки
             $table->timestamp('created_at');    // дата создания
             $table->timestamp('purchase_date'); // дата когда была совершена покупка
             $table->engine = 'InnoDB';
