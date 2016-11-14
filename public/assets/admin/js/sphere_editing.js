@@ -1,7 +1,7 @@
 
 var app = angular.module('app', ['angular-sortable-view'])
 
-    .controller('SphereCtrl', function ( $scope, $http, $compile ) {
+    .controller('SphereCtrl', function ( $scope, $http ) {
 
 
         /** Модель редактора атрибутов */
@@ -975,13 +975,12 @@ var app = angular.module('app', ['angular-sortable-view'])
             // запрос на сервер для обработки и сохранения данных
             $http.post( saveDataUrl, data, config)
                 .success(function (data, status, headers, config) {
-                    alert('Ok');
+                    //alert('Ok');
+                    location.reload();
                 })
                 .error(function (data, status, header, config) {
                     alert('Error');
                 });
-
         };
-
     });
 
