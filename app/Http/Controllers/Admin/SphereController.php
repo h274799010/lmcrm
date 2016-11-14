@@ -554,7 +554,7 @@ class SphereController extends AdminController {
                     $offset = 0;
                     $arr['option']=[];
                     foreach($chrct->options()->get() as $eav) {
-                        $arr['option'][]=['id'=>$eav->id,'val'=>$eav->name,'vale'=>[($def_val & ($flag>>$offset))?1:0,$eav->icon]];
+                        $arr['option'][]=['id'=>$eav->id,'val'=>$eav->name,'vale'=>$eav->value, 'position'=>$eav->position];
                         $offset++;
                     }
                 }
@@ -575,7 +575,7 @@ class SphereController extends AdminController {
                 if($chrct->has('options')) {
 //                    $arr['option']=[];
                     foreach($chrct->options()->get() as $eav) {
-                        $arr['option'][]=['id'=>$eav->id,'val'=>$eav->name,'vale'=>$eav->value];
+                        $arr['option'][]=['id'=>$eav->id,'val'=>$eav->name,'vale'=>$eav->value, 'position'=>$eav->position];
                     }
                 }
 
@@ -1150,6 +1150,9 @@ class SphereController extends AdminController {
                                     // $dbOption->value = (isset($option['vale'])) ? $option['vale'] : '';
                                     // todo добавить позиционирование и vale
                                     $dbOption->value = 0;
+
+                                    $dbOption->position = $option['position'];
+
                                     // сохраняем
                                     $dbOption->save();
                                 }

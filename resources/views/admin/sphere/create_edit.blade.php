@@ -824,7 +824,7 @@
                                         <div sv-root sv-part="data.cform.values" sv-on-sort="positioning($partFrom)" class="list-group">
 
                                             {{-- Добавляем все атрибуты --}}
-                                            <div ng-repeat="attr in data.cform.values" class="list-group-item" sv-element ng-hide="attr.delete">
+                                            <div ng-repeat="attr in data.cform.values | orderBy:'position'" class="list-group-item" sv-element ng-hide="attr.delete">
 
                                                 {{-- Если тип radio --}}
                                                 <div ng-if="attr._type=='radio'" class="row">
@@ -1225,20 +1225,31 @@
                                         </div>
 
                                         {{-- сама опция с данными --}}
-                                        <div ng-repeat="option in attrEditor.lead.editors.selective.data.option" class="row duplicate duplicated" ng-hide="option.delete">
+                                        <div
+                                                sv-root
+                                                sv-part="attrEditor.lead.editors.selective.data.option"
+                                                sv-on-sort="positioning($partFrom)"
+                                        >
+                                            <div ng-repeat="option in attrEditor.lead.editors.selective.data.option | orderBy:'position'" sv-element class="row" ng-hide="option.delete">
 
-                                            {{-- название атрибута --}}
-                                            <div class="col-xs-9">
-                                                <input ng-model="option.val" class="form-control pull-left flip select" type="text" value="">
+                                                {{-- кнопка перемещения --}}
+                                                <div class="col-xs-1 ">
+                                                    <div sv-handle class="glyphicon glyphicon-move lead_option_handle" aria-hidden="true"></div>
+                                                </div>
+
+                                                {{-- название атрибута --}}
+                                                <div class="col-xs-8">
+                                                    <input ng-model="option.val" class="form-control " type="text" value="">
+                                                </div>
+
+                                                {{-- кнопка удаления опции --}}
+                                                <div class="col-xs-3">
+                                                    <button ng-click="deleteLeadOption( option )" class="btn btn-danger btn-duplicate-remove " type="button">
+                                                        <i class="entypo-cancel"></i>
+                                                    </button>
+                                                </div>
+
                                             </div>
-
-                                            {{-- кнопка удаления опции --}}
-                                            <div class="col-xs-3">
-                                                <button ng-click="deleteLeadOption( option )" class="btn btn-danger btn-duplicate-remove pull-right flip" type="button">
-                                                    <i class="entypo-cancel"></i>
-                                                </button>
-                                            </div>
-
                                         </div>
 
                                         {{-- кнопка добавления опции в атрибут --}}

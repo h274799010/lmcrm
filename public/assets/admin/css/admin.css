@@ -1201,3 +1201,8 @@ table.dataTable thead .sorting:after {
 .sidebar .nav > li > ul {
     padding-left: 15px;
 }
+
+
+.lead_option_handle{
+    padding: 10px 10px;
+}

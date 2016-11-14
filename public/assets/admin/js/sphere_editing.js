@@ -611,12 +611,8 @@ var app = angular.module('app', ['angular-sortable-view'])
             {
                 id: 0,       // id статуса
                 val: '',     // имя
-                vale:       // значения
-                    [
-                        0,     // подумат над значениями при сохранении переключателя
-                        null   // незнаю что за значение
-                    ]
-                //position: attr.option.length + 1 // позиция
+                vale: '',       // значения
+                position: $scope.attrEditor.lead.editors.selective.data.option.length + 1 // позиция
             };
 
             // добавляем статус в модель
@@ -654,7 +650,6 @@ var app = angular.module('app', ['angular-sortable-view'])
                 id: 0,       // id валидации
                 val: '',     // название валидации
                 vale: ''     // значение
-                //position: attr.option.length + 1 // позиция
             };
 
             // добавление валидации в атрибут соответствующего типа
