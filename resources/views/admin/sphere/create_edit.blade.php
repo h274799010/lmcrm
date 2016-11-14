@@ -681,7 +681,7 @@
                                     <div class="form jSplash-data" id="lead">
 
                                         <div sv-root sv-part="data.lead.values" sv-on-sort="positioning($partFrom)" class="list-group">
-                                            <div ng-repeat="attr in data.lead.values | orderBy:'pisition'" sv-element class="list-group-item" ng-hide="attr.delete">
+                                            <div ng-repeat="attr in data.lead.values | orderBy:'position'" sv-element class="list-group-item" ng-hide="attr.delete">
                                                 <div class="row">
 
                                                     <span class="col-xs-10">

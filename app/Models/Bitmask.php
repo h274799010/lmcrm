@@ -720,10 +720,11 @@ class Bitmask extends Model
      * @param  integer  $group_index
      * @param  integer|array  $opt_index
      * @param  string  $field
+     * @param  integer  $default
      *
      * @return object
      */
-    public function addAttrWithType($group_index,$opt_index, $field='varchar'){
+    public function addAttrWithType($group_index,$opt_index, $field='varchar', $default=0){
 
         // все типы полей которые могут понадобится
         $fieldsType =
@@ -760,7 +761,7 @@ class Bitmask extends Model
         } else {
             $index = implode('_', ['fb', $group_index, $opt_index]);
             if (!in_array($index, $this->attributes())) {
-                DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` ' .$fieldsParameter[$field] .' NULL', []);
+                DB::statement('ALTER TABLE `' . $this->table . '` ADD COLUMN `' . $index . '` ' .$fieldsParameter[$field] .' DEFAULT ' .$default .' NOT NULL', []);
             }
         }
         return $this->tableDB;

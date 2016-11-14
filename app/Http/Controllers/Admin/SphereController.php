@@ -1346,14 +1346,14 @@ class SphereController extends AdminController {
                             $newOption = new FormFiltersOptions();
                             // присваиваем опции новые значения
                             $newOption->name = $option['val'];
-                            $newOption->value = $option['vale'];
+                            $newOption->value = ($option['vale']) ? 1 : 0;
                             $newOption->position = $option['position'];
                             // сохраняем
                             $agentAttr->options()->save($newOption);
 
                             // создаем новые столбцы в битмасе агента и лида
-                            $agentBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean');
-                            $leadBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean');
+                            $agentBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean', $newOption->value);
+                            $leadBitmask->addAttrWithType($agentAttr->id, $newOption->id, 'boolean', $newOption->value);
 
 
                             /** копирование данных, если опция была создана ветвлением */
