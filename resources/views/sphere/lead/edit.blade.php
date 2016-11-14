@@ -111,8 +111,8 @@
                                   @foreach($attr->options as $option)
                                    <div class="form-group">
                                         <div class="checkbox">
-                                            {{ Form::checkbox('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => '','id'=>"ch-$option->id")) }}
-                                            <label for="ch-{{ $option->id }}">{{ $option->name }}</label>
+                                            {{ Form::checkbox('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => '','id'=>"ad-ch-$option->id")) }}
+                                            <label for="ad-ch-{{ $option->id }}">{{ $option->name }}</label>
                                         </div>
                                    </div>
                                   @endforeach
@@ -120,8 +120,8 @@
                                  @foreach($attr->options as $option)
                                   <div class="form-group">
                                     <div class="radio">
-                                        {{ Form::radio('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => '','id'=>"r-$option->id")) }}
-                                        <label for="r-{{ $option->id }}">{{ $option->name }}</label>
+                                        {{ Form::radio('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => '','id'=>"ad-r-$option->id")) }}
+                                        <label for="ad-r-{{ $option->id }}">{{ $option->name }}</label>
                                     </div>
                                   </div>
                                  @endforeach
@@ -143,7 +143,7 @@
             </div>
         </div>
 
-        <button class="btn btn-default"> Cancel </button>
+        <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> Cancel </a>
         {{-- кнопка на установку BadLead --}}
         <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
         {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
