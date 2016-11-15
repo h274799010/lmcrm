@@ -198,24 +198,24 @@
 
         {{-- блок с текстом --}}
         <div class="row">
-            <div class="col-md-11 operator_comments_black">
+            <div class="col-md-11 operator_comments_block">
 
-                <div class="operator_comments_text">
+                <div id="all_comment" class="operator_comments_text">
 
                 </div>
 
             </div>
         </div>
 
-        {{-- блок воода комментария --}}
-        <div class="row">
+        {{-- блок ввода комментария --}}
+        <div class="row operator_comment_add_block">
             {{-- поля ввода комментария --}}
-            <div class="col-md-12 operator_textarea_black">
-                <textarea class="form-control" rows="3"></textarea>
+            <div class="col-md-12 operator_textarea_block">
+                <textarea id="new_comment" class="form-control" rows="3"></textarea>
             </div>
             {{-- кнопка добавления комментария --}}
             <div class="col-md-12">
-                <button type="submit" class="btn btn-xs btn-primary" style="float: right;">Add comment</button>
+                <button id="add_comment" type="button" class="btn btn-xs btn-primary" style="float: right;">Add comment</button>
             </div>
         </div>
 
@@ -224,7 +224,7 @@
 
 
 @section('scripts')
-    <script type="text/javascript">
+    <script>
         $(document).on('click', '#leadSave', function (e) {
             e.preventDefault();
 
@@ -240,6 +240,10 @@
 
     $(function(){
 
+        // получение токена
+        var token = $('meta[name=csrf-token]').attr('content');
+
+
         // подключаем к инпуту календарь
         $('input#time_reminder').datetimepicker({
             // минимальное значение даты и времени в календаре
@@ -249,12 +253,13 @@
         // событие по клику на кнопку установки времени
         $('#timeSetter').bind('click', function(){
 
-            // получение токена
-            var token = $('meta[name=csrf-token]').attr('content');
             // получение значение даты из поля
             var date = $('input#time_reminder').val();
 
-            // отправка id лида и даты на сервер, для записи в таблицу
+            /**
+             * отправка id лида и даты на сервер, для записи в таблицу
+             *
+             */
             $.post(
                     "{{  route('operator.set.reminder.time') }}",
                     { date: date, leadId: '{{ $lead['id'] }}', '_token': token },
@@ -272,6 +277,47 @@
                     "json"
             );
         });
+
+
+        /**
+         * Добавление комментария
+         *
+         * отправляет комментарий на сервер
+         * сохраняет и вставляет в блок
+         * со всеми комментариями
+         * обновленные данные
+         */
+        $('#add_comment').bind('click', function(){
+
+            // получаем данные поля ввода комментария
+            var comment = $('#new_comment').val();
+
+            // запрос на сохранения комментария и получения данных о всех комментариях
+            $.post(
+                    "{{  route('operator.add.comment') }}",
+                    { comment: comment, leadId: '{{ $lead['id'] }}', '_token': token },
+                    function( data ) {
+
+                        // проверяем ответ
+                        if( data.status == 'Ok' ){
+                            // при успешном запросе
+
+                            // обновляем окно с комментариями
+                            $('#all_comment').html(data.comment);
+                            // очищаем поле ввода
+                            $('#new_comment').val('');
+                        }else{
+                            // сообщаем ошибку о неудачном запросе
+                            alert('Error');
+                        }
+                    },
+                    "json"
+            );
+
+
+
+        });
+
     });
 
     </script>

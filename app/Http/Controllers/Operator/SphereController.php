@@ -349,6 +349,62 @@ class SphereController extends Controller {
 
 
     /**
+     * Сохранение комментария
+     *
+     * @param  Request  $request
+     *
+     * @return boolean
+     */
+    public function addOperatorComment( Request $request ){
+
+        // данные оператора
+        $operator = Sentinel::getUser();
+
+        // комментарий
+        $massage = $operator->email .'<br>' .date("H:i d/m/Y") .'<br>' .$request->comment .'<br><br>';
+
+        // id лида
+        $lead_id = $request->leadId;
+
+        // данные по лиду в таблице органайзера операторов
+        $organizer = OperatorOrganizer::where('lead_id', $lead_id)->first();
+
+        if( $organizer ){
+            // если запись по лиду есть
+
+            // устанавливаем время оповещения
+            $organizer->message = $massage .$organizer->message;;
+
+        }else{
+            // если по лиду еще нет записей
+
+            // создаем новую запись
+            $organizer = new OperatorOrganizer;
+            // сохраняем id лида
+            $organizer->lead_id = $lead_id;
+            // устанавливаем время оповещения
+            $organizer->message = $massage .$organizer->message;
+        }
+
+        // сохраняем данные
+        $organizer->save();
+
+        // данные, отсылаемые на сервер
+        $response =
+        [
+            // статус, что все прошло успешно
+            'status' => 'Ok',
+            // все комментарии
+            'comment' => $organizer->message,
+            // время оповещения (на всякий случай)
+            'time_reminder' => $organizer->time_reminder
+        ];
+
+        return response()->json( $response );
+    }
+
+
+    /**
      * Устанавливаес лиду статус badLead
      *
      * @param  integer  $lead_id

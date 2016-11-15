@@ -20,6 +20,9 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // установка напоминания на звонок
     Route::post('operator/set/reminder/time', ['as' => 'operator.set.reminder.time', 'uses' => 'Operator\SphereController@setReminderTime']);
 
+    // добавление комментария оператора
+    Route::post('operator/add/comment', ['as' => 'operator.add.comment', 'uses' => 'Operator\SphereController@addOperatorComment']);
+
 
     //Route::resource('customer/filter','Operator\CustomerFilterController@create');
 });

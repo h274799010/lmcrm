@@ -297,24 +297,29 @@ footer,.footer,#footer{
 }
 
 /* блок с комментариями операторов */
-.operator_comments_black{
+.operator_comments_block{
     margin-bottom: 10px;
     height:270px;
     overflow-y: auto;
     padding-right: 0;
 }
 
+/* блок добавления оператором комментария с textarea и кнопкой */
+.operator_comment_add_block{
+    padding-right: 10px;
+}
+
 /* текст в блоке оператора с комментариями */
 .operator_comments_text{
-    background: #DEDDDE;
+    /*background: #DEDDDE;*/
     border-radius: 4px;
-    height:270px;
+    /*height:270px;*/
     padding: 10px;
 }
 
 /* блок ввода текста */
-.operator_textarea_black{
-    margin-bottom: 10px
+.operator_textarea_block{
+    margin-bottom: 10px;
 }
 
 
