@@ -294,6 +294,9 @@ footer,.footer,#footer{
     padding-top: 20px;
     bottom: 0;
     right: 0;
+    background: #F8F8F8;
+    border: #D9D9D9 solid 1px;
+    border-radius: 5px;
 }
 
 /* блок с комментариями операторов */
@@ -311,9 +314,7 @@ footer,.footer,#footer{
 
 /* текст в блоке оператора с комментариями */
 .operator_comments_text{
-    /*background: #DEDDDE;*/
     border-radius: 4px;
-    /*height:270px;*/
     padding: 10px;
 }
 
@@ -322,6 +323,16 @@ footer,.footer,#footer{
     margin-bottom: 10px;
 }
 
+/* блок с временем уведомлениея оператора */
+.operator_reminder_block{
+    margin-left: 15px;
+}
+
+/* кнопка удаления оповещения */
+.remove_reminder{
+    color: #337AB7;
+    cursor: pointer;
+}
 
 
 

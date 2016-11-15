@@ -23,6 +23,9 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // добавление комментария оператора
     Route::post('operator/add/comment', ['as' => 'operator.add.comment', 'uses' => 'Operator\SphereController@addOperatorComment']);
 
+    // удаление напоминания о звонке у оператора
+    Route::post('operator/remove/reminder/time', ['as' => 'operator.remove.reminder.time', 'uses' => 'Operator\SphereController@removeReminderTime']);
+
 
     //Route::resource('customer/filter','Operator\CustomerFilterController@create');
 });

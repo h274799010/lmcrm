@@ -199,12 +199,13 @@
         {{-- блок с текстом --}}
         <div class="row">
 
-            <div class="col-md-11">
+            <div class="col-md-11 operator_reminder_block">
                 @if( $lead['operatorOrganizer'] )
-                    <b>Call reminder:</b> {{ $lead['operatorOrganizer']['time_reminder']->format('H:m d.m.Y')  }}
-                    <icon class="glyphicon glyphicon-remove-circle" style="color: #337AB7"></icon>
-                    <hr>
-                @else
+                    @if( $lead['operatorOrganizer']['time_reminder']  )
+                        <b>Call reminder:</b>  {{ $lead['operatorOrganizer']['time_reminder']->format('H:m d.m.Y')  }}
+                        <icon class="glyphicon glyphicon-remove-circle remove_reminder"></icon>
+                        <hr>
+                    @endif
                 @endif
             </div>
 
@@ -319,17 +320,39 @@
                             // очищаем поле ввода
                             $('#new_comment').val('');
                         }else{
-                            // сообщаем ошибку о неудачном запросе
+                            // сообщаем о неудачном запросе
                             alert('Error');
                         }
                     },
                     "json"
             );
-
-
-
         });
 
+
+        /**
+         * Удаление времени оповещения
+         *
+         */
+        $('.remove_reminder').bind('click', function(){
+
+            // отправка запроса на удаление оповещения
+            $.post(
+                    "{{  route('operator.remove.reminder.time') }}",
+                    { leadId: '{{ $lead['id'] }}', '_token': token },
+                    function( data ) {
+                        // проверяем ответ
+
+                        if( data == 'Ok' ){
+                            // очищаем блок с временем оповещения
+                            $('.operator_reminder_block').html('');
+                        }else{
+                            // сообщаем о неудачном запросе
+                            alert('Error');
+                        }
+                    },
+                    "json"
+            );
+        });
     });
 
     </script>

@@ -95,9 +95,7 @@ class SphereController extends Controller {
             $leadEdited->operator_id = $operator->id;
 
             $leadEdited->save();
-        } /*elseif ($leadEdited->operator_id != $operator->id) {
-            return redirect()->back()->withErrors(['errors' => 'Этот лид уже редактируется другим оператором!']);
-        }*/
+        }
 
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
@@ -401,6 +399,36 @@ class SphereController extends Controller {
         ];
 
         return response()->json( $response );
+    }
+
+
+    /**
+     * Удаление времени оповещения
+     *
+     * @param  Request  $request
+     *
+     * @return boolean
+     */
+    public function removeReminderTime( Request $request ){
+
+        // id лида
+        $lead_id = $request->leadId;
+
+        // данные по лиду в таблице органайзера операторов
+        $organizer = OperatorOrganizer::where('lead_id', $lead_id)->first();
+
+        // если нет записи по лиду, просто отсылаем положительный ответ,
+        // ничего не удаляем и ничего не создаем
+        if( $organizer ){
+            // если запись по лиду есть
+
+            // очищаем время оповещения
+            $organizer->time_reminder = NULL;
+            // сохраняем данные
+            $organizer->save();
+        }
+
+        return response()->json('Ok');
     }
 
 

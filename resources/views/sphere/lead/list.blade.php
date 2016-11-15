@@ -31,26 +31,13 @@
             <tr>
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
-
-                <td>{{ isset( $lead->operatorOrganizer->time_reminder ) ? $lead->operatorOrganizer->time_reminder->format('H:m d.m.Y ') : 'No reminder'  }}</td>
-
-
+                <td>{{ isset( $lead->operatorOrganizer->time_reminder ) ? $lead->operatorOrganizer->time_reminder->format('H:m d.m.Y ') : ''}}</td>
                 <td>{{ $lead->user->agentInfo()->first()->company }}</td>
-
                 <td>{{ $lead->sphere->name }}</td>
-
-
-
                 <td>{{ $lead->updated_at }}</td>
-
                 <td>
-                    {{--@if(!\App\Models\Operator::with('lead')->where('lead_id', '=', $lead->id)->first())--}}
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
-                    {{--@else
-                        Лид уже редактируется
-                    @endif--}}
                 </td>
-
             </tr>
         @empty
         @endforelse

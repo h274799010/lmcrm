@@ -15,7 +15,7 @@ class OperatorOrganizer extends Migration
         Schema::create('operator_organizer', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('lead_id');           // id лида, который обрабатывается
-            $table->timestamp('time_reminder');   // время оповещения
+            $table->timestamp('time_reminder')->nullable();   // время оповещения
             $table->longText('message');          // сообщения операторов
             $table->timestamps();                 // временные метки
         });
