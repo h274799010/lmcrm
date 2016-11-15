@@ -315,37 +315,36 @@ class SphereController extends Controller {
      */
     public function setReminderTime( Request $request ){
 
-        // преобразовываем дату
-        $a = explode( ' ', $request->reqDate );
-        $v = explode('/', $a[0]);
-        $f = explode(':', $a[1]);
-        $t = $v[1] .'/' .$v[0] .'/' .$v[2] .' ' .$f[0] .':'.$f[1];
-
         // дата для записи в БД
-        $remDate = date( "Y-m-d H:i:s", strtotime($t) );
+        $reminderDate = date( "Y-m-d H:i:s", strtotime( $request->date ) );
+
         // id лида
         $lead_id = $request->leadId;
 
-        $operator = OperatorOrganizer::where('lead_id', $lead_id)->first();
+        // данные по лиду в таблице органайзера операторов
+        $organizer = OperatorOrganizer::where('lead_id', $lead_id)->first();
 
-        if( $operator ){
+        if( $organizer ){
+            // если запись по лиду есть
 
-            $operator->lead_id = $lead_id;
-
-            $operator->time_reminder = $remDate;
+            // устанавливаем время оповещения
+            $organizer->time_reminder = $reminderDate;
 
         }else{
+            // если по лиду еще нет записей
 
-            $operator = new OperatorOrganizer;
-
-            $operator->lead_id = $lead_id;
-
-            $operator->time_reminder = $remDate;
+            // создаем новую запись
+            $organizer = new OperatorOrganizer;
+            // сохраняем id лида
+            $organizer->lead_id = $lead_id;
+            // устанавливаем время оповещения
+            $organizer->time_reminder = $reminderDate;
         }
 
-        $operator->save();
+        // сохраняем данные
+        $organizer->save();
 
-        return 'true';
+        return response()->json('Ok');
     }
 
 

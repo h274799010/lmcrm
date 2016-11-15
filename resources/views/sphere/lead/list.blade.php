@@ -32,7 +32,7 @@
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
 
-                <td>{{ isset( $lead->operatorOrganizer->time_reminder ) ? $lead->operatorOrganizer->time_reminder : 'No reminder'  }}</td>
+                <td>{{ isset( $lead->operatorOrganizer->time_reminder ) ? $lead->operatorOrganizer->time_reminder->format('H:m d.m.Y ') : 'No reminder'  }}</td>
 
 
                 <td>{{ $lead->user->agentInfo()->first()->company }}</td>

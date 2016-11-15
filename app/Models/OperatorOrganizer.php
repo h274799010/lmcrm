@@ -15,6 +15,12 @@ class OperatorOrganizer extends Model
      */
     protected $table = "operator_organizer";
 
+    /**
+     * Устанавливаем поле со временем
+     *
+     * @var array
+     */
+    protected $dates = ['time_reminder'];
 
 
 

@@ -214,30 +214,37 @@
 
     $(function(){
 
-        // подключаем календарь
+        // подключаем к инпуту календарь
         $('input#time_reminder').datetimepicker({
             // минимальное значение даты и времени в календаре
-            minDate: new Date(),
-            // формат даты и времени
-            format: 'DD/MM/YYYY HH:mm'
+            minDate: new Date()
         });
 
         // событие по клику на кнопку установки времени
         $('#timeSetter').bind('click', function(){
 
-
             // получение токена
             var token = $('meta[name=csrf-token]').attr('content');
-
+            // получение значение даты из поля
             var date = $('input#time_reminder').val();
 
+            // отправка id лида и даты на сервер, для записи в таблицу
+            $.post(
+                    "{{  route('operator.set.reminder.time') }}",
+                    { date: date, leadId: '{{ $lead['id'] }}', '_token': token },
+                    function( data ) {
+                        // проверяем ответ
 
-
-            // отправка данных на сервер
-            $.post( "{{  route('operator.set.reminder.time') }}", { reqDate: date, leadId: '{{ $lead['id'] }}', '_token': token }, function( data ) {
-//                console.log( data.name ); // John
-//                console.log( data.time ); // 2pm
-            }, "json");
+                        if( data == 'Ok' ){
+                            // перезагрузка страницы при удачном запросе
+                            location.href = '{{ route('operator.sphere.index') }}';
+                        }else{
+                            // сообщаем ошибку об неудачном запросе
+                            alert('Error');
+                        }
+                    },
+                    "json"
+            );
 
         });
 
