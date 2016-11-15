@@ -4,11 +4,19 @@
 @section('left_block')
     <div class="col-md-offset-1 col-md-8 col-xs-8">
         <div  id="content" style="padding-bottom: 100px;">
-            <div>
+            {{ Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'method' => 'put', 'class' => 'validate', 'files'=> false)) }}
+
+            <div class="depositor_info">
                 <strong>Company:</strong> {{ $lead->user->agentInfo()->first()->company }}<br>
                 <strong>Agent first name:</strong> {{ $lead->user->first_name }}
             </div>
-            {{ Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'method' => 'put', 'class' => 'validate', 'files'=> false)) }}
+
+            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> Cancel </a>
+            {{-- кнопка на установку BadLead --}}
+            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
+            {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
+            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
+
             <input type="hidden" name="type" id="typeFrom" value="">
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
@@ -142,7 +150,7 @@
             <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
             {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
             <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
-            {{ Form::submit(trans('Auction'),['class'=>'btn btn-success', 'id'=>'leadToAuction']) }}
+            {{ Form::submit(trans('Send to Auction'),['class'=>'btn btn-success', 'id'=>'leadToAuction']) }}
 
             {{ Form::close() }}
         </div>
