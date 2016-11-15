@@ -102,7 +102,7 @@ class SphereController extends Controller {
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
 
-        $lead = Lead::with(['phone', 'user'])->find($id);
+        $lead = Lead::with(['phone', 'user', 'operatorOrganizer'])->find($id);
 
         if($lead->status < 1) {
             $lead->status = 1;

@@ -299,7 +299,7 @@ footer,.footer,#footer{
 /* блок с комментариями операторов */
 .operator_comments_block{
     margin-bottom: 10px;
-    height:270px;
+    height:250px;
     overflow-y: auto;
     padding-right: 0;
 }

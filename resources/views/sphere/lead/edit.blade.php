@@ -198,10 +198,22 @@
 
         {{-- блок с текстом --}}
         <div class="row">
+
+            <div class="col-md-11">
+                @if( $lead['operatorOrganizer'] )
+                    <b>Call reminder:</b> {{ $lead['operatorOrganizer']['time_reminder']->format('H:m d.m.Y')  }}
+                    <icon class="glyphicon glyphicon-remove-circle" style="color: #337AB7"></icon>
+                    <hr>
+                @else
+                @endif
+            </div>
+
             <div class="col-md-11 operator_comments_block">
 
                 <div id="all_comment" class="operator_comments_text">
-
+                    @if( $lead['operatorOrganizer'] )
+                        {!!   $lead['operatorOrganizer']['message'] !!}
+                    @endif
                 </div>
 
             </div>
