@@ -1,7 +1,7 @@
 @extends('layouts.operator_two_blocks')
 
-{{-- Content --}}
-@section('left_back')
+{{-- left content --}}
+@section('left_block')
     <div class="col-md-offset-1 col-md-8 col-xs-8">
         <div  id="content" style="padding-bottom: 100px;">
             <div>
@@ -192,11 +192,31 @@
     </div>
 @stop
 
-@section('right_back')
-    <div class="col-md-2 col-xs-4">
+{{-- right content --}}
+@section('right_block')
+    <div class="col-md-3 col-xs-4 operator_edit_right_block">
 
-        <div style="background: red; width: 100%; position: fixed; bottom: 10px; top: 200px;">
-            organizer
+        {{-- блок с текстом --}}
+        <div class="row">
+            <div class="col-md-11 operator_comments_black">
+
+                <div class="operator_comments_text">
+
+                </div>
+
+            </div>
+        </div>
+
+        {{-- блок воода комментария --}}
+        <div class="row">
+            {{-- поля ввода комментария --}}
+            <div class="col-md-12 operator_textarea_black">
+                <textarea class="form-control" rows="3"></textarea>
+            </div>
+            {{-- кнопка добавления комментария --}}
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-xs btn-primary" style="float: right;">Add comment</button>
+            </div>
         </div>
 
     </div>

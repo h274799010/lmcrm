@@ -11,23 +11,21 @@
 
         <div class="row">
 
-            <div class="row">
-                <div class="col-md-offset-1 col-md-10">
-                    <div class="page-header">
-                        <div class="pull-right flip">
-                            <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
-                                <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
-                            </a>
-                        </div>
+            <div class="col-md-offset-1 col-md-10">
+                <div class="page-header">
+                    <div class="pull-right flip">
+                        <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
+                            <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
+                        </a>
                     </div>
                 </div>
             </div>
 
             {{-- Левый блок шаблона --}}
-            @yield('left_back')
+            @yield('left_block')
 
             {{-- Правый блок шаблона --}}
-            @yield('right_back')
+            @yield('right_block')
 
         </div>
     </div>

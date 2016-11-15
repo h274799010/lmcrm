@@ -285,10 +285,37 @@ footer,.footer,#footer{
 }
 
 
+/* Комментарии на странице редактировани лида оператором */
 
+/* правый блок оператора на странице редактирования */
+.operator_edit_right_block{
+    position: fixed;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    bottom: 0;
+    right: 0;
+}
 
+/* блок с комментариями операторов */
+.operator_comments_black{
+    margin-bottom: 10px;
+    height:270px;
+    overflow-y: auto;
+    padding-right: 0;
+}
 
+/* текст в блоке оператора с комментариями */
+.operator_comments_text{
+    background: #DEDDDE;
+    border-radius: 4px;
+    height:270px;
+    padding: 10px;
+}
 
+/* блок ввода текста */
+.operator_textarea_black{
+    margin-bottom: 10px
+}
 
 
 
