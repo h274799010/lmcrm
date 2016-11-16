@@ -140,6 +140,58 @@
                                     @endif
                             @empty
                             @endforelse
+
+                                <hr>
+
+                                {{-- todo блок подбора всех подходящих агентов --}}
+                                <div>
+
+                                    {{-- кнопка, по которой идет подбор агентов --}}
+                                    <button id="pickUpAgents" type="button" class="btn btn-primary">pick up an agents</button>
+
+                                    {{-- кнопка закрытия таблицы --}}
+                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Close </button>
+
+                                    {{-- тело блока с данными агентов --}}
+                                    <div class="operator_agents_selection_body hidden">
+
+                                        {{-- таблица с данными подходящих агентов --}}
+                                        <table class="table table-bordered">
+                                            <head>
+                                                <tr>
+                                                    <th>id</th>
+                                                    <th>name</th>
+                                                </tr>
+                                            </head>
+                                            <body>
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>1</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2</td>
+                                                    <td>2</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>3</td>
+                                                    <td>3</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>4</td>
+                                                    <td>4</td>
+                                                </tr>
+                                            </body>
+                                        </table>
+
+                                    </div>
+
+
+                                    {{-- кнопка закрытия таблицы --}}
+                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Close </button>
+
+                                </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -366,6 +418,54 @@
                     "json"
             );
         });
+
+
+
+
+        /** todo Подбор подходящих под лид агентов */
+
+
+        /**
+         * Тело блока подбора агентов
+         *
+         */
+        var agentsSelectionBody = $('.operator_agents_selection_body');
+
+        /**
+         * Кнопка закрытия области подбора агентов под лид
+         *
+         */
+        var agentsSelectionClose = $('.operator_agents_selection_close');
+
+
+        /**
+         * Подбирает агентов в таблицу
+         *
+         * отправляет зарос на бодбор агентов
+         * затем добавляет полученные данные в таблицу
+         */
+        $('#pickUpAgents').bind('click', function(){
+
+            // показываем блок с подбором агентов
+            agentsSelectionBody.removeClass('hidden');
+            // показываем кнопку закрытия блока
+            agentsSelectionClose.removeClass('hidden');
+        });
+
+
+        /**
+         * Закрывает область подбора агентов
+         *
+         */
+        agentsSelectionClose.bind('click', function(){
+
+            // показываем блок с подбором агентов
+            agentsSelectionBody.addClass('hidden');
+            // показываем кнопку закрытия блока
+            agentsSelectionClose.addClass('hidden');
+        });
+
+
     });
 
     </script>
