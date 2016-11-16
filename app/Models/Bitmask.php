@@ -559,8 +559,11 @@ class Bitmask extends Model
 
 
     /**
-     * Установка значения опция атрибута
+     * Установка значения опций атрибута
      *
+     *
+     * под $user_id может быть либо лид,
+     * либо пользователь
      *
      * @param  string  $opt_index
      * @param  integer  $user_id
@@ -568,17 +571,43 @@ class Bitmask extends Model
      * @return object
      */
     public function setAttr($opt_index,$user_id=NULL){
+
+        // выбираем пользователя, либо заданного, либо того, который уже есть в модели
+        // либо, это лид
         $user_id = ($user_id) ? $user_id : $this->userID;
+
+        // поверка данных
         if (is_array($opt_index)) {
-            $values = array();
+            // если не массив, прекращаем работу
+
+            // переменная с данными для записи
+            $values = [];
+
+            // получаем запись из маски по id пользователя (либо лида)
             $mask = $this->tableDB->where('user_id','=',$user_id)->first();
-            if($mask) {
+
+            // проверяем наличие записи
+            if( $mask ) {
+                // если запись есть
+
+                // вставляем в данные id этой записи
                 $values['id']=$mask->id;
+
             } else {
+                // если записи нет
+
+                // создаем и выбираем id этой новой записи
                 $values['id'] = $this->tableDB->insertGetId(['user_id'=>$user_id]);
             }
+
+            // получаем массив атрибутов
+            // вида fb_attr_opt
             $attributes = $this->attributesAssoc();
+
+            // перебираем все поля атрибутов и проставляем значение
             foreach($attributes as $field=>$index) {
+                // если поле заданно на фронтенде записываем его как 1
+                // если нет - проставляем значение 0
                 $values[$field]=(in_array($index,$opt_index))?1:0;
             }
 
