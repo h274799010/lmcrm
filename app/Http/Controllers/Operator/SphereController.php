@@ -46,9 +46,37 @@ class SphereController extends Controller {
         // получаем все сферы оператора
         $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
         // все лиды по сфере
-        $leads = Lead::whereIn('status', [0,1])->whereIn('sphere_id', $spheres)->with([ 'sphere', 'user', 'operatorOrganizer' ])->get();
+//        $leads = Lead::
+//                  whereIn('status', [0,1])
+//                ->whereIn('sphere_id', $spheres)
+//                ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+//                ->get()
+//                ->sortByDesc('expiry_time');
 
-//        dd($leads[0]);
+        // лиды, у которых есть время оповещения
+        $leads1 = Lead::
+                  whereIn('status', [0,1])
+                ->whereIn('sphere_id', $spheres)
+                ->where('expiry_time', '!=', '0000-00-00 00:00:00' )
+                ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+                ->get()
+                ->sortBy('expiry_time');
+
+        // лиды, у которых нет времени оповещения
+        $leads2 = Lead::
+              whereIn('status', [0,1])
+            ->whereIn('sphere_id', $spheres)
+            ->where('expiry_time', '=', '0000-00-00 00:00:00' )
+            ->orWhere('expiry_time', '=', NULL)
+            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->get()
+            ->sortBy('expiry_time');
+
+        // объединяем две коллекции так, чтобы
+        $leads = $leads1->merge($leads2);
+
+
+//        dd($leads);
 
 
         return view('sphere.lead.list')->with( 'leads', $leads );
@@ -321,12 +349,15 @@ class SphereController extends Controller {
 
         // данные по лиду в таблице органайзера операторов
         $organizer = OperatorOrganizer::where('lead_id', $lead_id)->first();
+        $lead = Lead::find($lead_id);
 
         if( $organizer ){
             // если запись по лиду есть
 
             // устанавливаем время оповещения
             $organizer->time_reminder = $reminderDate;
+
+            $lead->expiry_time = $reminderDate;
 
         }else{
             // если по лиду еще нет записей
@@ -337,10 +368,12 @@ class SphereController extends Controller {
             $organizer->lead_id = $lead_id;
             // устанавливаем время оповещения
             $organizer->time_reminder = $reminderDate;
+            $lead->expiry_time = $reminderDate;
         }
 
         // сохраняем данные
         $organizer->save();
+        $lead->save();
 
         return response()->json('Ok');
     }
@@ -417,6 +450,8 @@ class SphereController extends Controller {
         // данные по лиду в таблице органайзера операторов
         $organizer = OperatorOrganizer::where('lead_id', $lead_id)->first();
 
+        $lead = Lead::find($lead_id);
+
         // если нет записи по лиду, просто отсылаем положительный ответ,
         // ничего не удаляем и ничего не создаем
         if( $organizer ){
@@ -424,8 +459,13 @@ class SphereController extends Controller {
 
             // очищаем время оповещения
             $organizer->time_reminder = NULL;
+
+            $lead->expiry_time = NULL;
+
             // сохраняем данные
             $organizer->save();
+            $lead->save();
+
         }
 
         return response()->json('Ok');

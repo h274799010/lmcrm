@@ -88,15 +88,44 @@ $(function(){
             $("select").selectBoxIt();
         } );
 
-		$('.dataTableOperatorLeads').DataTable({
+		var tableOperatorLeads = $('.dataTableOperatorLeads').DataTable({
 			responsive: true,
-			"order": [[ 4, "desc" ]]
+            aaSorting: [],
+            //colReorder: true
+			//"order": [[ 2, "desc" ]]
+            //columnDefs: [
+             //   { targets: 'no-sort', orderable: false }
+            //]
 		});
 
         $('.dataTableOperatorLeads').on( 'draw.dt', function () {
             $("select").selectBoxIt();
         } );
 
+
+        $('.reset_operator_table').bind('click', function(){
+            //tableOperatorLeads.ajax.reload();
+            //tableOperatorLeads.columns().order().draw()
+            //tableOperatorLeads.colReorder.reset();
+
+            //tableOperatorLeads.fnSort([]);
+            //tableOperatorLeads.clear().draw()
+            tableOperatorLeads.clear().draw();
+
+            //$('.dataTableOperatorLeads').DataTable({
+            //    responsive: true,
+            //    aaSorting: [],
+            //    //colReorder: true
+            //    //"order": [[ 2, "desc" ]]
+            //    //columnDefs: [
+            //    //   { targets: 'no-sort', orderable: false }
+            //    //]
+            //});
+            //
+        });
+
+        // todo
+         //tableOperatorLeads.ajax.reload();
 
         $('.openLeadsTable').DataTable({
 			autoWidth: false,

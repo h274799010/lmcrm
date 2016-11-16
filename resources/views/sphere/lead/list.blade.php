@@ -3,6 +3,7 @@
 {{-- Content --}}
 @section('content')
     <h1>New leads list</h1>
+    <button role="button" class="btn btn-xs btn-primary reset_operator_table">reset</button>
     @if($errors->any())
         <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
@@ -31,7 +32,7 @@
             <tr>
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
-                <td>{{ isset( $lead->operatorOrganizer->time_reminder ) ? $lead->operatorOrganizer->time_reminder->format('H:m d.m.Y ') : ''}}</td>
+                <td>{{ isset( $lead->operatorOrganizer->time_reminder ) ? $lead->operatorOrganizer->time_reminder->format('d.m.Y H:m') : ''}}</td>
                 <td>{{ $lead->user->agentInfo()->first()->company }}</td>
                 <td>{{ $lead->sphere->name }}</td>
                 <td>{{ $lead->updated_at }}</td>

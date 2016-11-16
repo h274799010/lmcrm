@@ -26,9 +26,9 @@ class CreateLeads extends Migration
             $table->integer('customer_id');                 // связь с таблицей в которой хранится телефон клиента
             $table->string('name')->nullable();             // имя клиента
             $table->text('comment')->nullable();            // комментарии
-            $table->timestamp('operator_processing_time');  // врема когда лид был обработан оператором
-            $table->timestamp('expiry_time');               // время когда лид будет снят с аукциона
-            $table->timestamp('open_lead_expired');         // время истечения последнего открытого лида
+            $table->timestamp('operator_processing_time')->nullable();  // врема когда лид был обработан оператором
+            $table->timestamp('expiry_time')->nullable();               // время когда лид будет снят с аукциона
+            $table->timestamp('open_lead_expired')->nullable();         // время истечения последнего открытого лида
 
             $table->timestamps();
 
