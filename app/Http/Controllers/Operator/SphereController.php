@@ -195,19 +195,6 @@ class SphereController extends Controller {
             return redirect()->route('operator.sphere.index')->withErrors(['lead_closed' => 'Лид уже отредактирован другим оператором!']);
         }
 
-        // todo если оператор отметил лид как плохой
-//        if( $request->input('bad') ){
-//
-//            // расчитываем лид
-//            $lead->operatorBad();
-//
-//            // выходим из метода
-//            if( $request->ajax() ){
-//                return response()->json();
-//            } else {
-//                return redirect()->route('operator.sphere.index');
-//            }
-//        }
 
         /** --  П О Л Я  лида  -- */
 
@@ -249,7 +236,7 @@ class SphereController extends Controller {
         // сохранение данных fb_ полей в маске лида
         $mask->setAttr($options,$lead_id);
 
-        // todo выяснить зачем нужен статус в маске лида, и нужен ли вообще
+        // выяснить зачем нужен статус в маске лида, и нужен ли вообще
         // в маске лида выставляется статус 1,
         // где и зачем используется - непонятно
         $mask->setStatus(1, $lead_id);
@@ -284,7 +271,7 @@ class SphereController extends Controller {
         if($typeRequest == 'toAuction') {
             /** --  вычитание из системы стоимость обслуживание лида  -- */
 
-            // todo переделать по новой системе
+            // переделать по новой системе
 
             PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
 
@@ -309,7 +296,7 @@ class SphereController extends Controller {
                 // находим id текущего оператора, чтобы отметить как отправителя сообщения
                 $senderId = Sentinel::getUser()->id;
 
-                // todo подобрать название к этому уведомлению
+                // подобрать название к этому уведомлению
                 // рассылаем уведомления всем агентам которым подходит этот лид
                 Notice::toMany( $senderId, $agents, 'note');
 
@@ -491,6 +478,43 @@ class SphereController extends Controller {
         return redirect()->route('operator.sphere.index');
     }
 
+
+    /**
+     *  todo Подбор агентов которые подходят под выбранные данные
+     *
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function agentsSelection( Request $request){
+
+
+        return response()->json($request);
+
+//        dd('Ok');
+
+        $mask = new LeadBitmask($sphere->id);
+
+
+
+
+        // выбираем маску лида
+        $leadBitmaskData = $mask->findFbMask($lead_id);
+
+        // выбираем маски всех агентов
+        $agentBitmasks = new AgentBitmask($sphere_id);
+
+        // todo находим всех агентов которым подходит этот лид по фильтру
+        // исключаем агента добавившего лид
+        // + и его продавцов
+        $agents = $agentBitmasks
+            ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
+            ->get();
+
+
+
+    }
 
 
     /**

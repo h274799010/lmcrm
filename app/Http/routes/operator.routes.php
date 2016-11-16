@@ -26,6 +26,9 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // удаление напоминания о звонке у оператора
     Route::post('operator/remove/reminder/time', ['as' => 'operator.remove.reminder.time', 'uses' => 'Operator\SphereController@removeReminderTime']);
 
+    // получение данных агента, которым этот лид подходит
+    Route::post('operator/agents/selection', ['as' => 'operator.agents.selection', 'uses' => 'Operator\SphereController@agentsSelection']);
+
 
     //Route::resource('customer/filter','Operator\CustomerFilterController@create');
 });

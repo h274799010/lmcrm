@@ -4,7 +4,7 @@
 @section('left_block')
     <div class="col-md-offset-1 col-md-8 col-xs-8">
         <div  id="content" style="padding-bottom: 100px;">
-            {{ Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'method' => 'put', 'class' => 'validate', 'files'=> false)) }}
+            {{ Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'id'=>'editFormAgent', 'method' => 'put', 'class' => 'validate', 'files'=> false)) }}
 
             <div class="depositor_info">
                 <strong>Company:</strong> {{ $lead->user->agentInfo()->first()->company }}<br>
@@ -113,7 +113,7 @@
                                       @foreach($attr->options as $option)
                                        <div class="form-group">
                                             <div class="checkbox">
-                                                {{ Form::checkbox('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => '','id'=>"ad-ch-$option->id")) }}
+                                                {{ Form::checkbox('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => 'filterOption','id'=>"ad-ch-$option->id")) }}
                                                 <label for="ad-ch-{{ $option->id }}">{{ $option->name }}</label>
                                             </div>
                                        </div>
@@ -122,7 +122,7 @@
                                      @foreach($attr->options as $option)
                                       <div class="form-group">
                                         <div class="radio">
-                                            {{ Form::radio('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => '','id'=>"ad-r-$option->id")) }}
+                                            {{ Form::radio('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => 'filterOption','id'=>"ad-r-$option->id")) }}
                                             <label for="ad-r-{{ $option->id }}">{{ $option->name }}</label>
                                         </div>
                                       </div>
@@ -133,7 +133,7 @@
                                             @if(isset($mask[$option->id]) && $mask[$option->id]) @php($selected[]=$option->id) @endif
                                         @empty @endforelse
                                       <div class="form-group">
-                                            {{ Form::select('options[]',$attr->options->lists('name','id'),$selected, array('class' => 'form-control')) }}
+                                            {{ Form::select('options[]',$attr->options->lists('name','id'),$selected, array('class' => 'form-control filterOption')) }}
                                       </div>
                                     @else
 
@@ -422,7 +422,7 @@
 
 
 
-        /** todo Подбор подходящих под лид агентов */
+        /** Подбор подходящих под лид агентов */
 
 
         /**
@@ -437,6 +437,12 @@
          */
         var agentsSelectionClose = $('.operator_agents_selection_close');
 
+        /**
+         * Полная форма агента
+         *
+         */
+        var editFormAgent = $('#editFormAgent');
+
 
         /**
          * Подбирает агентов в таблицу
@@ -445,6 +451,48 @@
          * затем добавляет полученные данные в таблицу
          */
         $('#pickUpAgents').bind('click', function(){
+
+            // опции формы фильтра агента (как есть :) )
+            var optionsForm = editFormAgent.find('[name="options[]"]').serializeArray();
+
+            // опции без лишних деталей
+            var options = [];
+
+            // перебираем обции формы и выбираем только нужные данные
+            $.each(optionsForm, function( key, val ){
+                // добавляем опции только нужное значение
+                options.push(val.value);
+            });
+
+
+            /**
+             * Отправка данных для формы
+             *
+             */
+            $.post(
+                    "{{  route('operator.agents.selection') }}",
+                    { options: options, leadId: '{{ $lead['id'] }}', '_token': token },
+                    function( data ) {
+                        // проверяем ответ
+
+//                        alert('Ok');
+
+                        console.log(data);
+
+                        {{--if( data == 'Ok' ){--}}
+                            {{--// перезагрузка страницы при удачном запросе--}}
+                            {{--location.href = '{{ route('operator.sphere.index') }}';--}}
+                        {{--}else{--}}
+                            {{--// сообщаем ошибку об неудачном запросе--}}
+                            {{--alert('Error');--}}
+                        {{--}--}}
+                    },
+                    "json"
+            );
+
+
+
+//            console.log( options );
 
             // показываем блок с подбором агентов
             agentsSelectionBody.removeClass('hidden');
