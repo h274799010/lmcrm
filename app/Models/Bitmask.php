@@ -617,6 +617,100 @@ class Bitmask extends Model
     }
 
 
+    /**
+     * Преобразовывает массив атрибутов и опций в массив с ключами
+     *
+     * @param  array  $rawArray
+     *
+     * @return array
+     */
+    public function prepareOptions( $rawArray ){
+
+        // массив с подготовленными данными
+        $prepareArray = [];
+
+        // перебираем все атрибуты
+        $rawArray = collect($rawArray);
+        $rawArray->each(function( $options, $attr ) use ( &$prepareArray ){
+            // перебираем все опции атрибута
+            $options = collect($options);
+            $options->each(function( $option ) use ( $attr, &$prepareArray ){
+
+                // собираем имя поля fb_
+                $field = 'fb_' .$attr .'_' .$option;
+                // сохраняем поле в массив как ключ
+                $prepareArray[ $field ] = 1;
+            });
+        });
+
+        // возвращаем подготовленный массив
+        return $prepareArray;
+    }
+
+
+    /**
+     * Установка значения опций атрибута через поля fb_attr_opt
+     *
+     *
+     * под $user_id может быть либо лид,
+     * либо пользователь
+     *
+     * @param  string  $fields
+     * @param  integer  $user_id
+     *
+     * @return object
+     */
+    public function setFilterOptions( $fields, $user_id=NULL){
+
+        // выбираем пользователя, либо заданного, либо того, который уже есть в модели
+        // либо, это лид
+        $user_id = ($user_id) ? $user_id : $this->userID;
+
+        // поверка данных
+        if (is_array($fields)) {
+            // если не массив, прекращаем работу
+
+            // переменная с данными для записи
+            $values = [];
+
+            // получаем запись из маски по id пользователя (либо лида)
+            $mask = $this->tableDB->where('user_id','=',$user_id)->first();
+
+            // проверяем наличие записи
+            if( $mask ) {
+                // если запись есть
+
+                // вставляем в данные id этой записи
+                $values['id']=$mask->id;
+
+            } else {
+                // если записи нет
+
+                // создаем и выбираем id этой новой записи
+                $values['id'] = $this->tableDB->insertGetId(['user_id'=>$user_id]);
+            }
+
+            // получаем массив атрибутов
+            // вида fb_attr_opt
+            $attributes = $this->attributesAssoc();
+
+            // преобразовываем поля в коллекцию
+            $fields = collect($fields);
+
+            // перебираем все поля атрибутов и проставляем значение
+            foreach($attributes as $key => $val) {
+                // если поле заданно на фронтенде записываем его как 1
+                // если нет - проставляем значение 0
+                $values[$key]=( $fields->has($key) ) ? 1 : 0 ;
+            }
+
+            // сохраняем
+            $this->tableDB->update($values);
+        }
+
+        return $this->tableDB;
+    }
+
 
     /**
      * Установка значения опция атрибута по id маски

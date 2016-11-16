@@ -113,7 +113,7 @@
                                       @foreach($attr->options as $option)
                                        <div class="form-group">
                                             <div class="checkbox">
-                                                {{ Form::checkbox('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => 'filterOption','id'=>"ad-ch-$option->id")) }}
+                                                {{ Form::checkbox('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => 'filterOption','id'=>"ad-ch-$option->id")) }}
                                                 <label for="ad-ch-{{ $option->id }}">{{ $option->name }}</label>
                                             </div>
                                        </div>
@@ -122,7 +122,7 @@
                                      @foreach($attr->options as $option)
                                       <div class="form-group">
                                         <div class="radio">
-                                            {{ Form::radio('options[]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => 'filterOption','id'=>"ad-r-$option->id")) }}
+                                            {{ Form::radio('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array('class' => 'filterOption','id'=>"ad-r-$option->id")) }}
                                             <label for="ad-r-{{ $option->id }}">{{ $option->name }}</label>
                                         </div>
                                       </div>
@@ -133,7 +133,7 @@
                                             @if(isset($mask[$option->id]) && $mask[$option->id]) @php($selected[]=$option->id) @endif
                                         @empty @endforelse
                                       <div class="form-group">
-                                            {{ Form::select('options[]',$attr->options->lists('name','id'),$selected, array('class' => 'form-control filterOption')) }}
+                                            {{ Form::select('options[' .$attr['id'] .'][]',$attr->options->lists('name','id'),$selected, array('class' => 'form-control filterOption')) }}
                                       </div>
                                     @else
 
@@ -465,19 +465,23 @@
             });
 
 
+            {{--console.log('{{ $sphere['id'] }}');--}}
+
+//            return false;
+
             /**
              * Отправка данных для формы
              *
              */
             $.post(
                     "{{  route('operator.agents.selection') }}",
-                    { options: options, leadId: '{{ $lead['id'] }}', '_token': token },
+                    { options: options, depositor: '{{ $lead['user_id'] }}', sphereId: '{{ $sphere['id'] }}', leadId: '{{ $lead['id'] }}', '_token': token },
                     function( data ) {
                         // проверяем ответ
 
-//                        alert('Ok');
+                        {{--alert('{{ $sphere['id'] }}');--}}
 
-                        console.log(data);
+//                        console.log(data);
 
                         {{--if( data == 'Ok' ){--}}
                             {{--// перезагрузка страницы при удачном запросе--}}

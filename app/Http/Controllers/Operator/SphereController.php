@@ -6,10 +6,12 @@ use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
+use App\Models\FormFiltersOptions;
 use App\Models\LeadBitmask;
 use App\Models\Operator;
 use App\Models\OperatorSphere;
 use App\Models\OperatorOrganizer;
+use App\Models\SphereFormFilters;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use PhpParser\Node\Expr\Cast\Object_;
@@ -108,7 +110,7 @@ class SphereController extends Controller {
      * @param  integer  $sphere
      * @param  integer  $id
      *
-     * @return Response
+     * @return Response1
      */
     public function edit( $sphere, $id )
     {
@@ -166,6 +168,15 @@ class SphereController extends Controller {
     public function update(Request $request, $sphere_id, $lead_id)
     {
 
+//        dd($request);
+
+        // todo удалить
+//        $mask = new LeadBitmask($sphere_id);
+//
+//        $leadBitmaskData = $mask->findFbMask($lead_id);
+//
+//        dd($leadBitmaskData);
+
         // Тип запроса:
         // 1. save - просто сохраняем лида
         // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
@@ -177,13 +188,13 @@ class SphereController extends Controller {
             'options.*' => 'integer',
         ]);
 
-        if ($validator->fails()) {
-            if( $request->ajax() ){
-                return response()->json($validator);
-            } else {
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
-        }
+//        if ($validator->fails()) {
+//            if( $request->ajax() ){
+//                return response()->json($validator);
+//            } else {
+//                return redirect()->back()->withErrors($validator)->withInput();
+//            }
+//        }
 
 
         /** --  Находим лид и проверяем на bad/good  -- */
@@ -233,8 +244,13 @@ class SphereController extends Controller {
             $options=$request->only('options')['options'];
         }
 
-        // сохранение данных fb_ полей в маске лида
-        $mask->setAttr($options,$lead_id);
+        // подготовка полей fb
+        // из массива с атрибутами и опциями
+        // получаем массив с ключами fb_attr_opt
+        $prepareOption = $mask->prepareOptions( $options );
+
+        // сохраняем данные полей в маске
+        $mask->setFilterOptions( $prepareOption, $lead_id );
 
         // выяснить зачем нужен статус в маске лида, и нужен ли вообще
         // в маске лида выставляется статус 1,
@@ -490,29 +506,49 @@ class SphereController extends Controller {
     public function agentsSelection( Request $request){
 
 
-        return response()->json($request);
-
-//        dd('Ok');
-
-        $mask = new LeadBitmask($sphere->id);
+//        return response()->json($request);
 
 
+        // todo выбираем маски всех агентов по id сфере лида
+        $agentBitmasks = new AgentBitmask( $request->sphereId );
 
+
+
+        // todo создаем массив маски
+
+        $leadBitmaskData = [];
+
+        $formFilterData = SphereFormFilters::where( 'sphere_id', $request->sphereId )->with('options')->get();
+
+        // меняем местами ключи и значения массива с опциями
+        $flipOptions = array_flip($request->options);
+
+//        $formFilterData = FormFiltersOptions::
+
+//        return response()->json($formFilterData);
+//        return response()->json($formFilterData);
+
+
+        dd($flipOptions);
+        dd($formFilterData);
+
+//        dd($request->sphereId);
+
+        // todo
+        dd($request->options);
 
         // выбираем маску лида
-        $leadBitmaskData = $mask->findFbMask($lead_id);
+//        $leadBitmaskData = $mask->findFbMask($lead_id);
 
-        // выбираем маски всех агентов
-        $agentBitmasks = new AgentBitmask($sphere_id);
 
         // todo находим всех агентов которым подходит этот лид по фильтру
         // исключаем агента добавившего лид
         // + и его продавцов
         $agents = $agentBitmasks
-            ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
+            ->filterAgentsByMask( $leadBitmaskData, $request->depositor )
             ->get();
 
-
+        return response()->json( $agents );
 
     }
 
