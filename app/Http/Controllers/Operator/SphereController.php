@@ -12,6 +12,7 @@ use App\Models\Operator;
 use App\Models\OperatorSphere;
 use App\Models\OperatorOrganizer;
 use App\Models\SphereFormFilters;
+use App\Models\User;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use PhpParser\Node\Expr\Cast\Object_;
@@ -513,40 +514,25 @@ class SphereController extends Controller {
         $agentBitmasks = new AgentBitmask( $request->sphereId );
 
 
-
-        // todo создаем массив маски
-
-        $leadBitmaskData = [];
-
-        $formFilterData = SphereFormFilters::where( 'sphere_id', $request->sphereId )->with('options')->get();
-
-        // меняем местами ключи и значения массива с опциями
-        $flipOptions = array_flip($request->options);
-
-//        $formFilterData = FormFiltersOptions::
-
-//        return response()->json($formFilterData);
-//        return response()->json($formFilterData);
+        // todo рабочий массив данные с фронтенда
+        $options = array_flip($request->options);
 
 
-        dd($flipOptions);
-        dd($formFilterData);
-
-//        dd($request->sphereId);
-
-        // todo
-        dd($request->options);
-
-        // выбираем маску лида
-//        $leadBitmaskData = $mask->findFbMask($lead_id);
 
 
         // todo находим всех агентов которым подходит этот лид по фильтру
         // исключаем агента добавившего лид
         // + и его продавцов
         $agents = $agentBitmasks
-            ->filterAgentsByMask( $leadBitmaskData, $request->depositor )
-            ->get();
+            ->filterAgentsByMask( $options, $request->depositor )
+            ->lists('user_id');
+
+        $users = User::whereIn( 'id', $agents )->with('roles')->get();
+
+//        return response()->json( $agents );
+
+//        dd( $agents );
+        dd($users);
 
         return response()->json( $agents );
 
