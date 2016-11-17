@@ -88,44 +88,39 @@ $(function(){
             $("select").selectBoxIt();
         } );
 
+
+        /**
+         * Подключение dataTable к таблице с лидами на обработку оператору
+         *
+         *
+         */
 		var tableOperatorLeads = $('.dataTableOperatorLeads').DataTable({
 			responsive: true,
-            aaSorting: [],
-            //colReorder: true
-			//"order": [[ 2, "desc" ]]
-            //columnDefs: [
-             //   { targets: 'no-sort', orderable: false }
-            //]
+            buttons: [
+                {
+                    text: 'My button',
+                    action: function ( e, dt, node, config ) {
+                        alert( 'Button activated' );
+                    }
+                }
+            ],
+            aaSorting: [ [2,'desc'], [3,'asc'] ]
 		});
 
+        /**
+         * Подключение selectBoxIt к таблице с лидами на обработку оператору
+         *
+         */
         $('.dataTableOperatorLeads').on( 'draw.dt', function () {
             $("select").selectBoxIt();
         } );
 
 
         $('.reset_operator_table').bind('click', function(){
-            //tableOperatorLeads.ajax.reload();
-            //tableOperatorLeads.columns().order().draw()
-            //tableOperatorLeads.colReorder.reset();
 
-            //tableOperatorLeads.fnSort([]);
-            //tableOperatorLeads.clear().draw()
-            tableOperatorLeads.clear().draw();
-
-            //$('.dataTableOperatorLeads').DataTable({
-            //    responsive: true,
-            //    aaSorting: [],
-            //    //colReorder: true
-            //    //"order": [[ 2, "desc" ]]
-            //    //columnDefs: [
-            //    //   { targets: 'no-sort', orderable: false }
-            //    //]
-            //});
-            //
+            tableOperatorLeads.order([ [2,'desc'], [3,'asc'] ]).draw();
         });
 
-        // todo
-         //tableOperatorLeads.ajax.reload();
 
         $('.openLeadsTable').DataTable({
 			autoWidth: false,

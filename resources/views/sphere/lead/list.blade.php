@@ -3,13 +3,16 @@
 {{-- Content --}}
 @section('content')
     <h1>New leads list</h1>
-    <button role="button" class="btn btn-xs btn-primary reset_operator_table">reset</button>
+
     @if($errors->any())
         <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
             <div id="alertContent">{{$errors->first()}}</div>
         </div>
     @endif
+
+    {{-- Сброс сортировки в таблице --}}
+    <button role="button" class="btn btn-xs btn-primary reset_operator_table">reset sortable</button>
 
     <table class="table table-bordered table-striped table-hover dataTableOperatorLeads">
         <thead>
@@ -32,7 +35,7 @@
             <tr>
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
-                <td>{{ $lead->operator_processing_time ? 'Make phone call' : ( $lead->status == 1 ? 'in progress...' : 'Waiting') }}</td>
+                <td>{{ $lead->operator_processing_time ? 'Make phone call' : 'Created' }}</td>
                 <td>{{ $lead->operator_processing_time ? $lead->operator_processing_time : $lead->created_at }}</td>
                 <td>{{ $lead->user->agentInfo()->first()->company }}</td>
                 <td>{{ $lead->sphere->name }}</td>
