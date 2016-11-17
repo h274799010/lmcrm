@@ -156,31 +156,18 @@
                                     <div class="operator_agents_selection_body hidden">
 
                                         {{-- таблица с данными подходящих агентов --}}
-                                        <table class="table table-bordered">
-                                            <head>
+                                        <table class="table table-bordered selected_agents_table">
+                                            <thead>
                                                 <tr>
-                                                    <th>id</th>
-                                                    <th>name</th>
+                                                    <th>Name</th>
+                                                    <th>E-mail</th>
+                                                    <th>Roles</th>
+                                                    <th>Actions</th>
                                                 </tr>
-                                            </head>
-                                            <body>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>1</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td>2</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>3</td>
-                                                    <td>3</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>4</td>
-                                                    <td>4</td>
-                                                </tr>
-                                            </body>
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
                                         </table>
 
                                     </div>
@@ -488,15 +475,61 @@
                     function( data ) {
                         // проверяем ответ
 
-                        // todo добавляем строки в таблицу
+                        if( data.status == 'Ok' ){
+                            // если пришли данные
 
-                        {{--if( data == 'Ok' ){--}}
-                            {{--// перезагрузка страницы при удачном запросе--}}
-                            {{--location.href = '{{ route('operator.sphere.index') }}';--}}
-                        {{--}else{--}}
-                            {{--// сообщаем ошибку об неудачном запросе--}}
-                            {{--alert('Error');--}}
-                        {{--}--}}
+                            // проверяем наличие данных
+                            if( data.users == 'none' ){
+                                // если данных нет
+
+                                alert('Данных нет');
+
+                            }else{
+
+                                // выбираем таблицу
+                                var table = $('.selected_agents_table tbody');
+
+
+                                $.each( data.users, function( key, item ){
+
+                                    // создаем строку
+                                    var tr = $('<tr/>');
+
+                                    // ячейка с именем
+                                    var tdName = $('<td/>');
+                                    // ячейка с мэлом
+                                    var tdEmail = $('<td/>');
+                                    // ячейка с ролями
+                                    var tdRoles = $('<td/>');
+                                    // ячейка с действиями
+                                    var tdActions = $('<td/>');
+
+                                    // заполнение ячек данными
+                                    tdName.html( item.firstName + ' ' + item.lastName );
+                                    tdEmail.html( item.email );
+                                    tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
+                                    tdActions.html('<button type="button" class="btn btn-primary">Close Deal</button> <button type="button" class="btn btn-primary">Buy</button>  ');
+
+//                                    firstName
+//                                    lastName
+//                                    roles
+
+                                    // подключение ячеек к строке
+                                    tr.append(tdName);
+                                    tr.append(tdEmail);
+                                    tr.append(tdRoles);
+                                    tr.append(tdActions);
+
+                                    // подключение строки к таблице
+                                    table.append(tr);
+                                });
+
+                            }
+
+                        }else{
+                            // сообщаем ошибку при неудачном запросе
+                            alert('Error');
+                        }
                     },
                     "json"
             );
@@ -513,6 +546,9 @@
          *
          */
         agentsSelectionClose.bind('click', function(){
+
+            // очищаем ячейки с данными
+            $('.selected_agents_table tbody').empty();
 
             // показываем блок с подбором агентов
             agentsSelectionBody.addClass('hidden');
