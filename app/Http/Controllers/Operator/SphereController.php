@@ -49,45 +49,17 @@ class SphereController extends Controller {
         // получаем все сферы оператора
         $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
         // все лиды по сфере
-//        $leads = Lead::
-//                  whereIn('status', [0,1])
-//                ->whereIn('sphere_id', $spheres)
-//                ->with([ 'sphere', 'user', 'operatorOrganizer' ])
-//                ->get()
-//                ->sortByDesc('expiry_time');
-
-        // лиды, у которых есть время оповещения
-        $leads1 = Lead::
-                  whereIn('status', [0,1])
-                ->whereIn('sphere_id', $spheres)
-                ->where('expiry_time', '!=', '0000-00-00 00:00:00' )
-                ->with([ 'sphere', 'user', 'operatorOrganizer' ])
-                ->get()
-                ->sortBy('expiry_time');
-
-        // лиды, у которых нет времени оповещения
-        $leads2 = Lead::
+        $leads = Lead::
               whereIn('status', [0,1])
             ->whereIn('sphere_id', $spheres)
-            ->where('expiry_time', '=', '0000-00-00 00:00:00' )
-            ->orWhere('expiry_time', '=', NULL)
+            ->where(function( $query ){
+                $query
+                    ->where('operator_processing_time', '<', date("Y-m-d H:i:s") )
+                    ->orWhere('operator_processing_time', '=', NULL);
+            })
             ->with([ 'sphere', 'user', 'operatorOrganizer' ])
             ->get()
-            ->sortBy('expiry_time');
-
-        // объединяем две коллекции так, чтобы
-        $leads = $leads1->merge($leads2);
-
-
-//        $leads = Lead::
-//        whereIn('status', [0,1])
-//            ->whereIn('sphere_id', $spheres)
-//            ->where('expiry_time', '!=', '0000-00-00 00:00:00' )
-//            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
-//            ->get()
-//            ->sortBy('expiry_time');
-
-//        dd($leads);
+            ->sortByDesc('operator_processing_time');
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
@@ -368,7 +340,7 @@ class SphereController extends Controller {
             // устанавливаем время оповещения
             $organizer->time_reminder = $reminderDate;
 
-            $lead->expiry_time = $reminderDate;
+            $lead->operator_processing_time = $reminderDate;
 
         }else{
             // если по лиду еще нет записей
@@ -379,7 +351,7 @@ class SphereController extends Controller {
             $organizer->lead_id = $lead_id;
             // устанавливаем время оповещения
             $organizer->time_reminder = $reminderDate;
-            $lead->expiry_time = $reminderDate;
+            $lead->operator_processing_time = $reminderDate;
         }
 
         // сохраняем данные

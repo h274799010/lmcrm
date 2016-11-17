@@ -16,8 +16,8 @@
         <tr>
             <th>{{ trans("site/lead.name") }}</th>
             <th>{{ trans("main.status") }}</th>
-
-            <th>reminder for phone call</th>
+            <th>State</th>
+            <th>Time</th>
 
             <th>{{ trans("main.user") }}</th>
             <th>{{ trans("main.sphere") }}</th>
@@ -32,7 +32,8 @@
             <tr>
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
-                <td>{{ isset( $lead->operatorOrganizer->time_reminder ) ? $lead->operatorOrganizer->time_reminder->format('d.m.Y H:m') : ''}}</td>
+                <td>{{ $lead->operator_processing_time ? 'Make phone call' : ( $lead->status == 1 ? 'in progress...' : 'Waiting') }}</td>
+                <td>{{ $lead->operator_processing_time ? $lead->operator_processing_time : $lead->created_at }}</td>
                 <td>{{ $lead->user->agentInfo()->first()->company }}</td>
                 <td>{{ $lead->sphere->name }}</td>
                 <td>{{ $lead->updated_at }}</td>

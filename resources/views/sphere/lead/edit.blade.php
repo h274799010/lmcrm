@@ -558,7 +558,7 @@
                                     tdName.html( item.firstName + ' ' + item.lastName );
                                     tdEmail.html( item.email );
                                     tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
-                                    tdActions.html('<button type="button" class="btn btn-primary">Close Deal</button> <button type="button" class="btn btn-primary">Buy</button>  ');
+                                    tdActions.html('<button type="button" class="btn btn-primary">Close Deal</button> <button type="button" class="btn btn-primary">Buy</button> <button type="button" class="btn btn-primary">Send to Auction</button>');
 
                                     // подключение ячеек к строке
                                     tr.append(tdName);
