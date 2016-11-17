@@ -497,7 +497,7 @@ class SphereController extends Controller {
 
 
     /**
-     *  todo Подбор агентов которые подходят под выбранные данные
+     *  Подбор агентов которые подходят под выбранные опции лида
      *
      *
      * @param Request $request
@@ -506,36 +506,49 @@ class SphereController extends Controller {
      */
     public function agentsSelection( Request $request){
 
-
-//        return response()->json($request);
-
-
-        // todo выбираем маски всех агентов по id сфере лида
+        // выбираем таблицу с масками по id сферы лида
         $agentBitmasks = new AgentBitmask( $request->sphereId );
 
-
-        // todo рабочий массив данные с фронтенда
+        // меняем местами ключи и значения массива с данными по опциям лида
         $options = array_flip($request->options);
 
-
-
-
-        // todo находим всех агентов которым подходит этот лид по фильтру
+        // находим всех агентов которым подходит этот лид по фильтру
         // исключаем агента добавившего лид
-        // + и его продавцов
         $agents = $agentBitmasks
             ->filterAgentsByMask( $options, $request->depositor )
             ->lists('user_id');
 
-        $users = User::whereIn( 'id', $agents )->with('roles')->get();
+        // выбираем данные агентов, которым этот лид подходим
+        $users = User::
+                      whereIn( 'id', $agents )
+                    ->with('roles')
+                    ->get();
 
-//        return response()->json( $agents );
+        // массив с днными для отрисовки таблицы
+        $usersData = [];
 
-//        dd( $agents );
-        dd($users);
+        // перебираем всех агентов и выбираем только нужные данные
+        $users->each(function( $val ) use( &$usersData ){
 
-        return response()->json( $agents );
+            // выбыбираем данные
+            $data = [];
+            $data['id'] = $val->id;
+            $data['email'] = $val->email;
+            $data['firstName'] = $val->first_name;
+            $data['lastName'] = $val->last_name;
+            $data['roles'] = [];
 
+            // добавляем роли
+            $val->roles->each(function( $role ) use( &$data ){
+                $data['roles'][] = $role->name;
+            });
+
+            // заносим данные в основной массив
+            $usersData[] = $data;
+        });
+
+        // отдаем данные на фронтенд
+        return response()->json( $usersData );
     }
 
 
