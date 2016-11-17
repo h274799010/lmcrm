@@ -342,13 +342,14 @@ footer,.footer,#footer{
 
 /* Подбор агентов подходящих под лид на странице редактирования лида оператором */
 
-
 /* наполнение блока подбора агентов лиду */
 .operator_agents_selection_body{
     margin-top: 10px;
 }
 
-
+.selected_agents_none{
+	margin-top: 10px;
+}
 
 
 

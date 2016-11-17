@@ -143,14 +143,23 @@
 
                                 <hr>
 
-                                {{-- todo блок подбора всех подходящих агентов --}}
+                                {{-- блок подбора всех подходящих агентов --}}
                                 <div>
 
                                     {{-- кнопка, по которой идет подбор агентов --}}
-                                    <button id="pickUpAgents" type="button" class="btn btn-primary">pick up an agents</button>
+                                    <button id="pickUpAgents" type="button" class="btn btn-primary">Pick up an agents</button>
+
 
                                     {{-- кнопка закрытия таблицы --}}
-                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Close </button>
+                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>
+
+                                    {{-- сообщение о том, что подходящих агентов нет --}}
+                                    <div class="selected_agents_none hidden">
+                                        <p class="alert alert-info">
+                                            <button type="button" class="close selected_agents_none_closeButton" ><span aria-hidden="true">&times;</span></button>
+                                            No matches
+                                        </p>
+                                    </div>
 
                                     {{-- тело блока с данными агентов --}}
                                     <div class="operator_agents_selection_body hidden">
@@ -173,8 +182,10 @@
                                     </div>
 
 
+
+
                                     {{-- кнопка закрытия таблицы --}}
-                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Close </button>
+                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>
 
                                 </div>
 
@@ -430,6 +441,39 @@
          */
         var editFormAgent = $('#editFormAgent');
 
+        /**
+         * Тело таблицы с вборкой агентов под опции лида
+         *
+         */
+        var selectedAgentsTable = $('.selected_agents_table tbody');
+
+        /**
+         * Блок оповещения если нет ни одного агента
+         *
+         */
+        var selectedAgentsNone = $('.selected_agents_none');
+
+        /**
+         * Кнопка закрытия блока оповещения об отсутствии подходящих масок агентов под лид
+         *
+         */
+        var selectedAgentsNoneCloseButton = $('.selected_agents_none_closeButton');
+
+
+        /**
+         * Действия при закрытии области бодбора агентов
+         *
+         */
+        function closeAgentBlock(){
+
+            // очищаем ячейки с данными
+            selectedAgentsTable.empty();
+            // показываем блок с подбором агентов
+            agentsSelectionBody.addClass('hidden');
+            // показываем кнопку закрытия блока
+            agentsSelectionClose.addClass('hidden');
+        }
+
 
         /**
          * Подбирает агентов в таблицу
@@ -479,17 +523,23 @@
                             // если пришли данные
 
                             // проверяем наличие данных
-                            if( data.users == 'none' ){
+                            if( data.users.length == 0 ){
                                 // если данных нет
 
-                                alert('Данных нет');
+                                // закрываем блок с выборкой агентов, если он открыт
+                                closeAgentBlock();
+
+                                selectedAgentsNone.removeClass('hidden');
 
                             }else{
 
-                                // выбираем таблицу
-                                var table = $('.selected_agents_table tbody');
+                                // очищаем ячейки с данными
+                                selectedAgentsTable.empty();
 
+                                // прячем оповещение об отсутствии агентов
+                                selectedAgentsNone.addClass('hidden');
 
+                                // заносим данные по выборке агентов в таблицу
                                 $.each( data.users, function( key, item ){
 
                                     // создаем строку
@@ -510,10 +560,6 @@
                                     tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
                                     tdActions.html('<button type="button" class="btn btn-primary">Close Deal</button> <button type="button" class="btn btn-primary">Buy</button>  ');
 
-//                                    firstName
-//                                    lastName
-//                                    roles
-
                                     // подключение ячеек к строке
                                     tr.append(tdName);
                                     tr.append(tdEmail);
@@ -521,9 +567,13 @@
                                     tr.append(tdActions);
 
                                     // подключение строки к таблице
-                                    table.append(tr);
+                                    selectedAgentsTable.append(tr);
                                 });
 
+                                // показываем блок с подбором агентов
+                                agentsSelectionBody.removeClass('hidden');
+                                // показываем кнопку закрытия блока
+                                agentsSelectionClose.removeClass('hidden');
                             }
 
                         }else{
@@ -533,29 +583,23 @@
                     },
                     "json"
             );
-
-            // показываем блок с подбором агентов
-            agentsSelectionBody.removeClass('hidden');
-            // показываем кнопку закрытия блока
-            agentsSelectionClose.removeClass('hidden');
         });
 
 
         /**
-         * Закрывает область подбора агентов
+         * Кнопка закрытия области подбора агентов под выбранные опции лида
          *
          */
-        agentsSelectionClose.bind('click', function(){
+        agentsSelectionClose.bind('click', closeAgentBlock);
 
-            // очищаем ячейки с данными
-            $('.selected_agents_table tbody').empty();
 
-            // показываем блок с подбором агентов
-            agentsSelectionBody.addClass('hidden');
-            // показываем кнопку закрытия блока
-            agentsSelectionClose.addClass('hidden');
+        /**
+         * Кнопка закрытия блока оповещения об отсутствии подходящих масок
+         *
+         */
+        selectedAgentsNoneCloseButton.bind('click', function(){
+            selectedAgentsNone.addClass('hidden');
         });
-
 
     });
 

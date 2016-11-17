@@ -66,29 +66,28 @@ class SphereController extends Controller {
                 ->sortBy('expiry_time');
 
         // лиды, у которых нет времени оповещения
-//        $leads2 = Lead::
-//              whereIn('status', [0,1])
-//            ->whereIn('sphere_id', $spheres)
-//            ->where('expiry_time', '=', '0000-00-00 00:00:00' )
-//            ->orWhere('expiry_time', '=', NULL)
-//            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
-//            ->get()
-//            ->sortBy('expiry_time');
-
-        // объединяем две коллекции так, чтобы
-//        $leads = $leads1->merge($leads2);
-
-
-        $leads = Lead::
-        whereIn('status', [0,1])
+        $leads2 = Lead::
+              whereIn('status', [0,1])
             ->whereIn('sphere_id', $spheres)
-            ->where('expiry_time', '!=', '0000-00-00 00:00:00' )
+            ->where('expiry_time', '=', '0000-00-00 00:00:00' )
+            ->orWhere('expiry_time', '=', NULL)
             ->with([ 'sphere', 'user', 'operatorOrganizer' ])
             ->get()
             ->sortBy('expiry_time');
 
-//        dd($leads);
+        // объединяем две коллекции так, чтобы
+        $leads = $leads1->merge($leads2);
 
+
+//        $leads = Lead::
+//        whereIn('status', [0,1])
+//            ->whereIn('sphere_id', $spheres)
+//            ->where('expiry_time', '!=', '0000-00-00 00:00:00' )
+//            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+//            ->get()
+//            ->sortBy('expiry_time');
+
+//        dd($leads);
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
