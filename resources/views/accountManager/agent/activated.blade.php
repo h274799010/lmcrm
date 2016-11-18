@@ -13,11 +13,7 @@
     </div>
 
     <div class="col-md-12" id="content">
-    @if (isset($agent))
-        {{ Form::model($agent,array('route' => ['accountManager.agent.update', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) }}
-    @else
-        {{ Form::open(array('route' => ['accountManager.agent.store'], 'method' => 'post', 'class' => 'validate', 'files'=> true)) }}
-    @endif
+    {{ Form::model($agent,array('route' => ['accountManager.agent.activate', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) }}
     <!-- Tabs -->
         <ul class="nav nav-tabs">
             <li class="active"><a href="#tab-general" data-toggle="tab"> {{
@@ -28,16 +24,6 @@
                         {{ trans('admin/modal.revenue') }} </a>
                 </li>
             @endif
-            @if(isset($agent->salesmen) && count($agent->salesmen))
-                <li><a href="#salesman" data-toggle="tab">
-                        {{ trans('admin/modal.salesman') }} </a>
-                </li>
-            @endif
-            {{--@if(isset($spheres) && count($spheres))
-                <li><a href="#masks" data-toggle="tab">
-                        {{ trans('admin/modal.masks') }} </a>
-                </li>
-            @endif--}}
 
 
         </ul>
@@ -74,13 +60,6 @@
                     <div class="controls">
                         {{ Form::text('last_name', null, array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('last_name', ':message') }}</span>
-                    </div>
-                </div>
-                <div class="form-group  {{ $errors->has('company') ? 'has-error' : '' }}">
-                    {{ Form::label('company', trans("admin/users.company"), array('class' => 'control-label')) }}
-                    <div class="controls">
-                        {{ Form::text('company', (isset($agent))?$agent->agentInfo->company:NULL, array('class' => 'form-control')) }}
-                        <span class="help-block">{{ $errors->first('company', ':message') }}</span>
                     </div>
                 </div>
                 <div class="form-group  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
@@ -198,71 +177,6 @@
 
                 </div>
             @endif
-
-            @if(isset($agent->salesmen) && count($agent->salesmen))
-                <div class="tab-pane" id="salesman">
-                    <table id="tableSalesman" class="table table-striped table-hover">
-                        <thead>
-                        <tr>
-                            <th>{!! trans("admin/users.name") !!}</th>
-                            <th>{!! trans("admin/users.email") !!}</th>
-                            <th>{!! trans("admin/users.role") !!}</th>
-                            <th>{!! trans("admin/admin.created_at") !!}</th>
-                            {{--<th>{!! trans("admin/admin.action") !!}</th>--}}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($agent->salesmen as $salesman)
-                            <tr>
-                                <td>{{ $salesman->first_name }} {{ $salesman->last_name }}</td>
-                                <td>{{ $salesman->email }}</td>
-                                <td>{{ $salesman->role }}</td>
-                                <td>{{ $salesman->created_at }}</td>
-                                {{--<td>
-                                    <a href="{{ route('accountManager.agent.edit',[$salesman->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
-                                    <a href="{{ route('accountManager.agent.delete',[$salesman->id]) }}" class="btn btn-sm btn-danger confirm"><span class="glyphicon glyphicon-trash"></span> {{ trans("admin/modal.delete") }}</a>
-                                </td>--}}
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-            {{--@if(isset($agent->salesmen) && count($agent->salesmen))
-                <div class="tab-pane" id="masks">
-                    <table class="table table-striped table-hover datatable">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>{!! trans("admin/sphere.agent") !!}</th>
-                            <th>{!! trans("admin/sphere.price") !!}</th>
-                            <th>{!! trans("admin/admin.updated_at") !!}</th>
-                            <th>{!! trans("admin/admin.action") !!}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        @forelse($spheres as $sphere)
-                            <h4>{{ $sphere->name }}</h4>
-                            @foreach($sphere->masks as $rec)
-                                {{ dd($rec->sphere()->get()) }}
-                                <tr>
-                                    <td>{{ $rec->id }}</td>
-                                    <td>{{ $agent->first_name }} {{ $agent->last_name }}</td>
-                                    <td>{{ $rec->lead_price }}</td>
-                                    <td>{{ $rec->updated_at }}</td>
-                                    <td>
-                                        --}}{{--<a href="{{ route('accountManager.sphere.reprice.edit',['sphere'=>$id, 'id'=>$rec->user->id, 'mask_id'=>$rec->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>--}}{{--
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @empty
-                        @endforelse
-
-                        </tbody>
-                    </table>
-                </div>
-            @endif--}}
         </div>
     </div>
 @stop

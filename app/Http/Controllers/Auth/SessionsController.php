@@ -7,10 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\AgentInfo;
 use App\Models\Sphere;
+use App\Models\User;
 use App\Models\Wallet;
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginFormRequest;
+use Illuminate\Support\Facades\Redirect;
 use Mail;
 use Sentinel;
 
@@ -44,7 +46,8 @@ class SessionsController extends Controller
             return redirect()->back()->withInput()->withErrorMessage('Invalid credentials provided');
 
         } catch (\Cartalyst\Sentinel\Checkpoints\NotActivatedException $e) {
-            return redirect()->back()->withInput()->withErrorMessage('User Not Activated.');
+            //return redirect()->back()->withInput()->withErrorMessage('User Not Activated.');
+            return view('auth.activationPage', [ 'user' => $e->getUser() ]);
         } catch (\Cartalyst\Sentinel\Checkpoints\ThrottlingException $e) {
             return redirect()->back()->withInput()->withErrorMessage($e->getMessage());
         }
@@ -57,9 +60,17 @@ class SessionsController extends Controller
         $user = Sentinel::getUser();
         $admin = Sentinel::findRoleBySlug('administrator');
         $users = Sentinel::findRoleBySlug('users');
+        $agent = Sentinel::findRoleBySlug('agent');
 
         if ($user->inRole($admin)) {
             return redirect()->intended('admin');
+        } elseif ($user->inRole($agent)) {
+            $agentInfo = AgentInfo::where('agent_id', '=', $user->id)->first();
+            if($agentInfo->state == 1) {
+                return redirect()->route('agent.registerStepTwo');
+            } else {
+                return redirect()->intended('/');
+            }
         } elseif ($user->inRole($users)) {
             return redirect()->intended('/');
         }
@@ -78,52 +89,36 @@ class SessionsController extends Controller
         return redirect()->route('home');
     }
 
+    /**
+     * Страница регистрации агента
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function register()
     {
-        $accountManagerRole = Sentinel::findRoleBySlug('account_manager');
-        $accountManagers = $accountManagerRole->users()->get()->lists('email', 'id');
-
-        $spheres = Sphere::active()->lists('name','id');
-
-        $roles = array(
-            'dealmaker' => 'Deal maker',
-            'leadbayer' => 'Lead bayer',
-            'partner' => 'Partner'
-        );
-
-        return view('auth.register')->with([ 'accountManagers'=>$accountManagers, 'spheres'=>$spheres, 'roles'=>$roles ]);
+        return view('auth.register');
     }
 
-    public function putUser(Request $request)
+    /**
+     * 1-й шаг регистрации
+     * запоняем почту и пароль
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function registerStepOne(Request $request)
     {
-        $user=Sentinel::register($request->except('password_confirmation','spheres'));
-        Activation::create($user);
-
-        /*Mail::send('emails.activation', [ 'user'=>$user, 'activation'=>$activation ], function ($message) use ($user) {
-            $message->from('us@example.com', 'Laravel');
-
-            $message->to($user->email, $user->name)->subject('Activation account!');
-        });*/
+        $user = Sentinel::register($request->except('password_confirmation','spheres'));
+        $code = Activation::create($user)->code;
 
         $user->update(['password'=>\Hash::make($request->input('password'))]);
         $role = Sentinel::findRoleBySlug('agent');
         $user->roles()->attach($role);
 
-        // устанавливаем дополнительную роль агенту (leadbayer or dealmaker or partner)
-        $role = Sentinel::findRoleBySlug($request->input('role'));
-        $user->roles()->attach($role);
-
-        $user = Agent::find($user->id);
-
-        foreach ($request->only('spheres') as $sphere) {
-            $user->spheres()->sync($sphere);
-        }
-
         // Заполняем agentInfo
         $agentInfo = new AgentInfo();
         $agentInfo->agent_id = $user->id;
-        /*$agentInfo->lead_revenue_share = 0.5;
-        $agentInfo->payment_revenue_share = 0.5;*/
+        $agentInfo->state = 0;
         $agentInfo->save();
 
         // Создаем кошелек
@@ -135,20 +130,128 @@ class SessionsController extends Controller
         $wallet->overdraft = 0.0;
         $wallet->save();
 
-        return redirect()->route('home');
+        // Отправляем код активации на почту агента
+        // todo: заполнить данные отправителя
+        Mail::send('emails.activationCode', [ 'user'=>$user, 'code'=>$code ], function ($message) use ($user) {
+            $message->from('us@example.com', 'Laravel');
+
+            $message->to($user->email)->subject('Activation account!');
+        });
+
+        return redirect()->route('home')->withErrors(['You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.']);
     }
 
-    public function activation($user_id, $code)
+    /**
+     * 2-й шаг регистрации
+     * выбираем сферу и дополнительную роль
+     * заполняем имя и фамилию
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function registerStepTwo()
     {
-        $user = Sentinel::findById($user_id);
+        $agent = Sentinel::getUser();
 
-        if (Activation::complete($user, $code))
+        $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
+
+        // Если не подтвержден адрес почты
+        // редиректим на главную (откроется страница активации аккаунта)
+        if($agentInfo->state !== 1) {
+            return redirect()->intended('/');
+        }
+
+        // список сфер для выбора
+        $spheres = Sphere::active()->lists('name','id');
+
+        // список доступных ролей
+        $roles = array(
+            'dealmaker' => 'Deal maker',
+            'leadbayer' => 'Lead bayer',
+            'partner' => 'Partner'
+        );
+
+        return view('auth.registerStepTwo')->with([ 'spheres'=>$spheres, 'roles'=>$roles ]);
+    }
+
+    /**
+     * Сохраняем пользователя в БД
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function putUser(Request $request)
+    {
+        $user = Sentinel::getUser();
+
+        // устанавливаем дополнительную роль агенту (leadbayer or dealmaker or partner)
+        $role = Sentinel::findRoleBySlug($request->input('role'));
+        $user->roles()->attach($role);
+
+        $user->first_name = $request->input('first_name');
+        $user->last_name = $request->input('last_name');
+        $user->save();
+
+        $user = Agent::find($user->id);
+
+        foreach ($request->only('spheres') as $sphere) {
+            $user->spheres()->sync($sphere);
+        }
+
+        // Заполняем agentInfo
+        $agentInfo = AgentInfo::where('agent_id', '=', $user->id)->first();
+        $agentInfo->state = 2;
+        $agentInfo->company = $request->input('company');
+        $agentInfo->save();
+
+        Sentinel::logout();
+
+        return redirect()->route('home')->withErrors(['Expect to activate your account administrator. After activation you will be notified by e-mail.']);
+    }
+
+    /**
+     * Активация аккаунта (подтверждение email)
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function activation(Request $request)
+    {
+        $user = Sentinel::findById($request->user_id);
+
+        if (Activation::complete($user, $request->code))
         {
-            dd('Activation was successfull');
+            $agentInfo = AgentInfo::where('agent_id', '=', $user->id)->first();
+            $agentInfo->state = 1; // Отмечаем что почта подтверждена
+            $agentInfo->save();
+
+            return redirect()->route('home')->withErrors(['Your e-mail successfully confirmed. Log in using your data to proceed with the registration.']);
         }
         else
         {
-            dd('Activation not found or not completed.');
+            return redirect()->route('home')->withErrors(['Confirmation code does not fit!']);
         }
+    }
+
+    /**
+     * Повторная отправка кода активации на Email
+     *
+     * @param Request $request
+     */
+    public function sendActivationCode(Request $request)
+    {
+        $user = Sentinel::findById($request->user_id);
+
+        $activation = Activation::exists($user);
+        if(!$activation) {
+            $activation = Activation::create($user);
+        }
+
+        Mail::send('emails.activationCode', [ 'user'=>$user, 'code'=>$activation->code ], function ($message) use ($user) {
+            $message->from('us@example.com', 'Laravel');
+
+            $message->to($user->email)->subject('Activation account!');
+        });
+
+        dd($activation->code);
     }
 }

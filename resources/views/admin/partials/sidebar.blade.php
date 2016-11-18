@@ -79,6 +79,11 @@
                             <i class="glyphicon glyphicon-star"></i> {{ trans('admin/sidebar.operators') }}
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.accountManager.index') }}">
+                            <i class="glyphicon glyphicon-star"></i> {{ trans('admin/sidebar.accountManagers') }}
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li>

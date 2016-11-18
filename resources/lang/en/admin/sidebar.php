@@ -3,7 +3,7 @@
 return [
     'dashboard' => 'Dashboard',
     'sphere' => 'Sphere of influence',
-    'sphere_re_price' => 'Sphere filtration re-price',
+    'sphere_re_price' => 'Masks Reprice',
     'sphere_masks' => 'Sphere masks',
     'all_masks' => 'All masks',
     'system' => 'System',
@@ -14,5 +14,7 @@ return [
     'all_users' => 'All users',
     'agents' => 'Agents',
     'operators' => 'Operators',
-    'logout' => 'Logout'
+    'logout' => 'Logout',
+    'accountManagers' => 'Account managers',
+    'newAgents' => 'New Agents'
 ];

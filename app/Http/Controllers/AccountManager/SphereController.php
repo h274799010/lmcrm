@@ -4,10 +4,14 @@ namespace App\Http\Controllers\AccountManager;
 
 use App\Http\Controllers\AccountManagerController;
 
+use App\Models\AccountManager;
+use App\Models\Agent;
 use App\Models\AgentBitmask;
 use App\Models\Sphere;
 use App\Models\Auction;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 
+use App\Models\UserMasks;
 use Illuminate\Http\Request;
 use Datatables;
 
@@ -24,9 +28,10 @@ class SphereController extends AccountManagerController {
      * Update: Вывод всех масок агентов, независимо от статуса
      */
     public function filtration(){
+        $accountManager = AccountManager::find(Sentinel::getUser()->id);
 
         // выбираем активные сферы
-        $spheres = Sphere::active()->get();
+        $spheres = $accountManager->spheres()->get();
 
         // все неактивные маски пользователей
         $collection = array();
@@ -48,8 +53,10 @@ class SphereController extends AccountManagerController {
 
     public function filtrationAll()
     {
+        $accountManager = AccountManager::find(Sentinel::getUser()->id);
+
         // выбираем активные сферы
-        $spheres = Sphere::active()->get();
+        $spheres = $accountManager->spheres()->get();
 
         // все неактивные маски пользователей
         $collection = array();
@@ -64,7 +71,7 @@ class SphereController extends AccountManagerController {
             $collection[$sphere->id] = $mask->whereIn('status', [0,1])->with('user')->get();
         }
 
-        return view('accountManager.sphere.reprice')
+        return view('accountManager.sphere.all')
             ->with('collection',$collection)
             ->with('spheres',Sphere::active()->lists('name','id'));
     }
@@ -94,6 +101,8 @@ class SphereController extends AccountManagerController {
         // ищем маску в таблице по ее id
         $mask = $mask->find($mask_id);
 
+        $user = Agent::find($user_id);
+
         // возвращаем номер таблицы в маску
         $mask->changeTable($sphere->id);
 
@@ -105,6 +114,7 @@ class SphereController extends AccountManagerController {
             ->with('sphere', $sphere)
             ->with('mask_id', $mask_id)
             ->with('mask', $bitmask)
+            ->with('user', $user)
             ->with('price', $mask);
     }
 

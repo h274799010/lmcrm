@@ -1,5 +1,7 @@
 <?php
 
+Route::get('registerStepTwo', ['as' => 'agent.registerStepTwo', 'uses' => 'Auth\SessionsController@registerStepTwo']);
+
 Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] ], function() {
 
     // страница с отданными лидами
@@ -24,7 +26,6 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
     // todo эти две страницы, похоже, несуществуют, проверить и удалить
 //    Route::get('/', ['as' => 'agent.index', 'uses' => 'Agent\AgentController@index']);
 //    Route::get('lead', ['as' => 'agent.lead.index', 'uses' => 'Agent\LeadController@index']);
-
 
     /** Группа роутов для ролей агентов */
     Route::group([ 'middleware' => ['permissions'] ], function () {

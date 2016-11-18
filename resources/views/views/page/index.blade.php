@@ -82,7 +82,11 @@
                 <h2>{!! trans('site/user.login_to_account') !!}</h2>
             </div>
         </div>
-
+        @if($errors->any())
+            <div class="alert alert-success" role="alert">
+                {{$errors->first()}}
+            </div>
+        @endif
         <div class="container-fluid">
             <div class="row">
                 {!!  Form::open(['route' => 'auth.store']) !!}

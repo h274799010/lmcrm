@@ -60,6 +60,10 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')->where('status', 1);
     }
 
+    public function accountManagers() {
+        return $this->belongsToMany('\App\Models\User','account_managers_agents','agent_id','account_manager_id');
+    }
+
 
     public function sphere(){
         return $this->spheres()->first();
@@ -129,6 +133,24 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $spheres;
     }
 
+    public function spheresWithMasksAccountManager( $accountManagerSpheresIds, $user_id=NULL ){
+
+        // id агента
+        $agent_id = $user_id ? $user_id : $this->id;
+
+        // находим все сферы агента вместе с масками, которые тоже относятся к агенту
+        $spheres = $this
+            ->spheres()->whereIn('sphere_id', $accountManagerSpheresIds) // все сферы агента
+            ->with(['masks' => function( $query ) use ( $agent_id ){    // вместе с масками
+                // маски которые принадлежат текущему агенту
+                $query->where( 'user_id', $agent_id );
+//                $query->where( 'status', '<>', 0 );
+
+        }]);
+
+        return $spheres;
+    }
+
 
     /**
      * Выбор маски пользователя по id сферы
@@ -162,6 +184,12 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         }
 
 
+        $mask = new AgentBitmask($sphere);
+
+        return $mask->where('user_id', '=', $this->id)->first();
+    }
+    public function bitmask2($sphere=NULL)
+    {
         $mask = new AgentBitmask($sphere);
 
         return $mask->where('user_id', '=', $this->id)->first();

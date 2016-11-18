@@ -13,6 +13,9 @@ Route::group(['prefix' => 'accountManager','middleware' => ['auth'] ], function(
     Route::get('agent/{id}/edit',['as'=>'accountManager.agent.edit', 'uses' => 'AccountManager\AgentController@edit']);
     Route::match(['put','post'],'agent/{id}/update',['as'=>'accountManager.agent.update', 'uses' => 'AccountManager\AgentController@update']);
     Route::get('agent/{id}/destroy', ['as'=>'accountManager.agent.delete', 'uses' => 'AccountManager\AgentController@destroy']);
+    Route::get('newAgents', ['as'=>'accountManager.agent.newAgents', 'uses' => 'AccountManager\AgentController@newAgents']);
+    Route::get('agent/activated/{id}', ['as'=>'accountManager.agent.activatedPage', 'uses' => 'AccountManager\AgentController@agentActivatedPage']);
+    Route::match(['put','post'],'agent/{id}/activate', ['as'=>'accountManager.agent.activate', 'uses' => 'AccountManager\AgentController@agentActivate']);
 
     /*
      * Operators routes

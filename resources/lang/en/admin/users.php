@@ -16,6 +16,7 @@ return [
     'roles' => 'Roles',
     'roles_info' => 'Adding the role to user, be assigned all privileges for a given role.',
     'lead_revenue_share' => 'Lead revenue share',
-    'payment_revenue_share' => 'Payment revenue share'
+    'payment_revenue_share' => 'Payment revenue share',
+    'company' => 'Company'
 
 ];

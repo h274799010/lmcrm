@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AccountManager;
 
 use App\Http\Controllers\AccountManagerController;
+use App\Models\AccountManager;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Agent;
@@ -38,6 +39,14 @@ class OperatorController extends AccountManagerController {
         return Datatables::of($operators)
             ->remove_column('first_name')
             ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
+            /*->add_column('spheres', function($model) {
+                $accountManager = AccountManager::find(Sentinel::getUser()->id);
+
+                $spheres = $accountManager->spheres()->get()->lists('id')->toArray();
+
+                $operatorSpheres = OperatorSphere::with('spheres')->where('operator_id', '=', $model->id)->get();
+                dd($operatorSpheres);
+            })*/
             ->add_column('actions', function($model) { return view('accountManager.operator.datatables.control',['id'=>$model->id]); })
             ->remove_column('id')
             ->make();
