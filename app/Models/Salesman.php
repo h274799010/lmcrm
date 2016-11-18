@@ -120,5 +120,11 @@ class Salesman extends EloquentUser implements AuthenticatableContract, CanReset
 
         return $mask->where('user_id', '=', $this->id)->first();
     }
+    public function bitmaskAll($sphere_id)
+    {
+        $mask = new AgentBitmask($sphere_id);
+
+        return $mask->where('user_id', '=', $this->id)->get();
+    }
 
 }

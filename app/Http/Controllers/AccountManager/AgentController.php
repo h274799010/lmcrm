@@ -8,6 +8,7 @@ use App\Models\AccountManager;
 use App\Models\AgentBitmask;
 use App\Models\AgentInfo;
 use App\Models\AgentSphere;
+use App\Models\UserMasks;
 use App\Models\Wallet;
 use Carbon\Carbon;
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
@@ -139,8 +140,17 @@ class AgentController extends AccountManagerController {
      */
     public function edit($id)
     {
+        $accountManager = AccountManager::find(Sentinel::getUser()->id);
+
+        // данные сферы
+        $accountManagerSpheresIds = $accountManager->spheres()->get()->lists('id')->toArray();
+
         // данные агента
-        $agent = Agent::with(['agentInfo', 'salesmen'])->findOrFail($id);
+        $agent = Agent::with('agentInfo')
+            ->with(['salesmen' => function ($query) use ($accountManagerSpheresIds) {
+                return $query->whereIn('sphere_id', $accountManagerSpheresIds);
+            }])
+            ->findOrFail($id);
 
         // Получаем дополнительную роль (тип) продавцов
         foreach ($agent->salesmen as $salesman) {
@@ -149,15 +159,24 @@ class AgentController extends AccountManagerController {
                     $salesman->role = $val->name;
                 }
             }
+
+            $salesmanSpheres = $salesman->spheres()->get();
+        }
+        $agentSpheres = $agent->spheres()->whereIn('sphere_id', $accountManagerSpheresIds)->get();
+
+        foreach ($agentSpheres as $key => $agentSphere) {
+            $masks = $agent->bitmaskAll($agentSphere->id);
+            if(count($masks)) {
+                foreach ($masks as $k => $mask) {
+                    $masks[$k]['name'] = UserMasks::where('user_id', '=', $mask->user_id)->where('mask_id', '=', $mask->id)->first()->name;
+                }
+            }
+
+            $agentSpheres[$key]['masks'] = $masks;
         }
 
-        $accountManager = AccountManager::find(Sentinel::getUser()->id);
-
-        // данные сферы
-        $spheres = $accountManager->spheres()->get()->lists('id')->toArray();
-
         // Маски агента
-        $spheres = $agent->spheresWithMasksAccountManager($spheres, $agent->id)->get();
+        $spheres = $agentSpheres;
 
         // Дополнительные роли (тип) агента
         $user = Sentinel::findById($agent->id);

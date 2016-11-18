@@ -33,11 +33,11 @@
                         {{ trans('admin/modal.salesman') }} </a>
                 </li>
             @endif
-            {{--@if(isset($spheres) && count($spheres))
+            @if(isset($spheres) && count($spheres))
                 <li><a href="#masks" data-toggle="tab">
                         {{ trans('admin/modal.masks') }} </a>
                 </li>
-            @endif--}}
+            @endif
 
 
         </ul>
@@ -233,41 +233,46 @@
                     </table>
                 </div>
             @endif
-            {{--@if(isset($agent->salesmen) && count($agent->salesmen))
+            @if(isset($spheres) && count($spheres))
                 <div class="tab-pane" id="masks">
-                    <table class="table table-striped table-hover datatable">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>{!! trans("admin/sphere.agent") !!}</th>
-                            <th>{!! trans("admin/sphere.price") !!}</th>
-                            <th>{!! trans("admin/admin.updated_at") !!}</th>
-                            <th>{!! trans("admin/admin.action") !!}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        @forelse($spheres as $sphere)
-                            <h4>{{ $sphere->name }}</h4>
-                            @foreach($sphere->masks as $rec)
-                                {{ dd($rec->sphere()->get()) }}
-                                <tr>
-                                    <td>{{ $rec->id }}</td>
-                                    <td>{{ $agent->first_name }} {{ $agent->last_name }}</td>
-                                    <td>{{ $rec->lead_price }}</td>
-                                    <td>{{ $rec->updated_at }}</td>
-                                    <td>
-                                        --}}{{--<a href="{{ route('accountManager.sphere.reprice.edit',['sphere'=>$id, 'id'=>$rec->user->id, 'mask_id'=>$rec->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>--}}{{--
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @empty
-                        @endforelse
-
-                        </tbody>
-                    </table>
+                    <h3>Agents masks</h3>
+                        <table class="table table-striped table-hover datatable">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>{!! trans("admin/sphere.agent") !!}</th>
+                                <th>{!! trans("admin/sphere.price") !!}</th>
+                                <th>{!! trans("admin/admin.sphere") !!}</th>
+                                <th>{!! trans("admin/admin.updated_at") !!}</th>
+                                <th>{!! trans("admin/admin.action") !!}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($spheres as $sphere)
+                                    @if(count($sphere->masks))
+                                        @foreach($sphere->masks as $mask)
+                                            <tr>
+                                                <td>{{ $mask->id }}</td>
+                                                <td>{{ $agent->first_name }} {{ $agent->last_name }}</td>
+                                                <td>{{ $mask->lead_price }}</td>
+                                                <td>{{ $sphere->name }}</td>
+                                                <td>{{ $mask->updated_at }}</td>
+                                                <td>
+                                                    <a href="{{ route('accountManager.sphere.reprice.edit',['sphere'=>$sphere->id, 'id'=>$mask->user_id, 'mask_id'=>$mask->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="5">Masks empty</td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    <h3>Salesman masks</h3>
                 </div>
-            @endif--}}
+            @endif
         </div>
     </div>
 @stop
