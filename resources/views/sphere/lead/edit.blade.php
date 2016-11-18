@@ -476,6 +476,38 @@
 
 
         /**
+         * Функция отправки лида на аукцион агенту
+         *
+         */
+        function sendToAuction(){
+
+            // id пользователя которому будет отдан лид на аукцион
+            var user_id = $(this).closest('tr').attr('user_id');
+
+            // отправка запроса
+            $.post(
+                    "{{  route('send.to.auction') }}",
+                    {
+                        userId: user_id,
+                        sphereId: '{{ $sphere['id'] }}',
+                        leadId: '{{ $lead['id'] }}',
+                        _token: token
+                    },
+                    function( data ){
+                        // проверяем ответ
+
+                        console.log( data );
+
+                    },
+                    "json"
+            );
+
+            // todo
+//            alert(user_id);
+        }
+
+
+        /**
          * Подбирает агентов в таблицу
          *
          * отправляет зарос на бодбор агентов
@@ -545,6 +577,9 @@
                                     // создаем строку
                                     var tr = $('<tr/>');
 
+                                    // добавляем атрибут с id агента в строку таблицы
+                                    tr.attr( 'user_id', item.id );
+
                                     // ячейка с именем
                                     var tdName = $('<td/>');
                                     // ячейка с мэлом
@@ -558,7 +593,7 @@
                                     tdName.html( item.firstName + ' ' + item.lastName );
                                     tdEmail.html( item.email );
                                     tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
-                                    tdActions.html('<button type="button" class="btn btn-primary">Close Deal</button> <button type="button" class="btn btn-primary">Buy</button> <button type="button" class="btn btn-primary">Send to Auction</button>');
+                                    tdActions.html('<button type="button" class="btn btn-primary btn-send_to_auction">Send to Auction</button> <button type="button" class="btn btn-primary">Close Deal</button> <button type="button" class="btn btn-primary">Buy</button>');
 
                                     // подключение ячеек к строке
                                     tr.append(tdName);
@@ -568,7 +603,11 @@
 
                                     // подключение строки к таблице
                                     selectedAgentsTable.append(tr);
+
                                 });
+
+                                // обработка клика по кнопке отправки на аукцион
+                                $('.btn-send_to_auction').bind('click', sendToAuction);
 
                                 // показываем блок с подбором агентов
                                 agentsSelectionBody.removeClass('hidden');
@@ -600,6 +639,15 @@
         selectedAgentsNoneCloseButton.bind('click', function(){
             selectedAgentsNone.addClass('hidden');
         });
+
+
+        /**
+         * todo
+         *
+         *
+         *
+         */
+        $('.btn-send_to_auction').bind('click', sendToAuction);
 
     });
 

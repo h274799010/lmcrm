@@ -29,6 +29,9 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // получение данных агента, которым этот лид подходит
     Route::post('operator/agents/selection', ['as' => 'operator.agents.selection', 'uses' => 'Operator\SphereController@agentsSelection']);
 
+    // отправка лида оператором на аукцион агента
+    Route::post('send/to/auction', ['as' => 'send.to.auction', 'uses' => 'Operator\SphereController@sendToAuction']);
+
 
     //Route::resource('customer/filter','Operator\CustomerFilterController@create');
 });

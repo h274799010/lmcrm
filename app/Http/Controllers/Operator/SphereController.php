@@ -148,15 +148,6 @@ class SphereController extends Controller {
     public function update(Request $request, $sphere_id, $lead_id)
     {
 
-//        dd($request);
-
-        // todo удалить
-//        $mask = new LeadBitmask($sphere_id);
-//
-//        $leadBitmaskData = $mask->findFbMask($lead_id);
-//
-//        dd($leadBitmaskData);
-
         // Тип запроса:
         // 1. save - просто сохраняем лида
         // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
@@ -167,14 +158,6 @@ class SphereController extends Controller {
         $validator = Validator::make($request->except('info'), [
             'options.*' => 'integer',
         ]);
-
-//        if ($validator->fails()) {
-//            if( $request->ajax() ){
-//                return response()->json($validator);
-//            } else {
-//                return redirect()->back()->withErrors($validator)->withInput();
-//            }
-//        }
 
 
         /** --  Находим лид и проверяем на bad/good  -- */
@@ -263,12 +246,11 @@ class SphereController extends Controller {
         });
 
 
-
+        // todo
         if($typeRequest == 'toAuction') {
             /** --  вычитание из системы стоимость обслуживание лида  -- */
 
             // переделать по новой системе
-
             PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
 
             /** --  уведомление Агентов которым этот лид подходит  -- */
@@ -547,10 +529,12 @@ class SphereController extends Controller {
     /**
      * Проверка редактируется ли лид другим оператором
      *
+     *
      * @param Request $request
-     * @return mixed
+     *
+     * @return Response
      */
-    public function checkLead(Request $request) {
+    public function checkLead( Request $request ) {
         $leadEdited = Operator::with('lead')->where('lead_id', '=', $request->lead_id)->first();
 
         if(isset($leadEdited->id)) {
@@ -565,5 +549,26 @@ class SphereController extends Controller {
         }
     }
 
+
+    /**
+     * Отправка лида на аукцион, напрямую
+     *
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function sendToAuction( Request $request ){
+
+
+
+        // todo оплата за обработку оператора
+
+
+        // todo добавление на аукцион агентам или одному агенту
+
+
+        return response()->json( $request );
+    }
 
 }
