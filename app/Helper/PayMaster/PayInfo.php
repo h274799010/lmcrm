@@ -86,10 +86,58 @@ class PayInfo
             ->where( 'type', 'operatorPayment' )            // только с типом "оплата за оператора"
             ->first();
 
+        // проверка наличия оплаты
         if( $operatorPayment ){
+            // если есть оплата
+
+            // возвращаем сумму оплаты
             return $operatorPayment->amount;
+
         }else{
+            // если оплаты нет
+
+            // возвращаем саму стоимость, сколько нужно заплатить за обработку
             return Price::processingOperator( $lead_id );
+        }
+    }
+
+
+    /**
+     * Проверка, была ли сделана оплата оператору по лиду
+     *
+     * метод возвращает:
+     *    либо цифру (сумма оплаты)
+     *    либо false (если оплаты еще небыло)
+     *
+     * @param  integer  $lead_id
+     *
+     * @return double | false
+     */
+    public static function IsOperatorPayment( $lead_id )
+    {
+        // все транзакции в которых учавствовал лид
+        $leads = TransactionsLeadInfo::
+        where( 'lead_id', $lead_id )                 // только те транзакции в которых учавствовал лид
+        ->lists( 'transaction_id' );                 // только список id транзакций
+
+        // данные покупателей лида
+        $operatorPayment = TransactionsDetails::
+        whereIn( 'transaction_id', $leads )           // получение деталей по найденным транзакциям
+        ->where( 'type', 'operatorPayment' )          // только с типом "оплата за оператора"
+        ->first();
+
+        // проверка наличия оплаты
+        if( $operatorPayment ){
+            // если есть оплата
+
+            // возвращаем сумму оплаты
+            return $operatorPayment->amount;
+
+        }else{
+            // если оплаты нет
+
+            // сообщаем что за обработку по лиду еще не оплаченно
+            return false;
         }
     }
 
