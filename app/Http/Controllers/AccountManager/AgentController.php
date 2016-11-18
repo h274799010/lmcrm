@@ -153,7 +153,7 @@ class AgentController extends AccountManagerController {
             ->findOrFail($id);
 
         // Получаем дополнительную роль (тип) продавцов
-        foreach ($agent->salesmen as $salesman) {
+        foreach ($agent->salesmen as $key => $salesman) {
             foreach ($salesman->roles as $val) {
                 if($val->slug != 'salesman') {
                     $salesman->role = $val->name;
@@ -161,18 +161,16 @@ class AgentController extends AccountManagerController {
             }
 
             $salesmanSpheres = $salesman->spheres()->get();
+            foreach ($salesmanSpheres as $k => $salesmanSphere) {
+                $masks = $salesman->bitmaskAllWithNames($salesmanSphere->id);
+                $salesmanSpheres[$k]['masks'] = $masks;
+            }
+            $agent->salesmen[$key]->spheres = $salesmanSpheres;
         }
         $agentSpheres = $agent->spheres()->whereIn('sphere_id', $accountManagerSpheresIds)->get();
 
         foreach ($agentSpheres as $key => $agentSphere) {
-            $masks = $agent->bitmaskAll($agentSphere->id);
-            if(count($masks)) {
-                foreach ($masks as $k => $mask) {
-                    $masks[$k]['name'] = UserMasks::where('user_id', '=', $mask->user_id)->where('mask_id', '=', $mask->id)->first()->name;
-                }
-            }
-
-            $agentSpheres[$key]['masks'] = $masks;
+            $agentSpheres[$key]['masks'] = $agent->bitmaskAllWithNames($agentSphere->id);
         }
 
         // Маски агента

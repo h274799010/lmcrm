@@ -21,8 +21,10 @@ return [
 
     'maskAll' => 'All masks',
     'mask' => 'Mask',
+    'maskName' => 'Mask name',
     'reprice' => 'Masks Reprice',
     'agent' => 'Agent',
+    'salesman' => 'Salesman',
 
     'month' => 'Month',
     'days' => 'Days',

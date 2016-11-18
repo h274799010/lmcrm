@@ -18,5 +18,6 @@ return [
     'revenue' => 'Revenue',
     'salesman' => 'Salesman',
     'block' => 'Block',
-    'unblock' => 'Unblock'
+    'unblock' => 'Unblock',
+    'masks' => 'Masks'
 ];
