@@ -194,6 +194,53 @@ class Pay
 
 
     /**
+     * Оплата за обработку лида обератором
+     *
+     * Прибавление суммы, которую система затратила на обработку лида,
+     * кошельку с типом wasted агента
+     *
+     *
+     * @param  Lead  $lead
+     * @param  integer  $initiator_id
+     *
+     * @return array
+     */
+    public static function OperatorPayment( $lead, $initiator_id )
+    {
+
+        // проверяем оплаченна обработка оператором или нет
+        $isPaid = PayInfo::IsOperatorPayment( $lead['id'] );
+
+        if( !$isPaid ){
+            // если обработка еще не оплаченна
+
+            // получаем сумму оплаты за обработку оператором
+            $amount = Price::processingOperator( $lead['id'] );
+
+            // зачисляем сумму за обработку лида на кошелек системы
+            $paymentStatus =
+                Payment::single(
+                    [
+                        'initiator_id'  => $initiator_id,                // id инициатора, в данном случае - оператор
+                        'user_id'       => config('payment.system_id'),  // id системы, сумма снимается с системы
+                        'wallet_type'   => 'earned',                     // тип кошелька с которого снимется сумма
+                        'type'          => 'operatorPayment',            // тип транзакции
+                        'amount'        => $amount,                      // сумма оплаты за лид
+                        'lead_id'       => $lead['id'],                  // id лида, который проверяет оператор
+                    ]
+                );
+
+            // помечаем что все прошло нормально
+            $paymentStatus['status'] = true;
+
+            return $paymentStatus;
+        }
+
+        return $paymentStatus['status'] = false;
+    }
+
+
+    /**
      * Возврат "штраф" за обработку оператором автору лида
      *
      * Прибавление суммы, которую система затратила на обработку лида,
