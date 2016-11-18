@@ -23,6 +23,7 @@ use App\Models\Customer;
 use App\Models\Sphere;
 use App\Helper\Notice;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use App\Helper\PayMaster\Pay;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -164,6 +165,12 @@ class SphereController extends Controller {
 
         // находим лид
         $lead = Lead::find( $lead_id );
+
+        // оплата за обработку оператором
+        // платится только один раз, если лид уже оплачен,
+        // просто возвращает false
+        Pay::operatorPayment( $lead, Sentinel::getUser()->id );
+
 
         if($lead->status != 0 && $lead->status != 1) {
             return redirect()->route('operator.sphere.index')->withErrors(['lead_closed' => 'Лид уже отредактирован другим оператором!']);
