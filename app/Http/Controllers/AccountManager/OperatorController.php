@@ -39,14 +39,13 @@ class OperatorController extends AccountManagerController {
         return Datatables::of($operators)
             ->remove_column('first_name')
             ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
-            /*->add_column('spheres', function($model) {
-                $accountManager = AccountManager::find(Sentinel::getUser()->id);
+            ->add_column('spheres', function($model) {
+                $operator = OperatorSphere::find($model->id);
+                $operatorSpheres = $operator->spheres()->get()->lists('name')->toArray();
+                $operatorSpheres = implode(', ', $operatorSpheres);
 
-                $spheres = $accountManager->spheres()->get()->lists('id')->toArray();
-
-                $operatorSpheres = OperatorSphere::with('spheres')->where('operator_id', '=', $model->id)->get();
-                dd($operatorSpheres);
-            })*/
+                return $operatorSpheres;
+            })
             ->add_column('actions', function($model) { return view('accountManager.operator.datatables.control',['id'=>$model->id]); })
             ->remove_column('id')
             ->make();

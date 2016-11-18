@@ -24,6 +24,7 @@
             <th>{!! trans("admin/users.name") !!}</th>
             <th>{!! trans("admin/users.email") !!}</th>
             <th>{!! trans("admin/admin.created_at") !!}</th>
+            <th>{!! trans("admin/users.spheres") !!}</th>
             <th>{!! trans("admin/admin.action") !!}</th>
         </tr>
         </thead>
