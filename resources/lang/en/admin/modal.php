@@ -16,5 +16,7 @@ return [
     'delete_message' => 'Did you want to delete this item?',
     'wallet' => 'Wallet',
     'revenue' => 'Revenue',
-    'salesman' => 'Salesman'
+    'salesman' => 'Salesman',
+    'block' => 'Block',
+    'unblock' => 'Unblock'
 ];

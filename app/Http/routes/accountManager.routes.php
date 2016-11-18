@@ -13,6 +13,8 @@ Route::group(['prefix' => 'accountManager','middleware' => ['auth'] ], function(
     Route::get('agent/{id}/edit',['as'=>'accountManager.agent.edit', 'uses' => 'AccountManager\AgentController@edit']);
     Route::match(['put','post'],'agent/{id}/update',['as'=>'accountManager.agent.update', 'uses' => 'AccountManager\AgentController@update']);
     Route::get('agent/{id}/destroy', ['as'=>'accountManager.agent.delete', 'uses' => 'AccountManager\AgentController@destroy']);
+    Route::get('agent/{id}/block', ['as'=>'accountManager.agent.block', 'uses' => 'AccountManager\AgentController@ban']);
+    Route::get('agent/{id}/unblock', ['as'=>'accountManager.agent.unblock', 'uses' => 'AccountManager\AgentController@unban']);
     Route::get('newAgents', ['as'=>'accountManager.agent.newAgents', 'uses' => 'AccountManager\AgentController@newAgents']);
     Route::get('agent/activated/{id}', ['as'=>'accountManager.agent.activatedPage', 'uses' => 'AccountManager\AgentController@agentActivatedPage']);
     Route::match(['put','post'],'agent/{id}/activate', ['as'=>'accountManager.agent.activate', 'uses' => 'AccountManager\AgentController@agentActivate']);

@@ -32,7 +32,7 @@ class SentinelAgentOrSalesmanUser
             } elseif($agentInfo->state == 2) {
                 Sentinel::logout();
 
-                return redirect()->route('home')->withErrors(['Expect to activate your account administrator. After activation you will be notified by e-mail.']);
+                return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.']);
             }
         }
         return $next($request);

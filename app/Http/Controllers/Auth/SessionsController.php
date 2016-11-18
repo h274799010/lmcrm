@@ -62,6 +62,11 @@ class SessionsController extends Controller
         $users = Sentinel::findRoleBySlug('users');
         $agent = Sentinel::findRoleBySlug('agent');
 
+        if($user->banned == true) {
+            Sentinel::logout();
+            return redirect()->route('home')->withErrors(['success'=>false, 'message' => 'You account banned!']);
+        }
+
         if ($user->inRole($admin)) {
             return redirect()->intended('admin');
         } elseif ($user->inRole($agent)) {
@@ -138,7 +143,7 @@ class SessionsController extends Controller
             $message->to($user->email)->subject('Activation account!');
         });
 
-        return redirect()->route('home')->withErrors(['You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.']);
+        return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.']);
     }
 
     /**
@@ -205,7 +210,7 @@ class SessionsController extends Controller
 
         Sentinel::logout();
 
-        return redirect()->route('home')->withErrors(['Expect to activate your account administrator. After activation you will be notified by e-mail.']);
+        return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.']);
     }
 
     /**
@@ -224,11 +229,11 @@ class SessionsController extends Controller
             $agentInfo->state = 1; // Отмечаем что почта подтверждена
             $agentInfo->save();
 
-            return redirect()->route('home')->withErrors(['Your e-mail successfully confirmed. Log in using your data to proceed with the registration.']);
+            return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Your e-mail successfully confirmed. Log in using your data to proceed with the registration.']);
         }
         else
         {
-            return redirect()->route('home')->withErrors(['Confirmation code does not fit!']);
+            return redirect()->route('home')->withErrors(['success'=>false, 'message' => 'Confirmation code does not fit!']);
         }
     }
 

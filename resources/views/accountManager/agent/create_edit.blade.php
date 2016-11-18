@@ -208,7 +208,7 @@
                             <th>{!! trans("admin/users.email") !!}</th>
                             <th>{!! trans("admin/users.role") !!}</th>
                             <th>{!! trans("admin/admin.created_at") !!}</th>
-                            {{--<th>{!! trans("admin/admin.action") !!}</th>--}}
+                            <th>{!! trans("admin/admin.action") !!}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -218,10 +218,15 @@
                                 <td>{{ $salesman->email }}</td>
                                 <td>{{ $salesman->role }}</td>
                                 <td>{{ $salesman->created_at }}</td>
-                                {{--<td>
-                                    <a href="{{ route('accountManager.agent.edit',[$salesman->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
-                                    <a href="{{ route('accountManager.agent.delete',[$salesman->id]) }}" class="btn btn-sm btn-danger confirm"><span class="glyphicon glyphicon-trash"></span> {{ trans("admin/modal.delete") }}</a>
-                                </td>--}}
+                                <td>
+                                    {{--<a href="{{ route('accountManager.agent.edit',[$salesman->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                                    <a href="{{ route('accountManager.agent.delete',[$salesman->id]) }}" class="btn btn-sm btn-danger confirm"><span class="glyphicon glyphicon-trash"></span> {{ trans("admin/modal.delete") }}</a>--}}
+                                    @if($salesman->banned == true)
+                                        <a href="{{ route('accountManager.agent.unblock',[$salesman->id]) }}" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.unblock") }}</a>
+                                    @else
+                                        <a href="{{ route('accountManager.agent.block',[$salesman->id]) }}" class="btn btn-sm btn-danger confirmBan"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.block") }}</a>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

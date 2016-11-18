@@ -19,7 +19,7 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name', 'name','email', 'password',
+        'first_name', 'last_name', 'name','email', 'password', 'banned'
     ];
 
     /**
@@ -28,7 +28,7 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token'
     ];
 
     /**

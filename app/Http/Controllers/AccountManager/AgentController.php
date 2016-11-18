@@ -9,6 +9,7 @@ use App\Models\AgentBitmask;
 use App\Models\AgentInfo;
 use App\Models\AgentSphere;
 use App\Models\Wallet;
+use Carbon\Carbon;
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
 use Illuminate\Http\Request;
 use App\Models\Agent;
@@ -52,8 +53,9 @@ class AgentController extends AccountManagerController {
                 }
                 return $role;
             })
-            ->add_column('actions', function($model) { return view('accountManager.agent.datatables.control',['id'=>$model->id]); })
+            ->add_column('actions', function($model) { return view('accountManager.agent.datatables.control',['user'=>$model]); })
             ->remove_column('id')
+            ->remove_column('banned')
             ->make();
     }
 
@@ -400,6 +402,28 @@ class AgentController extends AccountManagerController {
         });
 
         return redirect()->route('accountManager.agent.index');
+    }
+
+    public function ban($user_id)
+    {
+        $user = Sentinel::findById($user_id);
+
+        $user->banned = true;
+        $user->banned_at = Carbon::now();
+        $user->save();
+
+        return redirect()->back();
+    }
+
+    public function unban($user_id)
+    {
+        $user = Sentinel::findById($user_id);
+
+        $user->banned = false;
+        $user->banned_at = null;
+        $user->save();
+
+        return redirect()->back();
     }
 
 }

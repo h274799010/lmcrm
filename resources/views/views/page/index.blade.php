@@ -83,8 +83,8 @@
             </div>
         </div>
         @if($errors->any())
-            <div class="alert alert-success" role="alert">
-                {{$errors->first()}}
+            <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
+                {{$errors->first('message')}}
             </div>
         @endif
         <div class="container-fluid">
