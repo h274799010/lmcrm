@@ -593,7 +593,7 @@
                                     tdName.html( item.firstName + ' ' + item.lastName );
                                     tdEmail.html( item.email );
                                     tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
-                                    tdActions.html('<button type="button" class="btn btn-primary btn-send_to_auction">Send to Auction</button> <button type="button" class="btn btn-primary">Close Deal</button> <button type="button" class="btn btn-primary">Buy</button>');
+                                    tdActions.html('<select class="agentAction"></select>');
 
                                     // подключение ячеек к строке
                                     tr.append(tdName);
@@ -603,7 +603,21 @@
 
                                     // подключение строки к таблице
                                     selectedAgentsTable.append(tr);
+                                });
 
+                                // подключаем selectBoxIt к селекту
+                                $(".agentAction").selectBoxIt({
+                                    // выставляем дефолтную тему
+                                    theme: "default",
+                                    // переопределяем класс container
+                                    copyClasses: "container",
+                                    // добавляем опции
+                                    populate: [
+                                        { value: "0", text: "" },
+                                        { value: "1", text: "Send to Auction" },
+                                        { value: "2", text: "Buy" },
+                                        { value: "3", text: "Close the Deal" }
+                                    ]
                                 });
 
                                 // обработка клика по кнопке отправки на аукцион
