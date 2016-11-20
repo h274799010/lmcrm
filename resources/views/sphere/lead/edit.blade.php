@@ -18,6 +18,7 @@
             <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
 
             <input type="hidden" name="type" id="typeFrom" value="">
+            <input type="hidden" name="agentsData" id="agentsData" value="">
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -673,7 +674,8 @@
                         // добавляем данные в общий массив
                         actionData.push({
                             action: $(val).val(),
-                            userId: $(val).closest('tr').attr( 'user_id' )
+                            userId: $(val).closest('tr').attr( 'user_id' ),
+                            maskId: $(val).closest('tr').attr( 'mask_id' )
                         });
                     }
                 });
@@ -817,6 +819,8 @@
 
                                     // добавляем атрибут с id агента в строку таблицы
                                     tr.attr( 'user_id', item.id );
+                                    tr.attr( 'mask_id', item.maskFilterId );
+
 
                                     // ячейка с именем
                                     var tdName = $('<td/>');
@@ -957,6 +961,12 @@
             // проверка данных
             if( leadApplyData.length != 0 ){
                 // todo если есть данные по агентам
+
+                $('#agentsData').val( JSON.stringify( leadApplyData ) );
+                $('#typeFrom').val('onSelectiveAuction');
+
+                $('form')[0].submit();
+
                 console.log(leadApplyData);
 
 

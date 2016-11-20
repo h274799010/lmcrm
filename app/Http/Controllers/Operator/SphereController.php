@@ -149,9 +149,12 @@ class SphereController extends Controller {
     public function update(Request $request, $sphere_id, $lead_id)
     {
 
+//        return $request->agentsData;
+
         // Тип запроса:
         // 1. save - просто сохраняем лида
         // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
+        // 3. onSelectiveAuction - отправка лида на выборочные аукционы агентов
         $typeRequest = $request->input('type');
 
         /** --  проверка данных на валидность  -- */
@@ -183,8 +186,17 @@ class SphereController extends Controller {
         $lead->email=$request->input('email');
         $lead->comment=$request->input('comment');
 
+        // статусы аукциона
+
         if($typeRequest == 'toAuction') {
+            // если лид помечается к аукциону
+            // выставляем лиду статус "3"
             $lead->status = 3;
+
+        }elseif( $typeRequest == 'onSelectiveAuction' ){
+            // если лид направляется на выборочные аукционы
+            // выставляем лиду статус "8"
+            $lead->status = 7;
         }
 
         $lead->operator_processing_time = date("Y-m-d H:i:s");
@@ -253,19 +265,16 @@ class SphereController extends Controller {
         });
 
 
-        // если есть метка 'toAuction'
+        // проверяем тип обработки и обрабатываем соответственно
+
         if($typeRequest == 'toAuction') {
-            /** --  вычитание из системы стоимость обслуживание лида  -- */
+            // если есть метка 'toAuction'
 
-            // оплата за обработку оператором
-            // платится только один раз, если лид уже оплачен,
-            // просто возвращает false
-            Pay::operatorPayment( $lead, Sentinel::getUser()->id );
-
-            /** --  уведомление Агентов которым этот лид подходит  -- */
+            /** --  добавляем лид на аукцио агентов которым этот лид подходит  -- */
 
             // выбираем маску лида
             $leadBitmaskData = $mask->findFbMask($lead_id);
+            /** --  вычитание из системы стоимость обслуживание лида  -- */
 
             // выбираем маски всех агентов
             $agentBitmasks = new AgentBitmask($sphere_id);
@@ -277,15 +286,11 @@ class SphereController extends Controller {
                 ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
                 ->get();
 
-            // если агентов нет, пропускаем оповещения, если есть - оповещаем
+            // находим id текущего оператора, чтобы отметить как отправителя сообщения
+            $senderId = Sentinel::getUser()->id;
+
+            // если агенты есть - добавляем лид им на аукцион и оповещаем
             if( $agents->count() ){
-
-                // находим id текущего оператора, чтобы отметить как отправителя сообщения
-                $senderId = Sentinel::getUser()->id;
-
-                // подобрать название к этому уведомлению
-                // рассылаем уведомления всем агентам которым подходит этот лид
-                Notice::toMany( $senderId, $agents, 'note');
 
                 // Удаляем ранее отредактированного лида с аукциона
                 Auction::where('lead_id', '=', $lead_id)->delete();
@@ -293,10 +298,37 @@ class SphereController extends Controller {
                     $auctions->delete();
                 }*/
 
-                // метод добавляющий лид в таблицу аукциона агентам, которым он подходит
+                // добавляем лид на аукцион всем подходящим агентам
                 Auction::addFromBitmask( $agents, $sphere_id, $lead_id );
+
+                // подобрать название к этому уведомлению
+                // рассылаем уведомления всем агентам которым подходит этот лид
+                Notice::toMany( $senderId, $agents, 'note');
+
             }
+        }elseif( $typeRequest == 'onSelectiveAuction' ){
+            // если есть метка 'onSelectiveAuction'
+
+            /** добавляем лид на аукцион указанным агентам */
+
+            // парсим данные по агентам полученные с фронтенда
+            $selectiveAgents = collect( json_decode( $request->agentsData ) );
+
+            // удаляем ранее отредактированного лида с аукциона, если он есть
+            Auction::where('lead_id', '=', $lead_id)->delete();
+
+            // перебираем всех агентов и добавляем на аукцион
+            $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId ){
+
+                // добавляем на аукцион
+                Auction::addByAgentId( $item->userId, $item->maskId, $sphere_id, $lead_id );
+                // уведомляем агента о новом лиде
+                Notice::toOne( $senderId, $item->userId, 'note');
+            });
         }
+
+
+
 
         if( $request->ajax() ){
             return response()->json();
@@ -482,9 +514,12 @@ class SphereController extends Controller {
         // меняем местами ключи и значения массива с данными по опциям лида
         $fields = array_flip($request->options);
 
+        // массив с подготовленными ключами
         $prepareFields = [];
 
+        // перебираем все поля и выставляем в 1
         foreach($fields as $key=>$val){
+            // заполняем поля массива
             $prepareFields[$key] = 1;
         }
 
@@ -492,11 +527,14 @@ class SphereController extends Controller {
         // исключаем агента добавившего лид
         $agents = $agentBitmasks
             ->filterAgentsByMask( $prepareFields, $request->depositor )
-            ->lists('user_id');
+            ->get();
+
+        // выбираем только id агентов
+        $agentsId = $agents->pluck('user_id');
 
         // выбираем данные агентов, которым этот лид подходим
         $users = User::
-                      whereIn( 'id', $agents )
+                      whereIn( 'id', $agentsId )
                     ->with('roles')
                     ->get();
 
@@ -504,7 +542,29 @@ class SphereController extends Controller {
         $usersData = [];
 
         // перебираем всех агентов и выбираем только нужные данные
-        $users->each(function( $val ) use( &$usersData ){
+        $users->each(function( $val ) use( &$usersData, $agents ){
+
+            // выбираем маски, которые принадлежат только этому пользователю
+            $userMasks = $agents->filter(function ($item) use( $val ) {
+                return $item->user_id == $val->id;
+            });
+
+            // id маски агента
+            $maskId = 0;
+            // прайс маски агента
+            $price = 0;
+
+            // перебираем все маски агента и выбираем маску с самым большим прайсом
+            $userMasks->each( function( $item ) use ( &$maskId, &$price ) {
+
+                // если прайс в маске больше текущего
+                if( $item->lead_price > $price ){
+                    // меняем текущие значения на значения итема
+                    $price = $item->lead_price;
+                    $maskId = $item->id;
+                }
+            });
+
 
             // выбыбираем данные
             $data = [];
@@ -512,6 +572,7 @@ class SphereController extends Controller {
             $data['email'] = $val->email;
             $data['firstName'] = $val->first_name;
             $data['lastName'] = $val->last_name;
+            $data['maskFilterId'] = $maskId;
             $data['roles'] = [];
 
             // добавляем роли
@@ -568,7 +629,7 @@ class SphereController extends Controller {
     /**
      * Отправка лида на аукцион, напрямую
      *
-     *
+     * todo удалить
      * @param Request $request
      *
      * @return Response

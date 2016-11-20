@@ -95,6 +95,41 @@ class Auction extends Model
     /**
      * Добавление данных взятые из битмаска агента
      *
+     * todo доработать
+     *
+     * @param  integer  $user_id
+     * @param  integer  $mask_id
+     * @param  integer  $sphere_id
+     * @param  integer  $lead_id
+     *
+     * @return boolean
+     */
+    public static function addByAgentId( $user_id, $mask_id, $sphere_id, $lead_id )
+    {
+
+        // получаем id имени маски пользователя
+        $maskName = UserMasks::where('user_id', '=', $user_id)->where('mask_id', '=', $mask_id)->first();
+
+        // переменная запроса
+        $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$user_id, 'mask_id'=>$mask_id, 'mask_name_id'=>$maskName->id ];
+
+        // перебираем всех агентов и добавляем данные в таблицу
+//        $agentsBitmask->each( function( $agent ) use( &$query, $sphere_id, $lead_id ){
+//            $maskName = UserMasks::where('user_id', '=', $agent['user_id'])->where('mask_id', '=', $agent['id'])->first();
+//
+//            // формируем запрос
+//            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$agent['user_id'], 'mask_id'=>$agent['id'], 'mask_name_id'=>$maskName->id ];
+//
+//        });
+
+        // делаем запрос (записываем данные в таблицу аукциона)
+        return Auction::insert( $query );
+    }
+
+
+    /**
+     * Добавление данных взятые из битмаска агента
+     *
      *
      * @param  integer  $mask_id
      * @param  integer  $sphere_id
