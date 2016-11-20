@@ -471,7 +471,7 @@ class Lead extends EloquentUser {
      *
      * @return OpenLeads
      */
-    public function open( $agent, $mask_id )
+    public function open( $agent, $mask_id, $operator=false )
     {
 
         // лид
@@ -491,7 +491,7 @@ class Lead extends EloquentUser {
 
 
         // если лид уже снят с аукциона, сообщаем об этом и выходим
-        if( $lead->status != 3 && $lead->status != 7 ){
+        if( $lead->status != 3 && $lead->status != 7 && $operator ){
             return trans('lead/lead.Lead.not_at_auction');
         }
 

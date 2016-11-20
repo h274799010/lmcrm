@@ -675,7 +675,7 @@
                         actionData.push({
                             action: $(val).val(),
                             userId: $(val).closest('tr').attr( 'user_id' ),
-                            maskId: $(val).closest('tr').attr( 'mask_id' )
+                            maskId: $(val).closest('tr').attr( 'mask_id' ),
                         });
                     }
                 });
@@ -685,9 +685,10 @@
             if( actionData.length != 0 ){
                 // если данные есть
 
+                // заполняем данные в модальном окне
                 $.each( actionData, function( key, val ){
 
-                    switch(val.action){
+                    switch( val.action ){
 
                         case '1':
                             $('.apply_auctionAdd').removeClass('hidden');
@@ -962,8 +963,19 @@
             if( leadApplyData.length != 0 ){
                 // todo если есть данные по агентам
 
-                $('#agentsData').val( JSON.stringify( leadApplyData ) );
-                $('#typeFrom').val('onSelectiveAuction');
+                if( leadApplyData[0].action == 1){
+                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
+                    $('#typeFrom').val('onSelectiveAuction');
+
+                }else if(leadApplyData[0].action == 2){
+                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
+                    $('#typeFrom').val('openLead');
+
+                }else if(leadApplyData[0].action == 3){
+                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
+                    $('#typeFrom').val('closeDeal');
+                }
+
 
                 $('form')[0].submit();
 

@@ -13,6 +13,7 @@ use App\Models\OperatorSphere;
 use App\Models\OperatorOrganizer;
 use App\Models\SphereFormFilters;
 use App\Models\User;
+use App\Models\Salesman;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use PhpParser\Node\Expr\Cast\Object_;
@@ -195,10 +196,13 @@ class SphereController extends Controller {
 
         }elseif( $typeRequest == 'onSelectiveAuction' ){
             // если лид направляется на выборочные аукционы
-            // выставляем лиду статус "8"
+            // выставляем лиду статус "7"
+            $lead->status = 7;
+        }elseif( $typeRequest == 'openLead' ){
+            // если лид направляется на выборочные аукционы
+            // выставляем лиду статус "7"
             $lead->status = 7;
         }
-
         $lead->operator_processing_time = date("Y-m-d H:i:s");
         $lead->expiry_time = $lead->expiredTime();
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
@@ -325,6 +329,35 @@ class SphereController extends Controller {
                 // уведомляем агента о новом лиде
                 Notice::toOne( $senderId, $item->userId, 'note');
             });
+
+        }elseif( $typeRequest == 'openLead' ){
+
+            // перебираем всех агентов и добавляем на аукцион
+            $selectiveAgents = collect( json_decode( $request->agentsData ) );
+
+            // перебираем всех агентов и добавляем на аукцион
+            $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId, $lead ){
+
+                // находим роль пользователя
+                $userSlag = User::with('roles')->find( $item->userId );
+
+                // выбираем модель пользователя в зависимости от его роли
+                if( $userSlag->roles[0]->name == 'Agent' ){
+                    $user = Agent::find($item->userId);
+                }else{
+                    $user = Salesman::find($item->userId);
+                }
+
+                // Salesman
+
+                // todo открываем лид агенту
+                $lead->open( $user, $item->maskId, true );
+            });
+
+        }elseif( $typeRequest == 'closeDeal' ){
+
+
+            return true;
         }
 
 
