@@ -19,6 +19,13 @@ return [
     'status_not_changed' => 'Status not changed!',
     'status_changed' => 'Status changed!',
 
+    'maskAll' => 'All masks',
+    'mask' => 'Mask',
+    'maskName' => 'Mask name',
+    'reprice' => 'Masks Reprice',
+    'agent' => 'Agent',
+    'salesman' => 'Salesman',
+
     'month' => 'Month',
     'days' => 'Days',
     'hours' => 'Hours',

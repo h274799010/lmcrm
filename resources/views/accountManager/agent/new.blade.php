@@ -18,7 +18,7 @@
         </h3>
     </div>
 
-    <table id="table" class="table table-striped table-hover">
+    <table id="tableSalesman" class="table table-striped table-hover">
         <thead>
         <tr>
             <th>{!! trans("admin/users.name") !!}</th>
@@ -28,7 +28,25 @@
             <th>{!! trans("admin/admin.action") !!}</th>
         </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+        @foreach($agents as $agent)
+            <tr>
+                <td>{{ $agent->first_name }} {{ $agent->last_name }}</td>
+                <td>{{ $agent->email }}</td>
+                <td>{{ $agent->created_at }}</td>
+                <td>
+                    @foreach($agent->roles as $role)
+                        @if($role->slug !== 'agent')
+                            {{ $role->name }}
+                        @endif
+                    @endforeach
+                </td>
+                <td>
+                    <a href="{{ route('accountManager.agent.activatedPage',[$agent->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                </td>
+            </tr>
+        @endforeach
+        </tbody>
     </table>
 @stop
 

@@ -17,9 +17,9 @@ class AccountManager extends EloquentUser implements AuthenticatableContract, Ca
      *
      * @var array
      */
-    /*protected $fillable = [
-        'first_name', 'last_name','name','email', 'password',
-    ];*/
+    protected $fillable = [
+        'first_name', 'last_name','email', 'password',
+    ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -29,5 +29,19 @@ class AccountManager extends EloquentUser implements AuthenticatableContract, Ca
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function spheres() {
+        return $this->belongsToMany('\App\Models\Sphere','account_manager_sphere','account_manager_id','sphere_id');
+    }
+
+    public function agents() {
+        return $this->belongsToMany('\App\Models\User','account_managers_agents','account_manager_id','agent_id')
+            ->select(array('users.id','users.first_name','users.last_name', 'users.email', 'users.created_at', 'users.banned'));
+    }
+
+    public function agentsAll()
+    {
+        return $this->belongsToMany('\App\Models\User','account_managers_agents','account_manager_id','agent_id');
+    }
 
 }

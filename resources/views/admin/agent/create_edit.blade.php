@@ -53,6 +53,14 @@
             </div>
         </div>
 
+        <div class="form-group  {{ $errors->has('accountManagers') ? 'has-error' : '' }}">
+            {{ Form::label('accountManagers', trans("admin/sphere.accountManagers"), array('class' => 'control-label')) }}
+            <div class="controls">
+                {{ Form::select('accountManagers[]',$accountManagers->lists('email','id'),(isset($agent))?$agent->accountManagers()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2','required'=>'required')) }}
+                <span class="help-block">{{ $errors->first('accountManagers', ':message') }}</span>
+            </div>
+        </div>
+
         <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
             {{ Form::label('first_name', trans("admin/users.first_name"), array('class' => 'control-label')) }}
             <div class="controls">

@@ -36,6 +36,11 @@
                             <i class="glyphicon glyphicon-star"></i> {{ trans('admin/sidebar.operators') }}
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('accountManager.agent.newAgents') }}">
+                            <i class="glyphicon glyphicon-star"></i> {{ trans('admin/sidebar.newAgents') }}
+                        </a>
+                    </li>
                 </ul>
             </li>
 

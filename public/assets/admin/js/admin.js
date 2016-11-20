@@ -18068,4 +18068,15 @@ $(function() {
 		});
 		return false;
 	});
+
+	$(document).delegate('.confirmBan','click',function(event,force){
+		var $this = $(this);
+		bootbox.confirm("Banned user?", function (result) {
+			console.log('force', result, $this);
+			if (result) {
+				document.location.href= $this.attr('href');
+			}
+		});
+		return false;
+	});
 });

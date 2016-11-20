@@ -48,7 +48,10 @@ class AgentController extends AdminController
     public function create()
     {
         $spheres = Sphere::active()->lists('name','id');
-        return view('admin.agent.create_edit')->with('spheres', $spheres)->with('role', null);
+
+        $accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
+
+        return view('admin.agent.create_edit')->with(['spheres'=>$spheres, 'accountManagers'=>$accountManagers])->with('role', null);
     }
 
     /**
@@ -69,9 +72,9 @@ class AgentController extends AdminController
 
         $user = Agent::find($user->id);
 
-        foreach ($request->only('spheres') as $sphere) {
-            $user->spheres()->sync($sphere);
-        }
+        $user->spheres()->sync($request->input('spheres'));
+
+        $user->accountManagers()->sync($request->input('accountManagers'));
 
         // Заполняем agentInfo
         $agentInfo = new AgentInfo();
@@ -141,7 +144,9 @@ class AgentController extends AdminController
 
         $agentSpheres = $agent->agentSphere()->with('sphere')->get();
 
-        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role, 'userInfo'=>$userInfo, 'agentSpheres'=>$agentSpheres]);
+        $accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
+
+        return view('admin.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role, 'userInfo'=>$userInfo, 'agentSpheres'=>$agentSpheres, 'accountManagers'=>$accountManagers]);
     }
 
 
@@ -169,6 +174,8 @@ class AgentController extends AdminController
         $agent->update($request->except('password','password_confirmation', 'spheres','info'));
 
         $agent->spheres()->sync($request->input('spheres'));
+
+        $agent->accountManagers()->sync($request->input('accountManagers'));
 
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
         $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');

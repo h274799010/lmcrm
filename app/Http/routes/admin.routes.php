@@ -68,6 +68,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('agent/{id}/destroy', ['as'=>'admin.agent.delete', 'uses' => 'Admin\AgentController@destroy']);
 
 
+    Route::get('accountManager', ['as' => 'admin.accountManager.index', 'uses' => 'Admin\AccountManagerController@index']);
+    Route::get('accountManager/data', 'Admin\AccountManagerController@data');
+    Route::get('accountManager/create',['as'=>'admin.accountManager.create', 'uses' => 'Admin\AccountManagerController@create']);
+    Route::post('accountManager/store',['as'=>'admin.accountManager.store', 'uses' => 'Admin\AccountManagerController@store']);
+    Route::get('accountManager/{id}/edit',['as'=>'admin.accountManager.edit', 'uses' => 'Admin\AccountManagerController@edit']);
+    Route::match(['put','post'],'accountManager/{id}/update',['as'=>'admin.accountManager.update', 'uses' => 'Admin\AccountManagerController@update']);
+    Route::get('accountManager/{id}/destroy', ['as'=>'admin.accountManager.delete', 'uses' => 'Admin\AccountManagerController@destroy']);
+
+
     Route::get('sphere/index', ['as' => 'admin.sphere.index', 'uses' => 'Admin\SphereController@index']);
     Route::get('sphere/create', ['as' => 'admin.sphere.create', 'uses' => 'Admin\SphereController@create']);
     Route::get('sphere/{id}/edit', ['as' => 'admin.sphere.edit', 'uses' => 'Admin\SphereController@edit']);

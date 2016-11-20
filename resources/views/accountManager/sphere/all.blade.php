@@ -8,7 +8,7 @@
 @section('content')
     <div class="page-header">
         <h3>
-            {!! trans("admin/sphere.reprice") !!}
+            {!! trans("admin/sphere.maskAll") !!}
         </h3>
     </div>
     <table class="table table-striped table-hover datatable">
