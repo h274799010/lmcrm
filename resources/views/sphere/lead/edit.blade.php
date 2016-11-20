@@ -200,13 +200,14 @@
             <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
             {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
             <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
-            {{ Form::submit(trans('Send to Auction'),['class'=>'btn btn-success', 'id'=>'leadToAuction']) }}
+{{--            {{ Form::submit(trans('Apply'),['class'=>'btn btn-success', 'id'=>'leadToAuction']) }}--}}
+            <button class="btn btn-success btn-apply_lead_mask" type="button">Apply</button>
 
             {{ Form::close() }}
         </div>
 
         {{-- Модальное окно на установку badLead --}}
-        <div class="modal fade set_badLead_modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal fade set_badLead_modal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-sm" role="document">
                 <div class="modal-content">
 
@@ -226,27 +227,72 @@
             </div>
         </div>
 
-
         {{-- Модальное окно на установку времени оповещения --}}
-        <div class="modal fade set_time_reminder" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-        <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
+        <div class="modal fade set_time_reminder" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
 
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Set the time reminder</h4>
-                </div>
-                <div class="modal-body">
-                    <input type="text" class="form-control valid" name="time" id="time_reminder" aria-invalid="false">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="timeSetter" class="btn btn-primary"> Set Time </button>
-                </div>
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Set the time reminder</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" class="form-control valid" name="time" id="time_reminder" aria-invalid="false">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button id="timeSetter" class="btn btn-primary"> Set Time </button>
+                    </div>
 
+                </div>
             </div>
         </div>
-    </div>
+
+        {{-- todo Сохранение маски и дальнейшие действия в зависимости от установок --}}
+        <div class="modal fade apply_lead_mask_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Confirm apply</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        {{-- Выбранна маска, никаких действий по агентам --}}
+                        <div class="apply_default hidden">
+                            Preservation mask settings and switching the lead to the auction
+                        </div>
+
+                        {{-- Добавление лида в аукцион определенным агентам --}}
+                        <div class="apply_auctionAdd hidden">
+                            lead was adding to the auction to this agents:
+                            <div class="apply_content"></div>
+                            <br>
+                        </div>
+
+                        {{-- Покупка лида определенными агентами --}}
+                        <div class="apply_buy hidden">
+                            open lead
+                            <div class="apply_content"></div>
+                            <br>
+                        </div>
+
+                        {{-- Закрытие сделки по лиду агентом --}}
+                        <div class="apply_closeDeal hidden">
+                            Close the deal
+                            <div class="apply_content"></div>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success btn-apply_confirmation"> Apply </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 @stop
 
@@ -296,18 +342,25 @@
 
 @section('scripts')
     <script>
+
+        /**
+         * данные лида для обработки на сервере
+         *
+         */
+        var leadApplyData = false;
+
         $(document).on('click', '#leadSave', function (e) {
             e.preventDefault();
 
             $('#typeFrom').val('save');
             $(this).closest('form').submit();
         });
-        $(document).on('click', '#leadToAuction', function (e) {
-            e.preventDefault();
-
-            $('#typeFrom').val('toAuction');
-            $(this).closest('form').submit();
-        });
+//        $(document).on('click', '#leadToAuction', function (e) {
+//            e.preventDefault();
+//
+//            $('#typeFrom').val('toAuction');
+//            $(this).closest('form').submit();
+//        });
 
     $(function(){
 
@@ -459,6 +512,24 @@
          */
         var selectedAgentsNoneCloseButton = $('.selected_agents_none_closeButton');
 
+        /**
+         * Кнопка отправки запроса на обработку формы лида
+         *
+         */
+        var btnApplyLeadMask = $('.btn-apply_lead_mask');
+
+        /**
+         * Модальное окно подтверждение выбора маски
+         *
+         */
+        var applyLeadMaskModal = $('.apply_lead_mask_modal');
+
+        /**
+         * Кнопка подтверждения отправки формы лида
+         *
+         */
+        var btnApplyConfirmation = $('.btn-apply_confirmation');
+
 
         /**
          * Действия при закрытии области бодбора агентов
@@ -476,34 +547,83 @@
 
 
         /**
-         * Функция отправки лида на аукцион агенту
+         * Действия по кнопке Apply
+         *
+         *
+         * если в чекбоксах фильтра агента ничего не выбранно
+         *   - сохраняет маску и помечает лид к аукциону
+         *
+         * todo
+         * если выбранно "отправка на аукцион", "покупка", "закрытие сделки"
+         *   - делает действия по этому делу ...выбирает данные агента, по которому нужно что-то сделать
+         *      - и закрывает сделку, делает покупку, либо, просто добавляет на аукион лид
          *
          */
-        function sendToAuction(){
+        function showApplyModal(){
 
-            // id пользователя которому будет отдан лид на аукцион
-            var user_id = $(this).closest('tr').attr('user_id');
+            // переменная хранить пользователей и id действий к ним по лиду
+            var actionData = [];
 
-            // отправка запроса
-            $.post(
-                    "{{  route('send.to.auction') }}",
-                    {
-                        userId: user_id,
-                        sphereId: '{{ $sphere['id'] }}',
-                        leadId: '{{ $lead['id'] }}',
-                        _token: token
-                    },
-                    function( data ){
-                        // проверяем ответ
+            // если есть данные агентов по лиду и их значения не 0 - заносим данные в actionData
+            if( $('select.agentAction').length != 0 ){
 
-                        console.log( data );
+                // перебираем всех агентов
+                var auction = $('select.agentAction');
+                $.each( auction, function( key, val){
+                    // еслиз значение не нулевое
+                    if( $(val).val() != 0 ){
+                        // добавляем данные в общий массив
+                        actionData.push({
+                            action: $(val).val(),
+                            userId: $(val).closest('tr').attr( 'user_id' )
+                        });
+                    }
+                });
+            }
 
-                    },
-                    "json"
-            );
+            // проверяем наличие данных в общем массиве
+            if( actionData.length != 0 ){
+                // если данные есть
 
-            // todo
-//            alert(user_id);
+                $.each( actionData, function( key, val ){
+
+                    switch(val.action){
+
+                        case '1':
+                            $('.apply_auctionAdd').removeClass('hidden');
+                            var content = $('.apply_auctionAdd').find('.apply_content').html() + val.userId + '<br>';
+                            $('.apply_auctionAdd').find('.apply_content').html(content);
+                            break;
+
+                        case '2':
+                            $('.apply_buy').removeClass('hidden');
+                            var content = $('.apply_buy').find('.apply_content').html() + val.userId + '<br>';
+                            $('.apply_buy').find('.apply_content').html(content);
+                            break;
+
+                        case '3':
+                            $('.apply_closeDeal').removeClass('hidden');
+                            var content = $('.apply_closeDeal').find('.apply_content').html() + val.userId + '<br>';
+                            $('.apply_closeDeal').find('.apply_content').html(content);
+                            break;
+
+                        default:
+                            break;
+                    }
+                });
+
+            }else{
+                // если данных нет
+
+                // добавляем блок с общими данными
+                $('.apply_default').removeClass('hidden');
+            }
+
+            // показывает модальное окно
+            $('.apply_lead_mask_modal').modal('show');
+
+            // добавление данных в общую переменную
+            leadApplyData = actionData;
         }
 
 
@@ -543,7 +663,7 @@
                     "{{  route('operator.agents.selection') }}",
                     {
                         options: options,
-                        depositor: '{{ $lead['user_id'] }}',
+                        depositor: '{{ $lead['agent_id'] }}',
                         sphereId: '{{ $sphere['id'] }}',
                         leadId: '{{ $lead['id'] }}',
                         _token: token
@@ -605,7 +725,7 @@
                                     selectedAgentsTable.append(tr);
                                 });
 
-                                // подключаем selectBoxIt к селекту
+                                // todo подключаем selectBoxIt к селекту
                                 $(".agentAction").selectBoxIt({
                                     // выставляем дефолтную тему
                                     theme: "default",
@@ -618,10 +738,24 @@
                                         { value: "2", text: "Buy" },
                                         { value: "3", text: "Close the Deal" }
                                     ]
-                                });
+                                }).data("selectBox-selectBoxIt");
+
+
+                                // todo Calls the selectBoxIt method on your HTML select box
+
+                                // todo Writes the showFirstOption option to the console
+//                                console.log(selectBox.options);
+
+                                // просто выставляет в селектбоксе заданное значение
+//                                console.log(selectBox.selectOption(0));
+
+//                                console.log( $('select.agentAction').val() );
+
+
+//                                console.log(selectBox.selectOption('Great'));
 
                                 // обработка клика по кнопке отправки на аукцион
-                                $('.btn-send_to_auction').bind('click', sendToAuction);
+//                                $('.btn-send_to_auction').bind('click', sendToAuction);
 
                                 // показываем блок с подбором агентов
                                 agentsSelectionBody.removeClass('hidden');
@@ -656,12 +790,61 @@
 
 
         /**
-         * todo
-         *
-         *
+         * Действия по нажатию на кнопку отправки запроса на обработку формы лида
          *
          */
-        $('.btn-send_to_auction').bind('click', sendToAuction);
+        btnApplyLeadMask.bind( 'click', showApplyModal );
+
+
+        /**
+         * Действия по нажатию на кнопку Apply модального окна
+         *
+         */
+        btnApplyConfirmation.bind( 'click', function(){
+
+            // проверка данных
+            if( leadApplyData.length != 0 ){
+                // todo если есть данные по агентам
+                console.log(leadApplyData);
+
+
+            }else{
+                // если данных по агентам нет
+                // todo просто отсылается маска на сохранение
+
+                $('#typeFrom').val('toAuction');
+                $('form')[0].submit();
+            }
+
+            // показывает модальное окно
+            $('.apply_lead_mask_modal').modal('hide');
+
+        });
+
+
+        /**
+         * Действия по закрытию модального окна подтверждения отправки лида на обработку на сервер
+         *
+         */
+        applyLeadMaskModal.on('hidden.bs.modal', function (e) {
+
+            // скрытие всех блоков модального окна
+            $('.apply_default').addClass('hidden');
+            $('.apply_auctionAdd').addClass('hidden');
+            $('.apply_buy').addClass('hidden');
+            $('.apply_closeDeal').addClass('hidden');
+
+
+            $('.apply_auctionAdd').find('.apply_content').html('');
+            $('.apply_buy').find('.apply_content').html('');
+            $('.apply_closeDeal').find('.apply_content').html('');
+
+
+            // обнуляем данные
+            leadApplyData = false;
+
+//            console.log('закрылся');
+        })
 
     });
 
