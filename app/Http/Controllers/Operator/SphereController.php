@@ -265,6 +265,9 @@ class SphereController extends Controller {
         });
 
 
+        // находим id текущего оператора, чтобы отметить как отправителя сообщения
+        $senderId = Sentinel::getUser()->id;
+
         // проверяем тип обработки и обрабатываем соответственно
 
         if($typeRequest == 'toAuction') {
@@ -285,9 +288,6 @@ class SphereController extends Controller {
             $agents = $agentBitmasks
                 ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
                 ->get();
-
-            // находим id текущего оператора, чтобы отметить как отправителя сообщения
-            $senderId = Sentinel::getUser()->id;
 
             // если агенты есть - добавляем лид им на аукцион и оповещаем
             if( $agents->count() ){

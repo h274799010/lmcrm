@@ -328,6 +328,11 @@ class Lead extends EloquentUser {
                 Auction::removeByLead( $this['id'] );
             }
 
+            if( $this->status == 7 && $statuses['status'] != 7){
+                // полностью удаляем этот лид с аукциона
+                Auction::removeByLead( $this['id'] );
+            }
+
             // устанавливаем статус
             $this->status = $statuses['status'];
         }
@@ -486,7 +491,7 @@ class Lead extends EloquentUser {
 
 
         // если лид уже снят с аукциона, сообщаем об этом и выходим
-        if( $lead->status != 3 ){
+        if( $lead->status != 3 && $lead->status != 7 ){
             return trans('lead/lead.Lead.not_at_auction');
         }
 
