@@ -149,9 +149,12 @@
                                     {{-- кнопка, по которой идет подбор агентов --}}
                                     <button id="pickUpAgents" type="button" class="btn btn-primary">Pick up an agents</button>
 
-
                                     {{-- кнопка закрытия таблицы --}}
                                     <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>
+
+                                    {{-- кнопка очистки action всех агентов --}}
+                                    <button type="button" class="btn btn-danger clear_all_agents_action hidden"> Clear all agents action </button>
+
 
                                     {{-- сообщение о том, что подходящих агентов нет --}}
                                     <div class="selected_agents_none hidden">
@@ -180,9 +183,6 @@
                                         </table>
 
                                     </div>
-
-
-
 
                                     {{-- кнопка закрытия таблицы --}}
                                     <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>
@@ -339,6 +339,101 @@
     </div>
 @stop
 
+@section('styles')
+    <style>
+
+
+
+        /* Комментарии на странице редактировани лида оператором */
+
+        /* правый блок оператора на странице редактирования */
+        .operator_edit_right_block{
+            position: fixed;
+            padding-bottom: 20px;
+            padding-top: 20px;
+            bottom: 0;
+            right: 0;
+            background: #F8F8F8;
+            border: #D9D9D9 solid 1px;
+            border-radius: 5px;
+        }
+
+        /* блок с комментариями операторов */
+        .operator_comments_block{
+            margin-bottom: 10px;
+            height:250px;
+            overflow-y: auto;
+            padding-right: 0;
+        }
+
+        /* блок добавления оператором комментария с textarea и кнопкой */
+        .operator_comment_add_block{
+            padding-right: 10px;
+        }
+
+        /* текст в блоке оператора с комментариями */
+        .operator_comments_text{
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        /* блок ввода текста */
+        .operator_textarea_block{
+            margin-bottom: 10px;
+        }
+
+        /* блок с временем уведомлениея оператора */
+        .operator_reminder_block{
+            margin-left: 15px;
+        }
+
+        /* кнопка удаления оповещения */
+        .remove_reminder{
+            color: #337AB7;
+            cursor: pointer;
+        }
+
+        /* данные о депозиторе с верху страницы обработки лида оператором (компания и имя) */
+        .depositor_info{
+            margin-bottom: 10px;
+        }
+
+
+        /* Подбор агентов подходящих под лид на странице редактирования лида оператором */
+
+        /* наполнение блока подбора агентов лиду */
+        .operator_agents_selection_body{
+            margin-top: 10px;
+        }
+
+        /* блок, сообщает что нет подходящих агентов под лид */
+        .selected_agents_none{
+            margin-top: 10px;
+        }
+
+        /* оформление селектов selectboxIt */
+        .selectboxit-container .selectboxit-options{
+            min-width: 150px !important;
+        }
+
+        /* кнопка очистки опции агента */
+        .agent_action_option_remove{
+            display: inline-block;
+            font-size: 18px;
+            color: #D9534F;
+            cursor: pointer;
+            padding-top: 4px;
+            padding-left: 5px
+        }
+
+
+        .clear_all_agents_action{
+            float: right;
+        }
+
+
+    </style>
+@stop
 
 @section('scripts')
     <script>
@@ -539,15 +634,18 @@
 
             // очищаем ячейки с данными
             selectedAgentsTable.empty();
-            // показываем блок с подбором агентов
+            // прячем блок с подбором агентов
             agentsSelectionBody.addClass('hidden');
-            // показываем кнопку закрытия блока
+            // прячем кнопку закрытия блока
             agentsSelectionClose.addClass('hidden');
+            // прячем кнопку очистки всех масок
+            $('.clear_all_agents_action').addClass('hidden');
+
         }
 
 
         /**
-         * Действия по кнопке Apply
+         * Действия по кнопке Apply, показывает окно подтверждения перед отправкой
          *
          *
          * если в чекбоксах фильтра агента ничего не выбранно
@@ -626,6 +724,26 @@
             leadApplyData = actionData;
         }
 
+        /**
+         * Очистка action всех агентов
+         *
+         */
+        $('.clear_all_agents_action').bind( 'click', function(){
+
+            // все селекты с action
+            var actions = $('select.agentAction');
+
+            if( actions.length != 0 ){
+
+                $.each( actions, function( key, val ){
+
+                    $(val).data("selectBox-selectBoxIt").selectOption(0);
+
+                });
+
+            }
+
+        });
 
         /**
          * Подбирает агентов в таблицу
@@ -713,7 +831,7 @@
                                     tdName.html( item.firstName + ' ' + item.lastName );
                                     tdEmail.html( item.email );
                                     tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
-                                    tdActions.html('<select class="agentAction"></select>');
+                                    tdActions.html('<select class="agentAction"></select><div class="agent_action_option_remove hidden"><i class="glyphicon glyphicon-remove-circle"></i></div>');
 
                                     // подключение ячеек к строке
                                     tr.append(tdName);
@@ -725,7 +843,7 @@
                                     selectedAgentsTable.append(tr);
                                 });
 
-                                // todo подключаем selectBoxIt к селекту
+                                // подключаем selectBoxIt к селекту
                                 $(".agentAction").selectBoxIt({
                                     // выставляем дефолтную тему
                                     theme: "default",
@@ -741,21 +859,55 @@
                                 }).data("selectBox-selectBoxIt");
 
 
-                                // todo Calls the selectBoxIt method on your HTML select box
+                                /**
+                                 * кнопка очистки ближайшего селекта выбора action агента
+                                 * выставляет селект в 0
+                                 *
+                                 */
+                                $('.agent_action_option_remove').bind( 'click', function(){
+                                    $(this).parent().find('select.agentAction').data("selectBox-selectBoxIt").selectOption(0);
+                                });
 
-                                // todo Writes the showFirstOption option to the console
-//                                console.log(selectBox.options);
+                                $('select.agentAction').bind( 'change', function(){
 
-                                // просто выставляет в селектбоксе заданное значение
-//                                console.log(selectBox.selectOption(0));
+                                    if( $(this).val() == 0 ){
 
-//                                console.log( $('select.agentAction').val() );
+                                        // прячем кнопку очистки селекта
+                                        $(this).parent().find('div.agent_action_option_remove').addClass('hidden');
+
+                                        // выбираем все селекты с action агентов
+                                        var actions = $('select.agentAction');
+
+                                        // переменная с выбранными значениями action агента
+                                        var selected = false;
+
+                                        /* проверка остались ли еще активные селекты и если не остались, убираем кнопку "очистить все" */
+
+                                        // перебираем все селекты чтобы узнать выбранны они или нет
+                                        $.each( actions, function( key, val ){
+                                            // если значение селекта не 0
+                                            if( $(val).val() != 0 ){
+                                                // помечаем selected как выбранный
+                                                selected = true;
+                                            }
+                                        });
+
+                                        // если селект пустой (т.е. значений нет)
+                                        if( !selected ){
+                                            // прячем его
+                                            $('.clear_all_agents_action').addClass('hidden');
+                                        }
+
+                                    }else{
+
+                                        // делаем видимой кнопку очистки селекта
+                                        $(this).parent().find('div.agent_action_option_remove').removeClass('hidden');
+                                        // делаем видимой кнопку очистки всех селектов
+                                        $('.clear_all_agents_action').removeClass('hidden');
+                                    }
 
 
-//                                console.log(selectBox.selectOption('Great'));
-
-                                // обработка клика по кнопке отправки на аукцион
-//                                $('.btn-send_to_auction').bind('click', sendToAuction);
+                                });
 
                                 // показываем блок с подбором агентов
                                 agentsSelectionBody.removeClass('hidden');
