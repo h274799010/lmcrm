@@ -253,12 +253,14 @@ class SphereController extends Controller {
         });
 
 
-        // todo
+        // если есть метка 'toAuction'
         if($typeRequest == 'toAuction') {
             /** --  вычитание из системы стоимость обслуживание лида  -- */
 
-            // переделать по новой системе
-            PayMaster::operatorPayment( Sentinel::getUser()->id, $lead_id );
+            // оплата за обработку оператором
+            // платится только один раз, если лид уже оплачен,
+            // просто возвращает false
+            Pay::operatorPayment( $lead, Sentinel::getUser()->id );
 
             /** --  уведомление Агентов которым этот лид подходит  -- */
 
@@ -478,12 +480,18 @@ class SphereController extends Controller {
         $agentBitmasks = new AgentBitmask( $request->sphereId );
 
         // меняем местами ключи и значения массива с данными по опциям лида
-        $options = array_flip($request->options);
+        $fields = array_flip($request->options);
+
+        $prepareFields = [];
+
+        foreach($fields as $key=>$val){
+            $prepareFields[$key] = 1;
+        }
 
         // находим всех агентов которым подходит этот лид по фильтру
         // исключаем агента добавившего лид
         $agents = $agentBitmasks
-            ->filterAgentsByMask( $options, $request->depositor )
+            ->filterAgentsByMask( $prepareFields, $request->depositor )
             ->lists('user_id');
 
         // выбираем данные агентов, которым этот лид подходим
