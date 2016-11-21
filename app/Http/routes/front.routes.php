@@ -7,12 +7,14 @@ Route::get('crone', 'Frontend\CroneController@index');
 
 # Authentication
 Route::get('/auth/login', ['as' => 'login', 'middleware' => ['guest'], 'uses' => 'Auth\SessionsController@create']);
-Route::get('/auth/register', ['as' => 'register', 'middleware' => ['guest'], 'uses' => 'Auth\SessionsController@register']);
-Route::post('/auth/registerStepOne', ['as' => 'register.stepOne', 'middleware' => ['guest'], 'uses' => 'Auth\SessionsController@registerStepOne']);
-Route::post('/auth/registerStepTwo', ['as' => 'register.put', 'middleware' => ['auth'], 'uses' => 'Auth\SessionsController@putUser']);
-Route::get('/auth/activation/{user_id}/{code}', ['as' => 'activation', 'middleware' => ['guest'], 'uses' => 'Auth\SessionsController@activation']);
-Route::post('/auth/activation', ['as' => 'activation', 'middleware' => ['guest'], 'uses' => 'Auth\SessionsController@activation']);
-Route::post('/auth/sendActivationCode', ['as' => 'sendActivationCode', 'middleware' => ['guest'], 'uses' => 'Auth\SessionsController@sendActivationCode']);
+
+Route::get('/auth/register', ['as' => 'register', 'middleware' => ['guest'], 'uses' => 'Auth\RegisterController@register']);
+Route::post('/auth/registerStepOne', ['as' => 'register.stepOne', 'middleware' => ['guest'], 'uses' => 'Auth\RegisterController@registerStepOne']);
+Route::post('/auth/registerStepTwo', ['as' => 'register.put', 'middleware' => ['auth'], 'uses' => 'Auth\RegisterController@putUser']);
+Route::get('/auth/activation/{user_id}/{code}', ['as' => 'activation', 'middleware' => ['guest'], 'uses' => 'Auth\RegisterController@activation']);
+Route::post('/auth/activation', ['as' => 'activation', 'middleware' => ['guest'], 'uses' => 'Auth\RegisterController@activation']);
+Route::post('/auth/sendActivationCode', ['as' => 'sendActivationCode', 'middleware' => ['guest'], 'uses' => 'Auth\RegisterController@sendActivationCode']);
+
 Route::get('/auth/logout', ['as' => 'logout', 'uses' => 'Auth\SessionsController@destroy']);
 Route::any('/auth/store', ['as' => 'auth.store', 'uses' => 'Auth\SessionsController@store']);
 Route::any('/auth/create', ['as' => 'auth.create', 'uses' => 'Auth\SessionsController@create']);
