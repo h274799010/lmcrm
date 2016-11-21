@@ -38,6 +38,13 @@ class OperatorController extends AdminController {
         return Datatables::of($operators)
             ->remove_column('first_name')
             ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
+            ->add_column('spheres', function($model) {
+                $operator = OperatorSphere::find($model->id);
+                $operatorSpheres = $operator->spheres()->get()->lists('name')->toArray();
+                $operatorSpheres = implode(', ', $operatorSpheres);
+
+                return $operatorSpheres;
+            })
             ->add_column('actions', function($model) { return view('admin.operator.datatables.control',['id'=>$model->id]); })
             ->remove_column('id')
             ->make();

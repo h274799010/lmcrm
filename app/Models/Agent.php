@@ -33,7 +33,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
 
 
     public function scopelistAll($query){
-        return $query->whereIn('id',\Sentinel::findRoleBySlug('agent')->users()->lists('id'))->select(array('users.id','users.first_name','users.last_name', 'users.email', 'users.created_at'));
+        return $query->whereIn('id',\Sentinel::findRoleBySlug('agent')->users()->lists('id'))->select(array('users.id','users.first_name','users.last_name', 'users.email', 'users.created_at', 'users.banned'));
     }
 
 

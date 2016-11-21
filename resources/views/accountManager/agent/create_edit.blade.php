@@ -206,7 +206,7 @@
                         <tr>
                             <th>{!! trans("admin/users.name") !!}</th>
                             <th>{!! trans("admin/users.email") !!}</th>
-                            <th>{!! trans("admin/users.role") !!}</th>
+                            <th>{!! trans("admin/admin.role") !!}</th>
                             <th>{!! trans("admin/admin.created_at") !!}</th>
                             <th>{!! trans("admin/admin.action") !!}</th>
                         </tr>
@@ -293,7 +293,7 @@
                                         @foreach($sphere->masks as $mask)
                                             <tr>
                                                 <td>{{ $mask->id }}</td>
-                                                <td>{{ $agent->first_name }} {{ $agent->last_name }}</td>
+                                                <td>{{ $salesman->first_name }} {{ $salesman->last_name }}</td>
                                                 <td>{{ $mask->lead_price }}</td>
                                                 <td>{{ $mask->name }}</td>
                                                 <td>{{ $sphere->name }}</td>

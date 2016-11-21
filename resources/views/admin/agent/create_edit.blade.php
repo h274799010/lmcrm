@@ -34,6 +34,16 @@
                         {{ trans('admin/modal.revenue') }} </a>
                 </li>
             @endif
+            @if(isset($agent->salesmen) && count($agent->salesmen))
+                <li><a href="#salesman" data-toggle="tab">
+                        {{ trans('admin/modal.salesman') }} </a>
+                </li>
+            @endif
+            @if(( isset($agentMasks) && count($agentMasks) ) || ( isset($agent->salesmen) && count($agent->salesmen) ))
+                <li><a href="#masks" data-toggle="tab">
+                        {{ trans('admin/modal.masks') }} </a>
+                </li>
+            @endif
 
 
         </ul>
@@ -73,6 +83,13 @@
             <div class="controls">
                 {{ Form::text('last_name', null, array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('last_name', ':message') }}</span>
+            </div>
+        </div>
+        <div class="form-group  {{ $errors->has('company') ? 'has-error' : '' }}">
+            {{ Form::label('company', trans("admin/users.company"), array('class' => 'control-label')) }}
+            <div class="controls">
+                {{ Form::text('company', (isset($agent))?$agent->agentInfo->company:NULL, array('class' => 'form-control')) }}
+                <span class="help-block">{{ $errors->first('company', ':message') }}</span>
             </div>
         </div>
 
@@ -345,6 +362,118 @@
 
                 </div>
             @endif
+            @if(isset($agent->salesmen) && count($agent->salesmen))
+                <div class="tab-pane" id="salesman">
+                    <table id="tableSalesman" class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>{!! trans("admin/users.name") !!}</th>
+                            <th>{!! trans("admin/users.email") !!}</th>
+                            <th>{!! trans("admin/admin.role") !!}</th>
+                            <th>{!! trans("admin/admin.created_at") !!}</th>
+                            <th>{!! trans("admin/admin.action") !!}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($agent->salesmen as $salesman)
+                            <tr>
+                                <td>{{ $salesman->first_name }} {{ $salesman->last_name }}</td>
+                                <td>{{ $salesman->email }}</td>
+                                <td>{{ $salesman->role }}</td>
+                                <td>{{ $salesman->created_at }}</td>
+                                <td>
+                                    {{--<a href="{{ route('accountManager.agent.edit',[$salesman->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                                    <a href="{{ route('accountManager.agent.delete',[$salesman->id]) }}" class="btn btn-sm btn-danger confirm"><span class="glyphicon glyphicon-trash"></span> {{ trans("admin/modal.delete") }}</a>--}}
+                                    @if($salesman->banned == true)
+                                        <a href="{{ route('accountManager.agent.unblock',[$salesman->id]) }}" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.unblock") }}</a>
+                                    @else
+                                        <a href="{{ route('accountManager.agent.block',[$salesman->id]) }}" class="btn btn-sm btn-danger confirmBan"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.block") }}</a>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+            @if(( isset($agentMasks) && count($agentMasks) ) || ( isset($agent->salesmen) && count($agent->salesmen) ))
+                <div class="tab-pane" id="masks">
+                    <h3>Agents masks</h3>
+                    <table class="table table-striped table-hover datatable">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>{!! trans("admin/sphere.agent") !!}</th>
+                            <th>{!! trans("admin/sphere.price") !!}</th>
+                            <th>{!! trans("admin/sphere.maskName") !!}</th>
+                            <th>{!! trans("admin/admin.sphere") !!}</th>
+                            <th>{!! trans("admin/admin.updated_at") !!}</th>
+                            <th>{!! trans("admin/admin.action") !!}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($agentMasks as $sphere)
+                            @if(count($sphere->masks))
+                                @foreach($sphere->masks as $mask)
+                                    <tr>
+                                        <td>{{ $mask->id }}</td>
+                                        <td>{{ $agent->first_name }} {{ $agent->last_name }}</td>
+                                        <td>{{ $mask->lead_price }}</td>
+                                        <td>{{ $mask->name }}</td>
+                                        <td>{{ $sphere->name }}</td>
+                                        <td>{{ $mask->updated_at }}</td>
+                                        <td>
+                                            <a href="{{ route('accountManager.sphere.reprice.edit',['sphere'=>$sphere->id, 'id'=>$mask->user_id, 'mask_id'=>$mask->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            {{--@else
+                                <tr>
+                                    <td colspan="5">Masks empty</td>
+                                </tr>--}}
+                            @endif
+                        @endforeach
+                        </tbody>
+                    </table>
+                    @if(isset($agent->salesmen) && count($agent->salesmen))
+                        <h3>Salesman masks</h3>
+                        <table class="table table-striped table-hover datatable">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>{!! trans("admin/sphere.salesman") !!}</th>
+                                <th>{!! trans("admin/sphere.price") !!}</th>
+                                <th>{!! trans("admin/sphere.maskName") !!}</th>
+                                <th>{!! trans("admin/admin.sphere") !!}</th>
+                                <th>{!! trans("admin/admin.updated_at") !!}</th>
+                                <th>{!! trans("admin/admin.action") !!}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($agent->salesmen as $salesman)
+                                @foreach($salesman->spheres as $sphere)
+                                    @if(count($sphere->masks))
+                                        @foreach($sphere->masks as $mask)
+                                            <tr>
+                                                <td>{{ $mask->id }}</td>
+                                                <td>{{ $salesman->first_name }} {{ $salesman->last_name }}</td>
+                                                <td>{{ $mask->lead_price }}</td>
+                                                <td>{{ $mask->name }}</td>
+                                                <td>{{ $sphere->name }}</td>
+                                                <td>{{ $mask->updated_at }}</td>
+                                                <td>
+                                                    <a href="{{ route('accountManager.sphere.reprice.edit',['sphere'=>$sphere->id, 'id'=>$mask->user_id, 'mask_id'=>$mask->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
+            @endif
         </div>
     </div>
 @stop
@@ -435,6 +564,26 @@
     }
     .agent-sphere-form {
         margin-bottom: 36px;
+    }
+    .nav-tabs li.active {
+        position: relative;
+    }
+    .nav-tabs li:before {
+        content: '';
+        position: absolute;
+        height: 3px;
+        bottom: -2px;
+        left: 0;
+        background-color: #00e5d6;
+        width: 0;
+        -webkit-transition: width 0.2s ease;
+        -moz-transition: width 0.2s ease;
+        -ms-transition: width 0.2s ease;
+        -o-transition: width 0.2s ease;
+        transition: width 0.2s ease;
+    }
+    .nav-tabs li.active:before {
+        width: 100%;
     }
 
 </style>
