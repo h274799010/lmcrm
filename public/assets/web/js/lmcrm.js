@@ -104,6 +104,7 @@ $(function(){
                     }
                 }
             ],
+            "bSort": false,
             aaSorting: [ [2,'desc'], [3,'asc'] ]
 		});
 

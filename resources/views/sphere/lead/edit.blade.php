@@ -873,9 +873,15 @@
                                     $(this).parent().find('select.agentAction').data("selectBox-selectBoxIt").selectOption(0);
                                 });
 
+                                /**
+                                 * Слушатель на изменение чекбоксов
+                                 *
+                                 *
+                                 */
                                 $('select.agentAction').bind( 'change', function(){
 
                                     if( $(this).val() == 0 ){
+                                        // если значение 0
 
                                         // прячем кнопку очистки селекта
                                         $(this).parent().find('div.agent_action_option_remove').addClass('hidden');
@@ -904,6 +910,7 @@
                                         }
 
                                     }else{
+                                        // если значение не 0
 
                                         // делаем видимой кнопку очистки селекта
                                         $(this).parent().find('div.agent_action_option_remove').removeClass('hidden');
