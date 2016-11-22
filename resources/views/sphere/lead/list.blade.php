@@ -32,7 +32,7 @@
         </thead>
         <tbody>
         @forelse($leads as $lead)
-            <tr>
+            <tr class="{{ $lead->operator_processing_time ? 'make_call_row' : '' }}  }}">
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
                 <td>{{ $lead->operator_processing_time ? 'Make phone call' : 'Created' }}</td>
@@ -139,6 +139,19 @@
         {{--@endforelse--}}
     {{--</div>--}}
 
+@stop
+
+@section('styles')
+    <style>
+
+        .make_call_row{
+            /*background: linear-gradient(to top, #FFFCA7, #fff) !important;*/
+            background: linear-gradient(to top, #E2F9FF, #fff) !important;
+            color: #145B71;
+            font-weight: 500;
+        }
+
+    </style>
 @stop
 
 @section('scripts')
