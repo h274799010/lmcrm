@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    @include('accountManager.partials.head')
+    @include('partials.accountManagerHead')
     @yield('styles')
     <script type="text/javascript">
         var oTable;
@@ -78,13 +78,13 @@
 </head>
 <body>
 <div id="wrapper">
-    @include('accountManager.partials.nav')
+    @include('partials.accountManagerNav')
 
     <div class="container-fluid">
 
         <div class="row maincontent">
             <div class="col-md-2 col-sm-2">
-                @include('accountManager.partials.sidebar')
+                @include('partials.accountManagerSidebar')
             </div>
 
             <div class="col-md-offset-2 col-md-9 col-sm-offset-1 col-sm-9">
@@ -96,7 +96,7 @@
 
             <div class="col-md-12">
 
-                @include('accountManager.partials.footer')
+                @include('partials.accountManagerFooter')
 
             </div>
         </div>

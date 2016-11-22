@@ -1,4 +1,4 @@
-@extends('accountManager.layouts.default')
+@extends('layouts.accountManagerDefault')
 
 {{-- Web site Title --}}
 @section('title') {{ trans("admin/sphere.maskAll") }} :: @parent

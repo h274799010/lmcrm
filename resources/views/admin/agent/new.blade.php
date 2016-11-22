@@ -1,16 +1,16 @@
-@extends('layouts.accountManagerDefault')
+@extends('admin.layouts.default')
 
 {{-- Web site Title --}}
 @section('title') {!! trans("admin/agent.agents") !!} :: @parent
 @stop
 
 {{-- Content --}}
-@section('content')
+@section('main')
     <div class="page-header">
         <h3>
             {!! trans("admin/agent.agents") !!}
             <div class="pull-right flip">
-                <a href="{!! route('accountManager.agent.create') !!}"
+                <a href="{!! route('admin.agent.create') !!}"
                    class="btn btn-sm  btn-primary"><span
                             class="glyphicon glyphicon-plus-sign"></span> {{
                                 trans("admin/modal.new") }}</a>
@@ -42,7 +42,7 @@
                     @endforeach
                 </td>
                 <td>
-                    <a href="{{ route('accountManager.agent.activatedPage',[$agent->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                    <a href="{{ route('admin.agent.activatedPage',[$agent->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
                 </td>
             </tr>
         @endforeach

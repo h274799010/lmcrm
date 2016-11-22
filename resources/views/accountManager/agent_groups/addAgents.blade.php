@@ -1,4 +1,4 @@
-@extends('accountManager.layouts.default')
+@extends('layouts.accountManagerDefault')
 {{-- Content --}}
 @section('content')
     <h1>Add agents to: {{ $group->name }}</h1>

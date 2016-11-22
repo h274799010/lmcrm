@@ -20,7 +20,14 @@
                     <tbody>
                     @forelse($salesmen as $salesman)
                         <tr>
-                            <td><a href="{{route('agent.salesman.edit',[$salesman->id])}}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>
+                            <td>
+                                <a href="{{route('agent.salesman.edit',[$salesman->id])}}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
+                                @if($salesman->banned_at)
+                                    <a href="{{ route('agent.salesman.unblock',[$salesman->id]) }}" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.unblock") }}</a>
+                                @else
+                                    <a href="{{ route('agent.salesman.block',[$salesman->id]) }}" class="btn btn-sm btn-danger confirmBan"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.block") }}</a>
+                                @endif
+                            </td>
                             <td>{{ $salesman->updated_at }}</td>
                             <td>{{ $salesman->name }}</td>
                             <td>{{ $salesman->email }}</td>

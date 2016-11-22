@@ -21,9 +21,8 @@ class SentinelAgentOrSalesmanUser
         if (!Sentinel::inRole('salesman') && !Sentinel::inRole('agent')) {
             return redirect()->route('home');
         }
+        $user = Sentinel::getUser();
         if(Sentinel::inRole('agent')) {
-            $user = Sentinel::getUser();
-
             $agentInfo = AgentInfo::where('agent_id', '=', $user->id)->first();
             if(!Activation::completed($user)) {
                 return view('auth.activationPage', [ 'user' => $user ]);
@@ -34,6 +33,11 @@ class SentinelAgentOrSalesmanUser
 
                 return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.']);
             }
+        }
+        if($user->banned_at) {
+            view()->share('userBanned', true);
+        } else {
+            view()->share('userBanned', false);
         }
         return $next($request);
     }

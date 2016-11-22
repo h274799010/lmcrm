@@ -19,6 +19,21 @@
         {!! Form::open(array('route' => ['admin.operator.store'], 'method' => 'post', 'class' => 'validate', 'files'=> true)) !!}
     @endif
 
+    <!-- Tabs -->
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-general" data-toggle="tab"> {{
+                    trans("admin/modal.general") }}</a>
+            </li>
+
+            @if (isset($accountManagers) && isset($operator))
+                <li><a href="#accountManagers" data-toggle="tab">
+                        {{ trans("admin/modal.accountManagers") }} </a>
+                </li>
+            @endif
+
+
+        </ul>
+
         <!-- Tabs Content -->
         <div class="tab-content">
 
@@ -98,17 +113,89 @@
                 {!! Form::close() !!}
 
             </div>
+
+            @if(isset($accountManagers) && isset($operator))
+                <div class="tab-pane" id="accountManagers">
+
+                    {{ Form::open(array('route' => ['admin.operator.attachAccountManagers'], 'method' => 'post', 'class' => 'validate agent-sphere-form', 'files'=> true)) }}
+                    <div class="alert alert-success alert-dismissible fade in" role="alert" style="display: none;">
+                        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <div class="alertContent"></div>
+                    </div>
+                    <input type="hidden" name="operator_id" value="{{ $operator->id }}">
+                    <h3>Account Managers:</h3>
+                    <div class="form-group-wrap clearfix">
+                        @foreach($accountManagers as $accountManager)
+                            <div class="col-xs-6">
+                                <div class="checkbox">
+                                    <label for="accountManaget-{{ $accountManager->id }}">
+                                        {!! Form::checkbox('accountManagers[]', $accountManager->id, (in_array($accountManager->id, $operator->accountManagers()->get()->lists('id')->toArray()))?$accountManager->id:null, array('class' => '','id'=>"accountManaget-".$accountManager->id)) !!}
+                                        {{ $accountManager->email }}
+                                    </label>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="form-group clearfix">
+                        <div class="col-md-12">
+                            <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                                <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                            </a>
+                            <button type="reset" class="btn btn-sm btn-default">
+                                <span class="glyphicon glyphicon-remove-circle"></span> {{
+                            trans("admin/modal.reset") }}
+                            </button>
+                            <button type="submit" class="btn btn-sm btn-success">
+                                <span class="glyphicon glyphicon-ok-circle"></span>
+                                @if	(isset($operator))
+                                    {{ trans("admin/modal.update") }}
+                                @else
+                                    {{trans("admin/modal.create") }}
+                                @endif
+                            </button>
+                        </div>
+                    </div>
+                    {{ Form::close() }}
+
+                </div>
+            @endif
         </div>
     </div>
 @stop
 
 @section('styles')
-
+    <style type="text/css">
+        .nav-tabs li.active {
+            position: relative;
+        }
+        .nav-tabs li:before {
+            content: '';
+            position: absolute;
+            height: 3px;
+            bottom: -2px;
+            left: 0;
+            background-color: #00e5d6;
+            width: 0;
+            -webkit-transition: width 0.2s ease;
+            -moz-transition: width 0.2s ease;
+            -ms-transition: width 0.2s ease;
+            -o-transition: width 0.2s ease;
+            transition: width 0.2s ease;
+        }
+        .nav-tabs li.active:before {
+            width: 100%;
+        }
+    </style>
 @stop
 
 
 
 @section('scripts')
-
+    <script>
+        $(function(){
+            $.material.init();
+        });
+    </script>
 @stop
 

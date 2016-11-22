@@ -1,13 +1,13 @@
 <div class=" sidebar" role="navigation">
     <div class="sidebar-nav">
         <ul class="nav " id="side-menu">
-            @if( Sentinel::hasAccess(['agent.lead.create']) )
+            @if( Sentinel::hasAccess(['agent.lead.create']) && !$userBanned )
                 <li>
                     <a href="{{ route('agent.lead.create') }}" class="dialog"><i class="icon icon-add-user"></i>@lang('site/sidebar.add_lead')</a>
                 </li>
             @endif
             @if(Sentinel::inRole('salesman'))
-                @if( Sentinel::hasAccess(['salesman.lead.obtain']) )
+                @if( Sentinel::hasAccess(['salesman.lead.obtain']) && !$userBanned )
                     <li>
                         <a href="{{ route('salesman.lead.obtain')  }}"><i class="icon icon-buy"></i>@lang('site/sidebar.lead_obtain')</a>
                     </li>
@@ -23,7 +23,7 @@
                     </li>
                 @endif
             @else
-                @if( Sentinel::hasAccess(['agent.lead.obtain']) )
+                @if( Sentinel::hasAccess(['agent.lead.obtain']) && !$userBanned )
                     <li>
                         <a href="{{ route('agent.lead.obtain')  }}"><i class="icon icon-buy"></i>@lang('site/sidebar.lead_obtain')</a>
                     </li>

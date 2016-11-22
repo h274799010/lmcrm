@@ -1,6 +1,6 @@
-@extends('layouts.accountManagerDefault')
+@extends('admin.layouts.default')
 {{-- Content --}}
-@section('content')
+@section('main')
     <div class="page-header">
         <h3>
             @if (isset($agent)) {{ $agent->name }} @else @endif ({{ trans("admin/agent.agent") }})
@@ -11,14 +11,9 @@
             </div>
         </h3>
     </div>
-    @if($errors->any())
-        <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
-            {{$errors->first('message')}}
-        </div>
-    @endif
 
     <div class="col-md-12" id="content">
-    {{ Form::model($agent,array('route' => ['accountManager.agent.activate', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) }}
+    {{ Form::model($agent,array('route' => ['admin.agent.activate', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) }}
     <!-- Tabs -->
         <ul class="nav nav-tabs">
             <li class="active"><a href="#tab-general" data-toggle="tab"> {{
@@ -43,13 +38,16 @@
                 <div class="form-group  {{ $errors->has('spheres') ? 'has-error' : '' }}">
                     {{ Form::label('spheres', trans("admin/sphere.sphere"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        <select multiple="" class="form-control select2 notSelectBoxIt" required="required" name="spheres[]" tabindex="-1" aria-hidden="true" aria-required="true">
-                            @foreach($spheres as $sphere)
-                                <option value="{{ $sphere->id }}"@if( isset($agent) && in_array( $sphere->id, $agentSelectedSpheres ) ) selected="selected"@endif>{{ $sphere->name }}</option>
-                            @endforeach
-                        </select>
-                        {{--{{ Form::select('spheres[]',$spheres,(isset($agent))?$agent->spheres()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2 notSelectBoxIt','required'=>'required')) }}--}}
+                        {{ Form::select('spheres[]',$spheres,(isset($agent))?$agent->spheres()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2','required'=>'required')) }}
                         <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
+                    </div>
+                </div>
+
+                <div class="form-group  {{ $errors->has('accountManagers') ? 'has-error' : '' }}">
+                    {{ Form::label('accountManagers', trans("admin/sphere.accountManagers"), array('class' => 'control-label')) }}
+                    <div class="controls">
+                        {{ Form::select('accountManagers[]',$accountManagers->lists('email','id'),(isset($agent))?$agent->accountManagers()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2','required'=>'required')) }}
+                        <span class="help-block">{{ $errors->first('accountManagers', ':message') }}</span>
                     </div>
                 </div>
 
@@ -67,6 +65,14 @@
                         <span class="help-block">{{ $errors->first('last_name', ':message') }}</span>
                     </div>
                 </div>
+                <div class="form-group  {{ $errors->has('company') ? 'has-error' : '' }}">
+                    {{ Form::label('company', trans("admin/users.company"), array('class' => 'control-label')) }}
+                    <div class="controls">
+                        {{ Form::text('company', (isset($agent))?$agent->agentInfo->company:NULL, array('class' => 'form-control')) }}
+                        <span class="help-block">{{ $errors->first('company', ':message') }}</span>
+                    </div>
+                </div>
+
                 <div class="form-group  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
                     {{ Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) }}
                     <div class="controls">
@@ -81,6 +87,7 @@
                         <span class="help-block">{{ $errors->first('payment_revenue_share', ':message') }}</span>
                     </div>
                 </div>
+
                 <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
                     {{ Form::label('email', trans("admin/users.email"), array('class' => 'control-label')) }}
                     <div class="controls">
@@ -133,7 +140,7 @@
                 <div class="tab-pane" id="revenue">
 
                     @foreach($agentSpheres as $agentSphere)
-                        {{ Form::open(array('route' => ['accountManager.agent.revenue'], 'method' => 'post', 'class' => 'validate agent-sphere-form agentSphereForm', 'files'=> true)) }}
+                        {{ Form::open(array('route' => ['admin.agent.revenue'], 'method' => 'post', 'class' => 'validate agent-sphere-form agentSphereForm', 'files'=> true)) }}
                         <div class="alert alert-success alert-dismissible fade in" role="alert" style="display: none;">
                             <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
                             <div class="alertContent"></div>
@@ -159,6 +166,9 @@
 
                         <div class="form-group clearfix">
                             <div class="col-md-12">
+                                <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                                    <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                                </a>
                                 <button type="reset" class="btn btn-sm btn-default">
                                     <span class="glyphicon glyphicon-remove-circle"></span> {{
                             trans("admin/modal.reset") }}
@@ -269,6 +279,26 @@
         .agent-sphere-form {
             margin-bottom: 36px;
         }
+        .nav-tabs li.active {
+            position: relative;
+        }
+        .nav-tabs li:before {
+            content: '';
+            position: absolute;
+            height: 3px;
+            bottom: -2px;
+            left: 0;
+            background-color: #00e5d6;
+            width: 0;
+            -webkit-transition: width 0.2s ease;
+            -moz-transition: width 0.2s ease;
+            -ms-transition: width 0.2s ease;
+            -o-transition: width 0.2s ease;
+            transition: width 0.2s ease;
+        }
+        .nav-tabs li.active:before {
+            width: 100%;
+        }
 
     </style>
 @stop
@@ -280,27 +310,121 @@
 
         @if (isset($agent))
 
-        $('.agentSphereForm').on('submit', function (e) {
-            e.preventDefault();
 
-            var param = $(this).serialize();
+        $(function(){
 
-            var $alert = $(this).find('.alert');
+            /**
+             * Обработка формы купленных средств агента
+             *
+             */
+            $('.wallet_form').on('submit', function( event ) {
 
-            $alert.find('.close').on('click', function (e) {
-                e.preventDefault();
-                $alert.slideUp();
-            });
+                // отменяем действия по умолчанию
+                event.preventDefault();
 
-            $.post('{{ route('accountManager.agent.revenue') }}', param, function (data) {
-                if(data['error'] == true) {
-                    $alert.removeClass('alert-success').addClass('alert-warning');
-                } else {
-                    $alert.removeClass('alert-warning').addClass('alert-success');
+                // выбираем данные из формы
+                var plus = $(this).find('.plus').val();
+                var minus = $(this).find('.minus').val();
+                var wallet_type = $(this).find('.wallet_type').val();
+
+                // определяем величину на которую нужно изменить сумму
+                var amount = false;
+
+                // если есть значение - записываем его в переменные
+                if ( plus != '' && plus != 0 ) {
+
+                    amount = plus;
+
+                } else if ( minus != '' && minus != 0 ) {
+
+                    amount = minus * (-1);
                 }
-                $alert.find('.alertContent').html(data['message']);
-                $alert.slideDown();
+
+                // если значение есть, отправляем его на сервер
+                if (amount) {
+
+                    // получение токена
+                    var token = $('meta[name=csrf-token]').attr('content');
+
+                    $.post(
+                            '{{ route('manual.wallet.change', [ 'user_id'=>$agent->id ]) }}',
+                            {
+                                _token: token,
+                                amount: amount,
+                                wallet_type: wallet_type
+                            },
+                            function (data)
+                            {
+
+
+                                $( '#' + wallet_type + 'Val').text(data.after);
+
+                                var tr = $('<tr />');
+
+                                if( data.amount > 0 ) {
+                                    $(tr).addClass('wallet_add');
+                                }
+                                else{
+                                    $(tr).addClass('wallet_decrease');
+                                }
+
+                                // добавляем в строку время
+                                $('<td />').text(data.time).appendTo(tr);
+                                // добавляем в строку сумму
+                                $('<td />').text(data.amount).appendTo(tr);
+                                // сумма которая была и стала
+                                $('<td />').text(data.after ).appendTo(tr);
+                                // какое именно хранилище кошелька
+                                $('<td />').text(data.wallet_type).appendTo(tr);
+                                // тип транзакции
+                                $('<td />').text(data.type).appendTo(tr);
+                                // id транзакции
+                                $('<td />').text(data.transaction).appendTo(tr);
+                                // инициатор транзакции
+                                $('<td />').text(data.initiator).appendTo(tr);
+                                // статус транзакции
+                                $('<td />').text(data.status).appendTo(tr);
+
+
+                                // таблица с историей кредитов
+                                $('#creditTable').prepend(tr);
+                            }
+                    );
+                }
+
+                // обнуление всех значений
+                $('#buyed-plus').val('');
+                $('#buyed-minus').val('');
+                $('#earned-plus').val('');
+                $('#earned-minus').val('');
+                $('#wasted-plus').val('');
+                $('#wasted-minus').val('');
             });
+
+            $('.agentSphereForm').on('submit', function (e) {
+                e.preventDefault();
+
+                var param = $(this).serialize();
+
+                var $alert = $(this).find('.alert');
+
+                $alert.find('.close').on('click', function (e) {
+                    e.preventDefault();
+                    $alert.slideUp();
+                });
+
+                $.post('{{ route('admin.agent.revenue') }}', param, function (data) {
+                    if(data['error'] == true) {
+                        $alert.removeClass('alert-success').addClass('alert-warning');
+                    } else {
+                        $alert.removeClass('alert-warning').addClass('alert-success');
+                    }
+                    $alert.find('.alertContent').html(data['message']);
+                    $alert.slideDown();
+                });
+            });
+
+
         });
 
         @endif

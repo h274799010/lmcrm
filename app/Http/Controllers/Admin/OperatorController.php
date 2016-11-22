@@ -38,6 +38,13 @@ class OperatorController extends AdminController {
         return Datatables::of($operators)
             ->remove_column('first_name')
             ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
+            ->add_column('spheres', function($model) {
+                $operator = OperatorSphere::find($model->id);
+                $operatorSpheres = $operator->spheres()->get()->lists('name')->toArray();
+                $operatorSpheres = implode(', ', $operatorSpheres);
+
+                return $operatorSpheres;
+            })
             ->add_column('actions', function($model) { return view('admin.operator.datatables.control',['id'=>$model->id]); })
             ->remove_column('id')
             ->make();
@@ -74,7 +81,9 @@ class OperatorController extends AdminController {
         // данные сферы
         $spheres = Sphere::active()->lists('name','id');
 
-        return view('admin.operator.create_edit', ['operator'=>$operator, 'spheres' => $spheres]);
+        $accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
+
+        return view('admin.operator.create_edit', ['operator'=>$operator, 'spheres' => $spheres, 'accountManagers'=>$accountManagers]);
     }
 
     public function update( Request $request, $id )
@@ -107,6 +116,14 @@ class OperatorController extends AdminController {
     {
         User::findOrFail($id)->delete();
         return redirect()->route('admin.operator.index');
+    }
+
+    public function attachAccountManagers(Request $request)
+    {
+        $operator=OperatorSphere::findOrFail($request->input('operator_id'));
+        $operator->accountManagers()->sync($request->input('accountManagers'));
+
+        return redirect()->back();
     }
 
 }

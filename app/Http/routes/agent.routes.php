@@ -1,6 +1,6 @@
 <?php
 
-Route::get('registerStepTwo', ['as' => 'agent.registerStepTwo', 'uses' => 'Auth\SessionsController@registerStepTwo']);
+Route::get('registerStepTwo', ['as' => 'agent.registerStepTwo', 'uses' => 'Auth\RegisterController@registerStepTwo']);
 
 Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] ], function() {
 
@@ -136,6 +136,8 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
             Route::match(['put', 'post'], 'salesman/{id}', ['as' => 'agent.salesman.update', 'uses' => 'Agent\SalesmanController@update']);
             //Route::resource('salesman','Agent\SalesmanController');
         });
+        Route::get('salesman/{id}/block', ['as'=>'agent.salesman.block', 'uses' => 'Agent\SalesmanController@ban']);
+        Route::get('salesman/{id}/unblock', ['as'=>'agent.salesman.unblock', 'uses' => 'Agent\SalesmanController@unban']);
 
         Route::get('salesman/depositedLead/{salesman_id?}', ['as' => 'agent.salesman.depositedLead', 'uses' => 'Agent\LeadController@deposited']);
 

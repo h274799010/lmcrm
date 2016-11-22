@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
 use App\Models\SphereMask;
+use Carbon\Carbon;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Validator;
 use App\Models\Agent;
@@ -104,6 +105,24 @@ class SalesmanController extends AgentController {
     {
         Agent::findOrFail($this->uid)->leads()->whereIn([$id])->delete();
         return response()->route('agent.salesman.index');
+    }
+
+    public function ban($user_id)
+    {
+        $user = Sentinel::findById($user_id);
+        $user->banned_at = Carbon::now();
+        $user->save();
+
+        return redirect()->back();
+    }
+
+    public function unban($user_id)
+    {
+        $user = Sentinel::findById($user_id);
+        $user->banned_at = null;
+        $user->save();
+
+        return redirect()->back();
     }
 
 }

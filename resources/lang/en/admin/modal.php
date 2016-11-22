@@ -19,5 +19,7 @@ return [
     'salesman' => 'Salesman',
     'block' => 'Block',
     'unblock' => 'Unblock',
-    'masks' => 'Masks'
+    'masks' => 'Masks',
+    'activate' => 'Activate',
+    'accountManagers' => 'Account Managers'
 ];

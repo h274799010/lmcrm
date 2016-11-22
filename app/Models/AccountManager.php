@@ -36,12 +36,17 @@ class AccountManager extends EloquentUser implements AuthenticatableContract, Ca
 
     public function agents() {
         return $this->belongsToMany('\App\Models\User','account_managers_agents','account_manager_id','agent_id')
-            ->select(array('users.id','users.first_name','users.last_name', 'users.email', 'users.created_at', 'users.banned'));
+            ->select(array('users.id','users.first_name','users.last_name', 'users.email', 'users.created_at', 'users.banned_at'));
     }
 
     public function agentsAll()
     {
         return $this->belongsToMany('\App\Models\User','account_managers_agents','account_manager_id','agent_id');
+    }
+
+    public function operators() {
+        return $this->belongsToMany('\App\Models\User','account_managers_operators','account_manager_id','operator_id')
+            ->select(array('users.id','users.first_name','users.last_name', 'users.email', 'users.created_at'));
     }
 
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\AccountManager;
 
 use App\Http\Controllers\AccountManagerController;
 use App\Models\AccountManager;
+use App\Models\AccountManagersOperators;
+use App\Models\OperatorsSpheres;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Agent;
@@ -27,6 +29,19 @@ class OperatorController extends AccountManagerController {
 
     public function data()
     {
+
+        $accountManager = AccountManager::find(Sentinel::getUser()->id);
+        $accountManagerSpheres = $accountManager->spheres()->lists('sphere_id')->toArray();
+        $operatorsIds = $accountManager->operators()->get()->lists('id')->toArray();
+
+        $operatorsAttachedIds = AccountManagersOperators::get()->lists('operator_id')->toArray();
+
+        $operatorsSpheresIds = OperatorsSpheres::whereIn('sphere_id', $accountManagerSpheres)->whereNotIn('operator_id', $operatorsAttachedIds)->get()->lists('operator_id')->toArray();
+
+        if(count($operatorsSpheresIds)) {
+            $operatorsIds = array_collapse([$operatorsIds, $operatorsSpheresIds]);
+        }
+
         $operatorRole = Sentinel::findRoleBySlug('operator');
         $operators = $operatorRole->users()->select(
             'users.id as id',
@@ -34,7 +49,7 @@ class OperatorController extends AccountManagerController {
             'users.last_name as last_name',
             'users.email as email',
             'users.created_at as created_at'
-        );
+        )->whereIn('id', $operatorsIds);
 
         return Datatables::of($operators)
             ->remove_column('first_name')

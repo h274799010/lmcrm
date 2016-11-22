@@ -18,5 +18,6 @@ return [
     'photo_items' => 'Photo items',
     'users' => 'Users',
     'updated_at' => 'Updated at',
-    'sphere' => 'Sphere'
+    'sphere' => 'Sphere',
+    'role' => 'Role'
 	];

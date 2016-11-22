@@ -112,6 +112,9 @@
         });
     });
     $('.select2').select2();
+    $('.dataTable').DataTable({
+        responsive: true
+    });
 </script>
 </body>
 </html>

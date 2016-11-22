@@ -84,6 +84,11 @@
                             <i class="glyphicon glyphicon-star"></i> {{ trans('admin/sidebar.accountManagers') }}
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.agent.newAgents') }}">
+                            <i class="glyphicon glyphicon-star"></i> {{ trans('admin/sidebar.newAgents') }}
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li>
