@@ -79,7 +79,13 @@ class SphereController extends Controller {
         // получаем id всех лидов, которые редактировал оператор
         $leadsId = Operator::where('operator_id', '=', $operator->id)->with('editedLeads')->get()->lists('lead_id');
         // получаем все лиды оператора
-        $leads = Lead::whereNotIn('status', [0, 1])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
+
+//        $leads = Lead::whereNotIn('status', [0, 1])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
+
+//        $leads = Lead::whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
+
+        $leads = Lead::whereNotIn('status', [0])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
+
 
         return view('sphere.lead.editedList')->with( 'leads', $leads );
     }
@@ -113,6 +119,8 @@ class SphereController extends Controller {
         $data->load('attributes.options','leadAttr.options','leadAttr.validators');
 
         $lead = Lead::with(['phone', 'user', 'operatorOrganizer'])->find($id);
+
+//        dd($lead);
 
         if($lead->status < 1) {
             $lead->status = 1;
@@ -150,12 +158,17 @@ class SphereController extends Controller {
     public function update(Request $request, $sphere_id, $lead_id)
     {
 
-//        return $request->agentsData;
+//        dd( $request );
+
+//        dd( json_decode($request->agentsData) );
+//        return response()->json($request->agentsData);
 
         // Тип запроса:
         // 1. save - просто сохраняем лида
         // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
         // 3. onSelectiveAuction - отправка лида на выборочные аукционы агентов
+        // 4. openLead - открытие лидов
+        // 5. closeDeal - закрытие сделки по лиду
         $typeRequest = $request->input('type');
 
         /** --  проверка данных на валидность  -- */
@@ -198,10 +211,11 @@ class SphereController extends Controller {
             // если лид направляется на выборочные аукционы
             // выставляем лиду статус "7"
             $lead->status = 7;
-        }elseif( $typeRequest == 'openLead' ){
-            // если лид направляется на выборочные аукционы
-            // выставляем лиду статус "7"
-            $lead->status = 7;
+        }
+        elseif( $typeRequest == 'openLead' ){
+            // если лид открывается только определенным пользователям
+            // выставляем лиду статус "4"
+            $lead->status = 3;
         }
         $lead->operator_processing_time = date("Y-m-d H:i:s");
         $lead->expiry_time = $lead->expiredTime();
@@ -314,50 +328,57 @@ class SphereController extends Controller {
             // если есть метка 'onSelectiveAuction'
 
             /** добавляем лид на аукцион указанным агентам */
-
-            // парсим данные по агентам полученные с фронтенда
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
             $selectiveAgents = collect( json_decode( $request->agentsData ) );
 
             // удаляем ранее отредактированного лида с аукциона, если он есть
             Auction::where('lead_id', '=', $lead_id)->delete();
 
-            // перебираем всех агентов и добавляем на аукцион
+            // перебираем всех пользователей и добавляем на аукцион
             $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId ){
-
                 // добавляем на аукцион
-                Auction::addByAgentId( $item->userId, $item->maskId, $sphere_id, $lead_id );
+                Auction::addByAgentId( $item->id, $item->maskFilterId, $sphere_id, $lead_id );
                 // уведомляем агента о новом лиде
-                Notice::toOne( $senderId, $item->userId, 'note');
+                Notice::toOne( $senderId, $item->id, 'note');
             });
 
         }elseif( $typeRequest == 'openLead' ){
+            // если есть метка 'openLead'
 
-            // перебираем всех агентов и добавляем на аукцион
+            /** Открываем лид для выбранных пользователей */
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
             $selectiveAgents = collect( json_decode( $request->agentsData ) );
 
-            // перебираем всех агентов и добавляем на аукцион
+            // перебираем всех пользователей и добавляем на аукцион
             $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId, $lead ){
 
                 // находим роль пользователя
-                $userSlag = User::with('roles')->find( $item->userId );
+                $userSlag = User::with('roles')->find( $item->id );
 
                 // выбираем модель пользователя в зависимости от его роли
                 if( $userSlag->roles[0]->name == 'Agent' ){
-                    $user = Agent::find($item->userId);
+                    $user = Agent::find($item->id);
                 }else{
-                    $user = Salesman::find($item->userId);
+                    $user = Salesman::find($item->id);
                 }
 
-                // Salesman
+                // открываем лид агенту
+                $lead->open( $user, $item->maskFilterId, true );
 
-                // todo открываем лид агенту
-                $lead->open( $user, $item->maskId, true );
+                // выставляем статус лиду что он снят с аукциона
+                $lead->status = 4;
+                $lead->save();
+
             });
 
         }elseif( $typeRequest == 'closeDeal' ){
 
 
-            return true;
+
+            // todo открытие лида
+            // todo совершение закрытия сделки
+
+            return $request;
         }
 
 
@@ -656,28 +677,6 @@ class SphereController extends Controller {
         } else {
             return response()->json('free');
         }
-    }
-
-
-    /**
-     * Отправка лида на аукцион, напрямую
-     *
-     * todo удалить
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function sendToAuction( Request $request ){
-
-
-
-        // todo оплата за обработку оператора
-
-
-        // todo добавление на аукцион агентам или одному агенту
-
-
-        return response()->json( $request );
     }
 
 }

@@ -156,7 +156,6 @@
                                     {{-- кнопка очистки action всех агентов --}}
                                     <button type="button" class="btn btn-danger clear_all_agents_action hidden"> Clear all agents action </button>
 
-
                                     {{-- сообщение о том, что подходящих агентов нет --}}
                                     <div class="selected_agents_none hidden">
                                         <p class="alert alert-info">
@@ -168,14 +167,22 @@
                                     {{-- тело блока с данными агентов --}}
                                     <div class="operator_agents_selection_body hidden">
 
+                                        {{-- блок сообщения что пользователей на закрытие сделки больше одного --}}
+                                        <div class="users_bust_for_deal hidden">
+                                            <div class="alert alert-warning" role="alert">
+                                                Deal closes for only one user
+                                            </div>
+                                        </div>
+
+
                                         {{-- таблица с данными подходящих агентов --}}
                                         <table class="table table-bordered selected_agents_table">
                                             <thead>
                                                 <tr>
+                                                    <th> </th>
                                                     <th>Name</th>
                                                     <th>E-mail</th>
                                                     <th>Roles</th>
-                                                    <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -183,10 +190,18 @@
                                             </tbody>
                                         </table>
 
+                                        <div class="agent_button_block">
+                                            <button type="button" class="btn btn-xs btn-primary btn-send_to_auction">Send to Auction</button>
+                                            <button type="button" class="btn btn-xs btn-primary btn-open_lead">Buy</button>
+                                            <button type="button" class="btn btn-xs btn-primary btn-close_deal">Close the Deal</button>
+                                            {{-- кнопка закрытия таблицы --}}
+                                            <button type="button" class="btn btn-default hidden operator_agents_selection_close bottom"> Clear the results </button>
+                                        </div>
+
                                     </div>
 
                                     {{-- кнопка закрытия таблицы --}}
-                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>
+                                    {{--<button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>--}}
 
                                 </div>
 
@@ -342,9 +357,6 @@
 
 @section('styles')
     <style>
-
-
-
         /* Комментарии на странице редактировани лида оператором */
 
         /* правый блок оператора на странице редактирования */
@@ -428,10 +440,21 @@
         }
 
 
-        .clear_all_agents_action{
-            float: right;
+        div.apply_auctionAdd div.apply_content{
+            padding-top: 10px;
         }
 
+        div.modal_user_black{
+           padding: 5px 0;
+        }
+
+        div.modal_user_name{
+            font-weight: bold;
+        }
+
+        .operator_agents_selection_close.bottom{
+            float: right;
+        }
 
     </style>
 @stop
@@ -444,6 +467,13 @@
          *
          */
         var leadApplyData = false;
+
+        /**
+         * переменная хранит пользователей подходящих под лид, полученных с сервера
+         *
+         */
+        var selectedUsers = false;
+
 
         $(document).on('click', '#leadSave', function (e) {
             e.preventDefault();
@@ -646,86 +676,200 @@
 
 
         /**
-         * Действия по кнопке Apply, показывает окно подтверждения перед отправкой
-         *
-         *
-         * если в чекбоксах фильтра агента ничего не выбранно
-         *   - сохраняет маску и помечает лид к аукциону
-         *
-         * todo
-         * если выбранно "отправка на аукцион", "покупка", "закрытие сделки"
-         *   - делает действия по этому делу ...выбирает данные агента, по которому нужно что-то сделать
-         *      - и закрывает сделку, делает покупку, либо, просто добавляет на аукион лид
+         * Возвращает всех отмеченных чекбоксами агентов в таблице (вместе с данными)
          *
          */
-        function showApplyModal(){
+        function getMarkedUsers(){
 
-            // переменная хранить пользователей и id действий к ним по лиду
-            var actionData = [];
+            // выбираются все агенты с отмеченными чекбоксами
+            var agentsCheckBox = $('input.user_selected:checked');
 
-            // если есть данные агентов по лиду и их значения не 0 - заносим данные в actionData
-            if( $('select.agentAction').length != 0 ){
+            // проверяем наличие отмеченных агентов
+            if( agentsCheckBox.length != 0 ) {
+                // если есть отмеченные агенты
 
-                // перебираем всех агентов
-                var auction = $('select.agentAction');
-                $.each( auction, function( key, val){
-                    // еслиз значение не нулевое
-                    if( $(val).val() != 0 ){
-                        // добавляем данные в общий массив
-                        actionData.push({
-                            action: $(val).val(),
-                            userId: $(val).closest('tr').attr( 'user_id' ),
-                            maskId: $(val).closest('tr').attr( 'mask_id' ),
-                        });
-                    }
+                // переменная с данными всех пользователей
+                var leadData = [];
+
+                // перебираем каждого пользователя с отмеченным чекбоксом и выбираем его данные в leadData
+                $.each(agentsCheckBox, function (key, val) {
+
+                    // выбираем id пользователя
+                    var user_id = $(val).closest('tr').attr('user_id');
+
+                    // из массива пользователей выбираем текущего
+                    var user = $.grep(selectedUsers, function (userData) {
+                        return userData.id == user_id;
+                    });
+
+                    // добавляем данные в массив с данными всех пользователей
+                    leadData.push(user[0]);
+
+//                    leadData.push({
+//                        user[0]
+////                        user: user[0]
+////                        userId: user[0].id,
+////                        maskId: user[0].maskFilterId,
+////                        userData: user[0]
+//                    });
                 });
-            }
 
-            // проверяем наличие данных в общем массиве
-            if( actionData.length != 0 ){
-                // если данные есть
-
-                // заполняем данные в модальном окне
-                $.each( actionData, function( key, val ){
-
-                    switch( val.action ){
-
-                        case '1':
-                            $('.apply_auctionAdd').removeClass('hidden');
-                            var content = $('.apply_auctionAdd').find('.apply_content').html() + val.userId + '<br>';
-                            $('.apply_auctionAdd').find('.apply_content').html(content);
-                            break;
-
-                        case '2':
-                            $('.apply_buy').removeClass('hidden');
-                            var content = $('.apply_buy').find('.apply_content').html() + val.userId + '<br>';
-                            $('.apply_buy').find('.apply_content').html(content);
-                            break;
-
-                        case '3':
-                            $('.apply_closeDeal').removeClass('hidden');
-                            var content = $('.apply_closeDeal').find('.apply_content').html() + val.userId + '<br>';
-                            $('.apply_closeDeal').find('.apply_content').html(content);
-                            break;
-
-                        default:
-                            break;
-                    }
-                });
+                // возвращаем данные
+                return leadData;
 
             }else{
-                // если данных нет
+                // если отмеченных агентов нет
 
-                // добавляем блок с общими данными
-                $('.apply_default').removeClass('hidden');
+                // возвращаем false
+                return false;
             }
-
-            // показывает модальное окно
-            $('.apply_lead_mask_modal').modal('show');
-
-            // добавление данных в общую переменную
-            leadApplyData = actionData;
         }
+
+
+//                if( leadApplyData[0].action == 1){
+//                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
+//                    $('#typeFrom').val('onSelectiveAuction');
+//
+//                }else if(leadApplyData[0].action == 2){
+//                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
+//                    $('#typeFrom').val('openLead');
+//
+//                }else if(leadApplyData[0].action == 3){
+//                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
+//                    $('#typeFrom').val('closeDeal');
+//                }
+
+
+        /**
+         * Кнопка отправки лида на аукцион выбранных пользователей
+         *
+         */
+        $('.btn-send_to_auction').bind('click', function(){
+
+            // получаем всех отмеченных пользователей к аукциону
+            var users = getMarkedUsers();
+
+            // проверка наличия пользователей
+            if( users ){
+                // если пользователи есть
+
+                // заполняем глобальную переменную данными для попандера
+                leadApplyData = {
+                    type: 'onSelectiveAuction',
+                    users: users
+                };
+
+                // блок модульного окна подтверждения
+                var applyAuctionAdd = $('.apply_auctionAdd');
+
+                // добавляем в попандер нужные данные
+                $.each( users, function( key, user ){
+                    // формируем данные блока
+                    var content = applyAuctionAdd.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
+                    // добавляем данные в блок
+                    applyAuctionAdd.find('.apply_content').html(content);
+                });
+
+                // делаем видимым блок добавления лида на аукцион
+                applyAuctionAdd.removeClass('hidden');
+
+                // показать попандер
+                $('.apply_lead_mask_modal').modal('show');
+            }
+        });
+
+
+        /**
+         * Кнопка открытия лида для выбранных агентов
+         *
+         */
+        $('.btn-open_lead').bind('click', function(){
+
+            // получаем всех отмеченных пользователей к открытию лида
+            var users = getMarkedUsers();
+
+            // проверка наличия пользователей
+            if( users ){
+                // если пользователи есть
+
+                // заполняем глобальную переменную данными для попандера
+                leadApplyData = {
+                    type: 'openLead',
+                    users: users
+                };
+
+                // блок модульного окна подтверждения
+                var applyBuy = $('.apply_buy');
+
+                // добавляем в попандер нужные данные
+                $.each( users, function( key, user ){
+                    // формируем данные блока
+                    var content = applyBuy.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
+                    // добавляем данные в блок
+                    applyBuy.find('.apply_content').html(content);
+                });
+
+                // делаем видимым блок добавления лида на аукцион
+                applyBuy.removeClass('hidden');
+
+                // показать попандер
+                $('.apply_lead_mask_modal').modal('show');
+            }
+        });
+
+
+        /**
+         * Кнопка закрытия сделки для пользователя
+         *
+         */
+        $('.btn-close_deal').bind('click', function(){
+
+            // получаем всех отмеченных пользователей к закрытию сделки
+            var users = getMarkedUsers();
+
+            // проверка наличия пользователей
+            if( users ){
+                // если пользователи есть
+
+                // заполняем глобальную переменную данными для попандера
+                leadApplyData = {
+                    type: 'closeDeal',
+                    users: users
+                };
+
+                if( users.length > 1 ){
+
+                    // показываем сообщение об ошибке
+                    $('.users_bust_for_deal').removeClass('hidden');
+
+                    // установка таймера на скрытие сообщения об ошибке
+                    setTimeout(function(){
+                        // закрытие сообщения об ошибке
+                        $('.users_bust_for_deal').addClass('hidden');
+                    }, 3000);
+
+                }else{
+
+                    // закрытие сообщения об ошибке
+                    $('.users_bust_for_deal').addClass('hidden');
+
+                    // блок модульного окна подтверждения
+                    var applyСloseDeal = $('.apply_closeDeal');
+
+                    // формируем данные блока
+                    var content = applyСloseDeal.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + users[0].firstName + ' ' + users[0].lastName + '</div><div>' + users[0].email + '</div></div>';
+                    // добавляем данные в блок
+                    applyСloseDeal.find('.apply_content').html(content);
+
+                    // делаем видимым блок добавления лида на аукцион
+                    applyСloseDeal.removeClass('hidden');
+
+                    // показать попандер
+                    $('.apply_lead_mask_modal').modal('show');
+                }
+            }
+        });
+
 
         /**
          * Очистка action всех агентов
@@ -747,6 +891,7 @@
             }
 
         });
+
 
         /**
          * Подбирает агентов в таблицу
@@ -815,6 +960,8 @@
                                 // заносим данные по выборке агентов в таблицу
                                 $.each( data.users, function( key, item ){
 
+                                    selectedUsers = data.users;
+
                                     // создаем строку
                                     var tr = $('<tr/>');
 
@@ -823,6 +970,8 @@
                                     tr.attr( 'mask_id', item.maskFilterId );
 
 
+                                    // ячейка с именем
+                                    var tdChecked = $('<td/>');
                                     // ячейка с именем
                                     var tdName = $('<td/>');
                                     // ячейка с мэлом
@@ -833,35 +982,35 @@
                                     var tdActions = $('<td/>');
 
                                     // заполнение ячек данными
+                                    tdChecked.html('<input class="user_selected" type="checkbox">');
                                     tdName.html( item.firstName + ' ' + item.lastName );
                                     tdEmail.html( item.email );
                                     tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
-                                    tdActions.html('<select class="agentAction"></select><div class="agent_action_option_remove hidden"><i class="glyphicon glyphicon-remove-circle"></i></div>');
 
                                     // подключение ячеек к строке
+                                    tr.append(tdChecked);
                                     tr.append(tdName);
                                     tr.append(tdEmail);
                                     tr.append(tdRoles);
-                                    tr.append(tdActions);
 
                                     // подключение строки к таблице
                                     selectedAgentsTable.append(tr);
                                 });
 
-                                // подключаем selectBoxIt к селекту
-                                $(".agentAction").selectBoxIt({
-                                    // выставляем дефолтную тему
-                                    theme: "default",
-                                    // переопределяем класс container
-                                    copyClasses: "container",
-                                    // добавляем опции
-                                    populate: [
-                                        { value: "0", text: "" },
-                                        { value: "1", text: "Send to Auction" },
-                                        { value: "2", text: "Buy" },
-                                        { value: "3", text: "Close the Deal" }
-                                    ]
-                                }).data("selectBox-selectBoxIt");
+                                // todo подключаем selectBoxIt к селекту
+//                                $(".agentAction").selectBoxIt({
+//                                    // выставляем дефолтную тему
+//                                    theme: "default",
+//                                    // переопределяем класс container
+//                                    copyClasses: "container",
+//                                    // добавляем опции
+//                                    populate: [
+//                                        { value: "0", text: "" },
+//                                        { value: "1", text: "Send to Auction" },
+//                                        { value: "2", text: "Buy" },
+//                                        { value: "3", text: "Close the Deal" }
+//                                    ]
+//                                }).data("selectBox-selectBoxIt");
 
 
                                 /**
@@ -869,57 +1018,57 @@
                                  * выставляет селект в 0
                                  *
                                  */
-                                $('.agent_action_option_remove').bind( 'click', function(){
-                                    $(this).parent().find('select.agentAction').data("selectBox-selectBoxIt").selectOption(0);
-                                });
+//                                $('.agent_action_option_remove').bind( 'click', function(){
+//                                    $(this).parent().find('select.agentAction').data("selectBox-selectBoxIt").selectOption(0);
+//                                });
 
                                 /**
                                  * Слушатель на изменение чекбоксов
                                  *
                                  *
                                  */
-                                $('select.agentAction').bind( 'change', function(){
-
-                                    if( $(this).val() == 0 ){
-                                        // если значение 0
-
-                                        // прячем кнопку очистки селекта
-                                        $(this).parent().find('div.agent_action_option_remove').addClass('hidden');
-
-                                        // выбираем все селекты с action агентов
-                                        var actions = $('select.agentAction');
-
-                                        // переменная с выбранными значениями action агента
-                                        var selected = false;
-
-                                        /* проверка остались ли еще активные селекты и если не остались, убираем кнопку "очистить все" */
-
-                                        // перебираем все селекты чтобы узнать выбранны они или нет
-                                        $.each( actions, function( key, val ){
-                                            // если значение селекта не 0
-                                            if( $(val).val() != 0 ){
-                                                // помечаем selected как выбранный
-                                                selected = true;
-                                            }
-                                        });
-
-                                        // если селект пустой (т.е. значений нет)
-                                        if( !selected ){
-                                            // прячем его
-                                            $('.clear_all_agents_action').addClass('hidden');
-                                        }
-
-                                    }else{
-                                        // если значение не 0
-
-                                        // делаем видимой кнопку очистки селекта
-                                        $(this).parent().find('div.agent_action_option_remove').removeClass('hidden');
-                                        // делаем видимой кнопку очистки всех селектов
-                                        $('.clear_all_agents_action').removeClass('hidden');
-                                    }
-
-
-                                });
+//                                $('select.agentAction').bind( 'change', function(){
+//
+//                                    if( $(this).val() == 0 ){
+//                                        // если значение 0
+//
+//                                        // прячем кнопку очистки селекта
+//                                        $(this).parent().find('div.agent_action_option_remove').addClass('hidden');
+//
+//                                        // выбираем все селекты с action агентов
+//                                        var actions = $('select.agentAction');
+//
+//                                        // переменная с выбранными значениями action агента
+//                                        var selected = false;
+//
+//                                        /* проверка остались ли еще активные селекты и если не остались, убираем кнопку "очистить все" */
+//
+//                                        // перебираем все селекты чтобы узнать выбранны они или нет
+//                                        $.each( actions, function( key, val ){
+//                                            // если значение селекта не 0
+//                                            if( $(val).val() != 0 ){
+//                                                // помечаем selected как выбранный
+//                                                selected = true;
+//                                            }
+//                                        });
+//
+//                                        // если селект пустой (т.е. значений нет)
+//                                        if( !selected ){
+//                                            // прячем его
+//                                            $('.clear_all_agents_action').addClass('hidden');
+//                                        }
+//
+//                                    }else{
+//                                        // если значение не 0
+//
+//                                        // делаем видимой кнопку очистки селекта
+//                                        $(this).parent().find('div.agent_action_option_remove').removeClass('hidden');
+//                                        // делаем видимой кнопку очистки всех селектов
+//                                        $('.clear_all_agents_action').removeClass('hidden');
+//                                    }
+//
+//
+//                                });
 
                                 // показываем блок с подбором агентов
                                 agentsSelectionBody.removeClass('hidden');
@@ -954,10 +1103,16 @@
 
 
         /**
-         * Действия по нажатию на кнопку отправки запроса на обработку формы лида
+         * Действия по нажатию на кнопку Apply в низу формы
          *
          */
-        btnApplyLeadMask.bind( 'click', showApplyModal );
+        btnApplyLeadMask.bind( 'click', function(){
+
+            // показываем блок с дефолтным текстом
+            $('.apply_default').removeClass('hidden');
+            // показывает модальное окно
+            $('.apply_lead_mask_modal').modal('show');
+        });
 
 
         /**
@@ -967,39 +1122,33 @@
         btnApplyConfirmation.bind( 'click', function(){
 
             // проверка данных
-            if( leadApplyData.length != 0 ){
-                // todo если есть данные по агентам
+            if( leadApplyData ){
+                // если есть данные по агентам
 
-                if( leadApplyData[0].action == 1){
-                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
-                    $('#typeFrom').val('onSelectiveAuction');
-
-                }else if(leadApplyData[0].action == 2){
-                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
-                    $('#typeFrom').val('openLead');
-
-                }else if(leadApplyData[0].action == 3){
-                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
-                    $('#typeFrom').val('closeDeal');
-                }
-
-
-                $('form')[0].submit();
+                // добавляем тип в форму
+                $('#typeFrom').val( leadApplyData.type );
+                // добавляем данные пользователей в форму
+                $('#agentsData').val( JSON.stringify( leadApplyData.users ) );
 
                 console.log(leadApplyData);
 
+                // отправляем форму на сервер
+//                $('form')[0].submit();
 
             }else{
                 // если данных по агентам нет
-                // todo просто отсылается маска на сохранение
+                // просто отправляется форма на сервер
 
+                // добавляем тип в форму
                 $('#typeFrom').val('toAuction');
+
+                // отправляем форму на сервер
                 $('form')[0].submit();
+
             }
 
-            // показывает модальное окно
+            // прячет модальное окно
             $('.apply_lead_mask_modal').modal('hide');
-
         });
 
 
