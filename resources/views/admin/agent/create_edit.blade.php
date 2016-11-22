@@ -12,6 +12,12 @@
         </h3>
     </div>
 
+    @if($errors->any())
+        <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
+            {{$errors->first('message')}}
+        </div>
+    @endif
+
     <div class="col-md-12" id="content">
         @if (isset($agent))
         {{ Form::model($agent,array('route' => ['admin.agent.update', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) }}
@@ -24,6 +30,11 @@
                     trans("admin/modal.general") }}</a>
             </li>
 
+            @if (isset($accountManagers) && isset($agent))
+                <li><a href="#accountManagers" data-toggle="tab">
+                        {{ trans("admin/modal.accountManagers") }} </a>
+                </li>
+            @endif
             @if (isset($agent))
                 <li><a href="#wallet" data-toggle="tab">
                         {{ trans('admin/modal.wallet') }} </a>
@@ -63,13 +74,13 @@
             </div>
         </div>
 
-        <div class="form-group  {{ $errors->has('accountManagers') ? 'has-error' : '' }}">
+        {{--<div class="form-group  {{ $errors->has('accountManagers') ? 'has-error' : '' }}">
             {{ Form::label('accountManagers', trans("admin/sphere.accountManagers"), array('class' => 'control-label')) }}
             <div class="controls">
                 {{ Form::select('accountManagers[]',$accountManagers->lists('email','id'),(isset($agent))?$agent->accountManagers()->get()->lists('id')->toArray():NULL, array('multiple'=>'multiple', 'class' => 'form-control select2','required'=>'required')) }}
                 <span class="help-block">{{ $errors->first('accountManagers', ':message') }}</span>
             </div>
-        </div>
+        </div>--}}
 
         <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
             {{ Form::label('first_name', trans("admin/users.first_name"), array('class' => 'control-label')) }}
@@ -160,9 +171,54 @@
 
     </div>
 
+            @if(isset($accountManagers) && isset($agent))
+                <div class="tab-pane" id="accountManagers">
+
+                        {{ Form::open(array('route' => ['admin.agent.attachAccountManagers'], 'method' => 'post', 'class' => 'validate agent-sphere-form', 'files'=> true)) }}
+                        <div class="alert alert-success alert-dismissible fade in" role="alert" style="display: none;">
+                            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            <div class="alertContent"></div>
+                        </div>
+                        <input type="hidden" name="agent_id" value="{{ $agent->id }}">
+                        <h3>Account Managers:</h3>
+                        <div class="form-group-wrap">
+                            @foreach($accountManagers as $accountManager)
+                                <div class="col-xs-6">
+                                    <div class="checkbox">
+                                        <label for="accountManaget-{{ $accountManager->id }}">
+                                            {!! Form::checkbox('$accountManager[]', $accountManager->id, (in_array($accountManager->id, $agent->accountManagers()->get()->lists('id')->toArray()))?$accountManager->id:null, array('class' => '','id'=>"accountManaget-".$accountManager->id)) !!}
+                                            {{ $accountManager->email }}
+                                        </label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="form-group clearfix">
+                            <div class="col-md-12">
+                                <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                                    <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                                </a>
+                                <button type="reset" class="btn btn-sm btn-default">
+                                    <span class="glyphicon glyphicon-remove-circle"></span> {{
+                            trans("admin/modal.reset") }}
+                                </button>
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-ok-circle"></span>
+                                    @if	(isset($agent))
+                                        {{ trans("admin/modal.update") }}
+                                    @else
+                                        {{trans("admin/modal.create") }}
+                                    @endif
+                                </button>
+                            </div>
+                        </div>
+                        {{ Form::close() }}
+
+                </div>
+            @endif
             <!-- история кредитов с возможностью добавления -->
             @if (isset($agent))
-
             <div class="tab-pane" id="wallet">
 
                 <div class="agent_wallet">
@@ -307,7 +363,6 @@
                 </div>
 
             </div>
-
             @endif
 
             @if(isset($agentSpheres))
@@ -384,7 +439,7 @@
                                 <td>
                                     {{--<a href="{{ route('accountManager.agent.edit',[$salesman->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
                                     <a href="{{ route('accountManager.agent.delete',[$salesman->id]) }}" class="btn btn-sm btn-danger confirm"><span class="glyphicon glyphicon-trash"></span> {{ trans("admin/modal.delete") }}</a>--}}
-                                    @if($salesman->banned == true)
+                                    @if($salesman->banned_at)
                                         <a href="{{ route('accountManager.agent.unblock',[$salesman->id]) }}" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.unblock") }}</a>
                                     @else
                                         <a href="{{ route('accountManager.agent.block',[$salesman->id]) }}" class="btn btn-sm btn-danger confirmBan"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.block") }}</a>
@@ -399,7 +454,7 @@
             @if(( isset($agentMasks) && count($agentMasks) ) || ( isset($agent->salesmen) && count($agent->salesmen) ))
                 <div class="tab-pane" id="masks">
                     <h3>Agents masks</h3>
-                    <table class="table table-striped table-hover datatable">
+                    <table class="table table-striped table-hover dataTable">
                         <thead>
                         <tr>
                             <th></th>
@@ -433,45 +488,27 @@
                                 </tr>--}}
                             @endif
                         @endforeach
+                        @foreach($agent->salesmen as $salesman)
+                            @foreach($salesman->spheres as $sphere)
+                                @if(count($sphere->masks))
+                                    @foreach($sphere->masks as $mask)
+                                        <tr>
+                                            <td>{{ $mask->id }}</td>
+                                            <td>{{ $salesman->first_name }} {{ $salesman->last_name }}</td>
+                                            <td>{{ $mask->lead_price }}</td>
+                                            <td>{{ $mask->name }}</td>
+                                            <td>{{ $sphere->name }}</td>
+                                            <td>{{ $mask->updated_at }}</td>
+                                            <td>
+                                                <a href="{{ route('accountManager.sphere.reprice.edit',['sphere'=>$sphere->id, 'id'=>$mask->user_id, 'mask_id'=>$mask->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            @endforeach
+                        @endforeach
                         </tbody>
                     </table>
-                    @if(isset($agent->salesmen) && count($agent->salesmen))
-                        <h3>Salesman masks</h3>
-                        <table class="table table-striped table-hover datatable">
-                            <thead>
-                            <tr>
-                                <th></th>
-                                <th>{!! trans("admin/sphere.salesman") !!}</th>
-                                <th>{!! trans("admin/sphere.price") !!}</th>
-                                <th>{!! trans("admin/sphere.maskName") !!}</th>
-                                <th>{!! trans("admin/admin.sphere") !!}</th>
-                                <th>{!! trans("admin/admin.updated_at") !!}</th>
-                                <th>{!! trans("admin/admin.action") !!}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($agent->salesmen as $salesman)
-                                @foreach($salesman->spheres as $sphere)
-                                    @if(count($sphere->masks))
-                                        @foreach($sphere->masks as $mask)
-                                            <tr>
-                                                <td>{{ $mask->id }}</td>
-                                                <td>{{ $salesman->first_name }} {{ $salesman->last_name }}</td>
-                                                <td>{{ $mask->lead_price }}</td>
-                                                <td>{{ $mask->name }}</td>
-                                                <td>{{ $sphere->name }}</td>
-                                                <td>{{ $mask->updated_at }}</td>
-                                                <td>
-                                                    <a href="{{ route('accountManager.sphere.reprice.edit',['sphere'=>$sphere->id, 'id'=>$mask->user_id, 'mask_id'=>$mask->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @endif
-                                @endforeach
-                            @endforeach
-                            </tbody>
-                        </table>
-                    @endif
                 </div>
             @endif
         </div>
@@ -593,7 +630,9 @@
 
 @section('scripts')
 <script>
-
+    $(function(){
+        $.material.init();
+    });
     @if (isset($agent))
 
 

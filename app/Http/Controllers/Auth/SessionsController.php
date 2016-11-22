@@ -62,10 +62,10 @@ class SessionsController extends Controller
         $users = Sentinel::findRoleBySlug('users');
         $agent = Sentinel::findRoleBySlug('agent');
 
-        if($user->banned == true) {
+        /*if($user->banned_at) {
             Sentinel::logout();
             return redirect()->route('home')->withErrors(['success'=>false, 'message' => 'You account banned!']);
-        }
+        }*/
 
         if ($user->inRole($admin)) {
             return redirect()->intended('admin');

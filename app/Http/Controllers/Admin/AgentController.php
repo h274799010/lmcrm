@@ -3,10 +3,12 @@
 use App\Helper\CreditHelper;
 use App\Http\Controllers\AdminController;
 use App\Models\Agent;
+use App\Models\Salesman;
 use App\Models\Transactions;
 use App\Models\AgentInfo;
 use App\Models\AgentSphere;
 use App\Models\TransactionsDetails;
+use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Sphere;
 //use App\Http\Requests\Admin\UserRequest;
@@ -206,7 +208,7 @@ class AgentController extends AdminController
 
         $agent->spheres()->sync($request->input('spheres'));
 
-        $agent->accountManagers()->sync($request->input('accountManagers'));
+        //$agent->accountManagers()->sync($request->input('accountManagers'));
 
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
         $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
@@ -292,7 +294,7 @@ class AgentController extends AdminController
             })
             ->add_column('actions', function($model) { return view('admin.agent.datatables.control',['user'=>$model]); })
             ->remove_column('id')
-            ->remove_column('banned')
+            ->remove_column('banned_at')
             ->make();
     }
 
@@ -300,9 +302,20 @@ class AgentController extends AdminController
     {
         $user = Sentinel::findById($user_id);
 
-        $user->banned = true;
         $user->banned_at = Carbon::now();
         $user->save();
+
+        if($user->inRole('agent')) {
+            $agent = Agent::findOrFail($user->id);
+            $salesmans = $agent->salesmen()->get();
+
+            if(count($salesmans)) {
+                foreach ($salesmans as $salesman) {
+                    $salesman->banned_at = Carbon::now();
+                    $salesman->save();
+                }
+            }
+        }
 
         return redirect()->back();
     }
@@ -311,7 +324,24 @@ class AgentController extends AdminController
     {
         $user = Sentinel::findById($user_id);
 
-        $user->banned = false;
+        if($user->inRole('agent')) {
+            $agent = Agent::findOrFail($user->id);
+            $salesmans = $agent->salesmen()->get();
+
+            if(count($salesmans)) {
+                foreach ($salesmans as $salesman) {
+                    $salesman->banned_at = null;
+                    $salesman->save();
+                }
+            }
+        } elseif ($user->inRole('salesman')) {
+            $salesman = Salesman::findOrFail($user->id);
+            $agent = $salesman->agent()->first();
+            if($agent->banned_at != null) {
+                return redirect()->back()->withErrors(['success'=>false, 'message' => 'The seller can not be unlocked, as his agent blocked.']);
+            }
+        }
+
         $user->banned_at = null;
         $user->save();
 
@@ -402,7 +432,7 @@ class AgentController extends AdminController
 
         $agent->spheres()->sync($request->input('spheres'));
 
-        $agent->accountManagers()->sync($request->input('accountManagers'));
+        //$agent->accountManagers()->sync($request->input('accountManagers'));
 
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
         $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
@@ -426,5 +456,13 @@ class AgentController extends AdminController
         }
 
         return redirect()->route('admin.agent.index');
+    }
+
+    public function attachAccountManagers(Request $request)
+    {
+        $agent=Agent::findOrFail($request->input('agent_id'));
+        $agent->accountManagers()->sync($request->input('accountManagers'));
+
+        return redirect()->back();
     }
 }

@@ -67,7 +67,8 @@ class RegisterController extends Controller
             $message->to($user->email)->subject('Activation account!');
         });
 
-        return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.']);
+        //return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.']);
+        return view('auth.activationPage', [ 'user' => $user ])->withErrors(['success'=>true, 'message' => 'You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.']);
     }
 
     /**
@@ -153,7 +154,33 @@ class RegisterController extends Controller
             $agentInfo->state = 1; // Отмечаем что почта подтверждена
             $agentInfo->save();
 
-            return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Your e-mail successfully confirmed. Log in using your data to proceed with the registration.']);
+            //return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Your e-mail successfully confirmed. Log in using your data to proceed with the registration.']);
+            if (Sentinel::authenticate($user, $request->has('remember'))) {
+                // Logged in successfully - redirect based on type of user
+                $user = Sentinel::getUser();
+                $admin = Sentinel::findRoleBySlug('administrator');
+                $users = Sentinel::findRoleBySlug('users');
+                $agent = Sentinel::findRoleBySlug('agent');
+
+                /*if($user->banned_at) {
+                    Sentinel::logout();
+                    return redirect()->route('home')->withErrors(['success'=>false, 'message' => 'You account banned!']);
+                }*/
+
+                if ($user->inRole($admin)) {
+                    return redirect()->intended('admin');
+                } elseif ($user->inRole($agent)) {
+                    $agentInfo = AgentInfo::where('agent_id', '=', $user->id)->first();
+                    if($agentInfo->state == 1) {
+                        return redirect()->route('agent.registerStepTwo');
+                    } else {
+                        return redirect()->intended('/');
+                    }
+                } elseif ($user->inRole($users)) {
+                    return redirect()->intended('/');
+                }
+            }
+            return redirect()->route('agent.registerStepTwo');
         }
         else
         {
@@ -181,6 +208,6 @@ class RegisterController extends Controller
             $message->to($user->email)->subject('Activation account!');
         });
 
-        dd($activation->code);
+        return response()->json(true);
     }
 }

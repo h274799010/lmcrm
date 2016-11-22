@@ -1,4 +1,4 @@
-@extends('accountManager.layouts.default')
+@extends('layouts.accountManagerDefault')
 {{-- Content --}}
 @section('content')
     <div class="page-header">
@@ -11,6 +11,12 @@
             </div>
         </h3>
     </div>
+
+    @if($errors->any())
+        <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
+            {{$errors->first('message')}}
+        </div>
+    @endif
 
     <div class="col-md-12" id="content">
     @if (isset($agent))
@@ -221,7 +227,7 @@
                                 <td>
                                     {{--<a href="{{ route('accountManager.agent.edit',[$salesman->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
                                     <a href="{{ route('accountManager.agent.delete',[$salesman->id]) }}" class="btn btn-sm btn-danger confirm"><span class="glyphicon glyphicon-trash"></span> {{ trans("admin/modal.delete") }}</a>--}}
-                                    @if($salesman->banned == true)
+                                    @if($salesman->banned_at)
                                         <a href="{{ route('accountManager.agent.unblock',[$salesman->id]) }}" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.unblock") }}</a>
                                     @else
                                         <a href="{{ route('accountManager.agent.block',[$salesman->id]) }}" class="btn btn-sm btn-danger confirmBan"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.block") }}</a>
@@ -236,7 +242,7 @@
             @if(( isset($spheres) && count($spheres) ) || ( isset($agent->salesmen) && count($agent->salesmen) ))
                 <div class="tab-pane" id="masks">
                     <h3>Agents masks</h3>
-                    <table class="table table-striped table-hover datatable">
+                    <table class="table table-striped table-hover dataTable">
                         <thead>
                         <tr>
                             <th></th>
@@ -264,29 +270,8 @@
                                             </td>
                                         </tr>
                                     @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="5">Masks empty</td>
-                                    </tr>
                                 @endif
                             @endforeach
-                        </tbody>
-                    </table>
-                    @if(isset($agent->salesmen) && count($agent->salesmen))
-                    <h3>Salesman masks</h3>
-                    <table class="table table-striped table-hover datatable">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>{!! trans("admin/sphere.salesman") !!}</th>
-                            <th>{!! trans("admin/sphere.price") !!}</th>
-                            <th>{!! trans("admin/sphere.maskName") !!}</th>
-                            <th>{!! trans("admin/admin.sphere") !!}</th>
-                            <th>{!! trans("admin/admin.updated_at") !!}</th>
-                            <th>{!! trans("admin/admin.action") !!}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
                             @foreach($agent->salesmen as $salesman)
                                 @foreach($salesman->spheres as $sphere)
                                     @if(count($sphere->masks))
@@ -308,7 +293,6 @@
                             @endforeach
                         </tbody>
                     </table>
-                    @endif
                 </div>
             @endif
         </div>

@@ -34,4 +34,8 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
         return $this->belongsToMany('\App\Models\Sphere','operator_sphere','operator_id','sphere_id');
     }
 
+    public function accountManagers() {
+        return $this->belongsToMany('\App\Models\User','account_managers_operators','operator_id','account_manager_id');
+    }
+
 }

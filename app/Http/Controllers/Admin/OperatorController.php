@@ -81,7 +81,9 @@ class OperatorController extends AdminController {
         // данные сферы
         $spheres = Sphere::active()->lists('name','id');
 
-        return view('admin.operator.create_edit', ['operator'=>$operator, 'spheres' => $spheres]);
+        $accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
+
+        return view('admin.operator.create_edit', ['operator'=>$operator, 'spheres' => $spheres, 'accountManagers'=>$accountManagers]);
     }
 
     public function update( Request $request, $id )
@@ -114,6 +116,14 @@ class OperatorController extends AdminController {
     {
         User::findOrFail($id)->delete();
         return redirect()->route('admin.operator.index');
+    }
+
+    public function attachAccountManagers(Request $request)
+    {
+        $operator=OperatorSphere::findOrFail($request->input('operator_id'));
+        $operator->accountManagers()->sync($request->input('accountManagers'));
+
+        return redirect()->back();
     }
 
 }

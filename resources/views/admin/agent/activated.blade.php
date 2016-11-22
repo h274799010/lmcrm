@@ -128,11 +128,7 @@
                         </button>
                         <button type="submit" class="btn btn-sm btn-success">
                             <span class="glyphicon glyphicon-ok-circle"></span>
-                            @if	(isset($agent))
-                                {{ trans("admin/modal.update") }}
-                            @else
-                                {{trans("admin/modal.create") }}
-                            @endif
+                            {{ trans("admin/modal.activate") }}
                         </button>
                     </div>
                 </div>

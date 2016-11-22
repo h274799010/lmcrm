@@ -8,7 +8,7 @@ return [
 	'remember' => 'Remember',
 	'password' => 'Password',
 	'e_mail' => 'E-Mail Address',
-	'register' => 'Register',
+	'code' => 'Activation Code',
 	'password_confirmation' => 'Password confirmation',
 	'confirmation_required' => 'Confirmation is required',
 	'name' => 'Name',
@@ -19,5 +19,8 @@ return [
 	'password_required' => 'You need to provide your password',
 	'password_confirmed' => 'You need to provide confirm password',
     'change_password' => 'Change password',
+    'activation_page' => 'Address confirmation e-mail',
+    'register_step_two' => 'Fill in your profile',
+    'modal.button.OK' => 'OK'
 
 ];

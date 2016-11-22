@@ -1,4 +1,4 @@
-@extends('accountManager.layouts.default')
+@extends('layouts.accountManagerDefault')
 {{-- Content --}}
 @section('content')
     <div class="page-header">
@@ -11,6 +11,11 @@
             </div>
         </h3>
     </div>
+    @if($errors->any())
+        <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
+            {{$errors->first('message')}}
+        </div>
+    @endif
 
     <div class="col-md-12" id="content">
     {{ Form::model($agent,array('route' => ['accountManager.agent.activate', $agent->id], 'method' => 'PUT', 'class' => 'validate', 'files'=> true)) }}
@@ -116,11 +121,7 @@
                         </button>
                         <button type="submit" class="btn btn-sm btn-success">
                             <span class="glyphicon glyphicon-ok-circle"></span>
-                            @if	(isset($agent))
-                                {{ trans("admin/modal.update") }}
-                            @else
-                                {{trans("admin/modal.create") }}
-                            @endif
+                            {{ trans("admin/modal.activate") }}
                         </button>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-@extends('accountManager.layouts.default')
+@extends('layouts.accountManagerDefault')
 {{-- Content --}}
 @section('content')
     <h1>Agent groups list</h1>
