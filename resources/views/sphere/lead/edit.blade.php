@@ -298,6 +298,7 @@
                         <div class="apply_closeDeal hidden">
                             Close the deal
                             <div class="apply_content"></div>
+                            <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
                             <br>
                         </div>
                     </div>
@@ -481,12 +482,7 @@
             $('#typeFrom').val('save');
             $(this).closest('form').submit();
         });
-//        $(document).on('click', '#leadToAuction', function (e) {
-//            e.preventDefault();
-//
-//            $('#typeFrom').val('toAuction');
-//            $(this).closest('form').submit();
-//        });
+
 
     $(function(){
 
@@ -704,14 +700,6 @@
 
                     // добавляем данные в массив с данными всех пользователей
                     leadData.push(user[0]);
-
-//                    leadData.push({
-//                        user[0]
-////                        user: user[0]
-////                        userId: user[0].id,
-////                        maskId: user[0].maskFilterId,
-////                        userData: user[0]
-//                    });
                 });
 
                 // возвращаем данные
@@ -724,20 +712,6 @@
                 return false;
             }
         }
-
-
-//                if( leadApplyData[0].action == 1){
-//                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
-//                    $('#typeFrom').val('onSelectiveAuction');
-//
-//                }else if(leadApplyData[0].action == 2){
-//                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
-//                    $('#typeFrom').val('openLead');
-//
-//                }else if(leadApplyData[0].action == 3){
-//                    $('#agentsData').val( JSON.stringify( leadApplyData ) );
-//                    $('#typeFrom').val('closeDeal');
-//                }
 
 
         /**
@@ -1125,6 +1099,12 @@
             if( leadApplyData ){
                 // если есть данные по агентам
 
+                // если это закрытие сделки, добавляем в данные пользователя прайс
+                if( leadApplyData.type == 'closeDeal' ){
+                    // получение прайса из формы модального окна
+                    leadApplyData.users[0].price = $('#closeDealPrice').val();
+                }
+
                 // добавляем тип в форму
                 $('#typeFrom').val( leadApplyData.type );
                 // добавляем данные пользователей в форму
@@ -1132,8 +1112,12 @@
 
                 console.log(leadApplyData);
 
+//                closeDealPrice
+
+
+
                 // отправляем форму на сервер
-//                $('form')[0].submit();
+                $('form')[0].submit();
 
             }else{
                 // если данных по агентам нет

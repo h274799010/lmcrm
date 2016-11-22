@@ -25,6 +25,7 @@ use App\Models\Sphere;
 use App\Helper\Notice;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Helper\PayMaster\Pay;
+use App\Models\OpenLeads;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -212,11 +213,12 @@ class SphereController extends Controller {
             // выставляем лиду статус "7"
             $lead->status = 7;
         }
-        elseif( $typeRequest == 'openLead' ){
+        elseif( $typeRequest == 'openLead' || $typeRequest == 'closeDeal' ){
             // если лид открывается только определенным пользователям
             // выставляем лиду статус "4"
             $lead->status = 3;
         }
+
         $lead->operator_processing_time = date("Y-m-d H:i:s");
         $lead->expiry_time = $lead->expiredTime();
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
@@ -312,9 +314,6 @@ class SphereController extends Controller {
 
                 // Удаляем ранее отредактированного лида с аукциона
                 Auction::where('lead_id', '=', $lead_id)->delete();
-                /*if($auctions) {
-                    $auctions->delete();
-                }*/
 
                 // добавляем лид на аукцион всем подходящим агентам
                 Auction::addFromBitmask( $agents, $sphere_id, $lead_id );
@@ -322,8 +321,8 @@ class SphereController extends Controller {
                 // подобрать название к этому уведомлению
                 // рассылаем уведомления всем агентам которым подходит этот лид
                 Notice::toMany( $senderId, $agents, 'note');
-
             }
+
         }elseif( $typeRequest == 'onSelectiveAuction' ){
             // если есть метка 'onSelectiveAuction'
 
@@ -368,7 +367,6 @@ class SphereController extends Controller {
                 // выставляем статус лиду что он снят с аукциона
                 $lead->status = 4;
                 $lead->save();
-
             });
 
         }elseif( $typeRequest == 'closeDeal' ){
@@ -376,20 +374,20 @@ class SphereController extends Controller {
 
             /** Закрываем сделку за агента */
             // todo ненужно - парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
-//            $selectiveAgents = collect( json_decode( $request->agentsData ) );
+            $userData = collect( json_decode( $request->agentsData ) )->first();
 
             // находим роль пользователя
-            $userSlag = User::with('roles')->find( $item->id );
+            $userSlag = User::with('roles')->find( $userData->id );
 
             // выбираем модель пользователя в зависимости от его роли
             if( $userSlag->roles[0]->name == 'Agent' ){
-                $user = Agent::find($item->id);
+                $user = Agent::find($userData->id);
             }else{
-                $user = Salesman::find($item->id);
+                $user = Salesman::find($userData->id);
             }
 
-            // todo открытие лида
-            $lead->open( $user, $request->agentsData[0]->maskFilterId, true );
+            // открытие лида
+            $lead->open( $user, $userData->maskFilterId, true );
 
             // выставляем статус лиду что он снят с аукциона
             $lead->status = 4;
@@ -398,12 +396,9 @@ class SphereController extends Controller {
             // получаем открытый лид
             $openLead = OpenLeads::where( 'agent_id', $user->id )->where( 'lead_id', $lead_id )->first();
 
-            // todo совершение закрытия сделки
-            $openLead->closeDeal( $request->agentsData[0]->price );
+            // закрытие сделки
+            $openLead->closeDeal( $userData->price, $senderId );
         }
-
-
-
 
         if( $request->ajax() ){
             return response()->json();

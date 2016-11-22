@@ -252,11 +252,12 @@ class OpenLeads extends Model {
     /**
      * Закрытие сделки по открытому лиду
      *
-     * @param integer $price
+     * @param  integer  $price
+     * @param  integer|boolean  $senderId
      *
      * @return boolean
      */
-    public function closeDeal( $price )
+    public function closeDeal( $price, $senderId=false )
     {
 
         // если у агента уже заключена сделка
@@ -281,6 +282,12 @@ class OpenLeads extends Model {
             $this['mask_id']
         );
 
+        // получаем id отправителя
+        $sender_id = $senderId ? $senderId : $agent->id;
+
+        // получаем данные пользователя с ролями
+        $sender = User::with('roles')->find( $sender_id );
+
         // помечаем что по открытому лиду была закрыта сделка
         if( $paymentStatus ){
             $this->state = 2;
@@ -289,8 +296,8 @@ class OpenLeads extends Model {
             $closedDeal = new ClosedDeals();
             $closedDeal->open_lead_id = $this['lead_id'];
             $closedDeal->agent_id = $agent->id;
-            $closedDeal->sender = $agent->id;
-            $closedDeal->source = $agent->id;
+            $closedDeal->sender = $sender_id;
+            $closedDeal->source = $sender->roles[0]->id;
             $closedDeal->comments = '';
             $closedDeal->price = $price;
             $closedDeal->created_at = new \DateTime();
