@@ -252,8 +252,11 @@ class OpenLeads extends Model {
     /**
      * Закрытие сделки по открытому лиду
      *
+     * @param integer $price
+     *
+     * @return boolean
      */
-    public function closeDeal($price)
+    public function closeDeal( $price )
     {
 
         // если у агента уже заключена сделка

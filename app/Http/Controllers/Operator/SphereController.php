@@ -372,13 +372,34 @@ class SphereController extends Controller {
             });
 
         }elseif( $typeRequest == 'closeDeal' ){
+            // если есть метка 'closeDeal'
 
+            /** Закрываем сделку за агента */
+            // todo ненужно - парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+//            $selectiveAgents = collect( json_decode( $request->agentsData ) );
 
+            // находим роль пользователя
+            $userSlag = User::with('roles')->find( $item->id );
+
+            // выбираем модель пользователя в зависимости от его роли
+            if( $userSlag->roles[0]->name == 'Agent' ){
+                $user = Agent::find($item->id);
+            }else{
+                $user = Salesman::find($item->id);
+            }
 
             // todo открытие лида
-            // todo совершение закрытия сделки
+            $lead->open( $user, $request->agentsData[0]->maskFilterId, true );
 
-            return $request;
+            // выставляем статус лиду что он снят с аукциона
+            $lead->status = 4;
+            $lead->save();
+
+            // получаем открытый лид
+            $openLead = OpenLeads::where( 'agent_id', $user->id )->where( 'lead_id', $lead_id )->first();
+
+            // todo совершение закрытия сделки
+            $openLead->closeDeal( $request->agentsData[0]->price );
         }
 
 
