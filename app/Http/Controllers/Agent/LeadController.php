@@ -1243,6 +1243,7 @@ class LeadController extends AgentController {
             ->with( ['lead' => function( $query ){
                 $query->with('sphereStatuses');
             }])
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view($view, [ 'openLeads'=>$openLeads, 'salesman_id'=>$salesman_id ]);
