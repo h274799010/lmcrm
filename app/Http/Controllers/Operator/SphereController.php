@@ -101,14 +101,13 @@ class SphereController extends Controller {
         $operator = Sentinel::getUser();
         // получаем id всех лидов, которые редактировал оператор
         $leadsId = Operator::where('operator_id', '=', $operator->id)->with('editedLeads')->get()->lists('lead_id');
+
         // получаем все лиды оператора
-
-//        $leads = Lead::whereNotIn('status', [0, 1])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
-
-//        $leads = Lead::whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
-
-        $leads = Lead::whereNotIn('status', [0])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
-
+        $leads = Lead::
+              whereNotIn( 'status', [0, 1] )
+            ->whereIn( 'id', $leadsId )
+            ->with([ 'sphere', 'user' ])
+            ->get();
 
         return view('sphere.lead.editedList')->with( 'leads', $leads );
     }

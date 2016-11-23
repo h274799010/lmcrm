@@ -95,17 +95,7 @@ $(function(){
          *
          */
 		var tableOperatorLeads = $('.dataTableOperatorLeads').DataTable({
-			responsive: true,
-            buttons: [
-                {
-                    text: 'My button',
-                    action: function ( e, dt, node, config ) {
-                        alert( 'Button activated' );
-                    }
-                }
-            ],
-            "bSort": false,
-            aaSorting: [ [2,'desc'], [3,'asc'] ]
+			responsive: true
 		});
 
         /**
