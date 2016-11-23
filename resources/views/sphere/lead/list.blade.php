@@ -14,7 +14,7 @@
     {{-- Сброс сортировки в таблице --}}
     {{--<button role="button" class="btn btn-xs btn-primary reset_operator_table">reset sortable</button>--}}
 
-    <table class="table table-bordered table-striped table-hover dataTableOperatorLeads">
+    <table class="table table-bordered table-striped table-hover">
         <thead>
         <tr>
             <th>{{ trans("site/lead.name") }}</th>

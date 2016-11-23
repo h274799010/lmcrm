@@ -51,18 +51,40 @@ class SphereController extends Controller {
         $operator = Sentinel::getUser();
         // получаем все сферы оператора
         $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
-        // все лиды по сфере
-        $leads = Lead::
+
+        // лиды помеченные к перезвону
+        $leadsMarkedToAlert = Lead::
               whereIn('status', [0,1])
             ->whereIn('sphere_id', $spheres)
-            ->where(function( $query ){
-                $query
-                    ->where('operator_processing_time', '<', date("Y-m-d H:i:s") )
-                    ->orWhere('operator_processing_time', '=', NULL);
-            })
+            ->where( 'operator_processing_time', '<', date("Y-m-d H:i:s") )
             ->with([ 'sphere', 'user', 'operatorOrganizer' ])
-            ->get()
-            ->sortByDesc('operator_processing_time');
+            ->orderBy('operator_processing_time', 'desc')
+            ->get();
+
+        // лиды уже обработанные оператором
+        $operagorLeads = Lead::
+              where('status', 1)
+            ->whereIn('sphere_id', $spheres)
+            ->where('operator_processing_time', '=', NULL)
+            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->orderBy('operator_processing_time')
+            ->get();
+
+        // новые лиды
+        $newLeads = Lead::
+              where('status', 0)
+            ->whereIn('sphere_id', $spheres)
+            ->where('operator_processing_time', '=', NULL)
+            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->orderBy('operator_processing_time')
+            ->take(20)
+            ->get();
+
+        // соединяем лиды к редатктированию с новыми лидами (лиды уже редактированные оператором и новые лиды)
+        $leadsToEdit = $operagorLeads->merge( $newLeads );
+
+        // соединяем лиды к перезвону с лидами к редактированию
+        $leads = $leadsMarkedToAlert->merge( $leadsToEdit );
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
