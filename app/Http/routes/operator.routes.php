@@ -3,9 +3,14 @@
 Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], function() {
     //Route::get('/', ['as' => 'dashboard.index', 'uses' => 'Operator\OperatorController@index']);
 
+    // все лиды на обработку оператору (новые лиды, либо недообработанные)
     Route::get('sphere', ['as' => 'operator.sphere.index', 'uses' => 'Operator\SphereController@index']);
 
+    // лиды которые обрабатывал этот оператор (история обработки лидов оператором)
     Route::get('sphereEdited', ['as' => 'operator.sphere.edited', 'uses' => 'Operator\SphereController@editedLids']);
+
+    // все лиды помеченные к перезвону на определенное время
+    Route::get('leadsMarkedForCall', ['as' => 'leads.marked.for.call', 'uses' => 'Operator\SphereController@leadsMarkedForCall']);
 
     //Route::get('sphere/create', ['as' => 'operator.sphere.create', 'uses' => 'Operator\SphereController@create']);
     //Route::post('sphere/store',['as'=>'operator.sphere.store', 'uses' => 'Operator\SphereController@store']);

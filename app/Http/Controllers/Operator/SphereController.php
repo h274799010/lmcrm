@@ -93,6 +93,33 @@ class SphereController extends Controller {
 
 
     /**
+     * Лиды помеченные к перезвону
+     *
+     * не отображаются на главное странице
+     * только на этой
+     *
+     */
+    public function leadsMarkedForCall(){
+
+        // получаем данные пользователя (оператора)
+        $operator = Sentinel::getUser();
+        // получаем все сферы оператора
+        $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
+        // все лиды помеченные на оповещение
+        $leads = Lead::
+        whereIn('status', [0,1])
+            ->whereIn('sphere_id', $spheres)
+            ->where('operator_processing_time', '!=', NULL)
+            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->get()
+            ->sortBy('operator_processing_time');
+
+
+        return view('sphere.lead.markedForAlert')->with( 'leads', $leads );
+    }
+
+    
+    /**
      * Show the form to edit resource.
      *
      *
