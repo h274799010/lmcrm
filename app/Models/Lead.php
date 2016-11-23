@@ -38,6 +38,12 @@ class Lead extends EloquentUser {
     ];
 
     /**
+     * Поля БД с датой
+     *
+     */
+    protected $dates = ['operator_processing_time'];
+
+    /**
      * The attributes that should be hidden for arrays.
      *
      * @var array

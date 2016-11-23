@@ -2,7 +2,7 @@
 
 {{-- Content --}}
 @section('content')
-    <h1>New leads list</h1>
+    <h1>{{ trans("operator/list.page_title") }}</h1>
 
     @if($errors->any())
         <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert">
@@ -14,16 +14,14 @@
     <table class="table table-bordered table-striped table-hover">
         <thead>
         <tr>
-            <th>{{ trans("site/lead.name") }}</th>
-            <th>{{ trans("main.status") }}</th>
-            <th>State</th>
-            <th>Time</th>
-
-
-            <th>{{ trans("main.updated_at") }}</th>
-            <th>{{ trans("main.sphere") }}</th>
-            <th>{{ trans("main.user") }}</th>
-            <th>{{ trans("main.action") }}</th>
+            <th>{{ trans("operator/list.name") }}</th>
+            <th>{{ trans("operator/list.status") }}</th>
+            <th>{{ trans("operator/list.state") }}</th>
+            <th>{{ trans("operator/list.time") }}</th>
+            <th>{{ trans("operator/list.updated_at") }}</th>
+            <th>{{ trans("operator/list.sphere") }}</th>
+            <th>{{ trans("operator/list.depositor") }}</th>
+            <th>{{ trans("operator/list.action") }}</th>
 
         </tr>
         </thead>
@@ -34,8 +32,8 @@
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
                 <td>{{ $lead->operator_processing_time ? 'Make phone call' : 'Created' }}</td>
-                <td>{{ $lead->operator_processing_time ? $lead->operator_processing_time : $lead->created_at }}</td>
-                <td>{{ $lead->updated_at }}</td>
+                <td>{{ Lang::has('operator/list.date_format') ? ( $lead->operator_processing_time ? $lead->operator_processing_time->format( trans('operator/list.date_format') ) : $lead->created_at->format( trans('operator/list.date_format')) ) : 'operator/list.date_format' }}</td>
+                <td>{{ Lang::has('operator/list.date_format') ?  $lead->updated_at->format( trans('operator/list.date_format') ) : 'operator/list.date_format' }}</td>
                 <td>{{ $lead->sphere->name }}</td>
                 <td>{{ $lead->user->agentInfo()->first()->company }}</td>
                 <td>
@@ -51,28 +49,32 @@
         <div class="modal-dialog modal-sm" role="document">
             <div class="modal-content">
 
+                {{-- сообщение о том что лид находится на редактировании другим оператором --}}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        Этот лид уже находится на редактировании!
+
+                        {{ trans('operator/list.lead_is_edited') }}
+
                     </h4>
                 </div>
 
                 <div class="modal-body">
 
-                    Вы действительно хотите его редактировать?
+                    {{ trans('operator/list.sure_you_want_to_edit') }}
 
                 </div>
 
                 <div class="modal-footer">
 
                     <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                        Cancel
+                        {{ trans('operator/list.modal_button_cancel') }}
                     </button>
 
                     <button id="statusModalChange" type="button" class="btn btn-danger">
-                        Edit
+                        {{ trans('operator/list.modal_button_edit') }}
                     </button>
+
                 </div>
 
 
@@ -87,7 +89,7 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        Этот лид уже отредактирован другим оператором!
+                        {{ trans('operator/list.lead_has_been_edited') }}
                     </h4>
                 </div>
 
