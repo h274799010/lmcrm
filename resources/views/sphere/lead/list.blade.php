@@ -11,9 +11,6 @@
         </div>
     @endif
 
-    {{-- Сброс сортировки в таблице --}}
-    {{--<button role="button" class="btn btn-xs btn-primary reset_operator_table">reset sortable</button>--}}
-
     <table class="table table-bordered table-striped table-hover">
         <thead>
         <tr>
@@ -22,24 +19,25 @@
             <th>State</th>
             <th>Time</th>
 
-            <th>{{ trans("main.user") }}</th>
-            <th>{{ trans("main.sphere") }}</th>
-
 
             <th>{{ trans("main.updated_at") }}</th>
+            <th>{{ trans("main.sphere") }}</th>
+            <th>{{ trans("main.user") }}</th>
             <th>{{ trans("main.action") }}</th>
+
         </tr>
         </thead>
         <tbody>
         @forelse($leads as $lead)
-            <tr class="{{ $lead->operator_processing_time ? 'make_call_row' : '' }}  }}">
+            <tr class="{{ $lead->operator_processing_time ? 'make_call_row' : ($lead->statusName() == 'operator' ? 'edit_lead' : '') }}">
+
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
                 <td>{{ $lead->operator_processing_time ? 'Make phone call' : 'Created' }}</td>
                 <td>{{ $lead->operator_processing_time ? $lead->operator_processing_time : $lead->created_at }}</td>
-                <td>{{ $lead->user->agentInfo()->first()->company }}</td>
-                <td>{{ $lead->sphere->name }}</td>
                 <td>{{ $lead->updated_at }}</td>
+                <td>{{ $lead->sphere->name }}</td>
+                <td>{{ $lead->user->agentInfo()->first()->company }}</td>
                 <td>
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
                 </td>
@@ -101,11 +99,16 @@
 @section('styles')
     <style>
 
+        /* оформление строки таблицы к перезвону */
         .make_call_row{
-            /*background: linear-gradient(to top, #FFFCA7, #fff) !important;*/
             background: linear-gradient(to top, #E2F9FF, #fff) !important;
             color: #145B71;
             font-weight: 500;
+        }
+
+        /* оформление строки таблицы уже редактированного лида */
+        .edit_lead{
+            color: #236074;
         }
 
     </style>
