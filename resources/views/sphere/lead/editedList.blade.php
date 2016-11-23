@@ -69,7 +69,7 @@
                         {{ trans("operator/editedList.modal_button_edit") }}
                     </button>
                 </div>
-                
+
             </div>
         </div>
     </div>
