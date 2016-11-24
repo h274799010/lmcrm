@@ -81,7 +81,14 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="{{ asset('assets/web/js/sb-admin.js')}}"></script>
-@section('script') @show
-<script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
+    @section('script') @show
+    <script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
+
+    {{-- Система нотификаций подключается только агентам или продавцам --}}
+    @if( Sentinel::inRole('agent') || Sentinel::inRole('salesman') )
+        {{-- Подключение системы нотификаций --}}
+        <script src="{{ asset('assets/web/js/notifications.js') }}"></script>
+    @endif
+
 
 <link rel="shortcut icon" href="{!! asset('assets/web/ico/favicon.ico')  !!} ">
