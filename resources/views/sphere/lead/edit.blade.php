@@ -7,15 +7,15 @@
             {{ Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'id'=>'editFormAgent', 'method' => 'put', 'class' => 'validate', 'files'=> false)) }}
 
             <div class="depositor_info">
-                <strong>Company:</strong> {{ $lead->user->agentInfo()->first()->company }}<br>
-                <strong>Agent first name:</strong> {{ $lead->user->first_name }}
+                <strong>{{ trans('operator/edit.depositor_company') }}</strong> {{ $lead->user->agentInfo()->first()->company }}<br>
+                <strong>{{ trans('operator/edit.depositor_name') }}</strong> {{ $lead->user->first_name }}
             </div>
 
-            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> Cancel </a>
+            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default">{{ trans('operator/edit.button_cancel') }}</a>
             {{-- кнопка на установку BadLead --}}
-            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
-            {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
-            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
+            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal">{{ trans('operator/edit.button_bad_lead') }}</button>
+            {{ Form::submit(trans('operator/edit.button_update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
+            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder">{{ trans('operator/edit.button_call_later') }}</button>
 
             <input type="hidden" name="type" id="typeFrom" value="">
             <input type="hidden" name="agentsData" id="agentsData" value="">
@@ -23,7 +23,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapseLead"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Lead data') </a>
+                            <a data-toggle="collapse" href="#collapseLead"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('operator/edit.collapse_lead_data') </a>
                         </h4>
                     </div>
                     <div id="collapseLead" class="panel-collapse collapse in">
@@ -103,7 +103,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapseForm"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Filtration') </a>
+                            <a data-toggle="collapse" href="#collapseForm"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('operator/edit.collapse_filtration') </a>
                         </h4>
                     </div>
                     <div id="collapseForm" class="panel-collapse collapse in">
@@ -148,29 +148,26 @@
                                 <div>
 
                                     {{-- кнопка, по которой идет подбор агентов --}}
-                                    <button id="pickUpAgents" type="button" class="btn btn-primary">Pick up an agents</button>
+                                    <button id="pickUpAgents" type="button" class="btn btn-primary">@lang('operator/edit.button_pick_up_an_agents')</button>
 
                                     {{-- кнопка закрытия таблицы --}}
-                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>
-
-                                    {{-- кнопка очистки action всех агентов --}}
-                                    <button type="button" class="btn btn-danger clear_all_agents_action hidden"> Clear all agents action </button>
+                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close">@lang('operator/edit.button_clear_the_results')</button>
 
                                     {{-- сообщение о том, что подходящих агентов нет --}}
                                     <div class="selected_agents_none hidden">
                                         <p class="alert alert-info">
                                             <button type="button" class="close selected_agents_none_closeButton" ><span aria-hidden="true">&times;</span></button>
-                                            No matches
+                                            @lang('operator/edit.message_no_matches')
                                         </p>
                                     </div>
 
                                     {{-- тело блока с данными агентов --}}
                                     <div class="operator_agents_selection_body hidden">
 
-                                        {{-- блок сообщения что пользователей на закрытие сделки больше одного --}}
+                                        {{-- блок сообщения что пользователей на закрытие сделки не может быть больше одного --}}
                                         <div class="users_bust_for_deal hidden">
                                             <div class="alert alert-warning" role="alert">
-                                                Deal closes for only one user
+                                                @lang('operator/edit.message_deal_closes_for_only_one_user')
                                             </div>
                                         </div>
 
@@ -180,9 +177,9 @@
                                             <thead>
                                                 <tr>
                                                     <th> </th>
-                                                    <th>Name</th>
-                                                    <th>E-mail</th>
-                                                    <th>Roles</th>
+                                                    <th>@lang('operator/edit.agent_table_head_name')</th>
+                                                    <th>@lang('operator/edit.agent_table_head_email')</th>
+                                                    <th>@lang('operator/edit.agent_table_head_roles')</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -191,18 +188,14 @@
                                         </table>
 
                                         <div class="agent_button_block">
-                                            <button type="button" class="btn btn-xs btn-primary btn-send_to_auction">Send to Auction</button>
-                                            <button type="button" class="btn btn-xs btn-primary btn-open_lead">Buy</button>
-                                            <button type="button" class="btn btn-xs btn-primary btn-close_deal">Close the Deal</button>
+                                            <button type="button" class="btn btn-xs btn-primary btn-send_to_auction">@lang('operator/edit.button_send_to_auction')</button>
+                                            <button type="button" class="btn btn-xs btn-primary btn-open_lead">@lang('operator/edit.button_buy')</button>
+                                            <button type="button" class="btn btn-xs btn-primary btn-close_deal">@lang('operator/edit.button_close_the_deal')</button>
                                             {{-- кнопка закрытия таблицы --}}
-                                            <button type="button" class="btn btn-default hidden operator_agents_selection_close bottom"> Clear the results </button>
+                                            <button type="button" class="btn btn-default hidden operator_agents_selection_close bottom">@lang('operator/edit.button_clear_the_results')</button>
                                         </div>
 
                                     </div>
-
-                                    {{-- кнопка закрытия таблицы --}}
-                                    {{--<button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>--}}
-
                                 </div>
 
 
@@ -211,13 +204,12 @@
                 </div>
             </div>
 
-            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> Cancel </a>
+            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> {{ trans('operator/edit.button_cancel') }} </a>
             {{-- кнопка на установку BadLead --}}
-            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
-            {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
-            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
-{{--            {{ Form::submit(trans('Apply'),['class'=>'btn btn-success', 'id'=>'leadToAuction']) }}--}}
-            <button class="btn btn-success btn-apply_lead_mask" type="button">Apply</button>
+            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> {{ trans('operator/edit.button_bad_lead') }}</button>
+            {{ Form::submit(trans('operator/edit.button_update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
+            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> {{ trans('operator/edit.button_call_later') }}</button>
+            <button class="btn btn-success btn-apply_lead_mask" type="button">{{ trans('operator/edit.button_apply') }}</button>
 
             {{ Form::close() }}
         </div>
@@ -229,14 +221,14 @@
 
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Set Bad Lead</h4>
+                        <h4 class="modal-title">@lang('operator/edit.modal_badLead_title')</h4>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure?</p>
+                        <p>@lang('operator/edit.modal_badLead_body')</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <a class="btn btn-danger" href="{{ route('set.bad.lead', ['id'=>$lead['id']]) }}"> Set Bad </a>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">@lang('operator/edit.modal_badLead_button_cancel')</button>
+                        <a class="btn btn-danger" href="{{ route('set.bad.lead', ['id'=>$lead['id']]) }}">@lang('operator/edit.modal_badLead_button_set_bad')</a>
                     </div>
 
                 </div>
@@ -250,61 +242,61 @@
 
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Set the time reminder</h4>
+                        <h4 class="modal-title">@lang('operator/edit.modal_call_later_title')</h4>
                     </div>
                     <div class="modal-body">
                         <input type="text" class="form-control valid" name="time" id="time_reminder" aria-invalid="false">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button id="timeSetter" class="btn btn-primary"> Set Time </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">@lang('operator/edit.modal_call_later_button_cancel')</button>
+                        <button id="timeSetter" class="btn btn-primary">@lang('operator/edit.modal_call_later_button_set_time')</button>
                     </div>
 
                 </div>
             </div>
         </div>
 
-        {{-- todo Сохранение маски и дальнейшие действия в зависимости от установок --}}
+        {{-- Модальное окно на подтверждение действий по маске (простое сохранение, отдать на аукцион, купить за пользователя, закрыть сделку за пользователей) --}}
         <div class="modal fade apply_lead_mask_modal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-sm" role="document">
                 <div class="modal-content">
 
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Confirm apply</h4>
+                        <h4 class="modal-title">@lang('operator/edit.modal_apply_title')</h4>
                     </div>
                     <div class="modal-body">
 
                         {{-- Выбранна маска, никаких действий по агентам --}}
                         <div class="apply_default hidden">
-                            Preservation mask settings and switching the lead to the auction
+                            @lang('operator/edit.modal_apply_body_default')
                         </div>
 
                         {{-- Добавление лида в аукцион определенным агентам --}}
                         <div class="apply_auctionAdd hidden">
-                            lead was adding to the auction to this agents:
+                            @lang('operator/edit.modal_apply_body_auctionAdd')
                             <div class="apply_content"></div>
                             <br>
                         </div>
 
                         {{-- Покупка лида определенными агентами --}}
                         <div class="apply_buy hidden">
-                            open lead
+                            @lang('operator/edit.modal_apply_body_buy')
                             <div class="apply_content"></div>
                             <br>
                         </div>
 
                         {{-- Закрытие сделки по лиду агентом --}}
                         <div class="apply_closeDeal hidden">
-                            Close the deal
+                            @lang('operator/edit.modal_apply_body_close_the_dead')
                             <div class="apply_content"></div>
                             <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
                             <br>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success btn-apply_confirmation"> Apply </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">@lang('operator/edit.modal_apply_button_cancel')</button>
+                        <button type="button" class="btn btn-success btn-apply_confirmation">@lang('operator/edit.modal_apply_button_apply')</button>
                     </div>
 
                 </div>
@@ -323,7 +315,7 @@
             <div class="col-md-11 operator_reminder_block">
                 @if( $lead['operatorOrganizer'] )
                     @if( $lead['operatorOrganizer']['time_reminder']  )
-                        <b>Call reminder:</b>  {{ $lead['operatorOrganizer']['time_reminder']->format('H:m d.m.Y')  }}
+                        <b>@lang('operator/edit.call_reminder_title')</b>  {{ $lead['operatorOrganizer']['time_reminder']->format('H:m d.m.Y')  }}
                         <icon class="glyphicon glyphicon-remove-circle remove_reminder"></icon>
                         <hr>
                     @endif
@@ -349,7 +341,7 @@
             </div>
             {{-- кнопка добавления комментария --}}
             <div class="col-md-12">
-                <button id="add_comment" type="button" class="btn btn-xs btn-primary" style="float: right;">Add comment</button>
+                <button id="add_comment" type="button" class="btn btn-xs btn-primary add_comment">@lang('operator/edit.comments_button_add_comment')</button>
             </div>
         </div>
 
@@ -440,20 +432,28 @@
             padding-left: 5px
         }
 
-
-        div.apply_auctionAdd div.apply_content{
+        /* динамическая часть модального окна, перечисление агентов к открытию, добавлению на аукцион и т.д. */
+        div.apply_content{
             padding-top: 10px;
         }
 
-        div.modal_user_black{
+        /* блок с пользователем в модальном окне */
+        div.modal_user_block{
            padding: 5px 0;
         }
 
+        /* имя пользователя в модальном окне */
         div.modal_user_name{
             font-weight: bold;
         }
 
+        /* нижняя кнопка закрытия таблицы подбора агентов оператором под параметры лида */
         .operator_agents_selection_close.bottom{
+            float: right;
+        }
+
+        /* кнопка добавления комментария в блоке комментариев операторов к лиду */
+        .add_comment{
             float: right;
         }
 
@@ -739,7 +739,7 @@
                 // добавляем в попандер нужные данные
                 $.each( users, function( key, user ){
                     // формируем данные блока
-                    var content = applyAuctionAdd.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
+                    var content = applyAuctionAdd.find('.apply_content').html() + '<div class="modal_user_block"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
                     // добавляем данные в блок
                     applyAuctionAdd.find('.apply_content').html(content);
                 });
@@ -778,7 +778,7 @@
                 // добавляем в попандер нужные данные
                 $.each( users, function( key, user ){
                     // формируем данные блока
-                    var content = applyBuy.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
+                    var content = applyBuy.find('.apply_content').html() + '<div class="modal_user_block"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
                     // добавляем данные в блок
                     applyBuy.find('.apply_content').html(content);
                 });
@@ -831,7 +831,7 @@
                     var applyСloseDeal = $('.apply_closeDeal');
 
                     // формируем данные блока
-                    var content = applyСloseDeal.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + users[0].firstName + ' ' + users[0].lastName + '</div><div>' + users[0].email + '</div></div>';
+                    var content = applyСloseDeal.find('.apply_content').html() + '<div class="modal_user_block"> <div class="modal_user_name">' + users[0].firstName + ' ' + users[0].lastName + '</div><div>' + users[0].email + '</div></div>';
                     // добавляем данные в блок
                     applyСloseDeal.find('.apply_content').html(content);
 
