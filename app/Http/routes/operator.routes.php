@@ -31,12 +31,14 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // удаление напоминания о звонке у оператора
     Route::post('operator/remove/reminder/time', ['as' => 'operator.remove.reminder.time', 'uses' => 'Operator\SphereController@removeReminderTime']);
 
-    // получение данных агента, которым этот лид подходит
+    // получение данных агентов, которым этот лид подходит
     Route::post('operator/agents/selection', ['as' => 'operator.agents.selection', 'uses' => 'Operator\SphereController@agentsSelection']);
+
+    // действия по лиду (отправка на аукцион, открытие, закрытие сделки)
+    Route::post('lead/action', ['as' => 'operator.lead.action', 'uses' => 'Operator\SphereController@leadAction']);
 
     // отправка лида оператором на аукцион агента
     Route::post('send/to/auction', ['as' => 'send.to.auction', 'uses' => 'Operator\SphereController@sendToAuction']);
 
 
-    //Route::resource('customer/filter','Operator\CustomerFilterController@create');
 });

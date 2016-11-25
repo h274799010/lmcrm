@@ -1112,12 +1112,29 @@
 
                 console.log(leadApplyData);
 
-//                closeDealPrice
 
+                /**
+                 * Отправка данных формы
+                 * todo доработать
+                 */
+                $.post(
+                        "{{  route('operator.lead.action') }}",
+                        {
+                            {{--options: options,--}}
+                            {{--depositor: '{{ $lead['agent_id'] }}',--}}
+                            {{--sphereId: '{{ $sphere['id'] }}',--}}
+                            {{--leadId: '{{ $lead['id'] }}',--}}
+                            _token: token
+                        },
+                        function( data ) {
+                            // проверяем ответ
 
-
+                            console.log( data );
+                        },
+                        "json"
+                );
                 // отправляем форму на сервер
-                $('form')[0].submit();
+//                $('form')[0].submit();
 
             }else{
                 // если данных по агентам нет

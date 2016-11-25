@@ -207,11 +207,6 @@ class SphereController extends Controller {
     public function update(Request $request, $sphere_id, $lead_id)
     {
 
-//        dd( $request );
-
-//        dd( json_decode($request->agentsData) );
-//        return response()->json($request->agentsData);
-
         // Тип запроса:
         // 1. save - просто сохраняем лида
         // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
@@ -741,6 +736,28 @@ class SphereController extends Controller {
         } else {
             return response()->json('free');
         }
+    }
+
+
+    /**
+     * Действие с самим лидом
+     *
+     * метод update просто сохраняет маску и данные по лиду
+     * этот же метод не только сохраняет маску но еще и открывает лид
+     * для выбранных пользователей, добавляет на аукцион или закнывает
+     * сделку
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function leadAction( Request $request ){
+
+        // todo получить все данные формы и обработать в соответствии как и при сохранении
+
+
+        return response()->json('ok');
     }
 
 }
