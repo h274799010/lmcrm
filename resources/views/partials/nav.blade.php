@@ -20,7 +20,7 @@
                     </li>
 
                     <li class="credit_button dropdown balance_data_container" >
-                        <a id="balance_data" data-target="#" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-copyright bg-blue"></i> {{$balance['minLeadsToBuy']}} {{ trans('navbar.credits') }}</a>
+                        <a id="balance_data" data-target="#" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-copyright bg-blue"></i> <span>{{--{{$balance['minLeadsToBuy']}}--}}</span> {{ trans('navbar.credits') }}</a>
 
                         <ul id="balance_data_content" class="dropdown-menu balance_data_menu" aria-labelledby="balance_data">
                         </ul>
