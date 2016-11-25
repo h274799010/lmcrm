@@ -66,13 +66,25 @@
                                         </div>
                                     @endforeach
                                 @elseif ($attr->_type == 'select')
-                                    @php($selected=NULL)
-                                        @forelse($attr->options as $option)
-                                            @if(isset($adFields['ad_' .$attr->id .'_' .$option->id]) && $adFields['ad_' .$attr->id .'_' .$option->id]==1) @php($selected=$option->id) @endif
-                                        @empty @endforelse
+
+                                    {{-- todo доработать --}}
+
                                     <div class="form-group">
-                                        {{ Form::select('addit_data[select]['.$attr->id.']',$attr->options->lists('name','id'), $selected, array('class' => '')) }}
+                                        <select name="addit_data[select][{{ $attr->id }}]" id="{{ $attr['id'] }}">
+                                            @forelse($attr->options as $option)
+                                                <option class="filterOption" data-attr="{{ $attr['id'] }}" data-opt="{{ $option['id'] }}" @if(isset($adFields['ad_' .$attr->id .'_' .$option->id]) && $adFields['ad_' .$attr->id .'_' .$option->id]==1) selected @endif value="{{ $option['id'] }}"> {{ $option['name'] }} </option>
+                                            @empty @endforelse
+                                        </select>
                                     </div>
+
+                                    {{--@php($selected=NULL)--}}
+                                        {{--@forelse($attr->options as $option)--}}
+                                            {{--@if(isset($adFields['ad_' .$attr->id .'_' .$option->id]) && $adFields['ad_' .$attr->id .'_' .$option->id]==1) @php($selected=$option->id) @endif--}}
+                                        {{--@empty @endforelse--}}
+                                    {{--<div class="form-group">--}}
+                                        {{--{{ Form::select('addit_data[select]['.$attr->id.']',$attr->options->lists('name','id'), $selected, array('class' => '')) }}--}}
+                                    {{--</div>--}}
+
                                 @elseif ($attr->_type == 'email')
                                     <div class="form-group">
                                         {{ Form::email('addit_data[email]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array('class' => 'form-control','data-rule-email'=>true)) }}
@@ -110,35 +122,33 @@
                         <div class="panel-body">
                             @forelse($sphere->attributes as $attr)
                                 <h4 class="page_header">{{ $attr->label }} </h4>
-                                    @if ($attr->_type == 'checkbox')
-                                      @foreach($attr->options as $option)
-                                       <div class="form-group">
+                                @if ($attr->_type == 'checkbox')
+                                    @foreach($attr->options as $option)
+                                        <div class="form-group">
                                             <div class="checkbox">
-                                                {{ Form::checkbox('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array( 'attr' => $attr['id'], 'class' => 'filterOption','id'=>"ad-ch-$option->id")) }}
+                                                {{ Form::checkbox('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array( 'data-attr' => $attr['id'], 'data-opt' => $option['id'], 'class' => 'filterOption','id'=>"ad-ch-$option->id")) }}
                                                 <label for="ad-ch-{{ $option->id }}">{{ $option->name }}</label>
                                             </div>
-                                       </div>
-                                      @endforeach
-                                    @elseif ($attr->_type == 'radio')
-                                     @foreach($attr->options as $option)
-                                      <div class="form-group">
-                                        <div class="radio">
-                                            {{ Form::radio('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array( 'attr' => $attr['id'], 'class' => 'filterOption','id'=>"ad-r-$option->id")) }}
-                                            <label for="ad-r-{{ $option->id }}">{{ $option->name }}</label>
                                         </div>
-                                      </div>
-                                     @endforeach
-                                    @elseif ($attr->_type == 'select')
-                                        @php($selected=array())
-                                        @forelse($attr->options as $option)
-                                            @if(isset($mask[$option->id]) && $mask[$option->id]) @php($selected[]=$option->id) @endif
-                                        @empty @endforelse
-                                      <div class="form-group">
-                                            {{ Form::select('options[' .$attr['id'] .'][]',$attr->options->lists('name','id'),$selected, array( 'attr' => $attr['id'], 'class' => 'form-control filterOption')) }}
-                                      </div>
-                                    @else
-
-                                    @endif
+                                    @endforeach
+                                @elseif ($attr->_type == 'radio')
+                                    @foreach($attr->options as $option)
+                                        <div class="form-group">
+                                            <div class="radio">
+                                                {{ Form::radio('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array( 'data-attr' => $attr['id'], 'data-opt' => $option['id'], 'class' => 'filterOption','id'=>"ad-r-$option->id")) }}
+                                                <label for="ad-r-{{ $option->id }}">{{ $option->name }}</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @elseif ($attr->_type == 'select')
+                                    <div class="form-group">
+                                        <select name="select{{$attr['id']}}" id="{{ $attr['id'] }}" class="form-control">
+                                            @forelse($attr->options as $option)
+                                                <option class="filterOption" data-attr="{{ $attr['id'] }}" data-opt="{{ $option['id'] }}" @if(isset($mask[$option->id]) && $mask[$option->id]) selected @endif value="{{ $option['id'] }}"> {{ $option['name'] }} </option>
+                                            @empty @endforelse
+                                        </select>
+                                    </div>
+                                @endif
                             @empty
                             @endforelse
 
