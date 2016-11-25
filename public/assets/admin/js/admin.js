@@ -18079,4 +18079,12 @@ $(function() {
 		});
 		return false;
 	});
+
+	$(document).delegate('.notDeleted','click',function(event,force){
+		var $this = $(this);
+		bootbox.confirm("The scope can not be removed", function (result) {
+			return true;
+		});
+		return false;
+	});
 });
