@@ -31,13 +31,14 @@ class SentinelDatabaseSeeder extends Seeder
 
 
 
-        /*Sentinel::getUserRepository()->create(array(
+        $system = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'system@system.com',
             'password' => 'system',
-            'name' => 'system'
+            'first_name' => 'system',
+            'last_name' => 'system'
 
-        ));*/
+        ));
 
 
 
@@ -107,6 +108,10 @@ class SentinelDatabaseSeeder extends Seeder
         $code = Activation::create($admin)->code;
 
         Activation::complete($admin, $code);
+
+        $code = Activation::create($system)->code;
+
+        Activation::complete($system, $code);
 
         /*$code = Activation::create($agent)->code;
 

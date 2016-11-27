@@ -33,5 +33,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'bad lead',
             'comment' => 'лид забраковали по каким то причинам',
         ]);
+
+        DB::table('wallet')->insert([
+            'id' => '1',
+            'user_id' => '1'
+        ]);
     }
 }
