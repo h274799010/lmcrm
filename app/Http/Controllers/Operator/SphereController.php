@@ -967,7 +967,9 @@ class SphereController extends Controller {
 
             /** Открываем лид для выбранных пользователей */
             // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
-            $selectiveAgents = collect( json_decode( $request->agentsData ) );
+            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
+
+            // todo проверка каждого пользователя на возможность покупки лида
 
             // перебираем всех пользователей и добавляем на аукцион
             $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId, $lead ){
@@ -989,6 +991,9 @@ class SphereController extends Controller {
                 $lead->status = 4;
                 $lead->save();
             });
+
+            // отправляем сообщение об успешном добавлении лида на общий аукцион
+            return response()->json([ 'status'=>3, 'data'=>'added' ]);
 
         }elseif( $typeRequest == 'closeDeal' ){
             // если есть метка 'closeDeal'
