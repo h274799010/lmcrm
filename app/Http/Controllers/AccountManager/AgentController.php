@@ -4,7 +4,9 @@ namespace App\Http\Controllers\AccountManager;
 
 use App\Helper\PayMaster;
 use App\Http\Controllers\AccountManagerController;
+use App\Http\Requests\AgentFormRequest;
 use App\Models\AccountManager;
+use App\Models\AccountManagersAgents;
 use App\Models\AgentBitmask;
 use App\Models\AgentInfo;
 use App\Models\AgentSphere;
@@ -81,7 +83,7 @@ class AgentController extends AccountManagerController {
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(AgentFormRequest $request)
     {
         $user=\Sentinel::registerAndActivate($request->except('password_confirmation','sphere'));
         $user->update(['password'=>\Hash::make($request->input('password'))]);
@@ -91,6 +93,11 @@ class AgentController extends AccountManagerController {
         // устанавливаем дополнительную роль агенту (leadbayer or dealmaker or partner)
         $role = Sentinel::findRoleBySlug($request->input('role'));
         $user->roles()->attach($role);
+
+        $accountManagerAgent = new AccountManagersAgents();
+        $accountManagerAgent->agent_id = $user->id;
+        $accountManagerAgent->account_manager_id = Sentinel::getUser()->id;
+        $accountManagerAgent->save();
 
         $user = Agent::find($user->id);
 
