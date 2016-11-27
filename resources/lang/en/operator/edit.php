@@ -68,6 +68,12 @@ return [
     'comments_button_add_comment' => 'Add comment',
 
 
+    /* Модальное окно состояния добавления лида на общий аукцион */
+    'modal_lead_auction_status_title' => 'Lead auction status',
+    'modal_lead_auction_status_lead_was_added' => 'Lead already at auction',
+    'modal_lead_auction_status_successfully_added' => 'Lead successfully added',
+    'modal_lead_auction_status_button_ok' => 'Ok',
+
     /* Формат времени */
     'date_format' => 'm/d/Y H:i',
 
