@@ -3,7 +3,7 @@
 @section('content')
     <div class="page-header">
         <h3>
-            @if (isset($operator)) {{ $operator->name }} @else {{ trans("admin/operator.operator") }} @endif
+            @if (isset($operator)) {{ $operator->first_name }} {{ $operator->last_name }} @else {{ trans("admin/operator.create") }} @endif
             <div class="pull-right flip">
                 <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
                     <span class="glyphicon glyphicon-backward"></span> {!! trans('admin/admin.back') !!}

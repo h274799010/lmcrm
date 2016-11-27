@@ -1,6 +1,7 @@
 <?php
 
 return [
-    'operators' => 'Operators'
+    'operators' => 'Operators',
+    'create' => 'Create operator'
 
 ];
