@@ -12,7 +12,7 @@
         </h3>
     </div>
 
-    @if($errors->any())
+    @if( !empty($errors->first('success')) )
         <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
             {{$errors->first('message')}}
         </div>

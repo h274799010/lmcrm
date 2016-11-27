@@ -2,6 +2,7 @@
 
 use App\Helper\CreditHelper;
 use App\Http\Controllers\AdminController;
+use App\Http\Requests\AgentFormRequest;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\Transactions;
@@ -60,9 +61,10 @@ class AgentController extends AdminController
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
+     * @param AgentFormRequest $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(AdminUsersEditFormRequest $request)
+    public function store(AgentFormRequest $request)
     {
         $user=\Sentinel::registerAndActivate($request->except('password_confirmation','sphere'));
         $user->update(['password'=>\Hash::make($request->input('password'))]);
