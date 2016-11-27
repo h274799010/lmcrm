@@ -628,8 +628,14 @@ function getCookie(name) {
 
 // Обновление данных по балансу
 function updateBalance() {
+    var balance = getCookie('balance');
+
+    if(balance == undefined) {
+        return false;
+    }
+
     // получаем данные баланса из куки и преобразовываем в json
-    var balanceData = JSON.parse( getCookie('balance') );
+    var balanceData = JSON.parse( balance );
     //dd(balanceData);
     var maxLeadsToBuy = 0;
 
