@@ -35,22 +35,28 @@
 
                 <tbody>
 
-                @foreach( $allTransactions as $transaction )
-                    @foreach( $transaction['details'] as $detail )
+                @if( count($allTransactions) )
+                    @foreach( $allTransactions as $transaction )
+                        @foreach( $transaction['details'] as $detail )
 
-                        <tr class="@if( $detail['amount'] > 0 ) wallet_add @else wallet_decrease @endif">
-                            <td>{{ $transaction['created_at'] }}</td>
-                            <td> {{ $detail['user']['name'] }}</td>
-                            <td> {{ $detail['amount'] }}</td>
-                            <td>{{ $detail['after'] }}</td>
-                            <td>{{ $detail['wallet_type'] }}</td>
-                            <td>{{ $detail['type'] }}</td>
-                            <td>{{ $transaction['id'] }}</td>
-                            <td>{{ $transaction['initiator']['first_name'] }} {{ $transaction['initiator']['last_name'] }}</td>
-                            <td>{{ $transaction['status'] }}</td>
-                        </tr>
+                            <tr class="@if( $detail['amount'] > 0 ) wallet_add @else wallet_decrease @endif">
+                                <td>{{ $transaction['created_at'] }}</td>
+                                <td> {{ $detail['user']['name'] }}</td>
+                                <td> {{ $detail['amount'] }}</td>
+                                <td>{{ $detail['after'] }}</td>
+                                <td>{{ $detail['wallet_type'] }}</td>
+                                <td>{{ $detail['type'] }}</td>
+                                <td>{{ $transaction['id'] }}</td>
+                                <td>{{ $transaction['initiator']['first_name'] }} {{ $transaction['initiator']['last_name'] }}</td>
+                                <td>{{ $transaction['status'] }}</td>
+                            </tr>
+                        @endforeach
                     @endforeach
-                @endforeach
+                @else
+                    <tr>
+                        <td colspan="8">{{ trans('admin/wallet.transactions_empty') }}</td>
+                    </tr>
+                @endif
 
                 </tbody>
 

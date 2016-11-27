@@ -120,19 +120,25 @@
 
                     <tbody>
 
-                    @foreach( $system->details as $detail )
+                    @if( count($system->details) )
+                        @foreach( $system->details as $detail )
 
-                        <tr class="@if( $detail->amount > 0 ) wallet_add @else wallet_decrease @endif">
-                            <td>{{ $detail->transaction->created_at }}</td>
-                            <td> {{ $detail->amount }}</td>
-                            <td>{{ $detail->after }}</td>
-                            <td>{{ $detail->wallet_type }}</td>
-                            <td>{{ $detail->type }}</td>
-                            <td>{{ $detail->transaction->id }}</td>
-                            <td>{{ $detail->transaction->initiator->first_name }} {{ $detail->transaction->initiator->last_name }}</td>
-                            <td>{{ $detail->transaction->status }}</td>
+                            <tr class="@if( $detail->amount > 0 ) wallet_add @else wallet_decrease @endif">
+                                <td>{{ $detail->transaction->created_at }}</td>
+                                <td> {{ $detail->amount }}</td>
+                                <td>{{ $detail->after }}</td>
+                                <td>{{ $detail->wallet_type }}</td>
+                                <td>{{ $detail->type }}</td>
+                                <td>{{ $detail->transaction->id }}</td>
+                                <td>{{ $detail->transaction->initiator->first_name }} {{ $detail->transaction->initiator->last_name }}</td>
+                                <td>{{ $detail->transaction->status }}</td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="8">{{ trans('admin/wallet.wallet_empty') }}</td>
                         </tr>
-                    @endforeach
+                    @endif
 
                     </tbody>
 
