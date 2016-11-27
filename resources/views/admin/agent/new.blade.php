@@ -29,23 +29,29 @@
         </tr>
         </thead>
         <tbody>
-        @foreach($agents as $agent)
+        @if( count($agents) )
+            @foreach($agents as $agent)
+                <tr>
+                    <td>{{ $agent->first_name }} {{ $agent->last_name }}</td>
+                    <td>{{ $agent->email }}</td>
+                    <td>{{ $agent->created_at }}</td>
+                    <td>
+                        @foreach($agent->roles as $role)
+                            @if($role->slug !== 'agent')
+                                {{ $role->name }}
+                            @endif
+                        @endforeach
+                    </td>
+                    <td>
+                        <a href="{{ route('admin.agent.activatedPage',[$agent->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
+                    </td>
+                </tr>
+            @endforeach
+        @else
             <tr>
-                <td>{{ $agent->first_name }} {{ $agent->last_name }}</td>
-                <td>{{ $agent->email }}</td>
-                <td>{{ $agent->created_at }}</td>
-                <td>
-                    @foreach($agent->roles as $role)
-                        @if($role->slug !== 'agent')
-                            {{ $role->name }}
-                        @endif
-                    @endforeach
-                </td>
-                <td>
-                    <a href="{{ route('admin.agent.activatedPage',[$agent->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
-                </td>
+                <td colspan="5" style="text-align: center;">Not available in the table data</td>
             </tr>
-        @endforeach
+        @endif
         </tbody>
     </table>
 @stop
