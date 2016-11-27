@@ -53,8 +53,6 @@
 
 @section('scripts')
 <script type="text/javascript">
-    $('.select2').select2();
-
     $(document).on('click', '#sendActivationCode', function (e) {
         e.preventDefault();
 
