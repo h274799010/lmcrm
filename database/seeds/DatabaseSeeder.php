@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // добавление пользователей
-        //$this->call('SentinelDatabaseSeeder');
+        $this->call('SentinelDatabaseSeeder');
 
         // подключение агента к первой сфере, которая будет созданна
         /*DB::table('agent_sphere')->insert([
@@ -33,51 +33,5 @@ class DatabaseSeeder extends Seeder
             'name' => 'bad lead',
             'comment' => 'лид забраковали по каким то причинам',
         ]);
-
-        DB::table('users')->truncate();
-        $admin = Sentinel::getUserRepository()->create(array(
-
-            'email'    => 'admin@admin.com',
-            'password' => 'admin',
-            'first_name' => 'admin',
-            'last_name' => 'admin'
-
-        ));
-        DB::table('activations')->truncate();
-
-        $code = Activation::create($admin)->code;
-
-        Activation::complete($admin, $code);
-
-        $administratorRole = Sentinel::getRoleRepository()->create(array(
-
-            'name' => 'Administrator',
-
-            'slug' => 'administrator',
-
-            'permissions' => array(
-
-                'users.create' => true,
-
-                'users.update' => true,
-
-                'users.view' => true,
-
-                'users.destroy' => true,
-
-                'roles.create' => true,
-
-                'roles.update' => true,
-
-                'roles.view' => true,
-
-                'roles.delete' => true
-
-            )
-
-        ));
-        $administratorRole->users()->attach($admin);
-
-
     }
 }

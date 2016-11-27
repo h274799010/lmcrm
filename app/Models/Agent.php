@@ -19,7 +19,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name','name','email', 'password',
+        'first_name', 'last_name','email', 'password',
     ];
 
     /**
