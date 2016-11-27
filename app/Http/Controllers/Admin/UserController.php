@@ -5,6 +5,7 @@ use App\Models\User;
 //use App\Http\Requests\Admin\UserRequest;
 use App\Http\Requests\AdminUsersEditFormRequest;
 //use App\Repositories\UserRepositoryInterface;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
 
 use Illuminate\Support\Facades\Response;
@@ -117,7 +118,7 @@ class UserController extends AdminController
      */
     public function data()
     {
-        $users = User::select(array('users.id', 'users.last_name', 'users.first_name', 'users.email', 'users.created_at'));
+        $users = User::whereNotIn('id', [1, Sentinel::getUser()->id])->select(array('users.id', 'users.last_name', 'users.first_name', 'users.email', 'users.created_at'));
 
         return Datatables::of($users)
             ->edit_column('last_name',function($model) { return $model->last_name.' '.$model->first_name; })
