@@ -15,7 +15,7 @@ class AlterUsers extends Migration
         Schema::table('users', function (Blueprint $table) {
             //$table->string('name')->nullable()->after('last_name');
             $table->string('confirmation_code')->nullable()->after('password');
-            $table->timestamp('banned_at')->default(null);
+            $table->timestamp('banned_at')->nullable()->default(null);
         });
     }
 
