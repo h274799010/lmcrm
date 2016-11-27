@@ -39,7 +39,7 @@
                         {{ trans('admin/modal.salesman') }} </a>
                 </li>
             @endif
-            @if(( isset($spheres) && count($spheres) ) || ( isset($agent->salesmen) && count($agent->salesmen) ))
+            @if( isset($agent) && ( isset($spheres) && count($spheres) ) || ( isset($agent->salesmen) && count($agent->salesmen) ) )
                 <li><a href="#masks" data-toggle="tab">
                         {{ trans('admin/modal.masks') }} </a>
                 </li>
@@ -239,7 +239,7 @@
                     </table>
                 </div>
             @endif
-            @if(( isset($spheres) && count($spheres) ) || ( isset($agent->salesmen) && count($agent->salesmen) ))
+            @if( isset($agent) && (( isset($spheres) && count($spheres) ) || ( isset($agent->salesmen) && count($agent->salesmen) )) )
                 <div class="tab-pane" id="masks">
                     <h3>Agents masks</h3>
                     <table class="table table-striped table-hover dataTable">
