@@ -946,7 +946,7 @@ class SphereController extends Controller {
 
             /** добавляем лид на аукцион указанным агентам */
             // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
-            $selectiveAgents = collect( json_decode( $request->agentsData ) );
+            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
 
             // удаляем ранее отредактированного лида с аукциона, если он есть
             Auction::where('lead_id', '=', $lead_id)->delete();
@@ -958,6 +958,9 @@ class SphereController extends Controller {
                 // уведомляем агента о новом лиде
                 Notice::toOne( $senderId, $item->id, 'note');
             });
+
+            // отправляем сообщение об успешном добавлении лида на общий аукцион
+            return response()->json([ 'status'=>2, 'data'=>'added' ]);
 
         }elseif( $typeRequest == 'openLead' ){
             // если есть метка 'openLead'

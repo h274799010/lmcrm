@@ -1252,26 +1252,46 @@
                 // добавляем данные агентов
                 formFields.agentsData = JSON.stringify( leadApplyData.users );
 
-                console.log(formFields);
 
 
                 /**
                  * Отправка данных формы
                  * todo доработать
                  */
-                {{--$.post(--}}
-                        {{--"{{  route('operator.lead.action') }}",--}}
-                        {{--{--}}
-                            {{--data: formFields,--}}
-                            {{--_token: token--}}
-                        {{--},--}}
-                        {{--function( data ) {--}}
-                            {{--// проверяем ответ--}}
+                $.post(
+                        "{{  route('operator.lead.action') }}",
+                        {
+                            data: formFields,
+                            _token: token
+                        },
+                        function( data ) {
+                            // проверяем ответ
 
-                            {{--console.log( data );--}}
-                        {{--},--}}
-                        {{--"json"--}}
-                {{--);--}}
+                            if( data.status == 0){
+                                // статус 0 значить что лид уже отредактирован другим оператором и находится на аукционе
+
+                                // прячем модальное окно
+                                $('.apply_lead_mask_modal').modal('hide');
+                                // показываем блок что лид уже был добавлен на аукцион
+                                $('.lead_auction_status-0').removeClass('hidden');
+                                // выводим модальное окно статуса добавления лида на общий аукцион
+                                $('.lead_auction_status').modal('show');
+
+                            }else if( data.status == 3 ){
+                                // статус 3, означает что у какого то пользователя недостаточно денег
+
+                                alert('нема денех');
+
+                            }else{
+                                // если статус = 2 или другой (по идее другого быть недолжно)
+
+                                // переходим на главную страницу
+                                location.href = '/';
+                            }
+
+                        },
+                        "json"
+                );
 
             }else{
                 // если данных по агентам нет
