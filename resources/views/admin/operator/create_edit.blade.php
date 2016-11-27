@@ -25,7 +25,7 @@
                     trans("admin/modal.general") }}</a>
             </li>
 
-            @if (isset($accountManagers) && isset($operator))
+            @if ( ( isset($accountManagers) && count($accountManagers) ) && isset($operator) )
                 <li><a href="#accountManagers" data-toggle="tab">
                         {{ trans("admin/modal.accountManagers") }} </a>
                 </li>
@@ -114,7 +114,7 @@
 
             </div>
 
-            @if(isset($accountManagers) && isset($operator))
+            @if( ( isset($accountManagers) && count($accountManagers) ) && isset($operator) )
                 <div class="tab-pane" id="accountManagers">
 
                     {{ Form::open(array('route' => ['admin.operator.attachAccountManagers'], 'method' => 'post', 'class' => 'validate agent-sphere-form', 'files'=> true)) }}
