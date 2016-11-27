@@ -121,7 +121,10 @@ class OperatorController extends AdminController {
     public function attachAccountManagers(Request $request)
     {
         $operator=OperatorSphere::findOrFail($request->input('operator_id'));
-        $operator->accountManagers()->sync($request->input('accountManagers'));
+
+        $accountManagers = ( $request->input('accountManagers') ?: [] );
+
+        $operator->accountManagers()->sync( $accountManagers );
 
         return redirect()->back();
     }

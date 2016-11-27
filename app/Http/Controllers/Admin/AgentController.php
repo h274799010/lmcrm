@@ -77,13 +77,14 @@ class AgentController extends AdminController
 
         $user->spheres()->sync($request->input('spheres'));
 
-        $user->accountManagers()->sync($request->input('accountManagers'));
+        //$user->accountManagers()->sync($request->input('accountManagers'));
 
         // Заполняем agentInfo
         $agentInfo = new AgentInfo();
         $agentInfo->agent_id = $user->id;
         $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
         $agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
+        $agentInfo->company = $request->input('company');
         $agentInfo->save();
 
         $agentSpheres = AgentSphere::where('agent_id', '=', $user->id)->get();
@@ -460,8 +461,11 @@ class AgentController extends AdminController
 
     public function attachAccountManagers(Request $request)
     {
-        $agent=Agent::findOrFail($request->input('agent_id'));
-        $agent->accountManagers()->sync($request->input('accountManagers'));
+        $agent = Agent::findOrFail($request->input('agent_id'));
+
+        $accountManagers = ( $request->input('accountManagers') ?: [] );
+
+        $agent->accountManagers()->sync( $accountManagers );
 
         return redirect()->back();
     }
