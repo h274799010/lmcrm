@@ -162,12 +162,21 @@
                                         </p>
                                     </div>
 
-                                    {{--  выводит пользователей, которые немогут заплатить за открытие лида --}}
+                                    {{--  выводит пользователей, которые не могут заплатить за открытие лида --}}
                                     <div class="can_not_buy_block hidden">
                                         <div class="alert alert-danger">
                                             <button type="button" class="close can_not_buy_block_closeButton" ><span aria-hidden="true">&times;</span></button>
                                             <strong>Can not buy</strong>
                                             <div class="can_not_buy_block_body"></div>
+                                        </div>
+                                    </div>
+
+                                    {{-- сообщает о невозможности закрыть сделку пользователем по лида из-за низкого баланса --}}
+                                    <div class="can_not_closeDeal hidden">
+                                        <div class="alert alert-danger">
+                                            <button type="button" class="close can_not_closeDeal_block_closeButton" ><span aria-hidden="true">&times;</span></button>
+                                            <strong>Can not close the deal</strong>
+                                            <div class="can_not_closeDeal_block_body"></div>
                                         </div>
                                     </div>
 
@@ -177,6 +186,7 @@
                                         {{-- блок сообщения что пользователей на закрытие сделки не может быть больше одного --}}
                                         <div class="users_bust_for_deal hidden">
                                             <div class="alert alert-warning" role="alert">
+                                                <button type="button" class="close users_bust_for_deal_close_deal" ><span aria-hidden="true">&times;</span></button>
                                                 @lang('operator/edit.message_deal_closes_for_only_one_user')
                                             </div>
                                         </div>
@@ -301,7 +311,9 @@
                             @lang('operator/edit.modal_apply_body_close_the_dead')
                             <div class="apply_content"></div>
                             <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
-                            <br>
+
+                            <div class="closeDeal_files"></div>
+                            <button class="btn btn-xs btn-primary addFileButton">add file</button>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -501,7 +513,15 @@
         /* блок который показывает агентов, которые не могут купить лид */
         .can_not_buy_block{
             margin-top: 10px;
+        }
 
+        /* блок сообщает что неможет закрыть сделку по лиду из-за недостаточного количества средств у пользователя */
+        .can_not_closeDeal{
+            margin-top: 10px;
+        }
+
+        .addFileButton{
+            margin-top: 5px;
         }
 
     </style>
@@ -543,6 +563,33 @@
             minDate: new Date()
         });
 
+
+        $('.users_bust_for_deal_close_deal').bind('click', function(){
+            $('.users_bust_for_deal').addClass('hidden');
+        });
+
+        // добавление поля для добавления файла
+        $('.addFileButton').bind('click', function(){
+
+            var input = $('<input />');
+
+            $(input).attr('type', 'file');
+
+            $(input).addClass('filestyle');
+
+            $(input).attr('data-icon', 'false');
+
+
+            $('.closeDeal_files').append(input);
+
+            $(input).filestyle({
+                icon: false,
+                buttonText: "Browse"
+            });
+
+
+        });
+
         // кнопка закрытия блока с пользователями которые немогут заплатить за открытие лида
         $('.can_not_buy_block_closeButton').bind('click', function(){
 
@@ -550,6 +597,16 @@
             $('.can_not_buy_block').addClass('hidden');
             // очищаем блок
             $('.can_not_buy_block_body').html('');
+        });
+
+
+        // кнопка закрытия блока с пользователями которые немогут заплатить за открытие лида
+        $('.can_not_closeDeal_block_closeButton').bind('click', function(){
+
+            // прячем блок
+            $('.can_not_closeDeal').addClass('hidden');
+            // очищаем блок
+            $('.can_not_closeDeal_block_body').html('');
         });
 
 
@@ -881,10 +938,10 @@
                     $('.users_bust_for_deal').removeClass('hidden');
 
                     // установка таймера на скрытие сообщения об ошибке
-                    setTimeout(function(){
-                        // закрытие сообщения об ошибке
-                        $('.users_bust_for_deal').addClass('hidden');
-                    }, 3000);
+//                    setTimeout(function(){
+//                        // закрытие сообщения об ошибке
+//                        $('.users_bust_for_deal').addClass('hidden');
+//                    }, 3000);
 
                 }else{
 
@@ -1267,6 +1324,12 @@
 
                 // если это закрытие сделки, добавляем в данные пользователя прайс
                 if( leadApplyData.type == 'closeDeal' ){
+
+                    // если цена не указанна, аплая не будет
+                    if( $('#closeDealPrice').val() == '' ){
+                        return true;
+                    }
+
                     // получение прайса из формы модального окна
                     leadApplyData.users[0].price = $('#closeDealPrice').val();
                 }
@@ -1301,15 +1364,22 @@
                                 $('.lead_auction_status').modal('show');
 
                             }else if( data.status == 6 ){
-                                // todo статус 3, означает что у какого то пользователя недостаточно денег
+                                // статус 6, недостаточно средства для закрытия сделки у пользователя
 
-                                alert('нема денех');
+                                // очищаем блок
+                                $('.can_not_closeDeal_block_body').html('');
+
+                                // наполняем блок данными
+                                $('.can_not_closeDeal_block_body').html('<div>' + data.data.firstName + ' ' + data.data.lastName + '</div>');
+
+                                // делаем блок видимым
+                                $('.can_not_closeDeal').removeClass('hidden');
 
                             }else if( data.status == 4 ){
                                 // статус 4, нехватает денег для открытия лида
 
                                 // очищаем блок
-                                $('.can_not_buy_block_body').html('')
+                                $('.can_not_buy_block_body').html('');
 
                                 // перебираем всех пользователей у которых нехватает денег и заносим в алерт
                                 $.each(data.data, function( key, val ){
@@ -1325,9 +1395,8 @@
                                  * редирект на главную со статусами
                                  * 2 лид добавлен на выборочный аукцион
                                  * 3 лид открыт для пользователей
-                                 *
+                                 * 5 по лиду закрыта сделка
                                  */
-                                // если статус = 2 или  или другой (по идее другого быть недолжно)
 
                                 // переходим на главную страницу
                                 location.href = '/';
@@ -1404,6 +1473,8 @@
             $('.apply_auctionAdd').find('.apply_content').html('');
             $('.apply_buy').find('.apply_content').html('');
             $('.apply_closeDeal').find('.apply_content').html('');
+
+            $('.closeDeal_files').html('');
 
             // обнуляем данные
             leadApplyData = false;

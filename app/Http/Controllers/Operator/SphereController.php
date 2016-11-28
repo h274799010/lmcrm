@@ -813,28 +813,34 @@ class SphereController extends Controller {
                 return response()->json([ 'status'=>4, 'data'=>$notBuyUsers ]);
             }
 
-            return response()->json([ 'status'=>6, 'data'=>'сработал' ]);
-
         }if( $typeRequest == 'closeDeal' ){
+            // если пометка на закрытие сделки
 
-            return response()->json([ 'status'=>6, 'data'=>'сработал' ]);
-
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+            $selectiveAgents = json_decode( $request->data['agentsData'] );
 
             // находим роль пользователя
-            $userSlag = User::with('roles')->find( 1 );
+            $userSlag = User::with('roles')->find( $selectiveAgents[0]->id );
 
             // выбираем модель пользователя в зависимости от его роли
             if( $userSlag->roles[0]->name == 'Agent' ){
-                $user = Agent::find($item->id);
+                $user = Agent::find( $selectiveAgents[0]->id );
                 // находим кошелек
                 $wallet = $user->wallet;
 
             }else{
-                $user = Salesman::find($item->id);
+                $user = Salesman::find( $selectiveAgents[0]->id );
                 // находим кошелек
                 $wallet = $user->wallet[0];
             }
 
+            // выбираем цену за сделку
+            $price = (int)$selectiveAgents[0]->price;
+
+            // проверяем на возможность покупки
+            if( !$wallet->isPossible($price) ){
+                return response()->json([ 'status'=>6, 'data'=>$selectiveAgents[0] ]);
+            }
         }
 
 
@@ -1032,50 +1038,9 @@ class SphereController extends Controller {
             // если есть метка 'openLead'
 
             /** Открываем лид для выбранных пользователей */
-//            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
-//            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
-//
-//            // массив с пользователями которые немогут купить лид
-//            $notBuyUsers = [];
-//
-//            // todo проверка каждого пользователя на возможность покупки лида
-//            $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId, $lead, &$notBuyUsers ){
-//
-//                // находим роль пользователя
-//                $userSlag = User::with('roles')->find( $item->id );
-//
-//                $wallet = false;
-//
-//                // выбираем модель пользователя в зависимости от его роли
-//                if( $userSlag->roles[0]->name == 'Agent' ){
-//                    $user = Agent::find($item->id);
-//                    // todo находим кошелек
-//                    $wallet = $user->wallet;
-//
-//                }else{
-//                    $user = Salesman::find($item->id);
-//                    // todo находим кошелек
-//                    $wallet = $user->wallet[0];
-//
-//                }
-//
-//                // todo находим прайс пользователя
-//
-//                $price = $lead->price( $item->maskFilterId );
-//
-//                if( !$wallet->isPossible($price) ){
-//                    $notBuyUsers[] = $item;
-//                }
-//
-//                // todo проверяем может ли пользователь оплатить этот прайс
-//
-//            });
-//
-//
-//            if( count( $notBuyUsers ) != 0 ){
-////                return response
-//            }
-//
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
+
             // перебираем всех пользователей и добавляем на аукцион
             $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId, $lead ){
 
@@ -1098,14 +1063,14 @@ class SphereController extends Controller {
             });
 
             // отправляем сообщение об успешном добавлении лида на общий аукцион
-            return response()->json([ 'status'=>3, 'data'=>'added' ]);
+            return response()->json([ 'status'=>3, 'data'=>'Ok' ]);
 
         }elseif( $typeRequest == 'closeDeal' ){
             // если есть метка 'closeDeal'
 
-            /** Закрываем сделку за агента */
+            /** todo Закрываем сделку за агента */
             // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
-            $userData = collect( json_decode( $request->agentsData ) )->first();
+            $userData = collect( json_decode( $request->data['agentsData'] ) )->first();
 
             // находим роль пользователя
             $userSlag = User::with('roles')->find( $userData->id );
@@ -1129,6 +1094,10 @@ class SphereController extends Controller {
 
             // закрытие сделки
             $openLead->closeDeal( $userData->price, $senderId );
+
+            // отправляем сообщение об успешном добавлении лида на общий аукцион
+            return response()->json([ 'status'=>5, 'data'=>'Ok' ]);
+
         }
 
         if( $request->ajax() ){

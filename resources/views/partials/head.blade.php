@@ -78,6 +78,7 @@
     {{-- todo <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>--}}
     <script src="{{ asset('components/plupload/js/plupload.full.min.js') }}"></script>
 
+    <script type="text/javascript" src="{{ asset('assets/web/js/bootstrap-filestyle.min.js') }}"> </script>
 
     <!-- Custom Theme JavaScript -->
     <script src="{{ asset('assets/web/js/sb-admin.js')}}"></script>
