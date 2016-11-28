@@ -162,6 +162,15 @@
                                         </p>
                                     </div>
 
+                                    {{--  выводит пользователей, которые немогут заплатить за открытие лида --}}
+                                    <div class="can_not_buy_block hidden">
+                                        <div class="alert alert-danger">
+                                            <button type="button" class="close can_not_buy_block_closeButton" ><span aria-hidden="true">&times;</span></button>
+                                            <strong>Can not buy</strong>
+                                            <div class="can_not_buy_block_body"></div>
+                                        </div>
+                                    </div>
+
                                     {{-- тело блока с данными агентов --}}
                                     <div class="operator_agents_selection_body hidden">
 
@@ -489,6 +498,12 @@
             float: right;
         }
 
+        /* блок который показывает агентов, которые не могут купить лид */
+        .can_not_buy_block{
+            margin-top: 10px;
+
+        }
+
     </style>
 @stop
 
@@ -526,6 +541,15 @@
         $('input#time_reminder').datetimepicker({
             // минимальное значение даты и времени в календаре
             minDate: new Date()
+        });
+
+        // кнопка закрытия блока с пользователями которые немогут заплатить за открытие лида
+        $('.can_not_buy_block_closeButton').bind('click', function(){
+
+            // прячем блок
+            $('.can_not_buy_block').addClass('hidden');
+            // очищаем блок
+            $('.can_not_buy_block_body').html('');
         });
 
 
@@ -1253,7 +1277,6 @@
                 formFields.agentsData = JSON.stringify( leadApplyData.users );
 
 
-
                 /**
                  * Отправка данных формы
                  * todo доработать
@@ -1278,9 +1301,24 @@
                                 $('.lead_auction_status').modal('show');
 
                             }else if( data.status == 6 ){
-                                // статус 3, означает что у какого то пользователя недостаточно денег
+                                // todo статус 3, означает что у какого то пользователя недостаточно денег
 
                                 alert('нема денех');
+
+                            }else if( data.status == 4 ){
+                                // статус 4, нехватает денег для открытия лида
+
+                                // очищаем блок
+                                $('.can_not_buy_block_body').html('')
+
+                                // перебираем всех пользователей у которых нехватает денег и заносим в алерт
+                                $.each(data.data, function( key, val ){
+                                    var alertData = $('.can_not_buy_block_body').html() + '<div>' + val.firstName + ' ' + val.lastName + '</div>';
+                                    $('.can_not_buy_block_body').html(alertData)
+                                });
+
+                                // открывается алерт
+                                $('.can_not_buy_block').removeClass('hidden');
 
                             }else{
                                 /**

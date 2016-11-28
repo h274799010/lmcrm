@@ -768,11 +768,77 @@ class SphereController extends Controller {
         $sphere_id = $request->data['sphereId'];
         $lead_id = $request->data['leadId'];
 
-
-        /** --  Находим лид, оплачиваем его и проверяем статусы  -- */
-
         // находим лид
         $lead = Lead::find( $lead_id );
+
+        /** Проверка на платежеспособность */
+        if( $typeRequest == 'openLead' ){
+            // если это открытый лид
+
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
+
+            // массив с пользователями которые немогут купить лид
+            $notBuyUsers = [];
+
+            // проверка каждого пользователя на возможность покупки лида
+            $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $lead, &$notBuyUsers ){
+
+                // находим роль пользователя
+                $userSlag = User::with('roles')->find( $item->id );
+
+                // выбираем модель пользователя в зависимости от его роли
+                if( $userSlag->roles[0]->name == 'Agent' ){
+                    $user = Agent::find($item->id);
+                    // находим кошелек
+                    $wallet = $user->wallet;
+
+                }else{
+                    $user = Salesman::find($item->id);
+                    // находим кошелек
+                    $wallet = $user->wallet[0];
+                }
+
+                // находим прайс пользователя
+                $price = $lead->price( $item->maskFilterId );
+
+                // проверяем на возможность покупки
+                if( !$wallet->isPossible($price) ){
+                    $notBuyUsers[] = $item;
+                }
+            });
+
+            // если есть пользователи с недостаточным палансом - выводим их на фронтенд
+            if( count( $notBuyUsers ) != 0 ){
+                return response()->json([ 'status'=>4, 'data'=>$notBuyUsers ]);
+            }
+
+            return response()->json([ 'status'=>6, 'data'=>'сработал' ]);
+
+        }if( $typeRequest == 'closeDeal' ){
+
+            return response()->json([ 'status'=>6, 'data'=>'сработал' ]);
+
+
+            // находим роль пользователя
+            $userSlag = User::with('roles')->find( 1 );
+
+            // выбираем модель пользователя в зависимости от его роли
+            if( $userSlag->roles[0]->name == 'Agent' ){
+                $user = Agent::find($item->id);
+                // находим кошелек
+                $wallet = $user->wallet;
+
+            }else{
+                $user = Salesman::find($item->id);
+                // находим кошелек
+                $wallet = $user->wallet[0];
+            }
+
+        }
+
+
+        /** --  Находим лид, оплачиваем его и проверяем статусы  -- */
 
         // оплата за обработку оператором
         // платится только один раз, если лид уже оплачен,
@@ -966,11 +1032,50 @@ class SphereController extends Controller {
             // если есть метка 'openLead'
 
             /** Открываем лид для выбранных пользователей */
-            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
-            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
-
-            // todo проверка каждого пользователя на возможность покупки лида
-
+//            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+//            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
+//
+//            // массив с пользователями которые немогут купить лид
+//            $notBuyUsers = [];
+//
+//            // todo проверка каждого пользователя на возможность покупки лида
+//            $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId, $lead, &$notBuyUsers ){
+//
+//                // находим роль пользователя
+//                $userSlag = User::with('roles')->find( $item->id );
+//
+//                $wallet = false;
+//
+//                // выбираем модель пользователя в зависимости от его роли
+//                if( $userSlag->roles[0]->name == 'Agent' ){
+//                    $user = Agent::find($item->id);
+//                    // todo находим кошелек
+//                    $wallet = $user->wallet;
+//
+//                }else{
+//                    $user = Salesman::find($item->id);
+//                    // todo находим кошелек
+//                    $wallet = $user->wallet[0];
+//
+//                }
+//
+//                // todo находим прайс пользователя
+//
+//                $price = $lead->price( $item->maskFilterId );
+//
+//                if( !$wallet->isPossible($price) ){
+//                    $notBuyUsers[] = $item;
+//                }
+//
+//                // todo проверяем может ли пользователь оплатить этот прайс
+//
+//            });
+//
+//
+//            if( count( $notBuyUsers ) != 0 ){
+////                return response
+//            }
+//
             // перебираем всех пользователей и добавляем на аукцион
             $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId, $lead ){
 
