@@ -30,8 +30,8 @@ class AgentFormRequest extends Request
             'last_name' => 'required',
             'spheres' => 'required',
             'company' => 'required',
-            'lead_revenue_share' => 'required',
-            'payment_revenue_share' => 'required',
+            'lead_revenue_share' => 'required|numeric',
+            'payment_revenue_share' => 'required|numeric',
             'role' => 'required',
         ];
     }
