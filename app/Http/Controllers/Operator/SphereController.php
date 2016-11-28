@@ -51,18 +51,40 @@ class SphereController extends Controller {
         $operator = Sentinel::getUser();
         // получаем все сферы оператора
         $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
-        // все лиды по сфере
-        $leads = Lead::
+
+        // лиды помеченные к перезвону
+        $leadsMarkedToAlert = Lead::
               whereIn('status', [0,1])
             ->whereIn('sphere_id', $spheres)
-            ->where(function( $query ){
-                $query
-                    ->where('operator_processing_time', '<', date("Y-m-d H:i:s") )
-                    ->orWhere('operator_processing_time', '=', NULL);
-            })
+            ->where( 'operator_processing_time', '<', date("Y-m-d H:i:s") )
             ->with([ 'sphere', 'user', 'operatorOrganizer' ])
-            ->get()
-            ->sortByDesc('operator_processing_time');
+            ->orderBy('operator_processing_time', 'desc')
+            ->get();
+
+        // лиды уже обработанные оператором
+        $operagorLeads = Lead::
+              where('status', 1)
+            ->whereIn('sphere_id', $spheres)
+            ->where('operator_processing_time', '=', NULL)
+            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->orderBy('operator_processing_time')
+            ->get();
+
+        // новые лиды
+        $newLeads = Lead::
+              where('status', 0)
+            ->whereIn('sphere_id', $spheres)
+            ->where('operator_processing_time', '=', NULL)
+            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->orderBy('operator_processing_time')
+            ->take(20)
+            ->get();
+
+        // соединяем лиды к редатктированию с новыми лидами (лиды уже редактированные оператором и новые лиды)
+        $leadsToEdit = $operagorLeads->merge( $newLeads );
+
+        // соединяем лиды к перезвону с лидами к редактированию
+        $leads = $leadsMarkedToAlert->merge( $leadsToEdit );
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
@@ -79,19 +101,45 @@ class SphereController extends Controller {
         $operator = Sentinel::getUser();
         // получаем id всех лидов, которые редактировал оператор
         $leadsId = Operator::where('operator_id', '=', $operator->id)->with('editedLeads')->get()->lists('lead_id');
+
         // получаем все лиды оператора
-
-//        $leads = Lead::whereNotIn('status', [0, 1])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
-
-//        $leads = Lead::whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
-
-        $leads = Lead::whereNotIn('status', [0])->whereIn('id', $leadsId)->with([ 'sphere', 'user' ])->get();
-
+        $leads = Lead::
+              whereNotIn( 'status', [0, 1] )
+            ->whereIn( 'id', $leadsId )
+            ->with([ 'sphere', 'user' ])
+            ->get();
 
         return view('sphere.lead.editedList')->with( 'leads', $leads );
     }
 
 
+    /**
+     * Лиды помеченные к перезвону
+     *
+     * не отображаются на главное странице
+     * только на этой
+     *
+     */
+    public function leadsMarkedForCall(){
+
+        // получаем данные пользователя (оператора)
+        $operator = Sentinel::getUser();
+        // получаем все сферы оператора
+        $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
+        // все лиды помеченные на оповещение
+        $leads = Lead::
+        whereIn('status', [0,1])
+            ->whereIn('sphere_id', $spheres)
+            ->where('operator_processing_time', '!=', NULL)
+            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->get()
+            ->sortBy('operator_processing_time');
+
+
+        return view('sphere.lead.markedForAlert')->with( 'leads', $leads );
+    }
+
+    
     /**
      * Show the form to edit resource.
      *
@@ -159,10 +207,8 @@ class SphereController extends Controller {
     public function update(Request $request, $sphere_id, $lead_id)
     {
 
-//        dd( $request );
-
-//        dd( json_decode($request->agentsData) );
-//        return response()->json($request->agentsData);
+        // todo исправить
+        dd($request);
 
         // Тип запроса:
         // 1. save - просто сохраняем лида
@@ -693,6 +739,377 @@ class SphereController extends Controller {
         } else {
             return response()->json('free');
         }
+    }
+
+
+    /**
+     * Действие с самим лидом
+     *
+     * метод update просто сохраняет маску и данные по лиду
+     * этот же метод не только сохраняет маску но еще и открывает лид
+     * для выбранных пользователей, добавляет на аукцион или закнывает
+     * сделку
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function leadAction( Request $request ){
+
+
+//        dd($request);
+//        dd($_FILES);
+
+        /** Типы запроса: */
+        // 1. save - просто сохраняем лида
+        // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
+        // 3. onSelectiveAuction - отправка лида на выборочные аукционы агентов
+        // 4. openLead - открытие лидов
+        // 5. closeDeal - закрытие сделки по лиду
+
+        $typeRequest = $request->data['type'];
+        $sphere_id = $request->data['sphereId'];
+        $lead_id = $request->data['leadId'];
+
+        // находим лид
+        $lead = Lead::find( $lead_id );
+
+        /** Проверка на платежеспособность */
+        if( $typeRequest == 'openLead' ){
+            // если это открытый лид
+
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
+
+            // массив с пользователями которые немогут купить лид
+            $notBuyUsers = [];
+
+            // проверка каждого пользователя на возможность покупки лида
+            $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $lead, &$notBuyUsers ){
+
+                // находим роль пользователя
+                $userSlag = User::with('roles')->find( $item->id );
+
+                // выбираем модель пользователя в зависимости от его роли
+                if( $userSlag->roles[0]->name == 'Agent' ){
+                    $user = Agent::find($item->id);
+                    // находим кошелек
+                    $wallet = $user->wallet;
+
+                }else{
+                    $user = Salesman::find($item->id);
+                    // находим кошелек
+                    $wallet = $user->wallet[0];
+                }
+
+                // находим прайс пользователя
+                $price = $lead->price( $item->maskFilterId );
+
+                // проверяем на возможность покупки
+                if( !$wallet->isPossible($price) ){
+                    $notBuyUsers[] = $item;
+                }
+            });
+
+            // если есть пользователи с недостаточным палансом - выводим их на фронтенд
+            if( count( $notBuyUsers ) != 0 ){
+                return response()->json([ 'status'=>4, 'data'=>$notBuyUsers ]);
+            }
+
+        }if( $typeRequest == 'closeDeal' ){
+            // если пометка на закрытие сделки
+
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+            $selectiveAgents = json_decode( $request->data['agentsData'] );
+
+            // находим роль пользователя
+            $userSlag = User::with('roles')->find( $selectiveAgents[0]->id );
+
+            // выбираем модель пользователя в зависимости от его роли
+            if( $userSlag->roles[0]->name == 'Agent' ){
+                $user = Agent::find( $selectiveAgents[0]->id );
+                // находим кошелек
+                $wallet = $user->wallet;
+
+            }else{
+                $user = Salesman::find( $selectiveAgents[0]->id );
+                // находим кошелек
+                $wallet = $user->wallet[0];
+            }
+
+            // выбираем цену за сделку
+            $price = (int)$selectiveAgents[0]->price;
+
+            // проверяем на возможность покупки
+            if( !$wallet->isPossible($price) ){
+                return response()->json([ 'status'=>6, 'data'=>$selectiveAgents[0] ]);
+            }
+        }
+
+
+        /** --  Находим лид, оплачиваем его и проверяем статусы  -- */
+
+        // оплата за обработку оператором
+        // платится только один раз, если лид уже оплачен,
+        // просто возвращает false
+        Pay::operatorPayment( $lead, Sentinel::getUser()->id );
+
+        // если лид уже на аукционе - выходим
+        if($lead->status != 0 && $lead->status != 1) {
+            return response()->json([ 'status'=>0 ]);
+        }
+
+
+        /** --  П О Л Я  лида  -- */
+
+        $lead->name=$request->data['name'];
+        $lead->email=$request->data['email'];
+        $lead->comment=$request->data['comments'];
+
+
+        // статусы аукциона
+        if($typeRequest == 'toAuction') {
+            // если лид помечается к аукциону
+            // выставляем лиду статус "3"
+            $lead->status = 3;
+
+        }elseif( $typeRequest == 'onSelectiveAuction' ){
+            // если лид направляется на выборочные аукционы
+            // выставляем лиду статус "7"
+            $lead->status = 7;
+        }
+        elseif( $typeRequest == 'openLead' || $typeRequest == 'closeDeal' ){
+            // если лид открывается только определенным пользователям
+            // выставляем лиду статус "4"
+            $lead->status = 3;
+        }
+
+        $lead->operator_processing_time = date("Y-m-d H:i:s");
+        $lead->expiry_time = $lead->expiredTime();
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->data['phone'])] );
+        $lead->customer_id = $customer->id;
+        $lead->save();
+
+        $operator = Sentinel::getUser();
+
+        // сохраняем данные редактированного лида в таблице оператора
+        $leadEdited = Operator::where('lead_id', $lead->id)->where('operator_id', $operator->id)->first();
+        $leadEdited->updated_at = date("Y-m-d H:i:s");
+        $leadEdited->save();
+
+
+
+        /** --  П О Л Я  fb_  =====  сохранение данных опций атрибутов лида  -- */
+
+        // находим сферу по id
+        $sphere = Sphere::findOrFail( $sphere_id );
+        // выбираем маску по лида по сфере
+        $mask = new LeadBitmask( $sphere_id );
+
+
+        /** Переделываем массив данных по опциям fb_ с фронтенда в поля для записи в БД */
+
+        // переделываем опции присланные с сервера в коллекцию
+        $options = collect( $request->data['options'] );
+
+        // массив с обработанными опциями
+        $optionsFields = [];
+
+        // перебираем все опции и преобразовываем все данные в поля
+        $options->each(function( $item ) use ( &$optionsFields ){
+            $optionsFields[ 'fb_' .(int)$item['attr'] .'_' .(int)$item['opt']  ] = (int)$item['val'];
+        });
+
+        // сохраняем данные полей в маске
+        $mask->setFbByFields( $optionsFields, $lead_id );
+
+        // выяснить зачем нужен статус в маске лида, и нужен ли вообще
+        // в маске лида выставляется статус 1,
+        // где и зачем используется - непонятно
+        $mask->setStatus(1, $lead_id);
+
+
+
+        /** --  П О Л Я  ad_  =====  "additional data"  ===== обработка и сохранение  -- */
+
+
+        /** Переделываем массив данных по опциям ad_ с фронтенда в поля для записи в БД */
+
+        // преобразовываем массив в коллекцию
+        $addit_data = collect($request->data['addit_data']);
+
+        // массив с обработанными полями
+        $addit_dataFields = [];
+
+        // перебираем все поля, и обрабатываем
+        $addit_data->each(function( $item ) use( &$addit_dataFields ){
+
+            // обработка в зависимости от типа атрибута
+            if( $item['attrType'] == 'calendar'){
+                // если календарь
+
+                // преобразовываем данные в дату
+                $val = date("Y-m-d H:i:s", strtotime( $item['val'] ));
+
+            }elseif( $item['attrType'] == 'checkbox' || $item['attrType'] == 'radio' || $item['attrType'] == 'select' ){
+                // если checkbox, radio или select
+
+                // преобразовываем в integer
+                $val = (int)$item['val'];
+
+            }else{
+                // другой тип
+
+                // просто добавляем данные
+                $val = $item['val'];
+            }
+
+            // заносим данные в массив
+            $addit_dataFields[ 'ad_' .(int)$item['attr'] .'_' .(int)$item['opt']   ] = $val;
+        });
+
+        // сохраняем все данные в маске
+        $mask->setAdByFields( $addit_dataFields, $lead_id );
+
+
+        /** Обработка лида в зависимости от его типа */
+
+        // находим id текущего оператора, чтобы отметить как отправителя сообщения
+        $senderId = Sentinel::getUser()->id;
+
+        // проверяем тип обработки и обрабатываем соответственно
+
+        if($typeRequest == 'toAuction') {
+            // если есть метка 'toAuction'
+
+            /** --  добавляем лид на аукцио агентов которым этот лид подходит  -- */
+
+            // выбираем маску лида
+            $leadBitmaskData = $mask->findFbMask( $lead_id );
+
+            /** --  вычитание из системы стоимость обслуживание лида  -- */
+
+            // выбираем маски всех агентов
+            $agentBitmasks = new AgentBitmask( $sphere_id );
+
+            // находим всех агентов которым подходит этот лид по фильтру
+            // исключаем агента добавившего лид
+            // + и его продавцов
+            $agents = $agentBitmasks
+                ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
+                ->get();
+
+            // если агенты есть - добавляем лид им на аукцион и оповещаем
+            if( $agents->count() ){
+
+                // Удаляем ранее отредактированного лида с аукциона
+                Auction::where('lead_id', '=', $lead_id)->delete();
+
+                // добавляем лид на аукцион всем подходящим агентам
+                Auction::addFromBitmask( $agents, $sphere_id,  $lead_id  );
+
+                // подобрать название к этому уведомлению
+                // рассылаем уведомления всем агентам которым подходит этот лид
+                Notice::toMany( $senderId, $agents, 'note');
+            }
+
+            // отправляем сообщение об успешном добавлении лида на общий аукцион
+            return response()->json([ 'status'=>1 ]);
+
+        }elseif( $typeRequest == 'onSelectiveAuction' ){
+            // если есть метка 'onSelectiveAuction'
+
+            /** добавляем лид на аукцион указанным агентам */
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
+
+            // удаляем ранее отредактированного лида с аукциона, если он есть
+            Auction::where('lead_id', '=', $lead_id)->delete();
+
+            // перебираем всех пользователей и добавляем на аукцион
+            $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId ){
+                // добавляем на аукцион
+                Auction::addByAgentId( $item->id, $item->maskFilterId, $sphere_id, $lead_id );
+                // уведомляем агента о новом лиде
+                Notice::toOne( $senderId, $item->id, 'note');
+            });
+
+            // отправляем сообщение об успешном добавлении лида на общий аукцион
+            return response()->json([ 'status'=>2, 'data'=>'added' ]);
+
+        }elseif( $typeRequest == 'openLead' ){
+            // если есть метка 'openLead'
+
+            /** Открываем лид для выбранных пользователей */
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+            $selectiveAgents = collect( json_decode( $request->data['agentsData'] ) );
+
+            // перебираем всех пользователей и добавляем на аукцион
+            $selectiveAgents->each(function( $item ) use ( $sphere_id, $lead_id, $senderId, $lead ){
+
+                // находим роль пользователя
+                $userSlag = User::with('roles')->find( $item->id );
+
+                // выбираем модель пользователя в зависимости от его роли
+                if( $userSlag->roles[0]->name == 'Agent' ){
+                    $user = Agent::find($item->id);
+                }else{
+                    $user = Salesman::find($item->id);
+                }
+
+                // открываем лид агенту
+                $lead->open( $user, $item->maskFilterId, true );
+
+                // выставляем статус лиду что он снят с аукциона
+                $lead->status = 4;
+                $lead->save();
+            });
+
+            // отправляем сообщение об успешном добавлении лида на общий аукцион
+            return response()->json([ 'status'=>3, 'data'=>'Ok' ]);
+
+        }elseif( $typeRequest == 'closeDeal' ){
+            // если есть метка 'closeDeal'
+
+            /** todo Закрываем сделку за агента */
+            // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
+            $userData = collect( json_decode( $request->data['agentsData'] ) )->first();
+
+            // находим роль пользователя
+            $userSlag = User::with('roles')->find( $userData->id );
+
+            // выбираем модель пользователя в зависимости от его роли
+            if( $userSlag->roles[0]->name == 'Agent' ){
+                $user = Agent::find($userData->id);
+            }else{
+                $user = Salesman::find($userData->id);
+            }
+
+            // открытие лида
+            $lead->open( $user, $userData->maskFilterId, true );
+
+            // выставляем статус лиду что он снят с аукциона
+            $lead->status = 4;
+            $lead->save();
+
+            // получаем открытый лид
+            $openLead = OpenLeads::where( 'agent_id', $user->id )->where( 'lead_id', $lead_id )->first();
+
+            // закрытие сделки
+            $openLead->closeDeal( $userData->price, $senderId );
+
+            // отправляем сообщение об успешном добавлении лида на общий аукцион
+            return response()->json([ 'status'=>5, 'data'=>'Ok' ]);
+
+        }
+
+        if( $request->ajax() ){
+            return response()->json('Ok');
+        } else {
+            return redirect()->route('operator.sphere.index');
+        }
+
     }
 
 }

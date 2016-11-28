@@ -82,16 +82,25 @@
                                 @endif
                             @endif
 
+                            {{-- ссылки в шапке оператора --}}
                             @if(Sentinel::inRole('operator'))
+
+                                {{-- главная страница, с новыми лидами --}}
                                 <li>
                                     <a href="{{ route('operator.sphere.index') }}"> {{ trans('navbar.operator_new_leads') }} </a>
                                 </li>
-
                                 <hr>
+
+                                {{-- история оператора, лиды которые отредактировал конкретный оператор --}}
                                 <li>
                                     <a href="{{ route('operator.sphere.edited') }}"> {{ trans('navbar.operator_edited_leads') }} </a>
                                 </li>
+                                <hr>
 
+                                {{-- лиды оператора помеченные для перезвона --}}
+                                <li>
+                                    <a href="{{ route('leads.marked.for.call') }}"> {{ trans('navbar.operator_leads_marked_for_call') }} </a>
+                                </li>
                                 <hr>
                             @endif
 

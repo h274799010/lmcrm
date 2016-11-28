@@ -12,10 +12,15 @@
     <meta name="description"
           content="Lorem ipsum dolor sit amet, nihil fabulas et sea, nam posse menandri scripserit no, mei."/>
     @show
-            <!-- Material Design fonts -->
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Material Design fonts -->
+    <link rel="stylesheet" href="{{ asset('components/google-fonts/google-fonts.css')}}">
+    {{-- todo сделать <link rel="stylesheet" href="{{ asset('web/fonts/google-roboto-fonts.css')}}">--}}
+
+    {{-- todo <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">--}}
+    <link rel="stylesheet" href="{{ asset('components/google-fonts/google-icons.css')}}">
+    {{-- todo  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">--}}
+    <link rel="stylesheet" href="{{ asset('components/bootstrap-awesome/font-awesome.min.css')}}">
+    {{-- todo <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">--}}
     <!-- Bootstrap -->
     <link rel="stylesheet" type="text/css" href="{{ asset('components/bootstrap/css/bootstrap.min.css') }}" >
     @if(LaravelLocalization::getCurrentLocaleDirection()=='rtl') <link rel="stylesheet" href="{{ asset('components/bootstrap-rtl/dist/css/bootstrap-rtl.min.css') }}"> @endif
@@ -36,9 +41,10 @@
             <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="{{ asset('components/IE8_support/html5shiv.min.js')}}"></script>
+    <script src="{{ asset('components/IE8_support/respond.min.js')}}"></script>
     <![endif]-->
+
 
     <!-- jQuery -->
     <script type="text/javascript" src="{{ asset('components/jquery/jquery-2.min.js') }}"></script>
@@ -63,16 +69,27 @@
     <script src="{{ asset('components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js')}}"></script>
     <script src="{{ asset('components/datatables-responsive/js/dataTables.responsive.js')}}"></script>
 
-    <!-- Красивый виджет для календаря -->
-    <link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
-    <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+    <!-- Виджет для календаря -->
+    <script src="{{ asset('components/momentjs/moment-with-locales.js')}}"></script>
+    {{-- todo <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>--}}
+    <link href="{{ asset('components/datetimepicker/css/bootstrap-datetimepicker.css')}}">
+    {{-- todo <link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">--}}
+    <script src="{{ asset('components/datetimepicker/js/bootstrap-datetimepicker.js')}}"></script>
+    {{-- todo <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>--}}
     <script src="{{ asset('components/plupload/js/plupload.full.min.js') }}"></script>
 
+    <script type="text/javascript" src="{{ asset('assets/web/js/bootstrap-filestyle.min.js') }}"> </script>
 
     <!-- Custom Theme JavaScript -->
     <script src="{{ asset('assets/web/js/sb-admin.js')}}"></script>
-@section('script') @show
-<script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
+    @section('script') @show
+    <script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
+
+    {{-- Система нотификаций подключается только агентам или продавцам --}}
+    @if( Sentinel::inRole('agent') || Sentinel::inRole('salesman') )
+        {{-- Подключение системы нотификаций --}}
+        <script src="{{ asset('assets/web/js/notifications.js') }}"></script>
+    @endif
+
 
 <link rel="shortcut icon" href="{!! asset('assets/web/ico/favicon.ico')  !!} ">

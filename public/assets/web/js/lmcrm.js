@@ -95,17 +95,7 @@ $(function(){
          *
          */
 		var tableOperatorLeads = $('.dataTableOperatorLeads').DataTable({
-			responsive: true,
-            buttons: [
-                {
-                    text: 'My button',
-                    action: function ( e, dt, node, config ) {
-                        alert( 'Button activated' );
-                    }
-                }
-            ],
-            "bSort": false,
-            aaSorting: [ [2,'desc'], [3,'asc'] ]
+			responsive: true
 		});
 
         /**
@@ -570,54 +560,10 @@ updateBalance();
 });
 
 
-
-
-
-
-
-// todo доработать
-
-var source = new EventSource("/notice");
-
-
-source.onmessage = function(event) {
-
-	var a = $.parseJSON(event.data);
-
-	$.each( a, function( k, notice ){
-
-		if( notice == 'note' ){
-
-			var noteBlock = $('#notice .notice_newLead');
-
-			// делаем блок уведомлений видимым
-			noteBlock.css('display', 'block');
-
-			// выключение оповещений
-			noticeOff('note');
-		}
-
-	});
-
-    function noticeOff ( event ){
-
-        var token = $('meta[name=csrf-token]').attr('content');
-
-
-        $.post('/notified', {'event': event, '_token': token});
-    }
-
-
-	$('.removeNoticeIcon').bind('click', function(){
-		$('#notice .notice_newLead').css('display', 'none');
-	});
-
-
-};
-
-
-
-// функция для работы с куки
+/**
+ * Функция для получение нужной куки по имени
+ *
+ */
 function getCookie(name) {
     var matches = document.cookie.match(new RegExp(
         "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"

@@ -253,10 +253,39 @@ class LeadBitmask extends Bitmask
     }
 
 
+    /**
+     * Установка значений опций полей "ad_" через массив поле=>значение
+     *
+     *
+     * @param array $fieldsData
+     * @param integer|NULL $lead_id
+     *
+     * @return LeadBitmask
+     */
+    public function setAdByFields( $fieldsData, $lead_id=NULL ){
 
+        // получаем запись из маски по id пользователя (либо лида)
+        $mask = $this->where('user_id', $lead_id)->first();
 
+        // проверяем наличие записи
+        if( !$mask ) {
+            // если записи нет
 
+            // создаем новую запись
+            $this->tableDB->insertGetId(['user_id'=>$lead_id]);
+        }
 
+        // id лида
+        $lead_id = ($lead_id) ? $lead_id : $this->userID;
+
+        // если id лида нет - останавливаем метод
+        if(!$lead_id){ return false; }
+
+        // сохранение значения в БД
+        $this->where('user_id','=',$lead_id)->update( $fieldsData );
+
+        return $this->where('user_id','=',$lead_id)->first();
+    }
 
 
     /**

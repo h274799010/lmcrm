@@ -41,17 +41,3 @@ return [
 
     'date_format' => 'm/d/Y H:i',
 ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-

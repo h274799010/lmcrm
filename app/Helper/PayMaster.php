@@ -34,39 +34,6 @@ class PayMaster extends Model
      */
     const SYSTEM_ID = 1;
 
-    // todo перенести в детали транзакций
-    /**
-     * Типы транзакций
-     *
-     * @var array
-     */
-//    const TYPE =
-//    [
-//        'manual' => 'ручное введение средств',
-//        'operatorPayment' => 'обработка лида оператором',
-//        'openLead' => 'открытие лида',
-//        'closingDeal' => 'закрытие сделки',
-//        'repaymentForLead ' => 'возврат средств за bad lead',
-//        'operatorRepayment' => 'refund for operator handling',
-//        'rewardForLead' => 'Agent reward for the Lead',
-//    ];
-
-
-    /**
-     * todo пересмотреть и удалиь
-     *
-     *
-
-
-        todo старые типы на всякий случай
-        const LEAD_PURCHASE = -1;
-        const LEAD_SALE = 2;
-        const EXTERNAL_REFILL = 3;
-        const MANUAL_CHANGE = 4;
-        const LEAD_BAD_INC = 5;
-        const LEAD_BAD_DEC = -6;
-        const OPERATOR_PAYMENT = -7;
-    */
 
     /**
      * Открытие транзакции транзакции

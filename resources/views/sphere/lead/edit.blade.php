@@ -3,19 +3,19 @@
 {{-- left content --}}
 @section('left_block')
     <div class="col-md-offset-1 col-md-8 col-xs-8">
-        <div  id="content" style="padding-bottom: 100px;">
+        <div  id="content" data-sphere_id="{{$sphere->id}}" data-lead_id="{{$lead->id}}" style="padding-bottom: 100px;">
             {{ Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'id'=>'editFormAgent', 'method' => 'put', 'class' => 'validate', 'files'=> false)) }}
 
             <div class="depositor_info">
-                <strong>Company:</strong> {{ $lead->user->agentInfo()->first()->company }}<br>
-                <strong>Agent first name:</strong> {{ $lead->user->first_name }}
+                <strong>{{ trans('operator/edit.depositor_company') }}</strong> {{ $lead->user->agentInfo()->first()->company }}<br>
+                <strong>{{ trans('operator/edit.depositor_name') }}</strong> {{ $lead->user->first_name }}
             </div>
 
-            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> Cancel </a>
+            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default">{{ trans('operator/edit.button_cancel') }}</a>
             {{-- кнопка на установку BadLead --}}
-            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
-            {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
-            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
+            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal">{{ trans('operator/edit.button_bad_lead') }}</button>
+            {{ Form::submit(trans('operator/edit.button_update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
+            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder">{{ trans('operator/edit.button_call_later') }}</button>
 
             <input type="hidden" name="type" id="typeFrom" value="">
             <input type="hidden" name="agentsData" id="agentsData" value="">
@@ -23,7 +23,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapseLead"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Lead data') </a>
+                            <a data-toggle="collapse" href="#collapseLead"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('operator/edit.collapse_lead_data') </a>
                         </h4>
                     </div>
                     <div id="collapseLead" class="panel-collapse collapse in">
@@ -51,7 +51,7 @@
                                     @foreach($attr->options as $option)
                                         <div class="form-group">
                                             <div class="checkbox">
-                                                {{ Form::checkbox('addit_data[checkbox]['.$attr->id.'][]', $option->id, isset($adFields['ad_' .$attr->id .'_' .$option->id])?$adFields['ad_' .$attr->id .'_' .$option->id]:null, array('class' => '','id'=>"ch-$option->id")) }}
+                                                {{ Form::checkbox('addit_data[checkbox]['.$attr->id.'][]', $option->id, isset($adFields['ad_' .$attr->id .'_' .$option->id])?$adFields['ad_' .$attr->id .'_' .$option->id]:null, array( 'data-attr'=>$attr->id, 'data-opt'=>$option->id, 'data-type'=>$attr->_type, 'class' => 'addit_data', 'id'=>"ch-$option->id")) }}
                                                 <label for="ch-{{ $option->id }}">{{ $option->name }}</label>
                                             </div>
                                         </div>
@@ -60,37 +60,39 @@
                                     @foreach($attr->options as $option)
                                         <div class="form-group">
                                             <div class="radio">
-                                                {{ Form::radio('addit_data[radio]['.$attr->id.']',$option->id, isset($adFields['ad_' .$attr->id .'_' .$option->id])?$adFields['ad_' .$attr->id .'_' .$option->id]:null, array('class' => '','id'=>"r-$option->id")) }}
+                                                {{ Form::radio('addit_data[radio]['.$attr->id.']',$option->id, isset($adFields['ad_' .$attr->id .'_' .$option->id])?$adFields['ad_' .$attr->id .'_' .$option->id]:null, array('data-attr'=>$attr->id, 'data-opt'=>$option->id, 'data-type'=>$attr->_type, 'class' => 'addit_data','id'=>"r-$option->id")) }}
                                                 <label for="r-{{ $option->id }}">{{ $option->name }}</label>
                                             </div>
                                         </div>
                                     @endforeach
                                 @elseif ($attr->_type == 'select')
-                                    @php($selected=NULL)
-                                        @forelse($attr->options as $option)
-                                            @if(isset($adFields['ad_' .$attr->id .'_' .$option->id]) && $adFields['ad_' .$attr->id .'_' .$option->id]==1) @php($selected=$option->id) @endif
-                                        @empty @endforelse
+
                                     <div class="form-group">
-                                        {{ Form::select('addit_data[select]['.$attr->id.']',$attr->options->lists('name','id'), $selected, array('class' => '')) }}
+                                        <select class="addit_data" name="addit_data[select][{{ $attr->id }}]" id="{{ $attr['id'] }}">
+                                            @forelse($attr->options as $option)
+                                                <option class="filterOption" data-attr="{{ $attr['id'] }}" data-opt="{{ $option['id'] }}" data-type="{{ $attr->_type }}" @if(isset($adFields['ad_' .$attr->id .'_' .$option->id]) && $adFields['ad_' .$attr->id .'_' .$option->id]==1) selected @endif value="{{ $option['id'] }}"> {{ $option['name'] }} </option>
+                                            @empty @endforelse
+                                        </select>
                                     </div>
+
                                 @elseif ($attr->_type == 'email')
                                     <div class="form-group">
-                                        {{ Form::email('addit_data[email]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array('class' => 'form-control','data-rule-email'=>true)) }}
+                                        {{ Form::email('addit_data[email]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array( 'data-attr'=>$attr->id, 'data-opt'=>0,  'data-type'=>$attr->_type, 'class' => 'form-control addit_data','data-rule-email'=>true)) }}
                                     </div>
                                 @elseif ($attr->_type == 'input')
                                     <div class="form-group">
-                                        {{ Form::text('addit_data[input]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array('class' => 'form-control')+$attr->validatorRules()) }}
+                                        {{ Form::text('addit_data[input]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array( 'data-attr'=>$attr->id, 'data-opt'=>0,  'data-type'=>$attr->_type, 'class' => 'form-control addit_data')+$attr->validatorRules()) }}
                                     </div>
                                 @elseif ($attr->_type == 'calendar')
                                     <div class="form-group">
                                         <div class="input-group">
-                                        {{ Form::text('addit_data[calendar]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?date(trans('main.date_format'),strtotime($adFields['ad_' .$attr->id .'_0'])):null, array('class' => 'form-control datepicker')) }}
+                                        {{ Form::text('addit_data[calendar]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?date(trans('main.date_format'),strtotime($adFields['ad_' .$attr->id .'_0'])):null, array( 'data-attr'=>$attr->id, 'data-opt'=>0, 'data-type'=>$attr->_type, 'class' => 'form-control datepicker addit_data')) }}
                                             <div class="input-group-addon"> <a href="#"><i class="fa fa-calendar"></i></a> </div>
                                         </div>
                                     </div>
                                 @elseif ($attr->_type == 'textarea')
                                     <div class="form-group">
-                                        {{ Form::textarea('addit_data[textarea]['.$attr->id.']', isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array('class' => 'form-control')) }}
+                                        {{ Form::textarea('addit_data[textarea]['.$attr->id.']', isset($adFields['ad_' .$attr->id .'_0'])?$adFields['ad_' .$attr->id .'_0']:null, array( 'data-attr'=>$attr->id, 'data-opt'=>0, 'data-type'=>$attr->_type, 'class' => 'form-control addit_data')) }}
                                     </div>
                                 @else
                                     <br/>
@@ -103,42 +105,41 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapseForm"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('Filtration') </a>
+                            <a data-toggle="collapse" href="#collapseForm"> <i class="fa fa-chevron-down pull-left flip"></i>  @lang('operator/edit.collapse_filtration') </a>
                         </h4>
                     </div>
                     <div id="collapseForm" class="panel-collapse collapse in">
                         <div class="panel-body">
+
                             @forelse($sphere->attributes as $attr)
                                 <h4 class="page_header">{{ $attr->label }} </h4>
-                                    @if ($attr->_type == 'checkbox')
-                                      @foreach($attr->options as $option)
-                                       <div class="form-group">
+                                @if ($attr->_type == 'checkbox')
+                                    @foreach($attr->options as $option)
+                                        <div class="form-group">
                                             <div class="checkbox">
-                                                {{ Form::checkbox('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array( 'attr' => $attr['id'], 'class' => 'filterOption','id'=>"ad-ch-$option->id")) }}
+                                                {{ Form::checkbox('option[' .$attr['id'] .'][' .$option->id .']',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array( 'data-attr' => $attr['id'], 'data-opt' => $option['id'], 'class' => 'filterOption','id'=>"ad-ch-$option->id")) }}
                                                 <label for="ad-ch-{{ $option->id }}">{{ $option->name }}</label>
                                             </div>
-                                       </div>
-                                      @endforeach
-                                    @elseif ($attr->_type == 'radio')
-                                     @foreach($attr->options as $option)
-                                      <div class="form-group">
-                                        <div class="radio">
-                                            {{ Form::radio('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array( 'attr' => $attr['id'], 'class' => 'filterOption','id'=>"ad-r-$option->id")) }}
-                                            <label for="ad-r-{{ $option->id }}">{{ $option->name }}</label>
                                         </div>
-                                      </div>
-                                     @endforeach
-                                    @elseif ($attr->_type == 'select')
-                                        @php($selected=array())
-                                        @forelse($attr->options as $option)
-                                            @if(isset($mask[$option->id]) && $mask[$option->id]) @php($selected[]=$option->id) @endif
-                                        @empty @endforelse
-                                      <div class="form-group">
-                                            {{ Form::select('options[' .$attr['id'] .'][]',$attr->options->lists('name','id'),$selected, array( 'attr' => $attr['id'], 'class' => 'form-control filterOption')) }}
-                                      </div>
-                                    @else
-
-                                    @endif
+                                    @endforeach
+                                @elseif ($attr->_type == 'radio')
+                                    @foreach($attr->options as $option)
+                                        <div class="form-group">
+                                            <div class="radio">
+                                                {{ Form::radio('options[' .$attr['id'] .'][]',$option->id, isset($mask[$option->id])?$mask[$option->id]:null, array( 'data-attr' => $attr['id'], 'data-opt' => $option['id'], 'class' => 'filterOption','id'=>"ad-r-$option->id")) }}
+                                                <label for="ad-r-{{ $option->id }}">{{ $option->name }}</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @elseif ($attr->_type == 'select')
+                                    <div class="form-group">
+                                        <select class="filterOption" data-attr="{{ $attr['id'] }}" name="option[{{ $attr['id'] }}][{{ $option->id }}]" id="{{ $attr['id'] }}" class="form-control">
+                                            @forelse($attr->options as $option)
+                                                <option data-attr="{{ $attr['id'] }}" data-opt="{{ $option['id'] }}" @if(isset($mask[$option->id]) && $mask[$option->id]) selected @endif value="{{ $option['id'] }}"> {{ $option['name'] }} </option>
+                                            @empty @endforelse
+                                        </select>
+                                    </div>
+                                @endif
                             @empty
                             @endforelse
 
@@ -148,29 +149,45 @@
                                 <div>
 
                                     {{-- кнопка, по которой идет подбор агентов --}}
-                                    <button id="pickUpAgents" type="button" class="btn btn-primary">Pick up an agents</button>
+                                    <button id="pickUpAgents" type="button" class="btn btn-primary">@lang('operator/edit.button_pick_up_an_agents')</button>
 
                                     {{-- кнопка закрытия таблицы --}}
-                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>
-
-                                    {{-- кнопка очистки action всех агентов --}}
-                                    <button type="button" class="btn btn-danger clear_all_agents_action hidden"> Clear all agents action </button>
+                                    <button type="button" class="btn btn-default hidden operator_agents_selection_close">@lang('operator/edit.button_clear_the_results')</button>
 
                                     {{-- сообщение о том, что подходящих агентов нет --}}
                                     <div class="selected_agents_none hidden">
                                         <p class="alert alert-info">
                                             <button type="button" class="close selected_agents_none_closeButton" ><span aria-hidden="true">&times;</span></button>
-                                            No matches
+                                            @lang('operator/edit.message_no_matches')
                                         </p>
+                                    </div>
+
+                                    {{--  выводит пользователей, которые не могут заплатить за открытие лида --}}
+                                    <div class="can_not_buy_block hidden">
+                                        <div class="alert alert-danger">
+                                            <button type="button" class="close can_not_buy_block_closeButton" ><span aria-hidden="true">&times;</span></button>
+                                            <strong>Can not buy</strong>
+                                            <div class="can_not_buy_block_body"></div>
+                                        </div>
+                                    </div>
+
+                                    {{-- сообщает о невозможности закрыть сделку пользователем по лида из-за низкого баланса --}}
+                                    <div class="can_not_closeDeal hidden">
+                                        <div class="alert alert-danger">
+                                            <button type="button" class="close can_not_closeDeal_block_closeButton" ><span aria-hidden="true">&times;</span></button>
+                                            <strong>Can not close the deal</strong>
+                                            <div class="can_not_closeDeal_block_body"></div>
+                                        </div>
                                     </div>
 
                                     {{-- тело блока с данными агентов --}}
                                     <div class="operator_agents_selection_body hidden">
 
-                                        {{-- блок сообщения что пользователей на закрытие сделки больше одного --}}
+                                        {{-- блок сообщения что пользователей на закрытие сделки не может быть больше одного --}}
                                         <div class="users_bust_for_deal hidden">
                                             <div class="alert alert-warning" role="alert">
-                                                Deal closes for only one user
+                                                <button type="button" class="close users_bust_for_deal_close_deal" ><span aria-hidden="true">&times;</span></button>
+                                                @lang('operator/edit.message_deal_closes_for_only_one_user')
                                             </div>
                                         </div>
 
@@ -180,9 +197,9 @@
                                             <thead>
                                                 <tr>
                                                     <th> </th>
-                                                    <th>Name</th>
-                                                    <th>E-mail</th>
-                                                    <th>Roles</th>
+                                                    <th>@lang('operator/edit.agent_table_head_name')</th>
+                                                    <th>@lang('operator/edit.agent_table_head_email')</th>
+                                                    <th>@lang('operator/edit.agent_table_head_roles')</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -191,18 +208,14 @@
                                         </table>
 
                                         <div class="agent_button_block">
-                                            <button type="button" class="btn btn-xs btn-primary btn-send_to_auction">Send to Auction</button>
-                                            <button type="button" class="btn btn-xs btn-primary btn-open_lead">Buy</button>
-                                            <button type="button" class="btn btn-xs btn-primary btn-close_deal">Close the Deal</button>
+                                            <button type="button" class="btn btn-xs btn-primary btn-send_to_auction">@lang('operator/edit.button_send_to_auction')</button>
+                                            <button type="button" class="btn btn-xs btn-primary btn-open_lead">@lang('operator/edit.button_buy')</button>
+                                            <button type="button" class="btn btn-xs btn-primary btn-close_deal">@lang('operator/edit.button_close_the_deal')</button>
                                             {{-- кнопка закрытия таблицы --}}
-                                            <button type="button" class="btn btn-default hidden operator_agents_selection_close bottom"> Clear the results </button>
+                                            <button type="button" class="btn btn-default hidden operator_agents_selection_close bottom">@lang('operator/edit.button_clear_the_results')</button>
                                         </div>
 
                                     </div>
-
-                                    {{-- кнопка закрытия таблицы --}}
-                                    {{--<button type="button" class="btn btn-default hidden operator_agents_selection_close"> Clear the results </button>--}}
-
                                 </div>
 
 
@@ -211,13 +224,12 @@
                 </div>
             </div>
 
-            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> Cancel </a>
+            <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> {{ trans('operator/edit.button_cancel') }} </a>
             {{-- кнопка на установку BadLead --}}
-            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> Bad Lead </button>
-            {{ Form::submit(trans('Update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
-            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> Call Later </button>
-{{--            {{ Form::submit(trans('Apply'),['class'=>'btn btn-success', 'id'=>'leadToAuction']) }}--}}
-            <button class="btn btn-success btn-apply_lead_mask" type="button">Apply</button>
+            <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> {{ trans('operator/edit.button_bad_lead') }}</button>
+            {{ Form::submit(trans('operator/edit.button_update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
+            <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> {{ trans('operator/edit.button_call_later') }}</button>
+            <button class="btn btn-success btn-apply_lead_mask" type="button">{{ trans('operator/edit.button_apply') }}</button>
 
             {{ Form::close() }}
         </div>
@@ -229,14 +241,14 @@
 
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Set Bad Lead</h4>
+                        <h4 class="modal-title">@lang('operator/edit.modal_badLead_title')</h4>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure?</p>
+                        <p>@lang('operator/edit.modal_badLead_body')</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <a class="btn btn-danger" href="{{ route('set.bad.lead', ['id'=>$lead['id']]) }}"> Set Bad </a>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">@lang('operator/edit.modal_badLead_button_cancel')</button>
+                        <a class="btn btn-danger" href="{{ route('set.bad.lead', ['id'=>$lead['id']]) }}">@lang('operator/edit.modal_badLead_button_set_bad')</a>
                     </div>
 
                 </div>
@@ -250,66 +262,101 @@
 
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Set the time reminder</h4>
+                        <h4 class="modal-title">@lang('operator/edit.modal_call_later_title')</h4>
                     </div>
                     <div class="modal-body">
                         <input type="text" class="form-control valid" name="time" id="time_reminder" aria-invalid="false">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button id="timeSetter" class="btn btn-primary"> Set Time </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">@lang('operator/edit.modal_call_later_button_cancel')</button>
+                        <button id="timeSetter" class="btn btn-primary">@lang('operator/edit.modal_call_later_button_set_time')</button>
                     </div>
 
                 </div>
             </div>
         </div>
 
-        {{-- todo Сохранение маски и дальнейшие действия в зависимости от установок --}}
+        {{-- Модальное окно на подтверждение действий по маске (простое сохранение, отдать на аукцион, купить за пользователя, закрыть сделку за пользователей) --}}
         <div class="modal fade apply_lead_mask_modal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-sm" role="document">
                 <div class="modal-content">
 
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Confirm apply</h4>
+                        <h4 class="modal-title">@lang('operator/edit.modal_apply_title')</h4>
                     </div>
                     <div class="modal-body">
 
                         {{-- Выбранна маска, никаких действий по агентам --}}
                         <div class="apply_default hidden">
-                            Preservation mask settings and switching the lead to the auction
+                            @lang('operator/edit.modal_apply_body_default')
                         </div>
 
                         {{-- Добавление лида в аукцион определенным агентам --}}
                         <div class="apply_auctionAdd hidden">
-                            lead was adding to the auction to this agents:
+                            @lang('operator/edit.modal_apply_body_auctionAdd')
                             <div class="apply_content"></div>
                             <br>
                         </div>
 
                         {{-- Покупка лида определенными агентами --}}
                         <div class="apply_buy hidden">
-                            open lead
+                            @lang('operator/edit.modal_apply_body_buy')
                             <div class="apply_content"></div>
                             <br>
                         </div>
 
                         {{-- Закрытие сделки по лиду агентом --}}
                         <div class="apply_closeDeal hidden">
-                            Close the deal
+                            @lang('operator/edit.modal_apply_body_close_the_dead')
                             <div class="apply_content"></div>
                             <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
-                            <br>
+
+                            {{--<input type="file" multiple="multiple" name="files[]" />--}}
+
+                            <div class="closeDeal_files"></div>
+                            <button class="btn btn-xs btn-primary addFileButton">add file</button>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success btn-apply_confirmation"> Apply </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">@lang('operator/edit.modal_apply_button_cancel')</button>
+                        <button type="button" class="btn btn-success btn-apply_confirmation">@lang('operator/edit.modal_apply_button_apply')</button>
                     </div>
 
                 </div>
             </div>
         </div>
+
+        {{-- Модальное окно оповещени о добавлении лида на аукцион --}}
+        <div class="modal fade lead_auction_status" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">
+                            @lang('operator/edit.modal_lead_auction_status_title')
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="lead_auction_status-0 hidden">
+                            @lang('operator/edit.modal_lead_auction_status_lead_was_added')
+
+                        </div>
+                        <div class="lead_auction_status-1 hidden">
+                            @lang('operator/edit.modal_lead_auction_status_successfully_added')
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="timeSetter" class="btn btn-default lead_auction_status_action">
+                            @lang('operator/edit.modal_lead_auction_status_button_ok')
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 @stop
 
@@ -323,7 +370,7 @@
             <div class="col-md-11 operator_reminder_block">
                 @if( $lead['operatorOrganizer'] )
                     @if( $lead['operatorOrganizer']['time_reminder']  )
-                        <b>Call reminder:</b>  {{ $lead['operatorOrganizer']['time_reminder']->format('H:m d.m.Y')  }}
+                        <b>@lang('operator/edit.call_reminder_title')</b>  {{ $lead['operatorOrganizer']['time_reminder']->format('H:m d.m.Y')  }}
                         <icon class="glyphicon glyphicon-remove-circle remove_reminder"></icon>
                         <hr>
                     @endif
@@ -349,7 +396,7 @@
             </div>
             {{-- кнопка добавления комментария --}}
             <div class="col-md-12">
-                <button id="add_comment" type="button" class="btn btn-xs btn-primary" style="float: right;">Add comment</button>
+                <button id="add_comment" type="button" class="btn btn-xs btn-primary add_comment">@lang('operator/edit.comments_button_add_comment')</button>
             </div>
         </div>
 
@@ -440,21 +487,43 @@
             padding-left: 5px
         }
 
-
-        div.apply_auctionAdd div.apply_content{
+        /* динамическая часть модального окна, перечисление агентов к открытию, добавлению на аукцион и т.д. */
+        div.apply_content{
             padding-top: 10px;
         }
 
-        div.modal_user_black{
+        /* блок с пользователем в модальном окне */
+        div.modal_user_block{
            padding: 5px 0;
         }
 
+        /* имя пользователя в модальном окне */
         div.modal_user_name{
             font-weight: bold;
         }
 
+        /* нижняя кнопка закрытия таблицы подбора агентов оператором под параметры лида */
         .operator_agents_selection_close.bottom{
             float: right;
+        }
+
+        /* кнопка добавления комментария в блоке комментариев операторов к лиду */
+        .add_comment{
+            float: right;
+        }
+
+        /* блок который показывает агентов, которые не могут купить лид */
+        .can_not_buy_block{
+            margin-top: 10px;
+        }
+
+        /* блок сообщает что неможет закрыть сделку по лиду из-за недостаточного количества средств у пользователя */
+        .can_not_closeDeal{
+            margin-top: 10px;
+        }
+
+        .addFileButton{
+            margin-top: 5px;
         }
 
     </style>
@@ -489,12 +558,87 @@
         // получение токена
         var token = $('meta[name=csrf-token]').attr('content');
 
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // переменная для хранения файлов
+        var files = [];
 
         // подключаем к инпуту календарь
         $('input#time_reminder').datetimepicker({
             // минимальное значение даты и времени в календаре
             minDate: new Date()
         });
+
+        // кнопка закрытия алерта предупреждения что сделка может закрываться только по одному пользователю
+        $('.users_bust_for_deal_close_deal').bind('click', function(){
+            $('.users_bust_for_deal').addClass('hidden');
+        });
+
+        // добавление поля для добавления файла
+        $('.addFileButton').bind('click', function(){
+
+            // создаем поле input
+            var input = $('<input />');
+
+            // добавляем тип file
+            $(input).attr('type', 'file');
+
+            $(input).attr('name', 'files[]');
+
+            // добавляем класс filestyle
+            $(input).addClass('filestyle');
+
+            // подключаем input к узлу
+            $('.closeDeal_files').append(input);
+
+            // подключаем к input filestyle
+            $(input).filestyle({
+                icon: false,
+                buttonText: "Browse"
+            });
+
+            // добавляем днные поля в переменную
+//            $(input).change(function(){
+//                files = this.files;
+//            });
+
+
+            $('input[type=file]').change(function(){
+                files = this.files;
+            });
+
+        });
+
+        // кнопка закрытия блока с пользователями которые немогут заплатить за открытие лида
+        $('.can_not_buy_block_closeButton').bind('click', function(){
+
+            // прячем блок
+            $('.can_not_buy_block').addClass('hidden');
+            // очищаем блок
+            $('.can_not_buy_block_body').html('');
+        });
+
+
+        // кнопка закрытия блока с пользователями которые немогут заплатить за открытие лида
+        $('.can_not_closeDeal_block_closeButton').bind('click', function(){
+
+            // прячем блок
+            $('.can_not_closeDeal').addClass('hidden');
+            // очищаем блок
+            $('.can_not_closeDeal_block_body').html('');
+        });
+
+
+        // при нажатии на 'OK' модального окна статуса добавления лида на общий аукцион
+        $('.lead_auction_status_action').bind('click', function(){
+            // переходим на главную страницу
+            location.href = '/';
+        });
+
 
         // событие по клику на кнопку установки времени
         $('#timeSetter').bind('click', function(){
@@ -739,7 +883,7 @@
                 // добавляем в попандер нужные данные
                 $.each( users, function( key, user ){
                     // формируем данные блока
-                    var content = applyAuctionAdd.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
+                    var content = applyAuctionAdd.find('.apply_content').html() + '<div data-userId="' + user.id + '" class="modal_user_block"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
                     // добавляем данные в блок
                     applyAuctionAdd.find('.apply_content').html(content);
                 });
@@ -778,7 +922,7 @@
                 // добавляем в попандер нужные данные
                 $.each( users, function( key, user ){
                     // формируем данные блока
-                    var content = applyBuy.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
+                    var content = applyBuy.find('.apply_content').html() + '<div data-userId="' + user.id + '" class="modal_user_block"> <div class="modal_user_name">' + user.firstName + ' ' + user.lastName + '</div><div>' + user.email + '</div></div>';
                     // добавляем данные в блок
                     applyBuy.find('.apply_content').html(content);
                 });
@@ -817,10 +961,10 @@
                     $('.users_bust_for_deal').removeClass('hidden');
 
                     // установка таймера на скрытие сообщения об ошибке
-                    setTimeout(function(){
-                        // закрытие сообщения об ошибке
-                        $('.users_bust_for_deal').addClass('hidden');
-                    }, 3000);
+//                    setTimeout(function(){
+//                        // закрытие сообщения об ошибке
+//                        $('.users_bust_for_deal').addClass('hidden');
+//                    }, 3000);
 
                 }else{
 
@@ -831,7 +975,7 @@
                     var applyСloseDeal = $('.apply_closeDeal');
 
                     // формируем данные блока
-                    var content = applyСloseDeal.find('.apply_content').html() + '<div class="modal_user_black"> <div class="modal_user_name">' + users[0].firstName + ' ' + users[0].lastName + '</div><div>' + users[0].email + '</div></div>';
+                    var content = applyСloseDeal.find('.apply_content').html() + '<div data-userId="' + users[0].id + '" class="modal_user_block"> <div class="modal_user_name">' + users[0].firstName + ' ' + users[0].lastName + '</div><div>' + users[0].email + '</div></div>';
                     // добавляем данные в блок
                     applyСloseDeal.find('.apply_content').html(content);
 
@@ -886,7 +1030,7 @@
                 // добавляем опции только нужное значение
 
                 // получаем id атрибута
-                var attr = $('[name="'+ val.name +'"]').attr('attr');
+                var attr = $('[name="'+ val.name +'"]').data('attr');
                 // собираем имя поля в правильном порядке
                 var field = 'fb_' + attr + '_' + val.value;
 
@@ -971,79 +1115,6 @@
                                     selectedAgentsTable.append(tr);
                                 });
 
-                                // todo подключаем selectBoxIt к селекту
-//                                $(".agentAction").selectBoxIt({
-//                                    // выставляем дефолтную тему
-//                                    theme: "default",
-//                                    // переопределяем класс container
-//                                    copyClasses: "container",
-//                                    // добавляем опции
-//                                    populate: [
-//                                        { value: "0", text: "" },
-//                                        { value: "1", text: "Send to Auction" },
-//                                        { value: "2", text: "Buy" },
-//                                        { value: "3", text: "Close the Deal" }
-//                                    ]
-//                                }).data("selectBox-selectBoxIt");
-
-
-                                /**
-                                 * кнопка очистки ближайшего селекта выбора action агента
-                                 * выставляет селект в 0
-                                 *
-                                 */
-//                                $('.agent_action_option_remove').bind( 'click', function(){
-//                                    $(this).parent().find('select.agentAction').data("selectBox-selectBoxIt").selectOption(0);
-//                                });
-
-                                /**
-                                 * Слушатель на изменение чекбоксов
-                                 *
-                                 *
-                                 */
-//                                $('select.agentAction').bind( 'change', function(){
-//
-//                                    if( $(this).val() == 0 ){
-//                                        // если значение 0
-//
-//                                        // прячем кнопку очистки селекта
-//                                        $(this).parent().find('div.agent_action_option_remove').addClass('hidden');
-//
-//                                        // выбираем все селекты с action агентов
-//                                        var actions = $('select.agentAction');
-//
-//                                        // переменная с выбранными значениями action агента
-//                                        var selected = false;
-//
-//                                        /* проверка остались ли еще активные селекты и если не остались, убираем кнопку "очистить все" */
-//
-//                                        // перебираем все селекты чтобы узнать выбранны они или нет
-//                                        $.each( actions, function( key, val ){
-//                                            // если значение селекта не 0
-//                                            if( $(val).val() != 0 ){
-//                                                // помечаем selected как выбранный
-//                                                selected = true;
-//                                            }
-//                                        });
-//
-//                                        // если селект пустой (т.е. значений нет)
-//                                        if( !selected ){
-//                                            // прячем его
-//                                            $('.clear_all_agents_action').addClass('hidden');
-//                                        }
-//
-//                                    }else{
-//                                        // если значение не 0
-//
-//                                        // делаем видимой кнопку очистки селекта
-//                                        $(this).parent().find('div.agent_action_option_remove').removeClass('hidden');
-//                                        // делаем видимой кнопку очистки всех селектов
-//                                        $('.clear_all_agents_action').removeClass('hidden');
-//                                    }
-//
-//
-//                                });
-
                                 // показываем блок с подбором агентов
                                 agentsSelectionBody.removeClass('hidden');
                                 // показываем кнопку закрытия блока
@@ -1095,40 +1166,362 @@
          */
         btnApplyConfirmation.bind( 'click', function(){
 
+
+
+            // опции формы с данными
+            var options = [];
+
+            // дополнительные данные лида
+            var addit_data = [];
+
+            // выбираем все поля формы с опциями
+            var formOption = $('.filterOption');
+
+            // выбираем все поля формы с дополнительными дынными лида
+            var formAdditData = $('.addit_data');
+
+            /**
+             * Перебираем все поля формы с опциями и выбираем только нужные данные
+             *
+             * выбирается только attr, opt, val
+             */
+            $.each( formOption, function( key, option ){
+
+                // проверка типа атрибута
+                if( $(option).get(0).tagName == 'INPUT' ){
+                    // если тег input
+
+                    var data = {
+                        // добавляем атрибут
+                        attr: $(option).data('attr'),
+                        // добавляем опцию
+                        opt: $(option).data('opt'),
+                        // если элемент отмечен ставим значение 1, если нет - 0
+                        val: $(option).prop('checked') ? 1 : 0
+                    };
+
+                    // добавляем поле в массив опций
+                    options.push(data);
+
+                }else if( $(option).get(0).tagName == 'SELECT' ){
+                    // если тег select
+
+                    // выбираем отмеченное поле
+                    var selected = $(option).val();
+
+                    // выбираем все опции селекта
+                    var selectOptions = $(option).find('option');
+
+                    // перебираем все опции селекта и выбираем данные для массива с опциями
+                    $.each( selectOptions, function( key, selectOption){
+
+                        var data = {
+                            // добавляем атрибут
+                            attr: $(selectOption).data('attr'),
+                            // добавляем опцию
+                            opt: $(selectOption).data('opt'),
+                            // если значение выбранно возвращаем 1, если нет - 0
+                            val: $(selectOption).val()==selected ? 1:0
+                        };
+
+                        // добавляем поле в массив опций
+                        options.push(data);
+                    });
+                }
+            });
+
+            /**
+             * Перебираем все поля с дополнительными данными атрибута и выбираем нужные данные
+             *
+             */
+            $.each( formAdditData, function( key, option ){
+
+                // переменная с данными
+                var data;
+
+                // проверка типа атрибута
+                if( $(option).get(0).tagName == 'INPUT' ){
+                    // если тег input
+
+                    /** todo обрабатываем данные input в зависимости от его типа */
+                    if( $(option).attr('type')=='email' || $(option).attr('type')=='text'){
+                        // тип email или text
+
+                        data = {
+                            // добавляем атрибут
+                            attr: $(option).data('attr'),
+                            // добавляем опцию
+                            opt: $(option).data('opt'),
+                            // если элемент отмечен ставим значение 1, если нет - 0
+                            val: $(option).val(),
+                            // добавляем тип атрибута
+                            attrType: $(option).data('type'),
+                            // добавляем тип атрибута
+                            type: $(option).attr('type')
+
+                        };
+
+                    }else if( $(option).attr('type')=='checkbox' || $(option).attr('type')=='radio'){
+                        // тип checkbox или radio
+
+                        data = {
+                            // добавляем атрибут
+                            attr: $(option).data('attr'),
+                            // добавляем опцию
+                            opt: $(option).data('opt'),
+                            // если элемент отмечен ставим значение 1, если нет - 0
+                            val: $(option).prop('checked') ? 1 : 0,
+                            // добавляем тип атрибута
+                            attrType: $(option).data('type'),
+                            // добавляем тип атрибута
+                            type: $(option).attr('type')
+                        };
+                    }
+
+                    // добавляем поле в массив опций
+                    addit_data.push(data);
+
+                }else if( $(option).get(0).tagName == 'SELECT' ){
+                    // если тег select
+
+                    // выбираем отмеченное поле
+                    var selected = $(option).val();
+
+                    // выбираем все опции селекта
+                    var selectOptions = $(option).find('option');
+
+                    // перебираем все опции селекта и выбираем данные для массива с опциями
+                    $.each( selectOptions, function( key, selectOption){
+
+                        var data = {
+                            // добавляем атрибут
+                            attr: $(selectOption).data('attr'),
+                            // добавляем опцию
+                            opt: $(selectOption).data('opt'),
+                            // если значение выбранно возвращаем 1, если нет - 0
+                            val: $(selectOption).val()==selected ? 1:0,
+                            // добавляем тип атрибута
+                            attrType: $(selectOption).data('type')
+                        };
+
+                        // добавляем поле в массив опций
+                        addit_data.push(data);
+                    });
+
+                }else if( $(option).get(0).tagName == 'TEXTAREA' ){
+                    // если тег select
+
+                    data = {
+                        // добавляем атрибут
+                        attr: $(option).data('attr'),
+                        // добавляем опцию
+                        opt: $(option).data('opt'),
+                        // если элемент отмечен ставим значение 1, если нет - 0
+                        val: $(option).val(),
+                        // добавляем тип атрибута
+                        attrType: $(option).data('type'),
+
+                    };
+
+                    // добавляем поле в массив опций
+                    addit_data.push(data);
+                }
+            });
+
+            // получение данных всех полей
+            var formFields = {
+                sphereId: $('#content').data('sphere_id'),
+                leadId: $('#content').data('lead_id'),
+                name: $('input[name=name]').val(),
+                phone: $('input[name=phone]').val(),
+                email: $('input[name=email]').val(),
+                comments: $('textarea[name=comment]').val(),
+                addit_data: addit_data,
+                options: options
+            };
+
+
             // проверка данных
             if( leadApplyData ){
                 // если есть данные по агентам
 
                 // если это закрытие сделки, добавляем в данные пользователя прайс
                 if( leadApplyData.type == 'closeDeal' ){
+
+                    // если цена не указанна, аплая не будет
+                    if( $('#closeDealPrice').val() == '' ){
+                        return true;
+                    }
+
                     // получение прайса из формы модального окна
                     leadApplyData.users[0].price = $('#closeDealPrice').val();
+
+                    // добавляем тип в данные
+//                    formFields.type = leadApplyData.type;
+                    // добавляем данные агентов
+//                    formFields.agentsData = JSON.stringify( leadApplyData.users );
+
+
+
+//                    files = $('input[type=file]');
+//
+//                    console.log(files);
+
+//                    var data = new FormData();
+//                    $.each( files, function( key, value ){
+//                        data.append( key, value );
+//                    });
+
+//                    data.append( 'data', JSON.stringify( formFields ));
+
+
+                    // todo доработать
+
+//                    console.log(files);
+
+
+//                    return true;
+
+                    {{--$.ajax({--}}
+                        {{--url: '{{  route('operator.lead.action') }}',--}}
+                        {{--type: 'POST',--}}
+{{--//                        data: { data: formFields, files: filesData},--}}
+                        {{--data: data,--}}
+                        {{--cache: false,--}}
+                        {{--dataType: 'json',--}}
+                        {{--processData: false, // Не обрабатываем файлы (Don't process the files)--}}
+                        {{--contentType: false, // Так jQuery скажет серверу что это строковой запрос--}}
+                        {{--success: function( respond, textStatus, jqXHR ){--}}
+
+                            {{--// Если все ОК--}}
+                            {{--console.log('ответ пришел');--}}
+
+                        {{--},--}}
+                        {{--error: function( jqXHR, textStatus, errorThrown ){--}}
+                            {{--console.log('ОШИБКИ AJAX запроса: ' + textStatus );--}}
+                        {{--}--}}
+                    {{--});--}}
+
+
+//                    return true;
                 }
 
-                // добавляем тип в форму
-                $('#typeFrom').val( leadApplyData.type );
-                // добавляем данные пользователей в форму
-                $('#agentsData').val( JSON.stringify( leadApplyData.users ) );
-
-                console.log(leadApplyData);
-
-//                closeDealPrice
+                // добавляем тип в данные
+                formFields.type = leadApplyData.type;
+                // добавляем данные агентов
+                formFields.agentsData = JSON.stringify( leadApplyData.users );
 
 
+                /**
+                 * Отправка данных формы
+                 *
+                 */
+                $.post(
+                        "{{  route('operator.lead.action') }}",
+                        {
+                            data: formFields,
+                            _token: token
+                        },
+                        function( data ) {
+                            // проверяем ответ
 
-                // отправляем форму на сервер
-                $('form')[0].submit();
+                            if( data.status == 0){
+                                // статус 0 значить что лид уже отредактирован другим оператором и находится на аукционе
+
+                                // прячем модальное окно
+                                $('.apply_lead_mask_modal').modal('hide');
+                                // показываем блок что лид уже был добавлен на аукцион
+                                $('.lead_auction_status-0').removeClass('hidden');
+                                // выводим модальное окно статуса добавления лида на общий аукцион
+                                $('.lead_auction_status').modal('show');
+
+                            }else if( data.status == 6 ){
+                                // статус 6, недостаточно средства для закрытия сделки у пользователя
+
+                                // очищаем блок
+                                $('.can_not_closeDeal_block_body').html('');
+
+                                // наполняем блок данными
+                                $('.can_not_closeDeal_block_body').html('<div>' + data.data.firstName + ' ' + data.data.lastName + '</div>');
+
+                                // делаем блок видимым
+                                $('.can_not_closeDeal').removeClass('hidden');
+
+                            }else if( data.status == 4 ){
+                                // статус 4, нехватает денег для открытия лида
+
+                                // очищаем блок
+                                $('.can_not_buy_block_body').html('');
+
+                                // перебираем всех пользователей у которых нехватает денег и заносим в алерт
+                                $.each(data.data, function( key, val ){
+                                    var alertData = $('.can_not_buy_block_body').html() + '<div>' + val.firstName + ' ' + val.lastName + '</div>';
+                                    $('.can_not_buy_block_body').html(alertData)
+                                });
+
+                                // открывается алерт
+                                $('.can_not_buy_block').removeClass('hidden');
+
+                            }else{
+                                /**
+                                 * редирект на главную со статусами
+                                 * 2 лид добавлен на выборочный аукцион
+                                 * 3 лид открыт для пользователей
+                                 * 5 по лиду закрыта сделка
+                                 */
+
+                                // переходим на главную страницу
+                                location.href = '/';
+                            }
+
+                        },
+                        "json"
+                );
 
             }else{
                 // если данных по агентам нет
                 // просто отправляется форма на сервер
 
-                // добавляем тип в форму
-                $('#typeFrom').val('toAuction');
+                // добавляем тип в данные
+                formFields.type = 'toAuction';
 
-                // отправляем форму на сервер
-                $('form')[0].submit();
+                /**
+                 * Отправка данных формы
+                 *
+                 */
+                $.post(
+                    "{{  route('operator.lead.action') }}",
+                    {
+                        data: formFields,
+                        _token: token
+                    },
+                    function( data ) {
+                        // проверяем ответ
 
+                        // проверка статуса ответа
+                        if( data.status == 0){
+                            // лид уже на аукционе
+
+                            // прячем модальное окно
+                            $('.apply_lead_mask_modal').modal('hide');
+                            // показываем блок что лид уже был добавлен на аукцион
+                            $('.lead_auction_status-0').removeClass('hidden');
+                            // выводим модальное окно статуса добавления лида на общий аукцион
+                            $('.lead_auction_status').modal('show');
+
+                        }else{
+                            // лид успешно добавлен на аукцион
+
+                            // прячем модальное окно
+                            $('.apply_lead_mask_modal').modal('hide');
+                            // показываем блок что лид добавлен на аукцион успешно
+                            $('.lead_auction_status-1').removeClass('hidden');
+                            // выводим модальное окно статуса добавления лида на общий аукцион
+                            $('.lead_auction_status').modal('show');
+                        }
+                    },
+                    "json"
+                );
             }
 
             // прячет модальное окно
@@ -1153,12 +1546,24 @@
             $('.apply_buy').find('.apply_content').html('');
             $('.apply_closeDeal').find('.apply_content').html('');
 
+            $('.closeDeal_files').html('');
+
+            $('#closeDealPrice').val('');
 
             // обнуляем данные
             leadApplyData = false;
+        });
 
-//            console.log('закрылся');
-        })
+
+        /**
+         * Действия по закрытию модального окна подтверждения отправления лида на общий аукцион
+         *
+         */
+        $('.lead_auction_status').on('hidden.bs.modal', function (e) {
+            // переходим на главную страницу сайта
+            location.href = '/';
+        });
+
 
     });
 

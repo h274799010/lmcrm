@@ -2,7 +2,7 @@
 
 {{-- Content --}}
 @section('content')
-    <h1>New leads list</h1>
+    <h1>{{ trans("operator/list.page_title") }}</h1>
 
     @if($errors->any())
         <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert">
@@ -11,35 +11,31 @@
         </div>
     @endif
 
-    {{-- Сброс сортировки в таблице --}}
-    {{--<button role="button" class="btn btn-xs btn-primary reset_operator_table">reset sortable</button>--}}
-
-    <table class="table table-bordered table-striped table-hover dataTableOperatorLeads">
+    <table class="table table-bordered table-striped table-hover">
         <thead>
         <tr>
-            <th>{{ trans("site/lead.name") }}</th>
-            <th>{{ trans("main.status") }}</th>
-            <th>State</th>
-            <th>Time</th>
+            <th>{{ trans("operator/list.name") }}</th>
+            <th>{{ trans("operator/list.status") }}</th>
+            <th>{{ trans("operator/list.state") }}</th>
+            <th>{{ trans("operator/list.time") }}</th>
+            <th>{{ trans("operator/list.updated_at") }}</th>
+            <th>{{ trans("operator/list.sphere") }}</th>
+            <th>{{ trans("operator/list.depositor") }}</th>
+            <th>{{ trans("operator/list.action") }}</th>
 
-            <th>{{ trans("main.user") }}</th>
-            <th>{{ trans("main.sphere") }}</th>
-
-
-            <th>{{ trans("main.updated_at") }}</th>
-            <th>{{ trans("main.action") }}</th>
         </tr>
         </thead>
         <tbody>
         @forelse($leads as $lead)
-            <tr class="{{ $lead->operator_processing_time ? 'make_call_row' : '' }}  }}">
+            <tr class="{{ $lead->operator_processing_time ? 'make_call_row' : ($lead->statusName() == 'operator' ? 'edit_lead' : '') }}">
+
                 <td>{{ $lead->name }}</td>
                 <td>{{ $lead->statusName() }}</td>
                 <td>{{ $lead->operator_processing_time ? 'Make phone call' : 'Created' }}</td>
-                <td>{{ $lead->operator_processing_time ? $lead->operator_processing_time : $lead->created_at }}</td>
-                <td>{{ $lead->user->agentInfo()->first()->company }}</td>
+                <td>{{ Lang::has('operator/list.date_format') ? ( $lead->operator_processing_time ? $lead->operator_processing_time->format( trans('operator/list.date_format') ) : $lead->created_at->format( trans('operator/list.date_format')) ) : 'operator/list.date_format' }}</td>
+                <td>{{ Lang::has('operator/list.date_format') ?  $lead->updated_at->format( trans('operator/list.date_format') ) : 'operator/list.date_format' }}</td>
                 <td>{{ $lead->sphere->name }}</td>
-                <td>{{ $lead->updated_at }}</td>
+                <td>{{ $lead->user->agentInfo()->first()->company }}</td>
                 <td>
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
                 </td>
@@ -53,28 +49,32 @@
         <div class="modal-dialog modal-sm" role="document">
             <div class="modal-content">
 
+                {{-- сообщение о том что лид находится на редактировании другим оператором --}}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        Этот лид уже находится на редактировании!
+
+                        {{ trans('operator/list.lead_is_edited') }}
+
                     </h4>
                 </div>
 
                 <div class="modal-body">
 
-                    Вы действительно хотите его редактировать?
+                    {{ trans('operator/list.sure_you_want_to_edit') }}
 
                 </div>
 
                 <div class="modal-footer">
 
                     <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                        Cancel
+                        {{ trans('operator/list.modal_button_cancel') }}
                     </button>
 
                     <button id="statusModalChange" type="button" class="btn btn-danger">
-                        Edit
+                        {{ trans('operator/list.modal_button_edit') }}
                     </button>
+
                 </div>
 
 
@@ -89,66 +89,28 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        Этот лид уже отредактирован другим оператором!
+                        {{ trans('operator/list.lead_has_been_edited') }}
                     </h4>
                 </div>
 
             </div>
         </div>
     </div>
-    {{----}}
-    {{----}}
-    {{--<div class="_page-header" xmlns="http://www.w3.org/1999/html">--}}
-    {{--</div>--}}
-
-    {{--<div class="panel-group" id="accordion">--}}
-        {{--@forelse($spheres as $sphere)--}}
-            {{--<div class="panel panel-default">--}}
-                {{--<div class="panel-heading">--}}
-                    {{--<h4 class="panel-title">--}}
-                        {{--<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{$sphere->id}}"> <i class="fa fa-chevron-down pull-left flip"></i> {{ $sphere->name }}</a>--}}
-                    {{--</h4>--}}
-                {{--</div>--}}
-                {{--<div id="collapse{{$sphere->id}}" class="panel-collapse collapse in">--}}
-                    {{--<div class="panel-body">--}}
-                        {{--<table class="table table-bordered table-striped table-hover dataTable">--}}
-                            {{--<thead>--}}
-                            {{--<tr>--}}
-                                {{--<th>{{ trans("site/lead.name") }}</th>--}}
-                                {{--<th>{{ trans("main.status") }}</th>--}}
-                                {{--<th>{{ trans("main.updated_at") }}</th>--}}
-                                {{--<th>{{ trans("main.action") }}</th>--}}
-                            {{--</tr>--}}
-                            {{--</thead>--}}
-                            {{--<tbody>--}}
-                            {{--@forelse($sphere->leadsFoOperator as $lead)--}}
-                                {{--<tr>--}}
-                                    {{--<td>{{ $lead->name }}</td>--}}
-                                    {{--<td>@if($sphere->status) <span class="label label-success">on</span> @else <span class="label label-danger">off</span> @endif</td>--}}
-                                    {{--<td>{{ $lead->updated_at }}</td>--}}
-                                    {{--<td><a href="{{ route('operator.sphere.lead.edit',['sphere'=>$sphere->id,'id'=>$lead->id]) }}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a></td>--}}
-                                {{--</tr>--}}
-                            {{--@empty--}}
-                            {{--@endforelse--}}
-                            {{--</tbody>--}}
-                        {{--</table>--}}
-                    {{--</div>--}}
-                {{--</div>--}}
-            {{--</div>--}}
-        {{--@empty--}}
-        {{--@endforelse--}}
-    {{--</div>--}}
-
 @stop
 
 @section('styles')
     <style>
 
+        /* оформление строки таблицы к перезвону */
         .make_call_row{
-            /*background: linear-gradient(to top, #FFFCA7, #fff) !important;*/
             background: linear-gradient(to top, #E2F9FF, #fff) !important;
             color: #145B71;
             font-weight: 500;
+        }
+
+        /* оформление строки таблицы уже редактированного лида */
+        .edit_lead{
+            color: #236074;
         }
 
     </style>

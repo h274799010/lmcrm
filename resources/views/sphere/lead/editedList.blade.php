@@ -2,7 +2,7 @@
 
 {{-- Content --}}
 @section('content')
-    <h1>Edited leads list</h1>
+    <h1>{{ trans("operator/editedList.page_title") }}</h1>
     @if($errors->any())
         <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
@@ -13,39 +13,31 @@
     <table class="table table-bordered table-striped table-hover dataTableOperatorLeads">
         <thead>
         <tr>
-            <th>{!! trans("site/lead.name") !!}</th>
-            <th>{!! trans("main.status") !!}</th>
+            <th>{{ trans("operator/editedList.name") }}</th>
+            <th>{{ trans("operator/editedList.status") }}</th>
 
-            <th>{!! trans("main.user") !!}</th>
-            <th>{!! trans("main.sphere") !!}</th>
+            <th>{{ trans("operator/editedList.updated_at") }}</th>
 
+            <th>{{ trans("operator/editedList.sphere") }}</th>
+            <th>{{ trans("operator/editedList.depositor") }}</th>
 
-            <th>{!! trans("main.updated_at") !!}</th>
-            <th>{!! trans("main.action") !!}</th>
+            <th>{{ trans("operator/editedList.action") }}</th>
         </tr>
         </thead>
         <tbody>
         @forelse($leads as $lead)
             <tr>
-                <td>{!! $lead->name !!}</td>
-                <td>{!! $lead->statusName() !!}</td>
+                <td>{{ $lead->name }}</td>
+                <td>{{ $lead->statusName() }}</td>
 
-                <td>{!! $lead->user->agentInfo()->first()->company !!}</td>
+                <td>{{ $lead->updated_at }}</td>
 
-                <td>{!! $lead->sphere->name !!}</td>
-
-
-
-                <td>{!! $lead->updated_at !!}</td>
+                <td>{{ $lead->sphere->name }}</td>
+                <td>{{ $lead->user->agentInfo()->first()->company }}</td>
 
                 <td>
-                    {{--@if(!\App\Models\Operator::with('lead')->where('lead_id', '=', $lead->id)->first())--}}
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
-                    {{--@else
-                        Лид уже редактируется
-                    @endif--}}
                 </td>
-
             </tr>
         @empty
         @endforelse
@@ -59,31 +51,24 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        {{-- todo trans --}}
-                        Этот лид уже находится на редактировании!
+                        {{ trans("operator/editedList.lead_is_edited") }}
                     </h4>
                 </div>
 
                 <div class="modal-body">
-
-                    {{-- todo trans --}}
-                    Вы действительно хотите его редактировать?
-
+                    {{ trans("operator/editedList.sure_you_want_to_edit") }}
                 </div>
 
                 <div class="modal-footer">
 
                     <button id="statusModalCancel" type="button" class="btn btn-default" data-dismiss="modal">
-                        {{-- todo trans --}}
-                        Cancel
+                        {{ trans("operator/editedList.modal_button_cancel") }}
                     </button>
 
                     <button id="statusModalChange" type="button" class="btn btn-danger">
-                        {{-- todo trans --}}
-                        Edit
+                        {{ trans("operator/editedList.modal_button_edit") }}
                     </button>
                 </div>
-
 
             </div>
         </div>
@@ -96,8 +81,7 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="exampleModalLabel">
-                        {{-- todo trans --}}
-                        Этот лид уже отредактирован другим оператором!
+                        {{ trans("operator/editedList.lead_has_been_edited") }}
                     </h4>
                 </div>
 
