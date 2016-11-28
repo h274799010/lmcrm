@@ -77,7 +77,7 @@ class SphereController extends Controller {
             ->where('operator_processing_time', '=', NULL)
             ->with([ 'sphere', 'user', 'operatorOrganizer' ])
             ->orderBy('operator_processing_time')
-            ->take(20)
+//            ->take(20)
             ->get();
 
         // соединяем лиды к редатктированию с новыми лидами (лиды уже редактированные оператором и новые лиды)
