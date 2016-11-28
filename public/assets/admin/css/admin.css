@@ -1211,3 +1211,6 @@ table.dataTable thead .sorting:after {
 .agent_branch_button{
     cursor: pointer;
 }
+.form-group.has-error label.control-label, .form-group.has-error .help-block {
+    display: inline-block;
+}

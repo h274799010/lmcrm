@@ -34,4 +34,8 @@ return [
     'open_leads' => 'Open leads',
     'auction' => 'Auction',
     'payment' => 'Payment',
+
+    'wallet_empty' => 'Wallet empty',
+    'transactions_empty' => 'Transactions empty',
+    'leads_empty' => 'Leads empty',
 ];

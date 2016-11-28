@@ -31,11 +31,12 @@ class SentinelDatabaseSeeder extends Seeder
 
 
 
-        Sentinel::getUserRepository()->create(array(
+        $system = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'system@system.com',
             'password' => 'system',
-            'name' => 'system'
+            'first_name' => 'system',
+            'last_name' => 'system'
 
         ));
 
@@ -45,13 +46,14 @@ class SentinelDatabaseSeeder extends Seeder
 
             'email'    => 'admin@admin.com',
             'password' => 'admin',
-            'name' => 'admin'
+            'first_name' => 'admin',
+            'last_name' => 'admin'
 
         ));
 
 
 
-        $agent = Sentinel::getUserRepository()->create(array(
+        /*$agent = Sentinel::getUserRepository()->create(array(
 
             'email'    => 'agent@agent.com',
             'password' => 'agent',
@@ -96,7 +98,7 @@ class SentinelDatabaseSeeder extends Seeder
             'password' => 'account',
             'name' => 'account manager'
 
-        ));
+        ));*/
 
 
         // Create Activations
@@ -107,7 +109,11 @@ class SentinelDatabaseSeeder extends Seeder
 
         Activation::complete($admin, $code);
 
-        $code = Activation::create($agent)->code;
+        $code = Activation::create($system)->code;
+
+        Activation::complete($system, $code);
+
+        /*$code = Activation::create($agent)->code;
 
         Activation::complete($agent, $code);
 
@@ -130,7 +136,7 @@ class SentinelDatabaseSeeder extends Seeder
 
         $code = Activation::create($accountManager)->code;
 
-        Activation::complete($accountManager, $code);
+        Activation::complete($accountManager, $code);*/
 
 
         // Create Roles
@@ -266,7 +272,7 @@ class SentinelDatabaseSeeder extends Seeder
 
         $administratorRole->users()->attach($admin);
 
-        $agentRole->users()->attach($agent);
+        /*$agentRole->users()->attach($agent);
         $partnerRole->users()->attach($agent);
 
 
@@ -282,7 +288,7 @@ class SentinelDatabaseSeeder extends Seeder
         $partnerRole->users()->attach($partner);
         $agentRole->users()->attach($partner);
 
-        $accountManagerRole->users()->attach($accountManager);
+        $accountManagerRole->users()->attach($accountManager);*/
 
     }
 }

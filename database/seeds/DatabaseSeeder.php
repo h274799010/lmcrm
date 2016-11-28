@@ -16,13 +16,13 @@ class DatabaseSeeder extends Seeder
         $this->call('SentinelDatabaseSeeder');
 
         // подключение агента к первой сфере, которая будет созданна
-        DB::table('agent_sphere')->insert([
+        /*DB::table('agent_sphere')->insert([
             'id' => '1',
             'agent_id' => '3',
             'sphere_id' => '1',
             'created_at' => '2016-05-16 10:21:44',
             'updated_at' => '2016-05-24 10:46:48',
-        ]);
+        ]);*/
 
 
 
@@ -34,6 +34,9 @@ class DatabaseSeeder extends Seeder
             'comment' => 'лид забраковали по каким то причинам',
         ]);
 
-
+        DB::table('wallet')->insert([
+            'id' => '1',
+            'user_id' => '1'
+        ]);
     }
 }

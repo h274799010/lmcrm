@@ -312,6 +312,8 @@
                             <div class="apply_content"></div>
                             <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
 
+                            {{--<input type="file" multiple="multiple" name="files[]" />--}}
+
                             <div class="closeDeal_files"></div>
                             <button class="btn btn-xs btn-primary addFileButton">add file</button>
                         </div>
@@ -556,6 +558,14 @@
         // получение токена
         var token = $('meta[name=csrf-token]').attr('content');
 
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // переменная для хранения файлов
+        var files = [];
 
         // подключаем к инпуту календарь
         $('input#time_reminder').datetimepicker({
@@ -563,7 +573,7 @@
             minDate: new Date()
         });
 
-
+        // кнопка закрытия алерта предупреждения что сделка может закрываться только по одному пользователю
         $('.users_bust_for_deal_close_deal').bind('click', function(){
             $('.users_bust_for_deal').addClass('hidden');
         });
@@ -571,22 +581,35 @@
         // добавление поля для добавления файла
         $('.addFileButton').bind('click', function(){
 
+            // создаем поле input
             var input = $('<input />');
 
+            // добавляем тип file
             $(input).attr('type', 'file');
 
+            $(input).attr('name', 'files[]');
+
+            // добавляем класс filestyle
             $(input).addClass('filestyle');
 
-            $(input).attr('data-icon', 'false');
-
-
+            // подключаем input к узлу
             $('.closeDeal_files').append(input);
 
+            // подключаем к input filestyle
             $(input).filestyle({
                 icon: false,
                 buttonText: "Browse"
             });
 
+            // добавляем днные поля в переменную
+//            $(input).change(function(){
+//                files = this.files;
+//            });
+
+
+            $('input[type=file]').change(function(){
+                files = this.files;
+            });
 
         });
 
@@ -1332,6 +1355,55 @@
 
                     // получение прайса из формы модального окна
                     leadApplyData.users[0].price = $('#closeDealPrice').val();
+
+                    // добавляем тип в данные
+//                    formFields.type = leadApplyData.type;
+                    // добавляем данные агентов
+//                    formFields.agentsData = JSON.stringify( leadApplyData.users );
+
+
+
+//                    files = $('input[type=file]');
+//
+//                    console.log(files);
+
+//                    var data = new FormData();
+//                    $.each( files, function( key, value ){
+//                        data.append( key, value );
+//                    });
+
+//                    data.append( 'data', JSON.stringify( formFields ));
+
+
+                    // todo доработать
+
+//                    console.log(files);
+
+
+//                    return true;
+
+                    {{--$.ajax({--}}
+                        {{--url: '{{  route('operator.lead.action') }}',--}}
+                        {{--type: 'POST',--}}
+{{--//                        data: { data: formFields, files: filesData},--}}
+                        {{--data: data,--}}
+                        {{--cache: false,--}}
+                        {{--dataType: 'json',--}}
+                        {{--processData: false, // Не обрабатываем файлы (Don't process the files)--}}
+                        {{--contentType: false, // Так jQuery скажет серверу что это строковой запрос--}}
+                        {{--success: function( respond, textStatus, jqXHR ){--}}
+
+                            {{--// Если все ОК--}}
+                            {{--console.log('ответ пришел');--}}
+
+                        {{--},--}}
+                        {{--error: function( jqXHR, textStatus, errorThrown ){--}}
+                            {{--console.log('ОШИБКИ AJAX запроса: ' + textStatus );--}}
+                        {{--}--}}
+                    {{--});--}}
+
+
+//                    return true;
                 }
 
                 // добавляем тип в данные
@@ -1342,7 +1414,7 @@
 
                 /**
                  * Отправка данных формы
-                 * todo доработать
+                 *
                  */
                 $.post(
                         "{{  route('operator.lead.action') }}",
@@ -1475,6 +1547,8 @@
             $('.apply_closeDeal').find('.apply_content').html('');
 
             $('.closeDeal_files').html('');
+
+            $('#closeDealPrice').val('');
 
             // обнуляем данные
             leadApplyData = false;

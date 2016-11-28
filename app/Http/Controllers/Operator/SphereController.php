@@ -757,6 +757,10 @@ class SphereController extends Controller {
      */
     public function leadAction( Request $request ){
 
+
+//        dd($request);
+//        dd($_FILES);
+
         /** Типы запроса: */
         // 1. save - просто сохраняем лида
         // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе

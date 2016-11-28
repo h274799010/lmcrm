@@ -387,7 +387,7 @@ $(function(){
                     $(val.masks).each(function( key, mask ){
                         // перебираем все маски
 
-                        if( mask.status === undefined ){ return false; }
+                        //if( mask.status === undefined ){ return false; }
 
                         // блок с именем
                         var name = $('<span />');
@@ -556,7 +556,7 @@ $(function(){
         $('#salesman_balance_data_content').empty();
 
     });
-
+updateBalance();
 });
 
 
@@ -569,4 +569,35 @@ function getCookie(name) {
         "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
     return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+
+// Обновление данных по балансу
+function updateBalance() {
+    var balance = getCookie('balance');
+
+    if(balance == undefined) {
+        return false;
+    }
+
+    // получаем данные баланса из куки и преобразовываем в json
+    var balanceData = JSON.parse( balance );
+    //dd(balanceData);
+    var maxLeadsToBuy = 0;
+
+    if( balanceData.allSpheres != '' && balanceData.allSpheres != undefined ) {
+        // проходим по всех сферам
+        $.each(balanceData.allSpheres, function (ind, sphere) {
+
+            // проходим по всем маскам
+            // и ищем максимальное кол-во возможных открытий лида
+            $.each(sphere.masks, function (i, mask) {
+                if( mask.leadsCount > maxLeadsToBuy ) {
+                    maxLeadsToBuy = mask.leadsCount;
+                }
+            })
+        });
+    }
+
+    $('#balance_data span').html(maxLeadsToBuy);
 }

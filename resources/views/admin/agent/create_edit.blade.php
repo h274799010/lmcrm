@@ -12,7 +12,7 @@
         </h3>
     </div>
 
-    @if($errors->any())
+    @if( !empty($errors->first('success')) )
         <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
             {{$errors->first('message')}}
         </div>
@@ -186,7 +186,7 @@
                                 <div class="col-xs-6">
                                     <div class="checkbox">
                                         <label for="accountManaget-{{ $accountManager->id }}">
-                                            {!! Form::checkbox('$accountManager[]', $accountManager->id, (in_array($accountManager->id, $agent->accountManagers()->get()->lists('id')->toArray()))?$accountManager->id:null, array('class' => '','id'=>"accountManaget-".$accountManager->id)) !!}
+                                            {!! Form::checkbox('accountManagers[]', $accountManager->id, (in_array($accountManager->id, $agent->accountManagers()->get()->lists('id')->toArray()))?$accountManager->id:null, array('class' => '','id'=>"accountManaget-".$accountManager->id)) !!}
                                             {{ $accountManager->email }}
                                         </label>
                                     </div>

@@ -58,41 +58,47 @@
 
                 <tbody>
 
-                @foreach( $leads as $lead )
+                @if( count($leads) )
+                    @foreach( $leads as $lead )
 
+                        <tr>
+                            <td>{{ $lead['name'] }}</td>
+                            <td class="center"> {{ $lead['opened'] }} / {{ $lead->sphere->openLead }}</td>
+
+                            <td class="center"> {{ $lead->ClosingDealCount() }}</td>
+
+                            <td style=" color:red; " > {{ $lead->operatorSpend() }} </td>
+                            <td style=" color:green; " > {{ $lead->revenueForOpen()  }} </td>
+                            <td style=" color:green; " > {{ $lead->revenueForClosingDeal()  }} </td>
+
+                            <td> @if( $lead->depositorProfit()<0 ) {{ $lead->depositorProfit() }} wasted @else {{ $lead->depositorProfit() }} @endif </td>
+
+
+                            <td> {{ $lead->systemProfit() }} </td>
+
+
+
+                            <td class="data_time center"> @if( $lead['expiry_time'] =='0000-00-00 00:00:00') - @else {{ $lead['expiry_time'] }} @endif</td>
+                            <td class="data_time center"> @if( $lead['open_lead_expired'] =='0000-00-00 00:00:00') - @else {{ $lead['open_lead_expired'] }} @endif</td>
+
+                            <td class="center"> {{ $lead->statusName() }} </td>
+                            <td class="center"> @if( $lead->auction_status < 2 ) - @else {{ $lead->auctionStatusName() }} @endif</td>
+                            <td class="center"> @if( $lead->payment_status < 1 ) - @else {{ $lead->paymentStatusName() }} @endif</td>
+
+                            <td>
+
+                                <a href="{{ route('admin.system.lead', [$lead['id']])  }}">
+                                    <img class="_icon pull-left flip" src="/assets/web/icons/list-edit.png">
+                                </a>
+
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
                     <tr>
-                        <td>{{ $lead['name'] }}</td>
-                        <td class="center"> {{ $lead['opened'] }} / {{ $lead->sphere->openLead }}</td>
-
-                        <td class="center"> {{ $lead->ClosingDealCount() }}</td>
-
-                        <td style=" color:red; " > {{ $lead->operatorSpend() }} </td>
-                        <td style=" color:green; " > {{ $lead->revenueForOpen()  }} </td>
-                        <td style=" color:green; " > {{ $lead->revenueForClosingDeal()  }} </td>
-
-                        <td> @if( $lead->depositorProfit()<0 ) {{ $lead->depositorProfit() }} wasted @else {{ $lead->depositorProfit() }} @endif </td>
-
-
-                        <td> {{ $lead->systemProfit() }} </td>
-
-
-
-                        <td class="data_time center"> @if( $lead['expiry_time'] =='0000-00-00 00:00:00') - @else {{ $lead['expiry_time'] }} @endif</td>
-                        <td class="data_time center"> @if( $lead['open_lead_expired'] =='0000-00-00 00:00:00') - @else {{ $lead['open_lead_expired'] }} @endif</td>
-
-                        <td class="center"> {{ $lead->statusName() }} </td>
-                        <td class="center"> @if( $lead->auction_status < 2 ) - @else {{ $lead->auctionStatusName() }} @endif</td>
-                        <td class="center"> @if( $lead->payment_status < 1 ) - @else {{ $lead->paymentStatusName() }} @endif</td>
-
-                        <td>
-
-                            <a href="{{ route('admin.system.lead', [$lead['id']])  }}">
-                                <img class="_icon pull-left flip" src="/assets/web/icons/list-edit.png">
-                            </a>
-
-                        </td>
+                        <td colspan="14">{{ trans('admin/wallet.leads_empty') }}</td>
                     </tr>
-                @endforeach
+                @endif
 
                 </tbody>
 

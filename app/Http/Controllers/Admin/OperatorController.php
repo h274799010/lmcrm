@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Requests\AdminUsersEditFormRequest;
+use App\Http\Requests\OperatorFormRequest;
 use App\Models\Operator;
 use App\Models\OperatorSphere;
 use App\Models\Sphere;
@@ -56,7 +57,7 @@ class OperatorController extends AdminController {
         return view('admin.operator.create_edit')->with('spheres', $spheres);
     }
 
-    public function store(Request $request)
+    public function store(OperatorFormRequest $request)
     {
         $user=\Sentinel::registerAndActivate($request->except('password_confirmation'));
         $user->update(['password'=>\Hash::make($request->input('password'))]);
@@ -121,7 +122,10 @@ class OperatorController extends AdminController {
     public function attachAccountManagers(Request $request)
     {
         $operator=OperatorSphere::findOrFail($request->input('operator_id'));
-        $operator->accountManagers()->sync($request->input('accountManagers'));
+
+        $accountManagers = ( $request->input('accountManagers') ?: [] );
+
+        $operator->accountManagers()->sync( $accountManagers );
 
         return redirect()->back();
     }

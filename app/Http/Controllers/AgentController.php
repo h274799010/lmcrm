@@ -140,24 +140,39 @@ class AgentController extends BaseController
 
             // минимальное количество лидо которое может купить агент
             // сколько агент может купить лидов по маске с максимальным прайсом
-            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
+            //$minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
 
         } else{
 
             $allSpheres = false;
-            $minLeadsToBuy = 0;
+            //$minLeadsToBuy = 0;
 
         }
 
         // данные по забракованным лидам
         $wasted = $wallet->wasted;
 
+        // Данные по сферам для cookies
+        $cookieSpheres = array();
+        foreach ($allSpheres as $key => $sphere) {
+            // Имя сферы
+            $cookieSpheres[$key]['name'] = $sphere->name;
+
+            // Данные по маскам в сфере
+            $cookieSpheres[$key]['masks'] = array();
+            foreach ($sphere->masks as $k => $mask) {
+                //$cookieSpheres[$key]['masks'][$k]['status'] = $mask->status;
+                $cookieSpheres[$key]['masks'][$k]['name'] = $mask->name;
+                $cookieSpheres[$key]['masks'][$k]['leadsCount'] = $mask->leadsCount;
+            }
+        }
+
         // данные по балансу в шапке
         $balance =
         [
             'wasted' => $wasted,
-            'minLeadsToBuy' => $minLeadsToBuy,
-            'allSpheres' => $allSpheres
+            //'minLeadsToBuy' => $minLeadsToBuy,
+            'allSpheres' => $cookieSpheres
         ];
 
         // добавляем данные по балансу на страницу

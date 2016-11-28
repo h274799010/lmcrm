@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
+use App\Http\Requests\AccountManagerFormRequest;
 use App\Http\Requests\AdminUsersEditFormRequest;
 use App\Models\AccountManager;
 use App\Models\AccountManagerSphere;
@@ -49,7 +50,7 @@ class AccountManagerController extends AdminController {
         return view('admin.accountManager.create_edit')->with('spheres', $spheres);
     }
 
-    public function store(Request $request)
+    public function store(AccountManagerFormRequest $request)
     {
         $user=\Sentinel::registerAndActivate($request->except('password_confirmation'));
         $user->update(['password'=>\Hash::make($request->input('password'))]);
