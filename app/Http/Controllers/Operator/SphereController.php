@@ -937,40 +937,45 @@ class SphereController extends Controller {
         /** Переделываем массив данных по опциям ad_ с фронтенда в поля для записи в БД */
 
         // преобразовываем массив в коллекцию
-        $addit_data = collect($request->data['addit_data']);
+        if(isset($request->data['addit_data'])){
 
-        // массив с обработанными полями
-        $addit_dataFields = [];
+            $addit_data = collect($request->data['addit_data']);
 
-        // перебираем все поля, и обрабатываем
-        $addit_data->each(function( $item ) use( &$addit_dataFields ){
+            // массив с обработанными полями
+            $addit_dataFields = [];
 
-            // обработка в зависимости от типа атрибута
-            if( $item['attrType'] == 'calendar'){
-                // если календарь
+            // перебираем все поля, и обрабатываем
+            $addit_data->each(function( $item ) use( &$addit_dataFields ){
 
-                // преобразовываем данные в дату
-                $val = date("Y-m-d H:i:s", strtotime( $item['val'] ));
+                // обработка в зависимости от типа атрибута
+                if( $item['attrType'] == 'calendar'){
+                    // если календарь
 
-            }elseif( $item['attrType'] == 'checkbox' || $item['attrType'] == 'radio' || $item['attrType'] == 'select' ){
-                // если checkbox, radio или select
+                    // преобразовываем данные в дату
+                    $val = date("Y-m-d H:i:s", strtotime( $item['val'] ));
 
-                // преобразовываем в integer
-                $val = (int)$item['val'];
+                }elseif( $item['attrType'] == 'checkbox' || $item['attrType'] == 'radio' || $item['attrType'] == 'select' ){
+                    // если checkbox, radio или select
 
-            }else{
-                // другой тип
+                    // преобразовываем в integer
+                    $val = (int)$item['val'];
 
-                // просто добавляем данные
-                $val = $item['val'];
-            }
+                }else{
+                    // другой тип
 
-            // заносим данные в массив
-            $addit_dataFields[ 'ad_' .(int)$item['attr'] .'_' .(int)$item['opt']   ] = $val;
-        });
+                    // просто добавляем данные
+                    $val = $item['val'];
+                }
 
-        // сохраняем все данные в маске
-        $mask->setAdByFields( $addit_dataFields, $lead_id );
+                // заносим данные в массив
+                $addit_dataFields[ 'ad_' .(int)$item['attr'] .'_' .(int)$item['opt']   ] = $val;
+            });
+
+            // сохраняем все данные в маске
+            $mask->setAdByFields( $addit_dataFields, $lead_id );
+        }
+
+
 
 
         /** Обработка лида в зависимости от его типа */
