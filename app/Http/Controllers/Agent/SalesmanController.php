@@ -63,6 +63,9 @@ class SalesmanController extends AgentController {
         $role = \Sentinel::findRoleBySlug('salesman');
         $salesman->roles()->attach($role);
 
+        $agentType = $agent->roles()->whereNotIn('slug', ['agent'])->first();
+        $salesman->roles()->attach($agentType);
+
         $salesman = Salesman::find($salesman->id);
 
         $salesman->info()->save(new SalesmanInfo([
