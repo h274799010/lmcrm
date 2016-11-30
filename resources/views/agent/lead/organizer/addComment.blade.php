@@ -4,7 +4,7 @@
     <h3>{{ trans("site/lead.opened.modal.comment.add.title") }}</h3>
     {{ Form::open(array('route' => ['agent.lead.putReminder'], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) }}
     <input type="hidden" name="lead_id" value="{{$lead_id}}">
-    <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
+    <div id="comment" class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
         <div class="col-xs-12">
             {{ trans("site/lead.opened.modal.comment.body") }}
             {{ Form::textarea('comment', null, array('class' => 'form-control','placeholder'=>trans('lead/form.comments'))) }}

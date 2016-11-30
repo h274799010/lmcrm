@@ -1480,6 +1480,12 @@ class LeadController extends AgentController {
      */
     public function putReminder(Request $request){
 
+        if(empty($request->input('comment'))) {
+            return response()->json( ['OrganizerItemError', 'errors' => [
+                'comment' => 'The options field is required.'
+            ] ] );
+        }
+
         if($request->input('salesman_id')) {
             $salesman = Salesman::findOrFail($request->input('salesman_id'));
 
@@ -1638,7 +1644,11 @@ class LeadController extends AgentController {
     public function updateOrganizer( Request $request )
     {
 
-        dd($request);
+        if(empty($request->input('comment'))) {
+            return response()->json( ['OrganizerItemError', 'errors' => [
+                'comment' => 'The options field is required.'
+            ] ] );
+        }
 
         $organizer = Organizer::find($request->id);
 
@@ -1656,7 +1666,9 @@ class LeadController extends AgentController {
         $organizer->save();
 
         if($request->ajax()){
-            return 'OrganizerItemUpdated,' .$organizer->id;
+            return response()->json([
+                'OrganizerItemUpdated', $organizer->id
+            ]);
         } else {
             return 'true';
         }

@@ -42,7 +42,19 @@ $(function(){
 				});
 				dialog.on("show.bs.modal", function() {
 					$(this).find('.ajax-form').ajaxForm(function(resp) {
-						dialog.modal('hide');
+                        if( resp[0] == 'OrganizerItemError' ) {
+
+                            $.each(resp['errors'], function (key, error) {
+                                $('#'+key).addClass('has-error').find('.help-block').html(error).show();
+
+                                $('#'+key+' :input').on('change', function () {
+                                    $('#'+key).removeClass('has-error').find('.help-block').empty();
+                                });
+                            });
+
+                        } else {
+                            dialog.modal('hide');
+                        }
 
                         if (resp=='reload') location.reload();
 
@@ -63,6 +75,7 @@ $(function(){
 							var token = $('meta[name=csrf-token]').attr('content');
 
 							$.post( getOrganizerRoute, { 'id': resp[1], '_token': token }, function( data ){
+							    console.log(data);
 
 								updateOrganizerRow( data[0], data[1], data[2], data[3] );
 							});
