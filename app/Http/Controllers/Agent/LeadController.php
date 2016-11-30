@@ -175,7 +175,7 @@ class LeadController extends AgentController {
         // данные агента
         if($salesman_id === false) {
 
-            if( $this->sphere ){
+            if( $this->spheres ){
 //                $attr['lead_attr'] = $this->sphere->leadAttr;
 //                $attr['agent_attr'] = $this->sphere->attributes;
                 $spheres = $this->spheres->load('filterAttr', 'leadAttr');
