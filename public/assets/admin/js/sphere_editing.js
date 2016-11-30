@@ -159,6 +159,14 @@ var app = angular.module('app', ['angular-sortable-view'])
         };
 
 
+        /** todo Переменные ошибок */
+
+        $scope.errorSwitch = false;
+
+        $scope.errorSwitchOff = function(){
+            $scope.errorSwitch = false;
+        };
+
         /** Атрибуты агента */
 
         // подключаем данные, клонируем модель чтобы не перебивать данные
@@ -232,9 +240,9 @@ var app = angular.module('app', ['angular-sortable-view'])
             // создаем новую опцию
             var newOption =
             {
-                id: 0,       // id статуса
-                val: '',     // имя
-                vale: true,      // значения
+                id: 0,         // id статуса
+                val: '',       // имя
+                vale: true,    // значения
                 position: $scope.attrEditor.agentAttrData.option.length + 1 // позиция
             };
 
@@ -255,10 +263,10 @@ var app = angular.module('app', ['angular-sortable-view'])
                 parent: $scope.attrEditor.agentAttrData.option[parent].id
             };
 
-            // добавляем статус в модель
+            // добавляем атрибут в модель
             $scope.attrEditor.agentAttrData.option.splice( parent+1, 0, newOption );
 
-            $scope.positioning($scope.attrEditor.agentAttrData.option);
+            //$scope.positioning($scope.attrEditor.agentAttrData.option);
         };
 
         // удаление опции атрибута
@@ -533,7 +541,7 @@ var app = angular.module('app', ['angular-sortable-view'])
         };
 
         /**
-         * Редактирование атрибута лида
+         * Сохранение атрибута лида
          *
          */
         $scope.saveLeadAttr = function(){
@@ -576,6 +584,8 @@ var app = angular.module('app', ['angular-sortable-view'])
                         break;
                 }
 
+                console.log($scope.data.lead.values);
+
             }else{
                 // атрибут уже есть в модели, его нужно просто обновить
 
@@ -585,6 +595,8 @@ var app = angular.module('app', ['angular-sortable-view'])
                     case 'email':
                         // изменяем содержание атрибута с типом email
                         $scope.data.lead.values[ $scope.attrEditor.lead.currentIndex ] = JSON.parse( JSON.stringify( $scope.attrEditor.lead.editors.email.data ) );
+                        // todo $scope.data.lead.values.push( JSON.parse( JSON.stringify( $scope.attrEditor.lead.editors.email.data ) ) );
+
                         break;
 
                     case 'textarea':
@@ -612,6 +624,9 @@ var app = angular.module('app', ['angular-sortable-view'])
                     default:
                         break;
                 }
+
+                //$scope.positioning( $scope.data.lead.values );
+
             }
 
             // убираем модальное окно
@@ -632,6 +647,9 @@ var app = angular.module('app', ['angular-sortable-view'])
 
             // добавляем статус в модель
             $scope.attrEditor.lead.editors.selective.data.option.push( newOption );
+
+            // todo $scope.positioning($scope.attrEditor.agentAttrData.option);
+
         };
 
         // удаление опции атрибута лида
@@ -644,7 +662,7 @@ var app = angular.module('app', ['angular-sortable-view'])
                 // просто удаляем его
 
                 // находим индекс элемента
-                var index = $scope.attrEditor.lead.editors.selective.data.option.indexOf(option);
+                var index = $scope.attrEditor.lead.editors.textinput.data.option.indexOf(option);
                 // удаляем элемент
                 $scope.attrEditor.lead.editors.selective.data.option.splice(index, 1);
 
@@ -876,8 +894,8 @@ var app = angular.module('app', ['angular-sortable-view'])
         /** Общее */
 
         /**
-         * Позиционирование елементов по индексу
-         * Обнуление всех переменных модели
+         * Действие после скрытия модального окна
+         *
          */
         $('#modal-page').on('hidden.bs.modal', function (e) {
 
@@ -975,12 +993,51 @@ var app = angular.module('app', ['angular-sortable-view'])
             // запрос на сервер для обработки и сохранения данных
             $http.post( saveDataUrl, data, config)
                 .success(function (data, status, headers, config) {
-                    //alert('Ok');
-                    location.reload();
+
+                    // проверка ответа с сервера
+                    if( data.status == 'true' ){
+                        // если статус true (все прошло нормально
+
+                        // переходим на страницу редактирования
+                        location.href = data.route;
+
+                    }else if( data.status == 'error' ){
+                        // если есть ошибки валидации
+
+                        // todo записываем все данные в localstorage
+                        localStorage.setItem( 'errors', data.errors );
+
+                        // переходим на страницу редактирования
+                        location.href = data.route;
+
+                    }else{
+                        // непонятный ответ сервера
+
+                        // идем на главную страницу
+                        location.href = '/';
+                    }
+
                 })
                 .error(function (data, status, header, config) {
                     alert('Error');
                 });
         };
+
+
+        /**
+         * Проверка переменной с ошибками
+         *
+         * если она есть - выводим и обнуляем
+         *
+         */
+        var validateErrors = localStorage.getItem('errors');
+
+        if( validateErrors ){
+            //console.log( JSON.parse( validateErrors ) );
+
+            $scope.errorContent = JSON.parse( validateErrors);
+            $scope.errorSwitch = true;
+            localStorage.removeItem('errors');
+        }
     });
 

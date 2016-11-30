@@ -93,6 +93,7 @@ class SphereController extends AdminController {
             "renderType"=>"dynamicForm",
             "id"=>null,
             "targetEntity"=>"SphereAdditionForms",
+            "values"=>[],
 #            "values"=>[
 #                ["id"=>0,"_type"=>'input',"label"=>'Name',"position"=>1],
 #                ["id"=>0,"_type"=>'email',"label"=>'E-mail',"position"=>2],
@@ -461,7 +462,7 @@ class SphereController extends AdminController {
         $threshold = [
             "renderType"=>"single",
             'name' => 'status',
-            'values'=>'',
+//            'values'=>'',
 
             "attributes" =>
             [
@@ -579,6 +580,7 @@ class SphereController extends AdminController {
                     }
                 }
 
+                $arr['validate']=[];
                 if($chrct->has('validators')) {
 //                    $arr['option']=[];
                     foreach($chrct->validators()->get() as $eav) {
@@ -1449,13 +1451,15 @@ class SphereController extends AdminController {
 
         // валидация, проверка на ошибки
         // если есть ошибки, переключатель сферы переходит в off
-        if($sphereData['variables']['status']) {
+        if( $sphere->status ) {
             $errors = $this->sphereValidate($sphere->id);
 
-            return response()->json( ['errors' => $errors] );
+            $errorsToString = json_encode($errors);
+
+            return response()->json( [ 'status'=>'error', 'errors' => $errorsToString, 'route'=>route('admin.sphere.edit', ['id'=>$sphere->id])] );
         }
 
-        return response()->json(TRUE);
+        return response()->json([ 'status'=>'true', 'route'=>route('admin.sphere.edit', ['id'=>$sphere->id]) ]);
     }
 
 

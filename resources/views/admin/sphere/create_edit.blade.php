@@ -19,9 +19,15 @@
             </div>
             </h3>
         </div>
-        <div class="alert alert-warning alert-dismissible fade in" role="alert" id="alert" style="display: none">
-            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
-            <div id="alertContent"></div>
+        <div ng-if="errorSwitch" class="alert alert-warning alert-dismissible fade in" role="alert" id="alert" >
+            {{-- todo <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>--}}
+            <button type="button" class="close" ng-click="errorSwitchOff"><span aria-hidden="true">×</span></button>
+
+            <div class="alertContent">
+                <p ng-repeat="(key, value) in errorContent">
+                    @{{ value }}
+                </p>
+            </div>
         </div>
         <div id="content">
             <div class="wizard">
@@ -681,7 +687,7 @@
                                     <div class="form jSplash-data" id="lead">
 
                                         <div sv-root sv-part="data.lead.values" sv-on-sort="positioning($partFrom)" class="list-group">
-                                            <div ng-repeat="attr in data.lead.values | orderBy:'position'" sv-element class="list-group-item" ng-hide="attr.delete">
+                                            <div ng-repeat="attr in data.lead.values" sv-element class="list-group-item" ng-hide="attr.delete">
                                                 <div class="row">
 
                                                     <span class="col-xs-10">
@@ -824,7 +830,7 @@
                                         <div sv-root sv-part="data.cform.values" sv-on-sort="positioning($partFrom)" class="list-group">
 
                                             {{-- Добавляем все атрибуты --}}
-                                            <div ng-repeat="attr in data.cform.values | orderBy:'position'" class="list-group-item" sv-element ng-hide="attr.delete">
+                                            <div ng-repeat="attr in data.cform.values" class="list-group-item" sv-element ng-hide="attr.delete">
 
                                                 {{-- Если тип radio --}}
                                                 <div ng-if="attr._type=='radio'" class="row">
@@ -1061,7 +1067,6 @@
                                 <div class="col-xs-12">
                                     <label class="control-label">select field type</label>
                                     <select ng-model="attrEditor.agentSelectedType" ng-change="selectedTypeAction()" class="pull-left form-control">
-                                        <option selected="" value="0"></option>
                                         <option value="checkbox">Checkbox</option>
                                         <option value="radio">Radio</option>
                                         <option value="select">Dropdown</option>
@@ -1074,7 +1079,6 @@
                                 <div class="col-xs-12">
                                     <label class="control-label">select field type</label>
                                     <select ng-model="attrEditor.lead.selectedType" ng-change="leadSelectedTypeAction()" class="pull-left form-control">
-                                        <option selected="" value="0"></option>
                                         <option value="email">E-mail</option>
                                         <option value="textarea">Text area</option>
                                         <option value="input">Text input</option>
@@ -1240,7 +1244,7 @@
                                                 sv-part="attrEditor.lead.editors.selective.data.option"
                                                 sv-on-sort="positioning($partFrom)"
                                         >
-                                            <div ng-repeat="option in attrEditor.lead.editors.selective.data.option | orderBy:'position'" sv-element class="row" ng-hide="option.delete">
+                                            <div ng-repeat="option in attrEditor.lead.editors.selective.data.option" sv-element class="row" ng-hide="option.delete">
 
                                                 {{-- кнопка перемещения --}}
                                                 <div class="col-xs-1 ">
@@ -1585,9 +1589,6 @@
         var saveDataUrl = '{{ route('admin.sphere.update', [$fid]) }}';
 
         $(function(){
-//            $(".jSplash-form").submit(function(){
-//                return false;
-//            });
             $('#alert .close').on('click', function (e) {
                 e.preventDefault();
                 $('#alert').slideUp();
@@ -1608,95 +1609,6 @@
             }});
 
             var cntLead = 1;
-            {{--$.ajax({--}}
-                {{--url:  '{{ route('admin.attr.form',[$fid]) }}',--}}
-                {{--method: 'GET',--}}
-                {{--dataType: 'json',--}}
-                {{--success: function(resp){--}}
-{{--//                    for(var k in resp) {--}}
-{{--//                       var $el = $('#content').find('#'+k);--}}
-{{--//--}}
-{{--//                        if($el.length) $el.jSplash({--}}
-{{--//                            event:{--}}
-{{--//                                onShow:function(){--}}
-{{--//                                    $.material.init();--}}
-{{--//                                    $('#content .jSplash-data .btn-calc').click(function(){--}}
-{{--//                                        cntLead = 1;--}}
-{{--//                                        var $rows = $(".statuses").find(".duplicated");--}}
-{{--//                                        for(var j=$rows.length-1;j>=0;j--){--}}
-{{--//                                            var $ext = $rows.eq(j).find('.extend');--}}
-{{--//                                            var range = $ext.eq(0).is(":checked")? 100-$ext.eq(1).val():$ext.eq(1).val()--}}
-{{--//                                            if(range) cntLead = parseInt(cntLead / range * 100);--}}
-{{--//                                        }--}}
-{{--//                                        $(".statuses #recLead").val(cntLead).trigger('change');--}}
-{{--//                                    });--}}
-{{--//                                    $(".statuses #recLead").off().change(function(){--}}
-{{--//                                        cntLead = $(this).val();--}}
-{{--//                                        $el.data('splash').settings('stat.minLead',$(this).val());--}}
-{{--//                                    });--}}
-{{--//                                },--}}
-{{--//                                onEdit:function(){--}}
-{{--//                                    $.material.init();--}}
-{{--//                                },--}}
-{{--//                                onModal:function($el){--}}
-{{--//                                    $.material.init($el);--}}
-{{--//                                }--}}
-{{--//                            }}).data('splash').load({data:resp[k]},false,{}).show();--}}
-{{--//                    }--}}
-                {{--}--}}
-            {{--});--}}
-
-            {{--$('#content .btn-save').click(function(){--}}
-                {{--var postData = {};--}}
-                {{--var $jElements = $('#content .jSplash-data');--}}
-                {{--var $this = $(this);--}}
-                {{--for(var i=0; i<$jElements.length;i++) {--}}
-                    {{--postData[$jElements.eq(i).attr('id')] = $jElements.eq(i).data('splash').serialize();--}}
-                {{--}--}}
-                {{--postData['stat_minLead']=cntLead;--}}
-
-                {{--if(postData) {--}}
-                    {{--$this.prop('disabled',true);--}}
-                    {{--$.ajax({--}}
-                        {{--headers: {--}}
-                            {{--'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
-                        {{--},--}}
-                        {{--url: '{{ route('admin.sphere.update',[$fid]) }}',--}}
-                        {{--method: 'POST',--}}
-                        {{--data: postData,--}}
-                        {{--success: function (data, textStatus) {--}}
-                            {{--if(data['error']) {--}}
-                                {{--$('#alertContent').html(data['error']);--}}
-                                {{--$('#alert').slideDown();--}}
-
-                                {{--$this.prop('disabled',false);--}}
-                            {{--} else if(data['errors']) {--}}
-                                {{--var errors = '<p>{{ trans('admin/sphere.errors.not_activated') }}</p>';--}}
-                                {{--$.each(data['errors'], function (i, error) {--}}
-                                    {{--errors += '<p>'+error+'</p>';--}}
-                                {{--});--}}
-
-                                {{--$('#modal-page .modal-body').append('<div class="alert alert-danger" role="alert">'+errors+'</div>');--}}
-                                {{--$('#modal-page .btn-info').remove();--}}
-                                {{--$('#modal-page .btn-save').on('click', function (e) {--}}
-                                    {{--e.preventDefault();--}}
-
-                                    {{--window.location = '{{ route('admin.sphere.index') }}';--}}
-                                {{--});--}}
-                                {{--$('#modal-page').modal();--}}
-                            {{--} else {--}}
-                                {{--$this.prop('disabled',false);--}}
-                                {{--window.location = '{{ route('admin.sphere.index') }}';--}}
-                            {{--}--}}
-                        {{--},--}}
-                        {{--error: function (XMLHttpRequest, textStatus) {--}}
-                            {{--alert(textStatus);--}}
-                            {{--$this.prop('disabled',false);--}}
-                        {{--}--}}
-                    {{--});--}}
-                {{--};--}}
-                {{--return false;--}}
-            {{--});--}}
 
             function initSlider($sliderContaner,rangeVal,check){
                 var startVal = [0,50];
@@ -1733,17 +1645,6 @@
                 });
                 return true;
             }
-            /*
-            $('.btn-slider-add').click(function(){
-                var $ns = $("#_threshold .duplicate-row").first().clone().removeClass('hidden');
-                var $lastSliderRow = $("#_threshold .duplicate-row").last();
-                $lastSliderRow.after($ns);
-                var data = null;
-                if($lastSliderRow.find('.slider').get(0).noUiSlider) { data = $lastSliderRow.find('.slider').get(0).noUiSlider.get(); }
-                initSlider($ns,data);
-            });
-            //.getElementsByClassName('noUi-origin')
-            */
         });
     </script>
 @stop
