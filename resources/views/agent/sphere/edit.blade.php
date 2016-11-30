@@ -10,6 +10,12 @@
         </div>
     </div>
 
+    @if($errors->first('options'))
+        <div class="alert alert-danger" role="alert">
+            {{ $errors->first('options', ':message') }}
+        </div>
+    @endif
+
     @if(isset($salesman_id) && $salesman_id !== false)
         {{ Form::model($sphere,array('route' => ['agent.salesman.sphere.update', $sphere->id, $maskData['id'], $salesman_id], 'method' => 'put', 'class' => 'bf', 'files'=> true)) }}
     @else

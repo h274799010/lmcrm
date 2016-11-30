@@ -205,6 +205,9 @@ class SphereController extends AgentController {
      */
     public function update(Request $request, $sphere_id, $mask_id, $salesman_id = false)
     {
+        /*if( empty($request->input('options')) || count($request->input('options')) == 0 ) {
+            return redirect()->back()
+        }*/
         if(isset($salesman_id) && $salesman_id !== false) {
             $user_id = $salesman_id;
         } else {
@@ -214,6 +217,7 @@ class SphereController extends AgentController {
         // валидация
         $validator = Validator::make($request->all(), [
             'options.*' => 'integer',
+            'options' => 'required',
         ]);
 
         // если данные не прошли валидацию - выходим
