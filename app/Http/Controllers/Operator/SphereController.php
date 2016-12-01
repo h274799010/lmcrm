@@ -208,7 +208,7 @@ class SphereController extends Controller {
     {
 
         // todo исправить
-        dd($request);
+        //dd($request);
 
         // Тип запроса:
         // 1. save - просто сохраняем лида
