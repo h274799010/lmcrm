@@ -35,7 +35,11 @@
                 <td>{{ Lang::has('operator/list.date_format') ? ( $lead->operator_processing_time ? $lead->operator_processing_time->format( trans('operator/list.date_format') ) : $lead->created_at->format( trans('operator/list.date_format')) ) : 'operator/list.date_format' }}</td>
                 <td>{{ Lang::has('operator/list.date_format') ?  $lead->updated_at->format( trans('operator/list.date_format') ) : 'operator/list.date_format' }}</td>
                 <td>{{ $lead->sphere->name }}</td>
-                <td>{{ $lead->user->agentInfo()->first()->company }}</td>
+                @if(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::findById($lead->user->id)->inRole('agent'))
+                    <td>{{ $lead->user->agentInfo()->first()->company }}</td>
+                @else
+                    <td>{{ \App\Models\Salesman::find($lead->user->id)->agent()->first()->agentInfo()->first()->company }}</td>
+                @endif
                 <td>
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
                 </td>
