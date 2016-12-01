@@ -41,8 +41,8 @@
 
                             <tr class="@if( $detail['amount'] > 0 ) wallet_add @else wallet_decrease @endif">
                                 <td>{{ $transaction['created_at'] }}</td>
-                                <td> {{ $detail['user']['name'] }}</td>
-                                <td> {{ $detail['amount'] }}</td>
+                                <td>{{ $detail['user']['first_name'] }} {{ $detail['user']['last_name'] }}</td>
+                                <td>{{ $detail['amount'] }}</td>
                                 <td>{{ $detail['after'] }}</td>
                                 <td>{{ $detail['wallet_type'] }}</td>
                                 <td>{{ $detail['type'] }}</td>
