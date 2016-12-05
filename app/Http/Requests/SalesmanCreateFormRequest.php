@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 
-class AgentFormRequest extends Request
+class SalesmanCreateFormRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,12 +27,7 @@ class AgentFormRequest extends Request
             'email' => 'required|email|unique:users',
             'password' => 'required|confirmed|min:6',
             'first_name' => 'required',
-            'last_name' => 'required',
-            'spheres' => 'required',
-            'company' => 'required',
-            'lead_revenue_share' => 'required|numeric',
-            'payment_revenue_share' => 'required|numeric',
-            'role' => 'required',
+            'last_name' => 'required'
         ];
     }
 }

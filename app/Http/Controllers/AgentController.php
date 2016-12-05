@@ -154,16 +154,18 @@ class AgentController extends BaseController
 
         // Данные по сферам для cookies
         $cookieSpheres = array();
-        foreach ($allSpheres as $key => $sphere) {
-            // Имя сферы
-            $cookieSpheres[$key]['name'] = $sphere->name;
+        if($allSpheres) {
+            foreach ($allSpheres as $key => $sphere) {
+                // Имя сферы
+                $cookieSpheres[$key]['name'] = $sphere->name;
 
-            // Данные по маскам в сфере
-            $cookieSpheres[$key]['masks'] = array();
-            foreach ($sphere->masks as $k => $mask) {
-                //$cookieSpheres[$key]['masks'][$k]['status'] = $mask->status;
-                $cookieSpheres[$key]['masks'][$k]['name'] = $mask->name;
-                $cookieSpheres[$key]['masks'][$k]['leadsCount'] = $mask->leadsCount;
+                // Данные по маскам в сфере
+                $cookieSpheres[$key]['masks'] = array();
+                foreach ($sphere->masks as $k => $mask) {
+                    //$cookieSpheres[$key]['masks'][$k]['status'] = $mask->status;
+                    $cookieSpheres[$key]['masks'][$k]['name'] = $mask->name;
+                    $cookieSpheres[$key]['masks'][$k]['leadsCount'] = $mask->leadsCount;
+                }
             }
         }
 

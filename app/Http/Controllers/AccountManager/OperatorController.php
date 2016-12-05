@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AccountManager;
 
 use App\Http\Controllers\AccountManagerController;
+use App\Http\Requests\OperatorFormRequest;
 use App\Models\AccountManager;
 use App\Models\AccountManagersOperators;
 use App\Models\OperatorsSpheres;
@@ -72,12 +73,17 @@ class OperatorController extends AccountManagerController {
         return view('accountManager.operator.create_edit')->with('spheres', $spheres);
     }
 
-    public function store(Request $request)
+    public function store(OperatorFormRequest $request)
     {
         $user=\Sentinel::registerAndActivate($request->except('password_confirmation'));
         $user->update(['password'=>\Hash::make($request->input('password'))]);
         $role = \Sentinel::findRoleBySlug('operator');
         $user->roles()->attach($role);
+
+        $accountManagerOperator = new AccountManagersOperators();
+        $accountManagerOperator->operator_id = $user->id;
+        $accountManagerOperator->account_manager_id = Sentinel::getUser()->id;
+        $accountManagerOperator->save();
 
         $user = OperatorSphere::find($user->id);
 

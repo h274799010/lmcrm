@@ -7,7 +7,12 @@
             {{ Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'id'=>'editFormAgent', 'method' => 'put', 'class' => 'validate', 'files'=> false)) }}
 
             <div class="depositor_info">
-                <strong>{{ trans('operator/edit.depositor_company') }}</strong> {{ $lead->user->agentInfo()->first()->company }}<br>
+                <strong>{{ trans('operator/edit.depositor_company') }}</strong>
+            @if(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::findById($lead->user->id)->inRole('agent'))
+                    {{ $lead->user->agentInfo()->first()->company }}<br>
+                @else
+                    {{ \App\Models\Salesman::find($lead->user->id)->agent()->first()->agentInfo()->first()->company }}<br>
+                @endif
                 <strong>{{ trans('operator/edit.depositor_name') }}</strong> {{ $lead->user->first_name }}
             </div>
 

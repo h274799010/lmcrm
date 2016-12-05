@@ -11,13 +11,13 @@
             <script>$('input#time').datetimepicker({
                     useCurrent: false,
                     defaultDate: new Date('{{ $organizer->time }}'),
-                    minDate: new Date()
+                    minDate: new Date('{{ $organizer->time }}')
                 });</script>
            {{-- <script>$('input#time').val('{{ $organizer->time->format('m/d/Y g:i A') }}');</script>--}}
         </div>
     </div>
 
-    <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
+    <div id="comment" class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
         <div class="col-xs-12">
             {{ trans("site/lead.opened.modal.reminder.body") }}
             {{ Form::textarea('comment', $organizer->comment, array('class' => 'form-control','placeholder'=>$organizer->comment)) }}

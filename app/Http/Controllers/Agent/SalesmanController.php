@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
+use App\Http\Requests\SalesmanCreateFormRequest;
 use App\Models\SphereMask;
 use Carbon\Carbon;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
@@ -47,9 +48,10 @@ class SalesmanController extends AgentController {
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
+     * @param SalesmanCreateFormRequest $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(AdminUsersEditFormRequest $request)
+    public function store(SalesmanCreateFormRequest $request)
     {
         $agent = Agent::with('sphereLink','wallet')->findOrFail($this->uid);
 
@@ -60,6 +62,9 @@ class SalesmanController extends AgentController {
 
         $role = \Sentinel::findRoleBySlug('salesman');
         $salesman->roles()->attach($role);
+
+        $agentType = $agent->roles()->whereNotIn('slug', ['agent'])->first();
+        $salesman->roles()->attach($agentType);
 
         $salesman = Salesman::find($salesman->id);
 
