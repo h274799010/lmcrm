@@ -135,17 +135,18 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
             Route::get('salesman/{id}/edit', ['as' => 'agent.salesman.edit', 'uses' => 'Agent\SalesmanController@edit']);
             Route::match(['put', 'post'], 'salesman/{id}', ['as' => 'agent.salesman.update', 'uses' => 'Agent\SalesmanController@update']);
             //Route::resource('salesman','Agent\SalesmanController');
+
+
+            Route::get('salesman/obtainedLead/{salesman_id}', ['as' => 'agent.salesman.obtainedLead', 'uses' => 'Agent\AgentSalesmanLeadController@obtain']);
+            Route::get('salesman/obtain/data/{salesman_id}', ['as' => 'agent.salesman.obtain.data', 'uses' => 'Agent\AgentSalesmanLeadController@obtainData']);
+
+            Route::get('salesman/openedLeads/{salesman_id}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\AgentSalesmanLeadController@openedLeads']);
+            Route::post('salesman/openedLeadAjax', ['as' => 'agent.salesman.openedLeadAjax', 'uses' => 'Agent\LeadController@openedLeadsAjax']);
         });
         Route::get('salesman/{id}/block', ['as'=>'agent.salesman.block', 'uses' => 'Agent\SalesmanController@ban']);
         Route::get('salesman/{id}/unblock', ['as'=>'agent.salesman.unblock', 'uses' => 'Agent\SalesmanController@unban']);
 
         Route::get('salesman/depositedLead/{salesman_id}', ['as' => 'agent.salesman.depositedLead', 'uses' => 'Agent\AgentSalesmanLeadController@deposited']);
-
-        Route::get('salesman/openedLeads/{salesman_id}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\AgentSalesmanLeadController@openedLeads']);
-        Route::post('salesman/openedLeadAjax', ['as' => 'agent.salesman.openedLeadAjax', 'uses' => 'Agent\LeadController@openedLeadsAjax']);
-
-        Route::get('salesman/obtainedLead/{salesman_id}', ['as' => 'agent.salesman.obtainedLead', 'uses' => 'Agent\AgentSalesmanLeadController@obtain']);
-        Route::get('salesman/obtain/data/{salesman_id}', ['as' => 'agent.salesman.obtain.data', 'uses' => 'Agent\AgentSalesmanLeadController@obtainData']);
 
         // форма добавление комментария
         Route::get('salesman/addСomment/{lead_id}/{salesman_id}',['as'=>'agent.salesman.addСomment', 'uses' => 'Agent\AgentSalesmanLeadController@addСomment']);

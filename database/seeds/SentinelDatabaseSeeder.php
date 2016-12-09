@@ -181,10 +181,7 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.salesman.create" => true,
                 "agent.salesman.store" => true,
                 "agent.salesman.edit" => true,
-                "agent.salesman.update" => true,
-                "agent.salesman.sphere.index" => true,
-                "agent.salesman.sphere.edit" => true,
-                "agent.salesman.sphere.update" => true
+                "agent.salesman.update" => true
             ]
         ));
 
@@ -224,7 +221,14 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.lead.openAll"=> false,
                 "salesman.lead.obtain"=> true,
                 "salesman.lead.deposited"=> true,
-                "salesman.lead.opened"=> true
+                "salesman.lead.opened"=> true,
+                "agent.salesman.obtainedLead" => true,
+                "agent.salesman.obtain.data" => true,
+                "agent.salesman.openedLeads" => true,
+                "agent.salesman.openedLeadAjax" => true,
+                "agent.salesman.sphere.index" => true,
+                "agent.salesman.sphere.edit" => true,
+                "agent.salesman.sphere.update" => true
             ]
         ));
 
@@ -241,7 +245,14 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.lead.openAll"=> true,
                 "salesman.lead.obtain"=> true,
                 "salesman.lead.deposited"=> true,
-                "salesman.lead.opened"=> true
+                "salesman.lead.opened"=> true,
+                "agent.salesman.obtainedLead" => true,
+                "agent.salesman.obtain.data" => true,
+                "agent.salesman.openedLeads" => true,
+                "agent.salesman.openedLeadAjax" => true,
+                "agent.salesman.sphere.index" => true,
+                "agent.salesman.sphere.edit" => true,
+                "agent.salesman.sphere.update" => true
             ]
         ));
 
@@ -258,7 +269,14 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.lead.openAll"=> false,
                 "salesman.lead.obtain"=> false,
                 "salesman.lead.deposited"=> true,
-                "salesman.lead.opened"=> false
+                "salesman.lead.opened"=> false,
+                "agent.salesman.obtainedLead" => false,
+                "agent.salesman.obtain.data" => false,
+                "agent.salesman.openedLeads" => false,
+                "agent.salesman.openedLeadAjax" => false,
+                "agent.salesman.sphere.index" => false,
+                "agent.salesman.sphere.edit" => false,
+                "agent.salesman.sphere.update" => false
             ]
         ));
 
