@@ -51,113 +51,19 @@ class LeadController extends AgentController {
     /**
      * Лиды которые агент внес в систему
      *
-     *
-     * @param  integer|boolean  $salesman_id
-     *
      * @return object
      */
-    public function deposited( $salesman_id = false ){
+    public function deposited(){
 
         // определение пользователя
 
-        if($salesman_id === false) {
-            // если не продавец
+        // находим все лиды с телефоном и сферой
+        $leads = $this->user->leads()->with('phone', 'sphere')->get();
 
-            // находим все лиды с телефоном и сферой
-            $leads = $this->user->leads()->with('phone', 'sphere')->get();
+        // задаем имя вьюшки
+        $view = 'agent.lead.deposited';
 
-            // задаем имя вьюшки
-            $view = 'agent.lead.deposited';
-
-        } else {
-            // если продавец
-
-            // находим данные продавца
-            $salesman = Salesman::findOrFail($salesman_id);
-
-            // получаем данные по все именам масок по всем сферам
-            $agentSpheres = $salesman->spheresWithMasks;
-
-            // находим кошелек продавца (вернее, его агента)
-            $wallet = $salesman->wallet[0];
-
-            // максимальная цена по маскам
-            $maxPrice = 0;
-
-            // добавление статуса и времени
-            $agentSpheres->map(function( $item ) use ( $wallet, &$maxPrice ){
-
-                // id сферы
-                $sphere_id = $item->id;
-
-                // добавление данных в маску
-                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
-
-                    // получение данных фильтра маски
-                    $agentMask = new AgentBitmask($sphere_id);
-                    $maskItem = $agentMask->find( $item->mask_id );
-
-                    if( $maskItem->status == 0){
-                        return false;
-                    }
-
-                    // количество лидов, которое агент может купить по этой маске
-                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
-
-
-                    // добавление статуса
-                    $item->status = $maskItem->status;
-                    // добавление даты
-                    $item->updated_at = $maskItem->updated_at;
-
-                    if( $maxPrice < $maskItem->lead_price ){
-                        $maxPrice = $maskItem->lead_price;
-                    }
-
-                    return $item;
-                });
-
-                return $item;
-            });
-
-            // минимальное количество лидо которое может купить агент
-            // сколько агент может купить лидов по маске с максимальным прайсом
-            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
-
-            // данные по забракованным лидам
-            $wasted = $wallet->wasted;
-
-            // данные по балансу в шапке
-            $balance =
-                [
-                    'wasted' => $wasted,
-                    'minLeadsToBuy' => $minLeadsToBuy,
-                    'allSpheres' => $agentSpheres
-                ];
-
-
-            // добавляем данные по балансу на страницу
-            view()->share('balance', $balance);
-
-            // переводим данные по балансу в json
-            $balanceJSON = json_encode($balance);
-
-            // добавляем на страницу куки с данными по балансу
-            Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
-
-            // находим все лиды с телефоном и сферой
-            $leads = $salesman->leads()->with('phone', 'sphere')->get();
-
-            // задаем имя вьюшки
-            $view = 'agent.salesman.login.deposited';
-
-        }
-
-        return view($view)
-            ->with('leads', $leads)
-            ->with('salesman_id', $salesman_id);
-
-
+        return view($view)->with('leads', $leads);
     }
 
 
@@ -170,117 +76,22 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function obtain($salesman_id = false){
+    public function obtain(){
 
-        // данные агента
-        if($salesman_id === false) {
-
-            if( $this->spheres ){
+        if( $this->spheres ){
 //                $attr['lead_attr'] = $this->sphere->leadAttr;
 //                $attr['agent_attr'] = $this->sphere->attributes;
-                $spheres = $this->spheres->load('filterAttr', 'leadAttr');
+            $spheres = $this->spheres->load('filterAttr', 'leadAttr');
 
-            }else{
-                $attr = false;
-            }
-
-            $view = 'agent.lead.obtain';
-        } else {
-            // если задан id продавца
-
-            $salesman = Salesman::find( $salesman_id );
-
-            $salesmanSphere = $salesman->sphere();
-
-            if( $salesmanSphere ){
-                $attr['lead_attr'] = $salesmanSphere->leadAttr;
-                $attr['agent_attr'] = $salesmanSphere->attributes;
-                $spheres = $salesmanSphere;
-
-            }else{
-                $attr = false;
-            }
-
-            // получаем данные по все именам масок по всем сферам
-            $spheres = $salesman->spheresWithMasks;
-
-            $spheres->load('filterAttr', 'leadAttr');
-
-            $wallet = $salesman->wallet[0];
-
-            // максимальная цена по маскам
-            $maxPrice = 0;
-
-            // добавление статуса и времени
-            $spheres->map(function( $item ) use ( $wallet, &$maxPrice ){
-
-                // id сферы
-                $sphere_id = $item->id;
-
-                // добавление данных в маску
-                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
-
-                    // получение данных фильтра маски
-                    $agentMask = new AgentBitmask($sphere_id);
-                    $maskItem = $agentMask->find( $item->mask_id );
-
-                    if( $maskItem->status == 0){
-                        return false;
-                    }
-
-                    // количество лидов, которое агент может купить по этой маске
-                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
-
-
-                    // добавление статуса
-                    $item->status = $maskItem->status;
-                    // добавление даты
-                    $item->updated_at = $maskItem->updated_at;
-
-                    if( $maxPrice < $maskItem->lead_price ){
-                        $maxPrice = $maskItem->lead_price;
-                    }
-
-                    return $item;
-                });
-
-                return $item;
-            });
-
-            // минимальное количество лидо которое может купить агент
-            // сколько агент может купить лидов по маске с максимальным прайсом
-            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
-
-            // данные по забракованным лидам
-            $wasted = $wallet->wasted;
-
-            // данные по балансу в шапке
-            $balance =
-                [
-                    'wasted' => $wasted,
-                    'minLeadsToBuy' => $minLeadsToBuy,
-                    'allSpheres' => $spheres
-                ];
-
-
-            // добавляем данные по балансу на страницу
-            view()->share('balance', $balance);
-
-            // переводим данные по балансу в json
-            $balanceJSON = json_encode($balance);
-
-            // добавляем на страницу куки с данными по балансу
-            Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
-
-            $view = 'agent.salesman.login.obtain';
-//            $view = 'agent.lead.obtain';
-
+        }else{
+            $attr = false;
         }
+
+        $view = 'agent.lead.obtain';
 
         return view($view)
 //            ->with('attr', $attr)
-            ->with('spheres', $spheres)
-            ->with('salesman_id', $salesman_id);
+            ->with('spheres', $spheres);
     }
 
 
@@ -293,87 +104,16 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function obtainData(Request $request, $salesman_id = false)
+    public function obtainData(Request $request)
     {
 
         // находим заданную сферу
         $sphere = Sphere::find( $request['sphere_id'] );
 
-        if($salesman_id === false) {
-            // данные агента
-            $agent = $this->user;
+        // данные агента
+        $agent = $this->user;
 
-            $user_id = $agent->id;
-        } else {
-            // данные агента
-            $agent = Salesman::findOrFail($salesman_id);
-            $user_id = $agent->id;
-
-            // получаем данные по все именам масок по всем сферам
-            $agentSpheres = $agent->spheresWithMasks;
-
-            $wallet = $agent->wallet[0];
-
-            // максимальная цена по маскам
-            $maxPrice = 0;
-
-            // добавление статуса и времени
-            $agentSpheres->map(function( $item ) use ( $wallet, &$maxPrice ){
-
-                // id сферы
-                $sphere_id = $item->id;
-
-                // добавление данных в маску
-                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
-
-                    // получение данных фильтра маски
-                    $agentMask = new AgentBitmask($sphere_id);
-                    $maskItem = $agentMask->find( $item->mask_id );
-
-                    if( $maskItem->status == 0){
-                        return false;
-                    }
-
-                    // количество лидов, которое агент может купить по этой маске
-                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
-
-
-                    // добавление статуса
-                    $item->status = $maskItem->status;
-                    // добавление даты
-                    $item->updated_at = $maskItem->updated_at;
-
-                    if( $maxPrice < $maskItem->lead_price ){
-                        $maxPrice = $maskItem->lead_price;
-                    }
-
-                    return $item;
-                });
-
-                return $item;
-            });
-
-            // минимальное количество лидо которое может купить агент
-            // сколько агент может купить лидов по маске с максимальным прайсом
-            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
-
-            // данные по забракованным лидам
-            $wasted = $wallet->wasted;
-
-            // данные по балансу в шапке
-            $balance =
-                [
-                    'wasted' => $wasted,
-                    'minLeadsToBuy' => $minLeadsToBuy,
-                    'allSpheres' => $agentSpheres
-                ];
-
-            // переводим данные по балансу в json
-            $balanceJSON = json_encode($balance);
-
-            // добавляем на страницу куки с данными по балансу
-            Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
-        }
+        $user_id = $agent->id;
 
         // выборка всех лидов агента
         $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->where( 'sphere_id', $sphere->id )->with('lead') /*->with('maskName') */ ->get();
@@ -449,7 +189,7 @@ class LeadController extends AgentController {
 
                 return view('agent.lead.datatables.obtain_count', [ 'opened'=>$data['lead']['opened'] ]);
             }, 1)
-            ->add_column('open',function( $data ) use ( $agent, $salesman_id ){
+            ->add_column('open',function( $data ) use ( $agent ){
 
                 // проверяем открыт ли этот лид у агента
                 $openLead = OpenLeads::where( 'lead_id', $data['lead']['id'] )->where( 'agent_id', $agent->id )->first();
@@ -459,11 +199,11 @@ class LeadController extends AgentController {
                     return view('agent.lead.datatables.obtain_already_open');
                 }else {
                     // если не открыт - отдаем ссылку на открытия
-                    return view('agent.lead.datatables.obtain_open', ['data' => $data, 'salesman_id' => $salesman_id]);
+                    return view('agent.lead.datatables.obtain_open', ['data' => $data]);
                 }
 
             }, 2)
-            ->add_column('openAll',function( $data ) use ( $agent, $salesman_id ){
+            ->add_column('openAll',function( $data ) use ( $agent ){
 
                 // проверяем открыт ли этот лид у других агентов
                 $openLead = OpenLeads::where( 'lead_id', $data['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
@@ -473,7 +213,7 @@ class LeadController extends AgentController {
                     return view('agent.lead.datatables.obtain_already_open');
                 }else {
                     // если не открыт - отдаем ссылку на открытие всех лидов
-                    return view('agent.lead.datatables.obtain_open_all', ['data' => $data, 'salesman_id' => $salesman_id]);
+                    return view('agent.lead.datatables.obtain_open_all', ['data' => $data]);
                 }
 
             }, 3)
@@ -1145,97 +885,12 @@ class LeadController extends AgentController {
     /**
      * Выводит все открытые лиды агента
      *
-     *
-     * @param  boolean|integer  $salesman_id
-     *
      * @return object
      */
-    public function openedLeads( $salesman_id = false ){
+    public function openedLeads(){
 
-        // получаем пользователя
-        if($salesman_id === false) {
-
-            // получаем данные агента
-            $user = $this->user;
-            // задаем вьюшку
-            $view = 'agent.lead.opened';
-
-        } else {
-
-            // получаем данные продавца
-            $user = Salesman::find( $salesman_id );
-
-            // получаем данные по все именам масок по всем сферам
-            $agentSpheres = $user->spheresWithMasks;
-
-            $wallet = $user->wallet[0];
-
-            // максимальная цена по маскам
-            $maxPrice = 0;
-
-            // добавление статуса и времени
-            $agentSpheres->map(function( $item ) use ( $wallet, &$maxPrice ){
-
-                // id сферы
-                $sphere_id = $item->id;
-
-                // добавление данных в маску
-                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
-
-                    // получение данных фильтра маски
-                    $agentMask = new AgentBitmask($sphere_id);
-                    $maskItem = $agentMask->find( $item->mask_id );
-
-                    if( $maskItem->status == 0){
-                        return false;
-                    }
-
-                    // количество лидов, которое агент может купить по этой маске
-                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
-
-
-                    // добавление статуса
-                    $item->status = $maskItem->status;
-                    // добавление даты
-                    $item->updated_at = $maskItem->updated_at;
-
-                    if( $maxPrice < $maskItem->lead_price ){
-                        $maxPrice = $maskItem->lead_price;
-                    }
-
-                    return $item;
-                });
-
-                return $item;
-            });
-
-            // минимальное количество лидо которое может купить агент
-            // сколько агент может купить лидов по маске с максимальным прайсом
-            $minLeadsToBuy = ( $maxPrice && $wallet )?floor($wallet->balance/$maxPrice):0;
-
-            // данные по забракованным лидам
-            $wasted = $wallet->wasted;
-
-            // данные по балансу в шапке
-            $balance =
-                [
-                    'wasted' => $wasted,
-                    'minLeadsToBuy' => $minLeadsToBuy,
-                    'allSpheres' => $agentSpheres
-                ];
-
-            // добавляем данные по балансу на страницу
-            view()->share('balance', $balance);
-
-            // переводим данные по балансу в json
-            $balanceJSON = json_encode($balance);
-
-            // добавляем на страницу куки с данными по балансу
-            Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
-
-            // задаем вьюшку
-            $view = 'agent.salesman.login.opened';
-        }
+        // получаем данные агента
+        $user = $this->user;
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
@@ -1246,7 +901,10 @@ class LeadController extends AgentController {
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view($view, [ 'openLeads'=>$openLeads, 'salesman_id'=>$salesman_id ]);
+        // задаем вьюшку
+        $view = 'agent.lead.opened';
+
+        return view($view, [ 'openLeads'=>$openLeads ]);
     }
 
 
@@ -1542,13 +1200,9 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function deleteReminder($id, $salesman_id = false){
-
-        if($salesman_id === false) {
-            $user_id = $this->uid;
-        } else {
-            $user_id = $salesman_id;
-        }
+    public function deleteReminder($id)
+    {
+        $user_id = $this->uid;
 
         $organizer = Organizer::where(['id'=>$id])->first();
         if ($organizer->openLead->agent_id == $user_id){
@@ -1567,15 +1221,10 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function addReminder($lead_id, $salesman_id = false)
+    public function addReminder($lead_id)
     {
-        if($salesman_id === false) {
-            return view('agent.lead.organizer.addReminder')
-                ->with( 'lead_id', $lead_id );
-        } else {
-            return view('agent.salesman.organizer.addReminder')
-                ->with( ['lead_id' => $lead_id, 'salesman_id' => $salesman_id] );
-        }
+        return view('agent.lead.organizer.addReminder')
+            ->with( 'lead_id', $lead_id );
     }
 
 
@@ -1587,15 +1236,10 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function addСomment($lead_id, $salesman_id = false)
+    public function addСomment($lead_id)
     {
-        if($salesman_id === false) {
-            return view('agent.lead.organizer.addComment')
-                ->with( 'lead_id', $lead_id );
-        } else {
-            return view('agent.salesman.organizer.addComment')
-                ->with( ['lead_id' => $lead_id, 'salesman_id' => $salesman_id] );
-        }
+        return view('agent.lead.organizer.addComment')
+            ->with( 'lead_id', $lead_id );
     }
 
     /**
