@@ -115,8 +115,15 @@ class LeadController extends AgentController {
 
         $user_id = $agent->id;
 
+        $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
+        $salesmansOpenedLeads = OpenLeads::whereIn('agent_id', $salesmans)->select('lead_id')->get()->lists('lead_id')->toArray();
+
         // выборка всех лидов агента
-        $auctionData = Auction::where('status', 0)->where( 'user_id', $user_id )->where( 'sphere_id', $sphere->id )->with('lead') /*->with('maskName') */ ->get();
+        $auctionData = Auction::where('status', 0)
+            ->where( 'user_id', $user_id )
+            ->where( 'sphere_id', $sphere->id )
+            ->whereNotIn('lead_id', $salesmansOpenedLeads)
+            ->with('lead') /*->with('maskName') */ ->get();
 
         // маска лида
         $leadBitmask = new LeadBitmask( $sphere->id );
