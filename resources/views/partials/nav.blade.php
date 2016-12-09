@@ -14,6 +14,7 @@
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             {{--@if( isset($balance) && ( isset($salesman_id) ? !$salesman_id : false) )--}}
+            @if(isset($balance))
                 <ul class="nav navbar-top-links navbar-left flip">
                     <li>
                         <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance['wasted']}} </a>
@@ -27,7 +28,7 @@
 
                     </li>
                 </ul>
-
+            @endif
             {{--@endif
 
             @if( isset($balance) && !( isset($salesman_id) ? !$salesman_id : false) )
