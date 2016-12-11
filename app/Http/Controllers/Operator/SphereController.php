@@ -660,6 +660,10 @@ class SphereController extends Controller {
         // перебираем всех агентов и выбираем только нужные данные
         $users->each(function( $val ) use( &$usersData, $agents ){
 
+            if($val->inRole('partner')) {
+                return false;
+            }
+
             // выбираем маски, которые принадлежат только этому пользователю
             $userMasks = $agents->filter(function ($item) use( $val ) {
                 return $item->user_id == $val->id;
