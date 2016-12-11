@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Lmcrm\Lead;
 use App\Models\Agent;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
+use App\Models\Customer;
 use App\Models\LeadBitmask;
 use App\Models\OpenLeads;
 use App\Models\Organizer;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
+use Validator;
 
 class AgentSalesmanLeadController extends LeadController
 {
@@ -562,5 +565,64 @@ class AgentSalesmanLeadController extends LeadController
         }
 
         return response()->json(TRUE);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return object
+     */
+    public function create()
+    {
+        // выделяем из коллекции сфер только имена и id
+        $spheres = $this->allSphere->pluck('name', 'id');
+
+        return view('agent.lead.create')->with('lead',[])->with([
+            'spheres' => $spheres
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function store( Request $request )
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
+            'name' => 'required'
+        ]);
+        $agent =  $this->salesman;
+
+        if ($validator->fails() || !$agent->sphere()) {
+            if($request->ajax()){
+                return response()->json($validator);
+            } else {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+        }
+
+
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
+
+        $lead = new Lead();
+        $lead->name = $request->input('name');
+        $lead->comment = $request->input('comment');
+        $lead->customer_id=$customer->id;
+        $lead->sphere_id = $request->sphere;
+        $lead->status = 0;
+
+
+        $agent->leads()->save($lead);
+
+        if($request->ajax()){
+            return response()->json();
+        } else {
+            return redirect()->route('agent.salesman.depositedLead')->with('salesman_id', $this->salesman->id);
+        }
     }
 }

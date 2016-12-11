@@ -759,8 +759,8 @@
         }
 
         /*
-        * Событие наведения на строку органайзера
-        */
+         * Событие наведения на строку органайзера
+         */
         var organizedRow = '#info_table .organizedRow';
         $(document).on('mouseover', organizedRow,function () {
             $(this).find('.button-wrap').show();
@@ -782,7 +782,7 @@
          *
          */
 
-        // выбираем все ячейки таблицы кроме выпадающего меню и кнопки редактирования
+            // выбираем все ячейки таблицы кроме выпадающего меню и кнопки редактирования
         var openLeadsTable = $('table.openLeadsTable tbody tr td').not( ".select_cell,.edit " );
 
         // привязываем функцию на клик, которая будет прорисовывать таблицу
@@ -817,8 +817,8 @@
                     $.each(disabled_data, function (k, disabled) {
 
                         $(cell).find('li[data-val="' + disabled + '"]')
-                                .attr('data-disabled', 'true')
-                                .addClass('disabled');
+                            .attr('data-disabled', 'true')
+                            .addClass('disabled');
                     });
                 });
             }

@@ -35,8 +35,10 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         Route::get('lead/depostited', ['as' => 'agent.lead.deposited', 'uses' => 'Agent\LeadController@deposited']);
         // форма создания нового лида
         Route::get('lead/create', ['as' => 'agent.lead.create', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\LeadController@create']);
+        Route::get('salesman/lead/create/{salesman_id}', ['as' => 'agent.salesman.lead.create', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\AgentSalesmanLeadController@create']);
         // сохранение нового лида
         Route::post('lead/store',['as'=>'agent.lead.store', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\LeadController@store']);
+        Route::post('salesman/lead/store/{salesman_id}',['as'=>'agent.salesman.lead.store', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\AgentSalesmanLeadController@store']);
 
         /** страница фильтрации лидов */
         // страница с отфильтрованными лидами

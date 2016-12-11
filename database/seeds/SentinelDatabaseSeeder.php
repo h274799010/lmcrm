@@ -228,7 +228,9 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.salesman.openedLeadAjax" => true,
                 "agent.salesman.sphere.index" => true,
                 "agent.salesman.sphere.edit" => true,
-                "agent.salesman.sphere.update" => true
+                "agent.salesman.sphere.update" => true,
+                "agent.salesman.lead.create" => true,
+                "agent.salesman.lead.store" => true
             ]
         ));
 
@@ -252,7 +254,9 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.salesman.openedLeadAjax" => true,
                 "agent.salesman.sphere.index" => true,
                 "agent.salesman.sphere.edit" => true,
-                "agent.salesman.sphere.update" => true
+                "agent.salesman.sphere.update" => true,
+                "agent.salesman.lead.create" => true,
+                "agent.salesman.lead.store" => true
             ]
         ));
 
@@ -276,7 +280,9 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.salesman.openedLeadAjax" => false,
                 "agent.salesman.sphere.index" => false,
                 "agent.salesman.sphere.edit" => false,
-                "agent.salesman.sphere.update" => false
+                "agent.salesman.sphere.update" => false,
+                "agent.salesman.lead.create" => true,
+                "agent.salesman.lead.store" => true
             ]
         ));
 
