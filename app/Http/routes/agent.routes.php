@@ -14,10 +14,10 @@ Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] 
     Route::get('openedLeads', ['as'=>'salesman.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
 
     // страница открытия лида продавцом
-    Route::get('salesman/lead/open/{lead_id}/{mask_id}/{salesman_id}', ['as'=>'salesman.lead.open', 'uses'=>'Agent\LeadController@openLead']);
+    Route::get('lead/open/{lead_id}/{mask_id}/{salesman_id}', ['as'=>'salesman.lead.open', 'uses'=>'Agent\LeadController@openLead']);
 
     // страница максимального открытия лида продавцом
-    Route::get('salesman/lead/openAll/{lead_id}/{mask_id}/{salesman_id}', ['as'=>'salesman.lead.openAll', 'uses'=>'Agent\LeadController@openAllLeads']);
+    Route::get('lead/openAll/{lead_id}/{mask_id}/{salesman_id}', ['as'=>'salesman.lead.openAll', 'uses'=>'Agent\LeadController@openAllLeads']);
 
 });
 
