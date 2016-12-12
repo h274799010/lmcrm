@@ -67,4 +67,23 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
 
         return $excludedUsers;
     }
+
+    /**
+     * Получение agent_info в зависимости от роли пользователя
+     * (Агент или продавец)
+     *
+     * @return mixed
+     */
+    public function agentInfo()
+    {
+        if($this->inRole('salesman')) {
+            $salesmanInfo = SalesmanInfo::where('salesman_id', '=', $this->id)->select('agent_id')->first();
+
+            $agent_id = $salesmanInfo->agent_id;
+        } else {
+            $agent_id = $this->id;
+        }
+
+        return AgentInfo::where('agent_id', '=', $agent_id);
+    }
 }

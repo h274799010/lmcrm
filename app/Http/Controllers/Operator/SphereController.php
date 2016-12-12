@@ -106,7 +106,7 @@ class SphereController extends Controller {
         $leads = Lead::
               whereNotIn( 'status', [0, 1] )
             ->whereIn( 'id', $leadsId )
-            ->with([ 'sphere', 'user' ])
+            ->with([ 'sphere', 'user2' ])
             ->get();
 
         return view('sphere.lead.editedList')->with( 'leads', $leads );

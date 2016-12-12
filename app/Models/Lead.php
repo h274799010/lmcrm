@@ -409,8 +409,18 @@ class Lead extends EloquentUser {
      */
     public function user()
     {
-
         return $this->hasOne('App\Models\Agent', 'id', 'agent_id')->select('id','first_name');
+    }
+
+    /**
+     * Данные автора лида (выбираются из таблицы users, чтоб правильно выбрать
+     * agent_info в зависимости от роли пользователя - Агент/Продавец)
+     *
+     * @return mixed
+     */
+    public function user2()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'agent_id')->select('id','first_name');
     }
 
 
