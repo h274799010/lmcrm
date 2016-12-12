@@ -13,7 +13,8 @@
 
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            @if( isset($balance) && ( isset($salesman_id) ? !$salesman_id : false) )
+            {{--@if( isset($balance) && ( isset($salesman_id) ? !$salesman_id : false) )--}}
+            @if(isset($balance))
                 <ul class="nav navbar-top-links navbar-left flip">
                     <li>
                         <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance['wasted']}} </a>
@@ -27,8 +28,8 @@
 
                     </li>
                 </ul>
-
             @endif
+            {{--@endif
 
             @if( isset($balance) && !( isset($salesman_id) ? !$salesman_id : false) )
                 <ul class="nav navbar-top-links navbar-left flip">
@@ -37,7 +38,7 @@
                     </li>
 
                     <li class="credit_button dropdown salesman_balance_data_container" >
-                        <a id="balance_data" data-target="#" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-copyright bg-blue"></i> <span>{{--{{$balance['minLeadsToBuy']}}--}}</span> {{ trans('navbar.credits') }}</a>
+                        <a id="balance_data" data-target="#" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-copyright bg-blue"></i> <span>--}}{{--{{$balance['minLeadsToBuy']}}--}}{{--</span> {{ trans('navbar.credits') }}</a>
 
                         <ul id="salesman_balance_data_content" class="dropdown-menu balance_data_menu" aria-labelledby="balance_data">
                         </ul>
@@ -45,7 +46,7 @@
                     </li>
                 </ul>
 
-            @endif
+            @endif--}}
 
             <ul class="nav navbar-top-links navbar-right language_bar_chooser flip">
 

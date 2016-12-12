@@ -660,6 +660,10 @@ class SphereController extends Controller {
         // перебираем всех агентов и выбираем только нужные данные
         $users->each(function( $val ) use( &$usersData, $agents ){
 
+            if($val->inRole('partner')) {
+                return false;
+            }
+
             // выбираем маски, которые принадлежат только этому пользователю
             $userMasks = $agents->filter(function ($item) use( $val ) {
                 return $item->user_id == $val->id;
@@ -1065,11 +1069,11 @@ class SphereController extends Controller {
 
                 // открываем лид агенту
                 $lead->open( $user, $item->maskFilterId, true );
-
-                // выставляем статус лиду что он снят с аукциона
-                $lead->status = 4;
-                $lead->save();
             });
+
+            // выставляем статус лиду что он снят с аукциона
+            $lead->status = 4;
+            $lead->save();
 
             // отправляем сообщение об успешном добавлении лида на общий аукцион
             return response()->json([ 'status'=>3, 'data'=>'Ok' ]);

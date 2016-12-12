@@ -1,7 +1,11 @@
 @extends('layouts.master')
 {{-- Content --}}
 @section('content')
-    {{ Form::open(array('route' => ['agent.lead.store'], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) }}
+    @if( isset($salesman_id) )
+        {{ Form::open(array('route' => ['agent.salesman.lead.store', $salesman_id], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) }}
+    @else
+        {{ Form::open(array('route' => ['agent.lead.store'], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) }}
+    @endif
 
     <div class="form-group  {{ $errors->has('sphere') ? 'has-error' : '' }}">
         <div class="col-xs-10">

@@ -34,10 +34,16 @@
                             <td>{{ $salesman->name }}</td>
                             <td>{{ $salesman->email }}</td>
                             <td class="agent-buttons">
+                                @if( Sentinel::hasAccess('agent.salesman.sphere.index') )
                                 <a href="{{ route('agent.salesman.sphere.index', ['salesman_id' => $salesman->id]) }}" style="font-size: 20px;line-height: 20px;" title="Salesman filtration customer"><i class="fa fa-filter"></i></a>
+                                @endif
+                                @if( Sentinel::hasAccess('agent.salesman.openedLeads') )
+                                    <a href="{{route('agent.salesman.openedLeads',[$salesman->id])}}" class="ajax-link" title="Salesman opened leads"><i class="icon icon-document"></i></a>
+                                @endif
+                                @if( Sentinel::hasAccess('agent.salesman.obtainedLead') )
+                                    <a href="{{route('agent.salesman.obtainedLead',[$salesman->id])}}" class="ajax-link" title="Salesman obtained leads"><i class="icon icon-buy"></i></a>
+                                @endif
                                 <a href="{{route('agent.salesman.depositedLead',[$salesman->id])}}" class="ajax-link" title="Salesman leads deposited"><i class="icon icon-sell"></i></a>
-                                <a href="{{route('agent.salesman.openedLeads',[$salesman->id])}}" class="ajax-link" title="Salesman opened leads"><i class="icon icon-document"></i></a>
-                                <a href="{{route('agent.salesman.obtainedLead',[$salesman->id])}}" class="ajax-link" title="Salesman obtained leads"><i class="icon icon-buy"></i></a>
                             </td>
                         </tr>
                     @empty

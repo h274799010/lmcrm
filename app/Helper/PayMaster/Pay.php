@@ -74,7 +74,7 @@ class Pay
         Payment::toSystem(
             [
                 'initiator_id'  => $agent->id,  // id инициатора платежа
-                'user_id'       => $agent->id,  // id пользователя, с кошелька которого снимается сумма
+                'user_id'       => $wallet->user_id,  // id пользователя, с кошелька которого снимается сумма
                 'type'          => 'openLead',  // тип транзакции
                 'amount'        => $price,      // снимаемая с пользователя сумма
                 'lead_id'       => $lead->id,   // id лида если он учавствует в платеже
