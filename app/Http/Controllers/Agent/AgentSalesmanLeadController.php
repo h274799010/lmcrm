@@ -44,41 +44,43 @@ class AgentSalesmanLeadController extends LeadController
         // максимальная цена по маскам
         $maxPrice = 0;
 
-        // добавление статуса и времени
-        $spheres->map(function( $item ) use ( $wallet, &$maxPrice ){
+        if(!$this->salesman->inRole('partner')) {
+            // добавление статуса и времени
+            $spheres->map(function( $item ) use ( $wallet, &$maxPrice ){
 
-            // id сферы
-            $sphere_id = $item->id;
+                // id сферы
+                $sphere_id = $item->id;
 
-            // добавление данных в маску
-            $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
+                // добавление данных в маску
+                $item->masks->map(function($item) use ($sphere_id, &$maxPrice, $wallet){
 
-                // получение данных фильтра маски
-                $agentMask = new AgentBitmask($sphere_id);
-                $maskItem = $agentMask->find( $item->mask_id );
+                    // получение данных фильтра маски
+                    $agentMask = new AgentBitmask($sphere_id);
+                    $maskItem = $agentMask->find( $item->mask_id );
 
-                if( $maskItem->status == 0){
-                    return false;
-                }
+                    if( $maskItem->status == 0){
+                        return false;
+                    }
 
-                // количество лидов, которое агент может купить по этой маске
-                $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
+                    // количество лидов, которое агент может купить по этой маске
+                    $item->leadsCount = floor($wallet->balance/$maskItem->lead_price);
 
 
-                // добавление статуса
-                $item->status = $maskItem->status;
-                // добавление даты
-                $item->updated_at = $maskItem->updated_at;
+                    // добавление статуса
+                    $item->status = $maskItem->status;
+                    // добавление даты
+                    $item->updated_at = $maskItem->updated_at;
 
-                if( $maxPrice < $maskItem->lead_price ){
-                    $maxPrice = $maskItem->lead_price;
-                }
+                    if( $maxPrice < $maskItem->lead_price ){
+                        $maxPrice = $maskItem->lead_price;
+                    }
+
+                    return $item;
+                });
 
                 return $item;
             });
-
-            return $item;
-        });
+        }
 
         $this->allSphere = $spheres;
 
