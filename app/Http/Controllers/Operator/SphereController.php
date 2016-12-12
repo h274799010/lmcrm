@@ -208,7 +208,7 @@ class SphereController extends Controller {
     {
 
         // todo исправить
-        //dd($request);
+//        dd($request);
 
         // Тип запроса:
         // 1. save - просто сохраняем лида
@@ -297,7 +297,7 @@ class SphereController extends Controller {
         // получаем массив с ключами fb_attr_opt
         $prepareOption = $mask->prepareOptions( $options );
 
-        // сохраняем данные полей в маске
+        // todo сохраняем данные полей в маске
         $mask->setFilterOptions( $prepareOption, $lead_id );
 
         // выяснить зачем нужен статус в маске лида, и нужен ли вообще
@@ -312,11 +312,15 @@ class SphereController extends Controller {
         // заводим данные ad в переменную и преобразовываем в коллекцию
         $additData = collect($request->only('addit_data')['addit_data']);
 
+//        dd($additData);
+
         // обнуляем все поля ad_ лида
         // если оператор снимет все чекбоксы с атрибута (ну, к примеру),
         // этот атрибут никак не отразится в респонсе, поэтому:
         // обнуляем все поля, затем записываем то, что пришло с фронтенда
-        $mask->resetAllAd( $lead_id );
+//        if($additData->count() != 0){
+            $mask->resetAllAd( $lead_id );
+//        }
 
         // перебираем все ad_ поля
         $additData->each(function( $val, $type ) use( $mask, $lead_id ){
