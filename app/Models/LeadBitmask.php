@@ -164,6 +164,13 @@ class LeadBitmask extends Bitmask
 
         });
 
+
+//        $testMask = $this->where('user_id','=',$lead_id)->first();
+//
+//        if(!$testMask){
+//            $this->tableDB->insertGetId(['user_id'=>$lead_id]);
+//        }
+
         // сохранение значения в БД
         $this->where('user_id','=',$lead_id)->update($values);
 

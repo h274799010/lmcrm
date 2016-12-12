@@ -38,7 +38,8 @@
                 <td>{{ $lead->updated_at }}</td>
                 <td>{{ $lead->sphere->name }}</td>
 
-                <td>{{ $lead->user->agentInfo()->first()->company }}</td>
+{{--                <td>{{ $lead->user->agentInfo()->first()->company }}</td>--}}
+                <td></td>
 
                 <td>
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
