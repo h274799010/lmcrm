@@ -598,7 +598,7 @@ class AgentSalesmanLeadController extends LeadController
             'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
             'name' => 'required'
         ]);
-        $agent =  $this->salesman;
+        $agent =  $this->salesman->agent()->first();
 
         if ($validator->fails() || !$agent->sphere()) {
             if($request->ajax()){
@@ -619,7 +619,7 @@ class AgentSalesmanLeadController extends LeadController
         $lead->status = 0;
 
 
-        $agent->leads()->save($lead);
+        $this->salesman->leads()->save($lead);
 
         if($request->ajax()){
             return response()->json();
