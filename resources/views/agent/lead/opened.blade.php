@@ -406,6 +406,10 @@
             margin-top: 0;
         }
 
+        table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before, table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
+            display: none;
+        }
+
     </style>
 @endsection
 

@@ -86,5 +86,9 @@
     .already_open{
         color: lightgrey;
     }
+
+    .ajax-dataTable {
+        width: 100% !important;
+    }
 </style>
 @stop
