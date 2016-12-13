@@ -91,8 +91,8 @@
                                 @elseif ($attr->_type == 'calendar')
                                     <div class="form-group">
                                         <div class="input-group">
-                                        {{ Form::text('addit_data[calendar]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?date(trans('main.date_format'),strtotime($adFields['ad_' .$attr->id .'_0'])):null, array( 'data-attr'=>$attr->id, 'data-opt'=>0, 'data-type'=>$attr->_type, 'class' => 'form-control datepicker addit_data')) }}
-                                            <div class="input-group-addon"> <a href="#"><i class="fa fa-calendar"></i></a> </div>
+                                        {{ Form::text('addit_data[calendar]['.$attr->id.']',isset($adFields['ad_' .$attr->id .'_0'])?date(trans('main.date_format'),strtotime($adFields['ad_' .$attr->id .'_0'])):null, array( 'data-attr'=>$attr->id, 'data-opt'=>0, 'data-type'=>$attr->_type, 'class' => 'form-control datepicker2 addit_data')) }}
+                                            <div class="input-group-addon"> <a href="#" class="calendar-trigger"><i class="fa fa-calendar"></i></a> </div>
                                         </div>
                                     </div>
                                 @elseif ($attr->_type == 'textarea')
@@ -557,8 +557,15 @@
             $(this).closest('form').submit();
         });
 
+        $(document).on('click', '.calendar-trigger', function (e) {
+            e.preventDefault();
+
+            $(this).closest('.input-group').find('input.datepicker2').trigger('focus');
+        });
 
     $(function(){
+
+        $('input.datepicker2').datetimepicker();
 
         // получение токена
         var token = $('meta[name=csrf-token]').attr('content');
