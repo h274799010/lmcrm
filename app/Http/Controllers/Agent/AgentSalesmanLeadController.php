@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
@@ -591,6 +592,7 @@ class AgentSalesmanLeadController extends LeadController
      * @param  Request  $request
      *
      * @return Response
+     * @return Redirect
      */
     public function store( Request $request )
     {
@@ -610,6 +612,23 @@ class AgentSalesmanLeadController extends LeadController
 
 
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
+
+        // Получаем список лидов (активных на аукционе или на обработке у оператора) с введенным номером телефона
+        $existingLeads = $customer->checkExistingLeads($request->input('sphere'))->get()->lists('id')->toArray();
+        // Если лиды нашлись - выводим сообщение об ошибке
+        if($existingLeads) {
+            if($request->ajax()){
+                return response()->json([
+                    'error' => 'LeadCreateErrorExists',
+                    'message' => trans('lead/form.exists')
+                ]);
+            } else {
+                return redirect()->route('agent.lead.index')->withErrors([
+                    'error' => 'LeadCreateErrorExists',
+                    'message' => trans('lead/form.exists')
+                ]);
+            }
+        }
 
         $lead = new Lead();
         $lead->name = $request->input('name');

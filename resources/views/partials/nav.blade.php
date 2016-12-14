@@ -140,3 +140,12 @@
         </div>
     </div>
 </div>
+<div style="display: none;" id="errorCreateLead">
+    <div class="container">
+        <div class="row">
+            <div class="alert alert-danger" role="alert">
+
+            </div>
+        </div>
+    </div>
+</div>

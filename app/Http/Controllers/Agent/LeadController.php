@@ -11,10 +11,12 @@ use App\Models\CheckClosedDeals;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Redirect;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
@@ -839,6 +841,7 @@ class LeadController extends AgentController {
      * @param  Request  $request
      *
      * @return Response
+     * @return Redirect
      */
     public function store( Request $request )
     {
@@ -858,6 +861,23 @@ class LeadController extends AgentController {
 
 
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
+
+        // Получаем список лидов (активных на аукционе или на обработке у оператора) с введенным номером телефона
+        $existingLeads = $customer->checkExistingLeads($request->input('sphere'))->get()->lists('id')->toArray();
+        // Если лиды нашлись - выводим сообщение об ошибке
+        if($existingLeads) {
+            if($request->ajax()){
+                return response()->json([
+                    'error' => 'LeadCreateErrorExists',
+                    'message' => trans('lead/form.exists')
+                ]);
+            } else {
+                return redirect()->route('agent.lead.index')->withErrors([
+                    'error' => 'LeadCreateErrorExists',
+                    'message' => trans('lead/form.exists')
+                ]);
+            }
+        }
 
         $lead = new Lead($request->except('phone'));
         $lead->customer_id=$customer->id;

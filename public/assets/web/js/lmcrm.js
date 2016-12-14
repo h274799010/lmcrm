@@ -82,6 +82,10 @@ $(function(){
 
 						}
 
+						if( resp['error'] != undefined && resp['error'] == 'LeadCreateErrorExists' ) {
+                            $('#errorCreateLead').show().find('.alert').html(resp['message']);
+                        }
+
 					});
 				});
 				dialog.modal("show");
