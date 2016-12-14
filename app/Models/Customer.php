@@ -42,6 +42,7 @@ class Customer extends Model {
             ->where('sphere_id', '=', $sphere_id)
             ->where(function ($query) {
                 $query->where('expiry_time', '>', Carbon::now())
+                    ->orWhereNull('expiry_time', '=', '0000-00-00 00:00:00')
                     ->orWhereNull('expiry_time');
             })
             ->whereIn('status', array(0, 1, 3));
