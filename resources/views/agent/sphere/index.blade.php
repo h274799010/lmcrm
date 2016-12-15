@@ -9,7 +9,7 @@
 
         <h4>{{ $sphere->name }}</h4>
 
-            <table sphereId="{{ $sphere->id }}" class="table table-bordered table-striped table-hover">
+            <table sphereId="{{ $sphere->id }}" class="table table-bordered table-striped table-hover @if( $sphere->masks->count() != 0 ) maskDataTable @endif">
                 <thead>
                     <tr>
                         <th>{{ trans("site/mask.name") }}</th>
@@ -52,12 +52,13 @@
 
                     @empty
                     @endforelse
-
-                        <tr class="noMaskRow @if( $sphere->masks->count() != 0 ) hidden @endif">
+                    @if( $sphere->masks->count() == 0 )
+                        <tr class="noMaskRow">
                             <td colspan="5">
                                 {{ trans("site/mask.no_mask") }}
                             </td>
                         </tr>
+                    @endif
 
                 </tbody>
             </table>
@@ -246,5 +247,14 @@
 
         })
 
+
+        $(window).on('load', function () {
+            $('.maskDataTable').each(function () {
+                $(this).DataTable({
+                    responsive: true,
+                    paging: false
+                });
+            });
+        });
     </script>
 @stop
