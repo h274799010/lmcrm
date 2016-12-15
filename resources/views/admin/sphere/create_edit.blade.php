@@ -20,7 +20,6 @@
             </h3>
         </div>
         <div ng-if="errorSwitch" class="alert alert-warning alert-dismissible fade in" role="alert" id="alert" >
-            {{-- todo <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>--}}
             <button type="button" class="close" ng-click="errorSwitchOff"><span aria-hidden="true">×</span></button>
 
             <div class="alertContent">
@@ -675,6 +674,11 @@
                                             <div class="form-group">
                                                 <label class="control-label">@lang('lead/lead.phone')</label>
                                                 {{ Form::text('phone', null, array('class' => 'form-control','placeholder'=>trans('lead/form.phone'),'required'=>'required', 'data-rule-phone'=>true)) }}
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="control-label">@lang('lead/lead.email')</label>
+                                                {{ Form::text('email', null, array('class' => 'form-control','placeholder'=>trans('lead/form.email'),'required'=>'required')) }}
                                             </div>
 
                                             <div class="form-group ">
