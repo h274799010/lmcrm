@@ -889,19 +889,24 @@ class SphereController extends Controller {
             // если лид помечается к аукциону
             // выставляем лиду статус "3"
             $lead->status = 3;
+            $lead->operator_processing_time = date("Y-m-d H:i:s");
+
 
         }elseif( $typeRequest == 'onSelectiveAuction' ){
             // если лид направляется на выборочные аукционы
             // выставляем лиду статус "7"
             $lead->status = 7;
-        }
-        elseif( $typeRequest == 'openLead' || $typeRequest == 'closeDeal' ){
+            $lead->operator_processing_time = date("Y-m-d H:i:s");
+
+
+        }elseif( $typeRequest == 'openLead' || $typeRequest == 'closeDeal' ){
             // если лид открывается только определенным пользователям
             // выставляем лиду статус "4"
             $lead->status = 3;
+            $lead->operator_processing_time = date("Y-m-d H:i:s");
         }
 
-        $lead->operator_processing_time = date("Y-m-d H:i:s");
+//        $lead->operator_processing_time = date("Y-m-d H:i:s");
         $lead->expiry_time = $lead->expiredTime();
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->data['phone'])] );
         $lead->customer_id = $customer->id;

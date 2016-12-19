@@ -36,7 +36,9 @@
             <a href="{{ route('operator.sphere.index') }}" class="btn btn-default">{{ trans('operator/edit.button_cancel') }}</a>
             {{-- кнопка на установку BadLead --}}
             <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal">{{ trans('operator/edit.button_bad_lead') }}</button>
-            {{ Form::submit(trans('operator/edit.button_update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
+            {{-- кнопка на простое сохранение лида --}}
+            <button class="btn btn-info leadSave" type="button"  > {{ trans('operator/edit.button_update') }}</button>
+            {{--{{ Form::submit(trans('operator/edit.button_update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}--}}
             <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder">{{ trans('operator/edit.button_call_later') }}</button>
 
             <input type="hidden" name="type" id="typeFrom" value="">
@@ -249,7 +251,9 @@
             <a href="{{ route('operator.sphere.index') }}" class="btn btn-default"> {{ trans('operator/edit.button_cancel') }} </a>
             {{-- кнопка на установку BadLead --}}
             <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal"> {{ trans('operator/edit.button_bad_lead') }}</button>
-            {{ Form::submit(trans('operator/edit.button_update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}
+            {{-- кнопка на простое сохранение лида --}}
+            <button class="btn btn-info leadSave" type="button"  > {{ trans('operator/edit.button_update') }}</button>
+            {{--{{ Form::submit(trans('operator/edit.button_update'),['class'=>'btn btn-info', 'id'=>'leadSave']) }}--}}
             <button class="btn btn-primary" type="button"  data-toggle="modal" data-target=".set_time_reminder"> {{ trans('operator/edit.button_call_later') }}</button>
             <button class="btn btn-success btn-apply_lead_mask" type="button">{{ trans('operator/edit.button_apply') }}</button>
 
@@ -1187,6 +1191,245 @@
             // показывает модальное окно
             $('.apply_lead_mask_modal').modal('show');
         });
+
+
+
+
+        /**
+         * Простое сохранение данных
+         *
+         */
+        $('.leadSave').bind('click', function(){
+
+
+            // опции формы с данными
+            var options = [];
+
+            // дополнительные данные лида
+            var addit_data = [];
+
+            // выбираем все поля формы с опциями
+            var formOption = $('.filterOption');
+
+            // выбираем все поля формы с дополнительными дынными лида
+            var formAdditData = $('.addit_data');
+
+            /**
+             * Перебираем все поля формы с опциями и выбираем только нужные данные
+             *
+             * выбирается только attr, opt, val
+             */
+            $.each( formOption, function( key, option ){
+
+                // проверка типа атрибута
+                if( $(option).get(0).tagName == 'INPUT' ){
+                    // если тег input
+
+                    var data = {
+                        // добавляем атрибут
+                        attr: $(option).data('attr'),
+                        // добавляем опцию
+                        opt: $(option).data('opt'),
+                        // если элемент отмечен ставим значение 1, если нет - 0
+                        val: $(option).prop('checked') ? 1 : 0
+                    };
+
+                    // добавляем поле в массив опций
+                    options.push(data);
+
+                }else if( $(option).get(0).tagName == 'SELECT' ){
+                    // если тег select
+
+                    // выбираем отмеченное поле
+                    var selected = $(option).val();
+
+                    // выбираем все опции селекта
+                    var selectOptions = $(option).find('option');
+
+                    // перебираем все опции селекта и выбираем данные для массива с опциями
+                    $.each( selectOptions, function( key, selectOption){
+
+                        var data = {
+                            // добавляем атрибут
+                            attr: $(selectOption).data('attr'),
+                            // добавляем опцию
+                            opt: $(selectOption).data('opt'),
+                            // если значение выбранно возвращаем 1, если нет - 0
+                            val: $(selectOption).val()==selected ? 1:0
+                        };
+
+                        // добавляем поле в массив опций
+                        options.push(data);
+                    });
+                }
+            });
+
+            /**
+             * Перебираем все поля с дополнительными данными атрибута и выбираем нужные данные
+             *
+             */
+            $.each( formAdditData, function( key, option ){
+
+                // переменная с данными
+                var data;
+
+                // проверка типа атрибута
+                if( $(option).get(0).tagName == 'INPUT' ){
+                    // если тег input
+
+                    /** обрабатываем данные input в зависимости от его типа */
+                    if( $(option).attr('type')=='email' || $(option).attr('type')=='text'){
+                        // тип email или text
+
+                        data = {
+                            // добавляем атрибут
+                            attr: $(option).data('attr'),
+                            // добавляем опцию
+                            opt: $(option).data('opt'),
+                            // если элемент отмечен ставим значение 1, если нет - 0
+                            val: $(option).val(),
+                            // добавляем тип атрибута
+                            attrType: $(option).data('type'),
+                            // добавляем тип атрибута
+                            type: $(option).attr('type')
+
+                        };
+
+                    }else if( $(option).attr('type')=='checkbox' || $(option).attr('type')=='radio'){
+                        // тип checkbox или radio
+
+                        data = {
+                            // добавляем атрибут
+                            attr: $(option).data('attr'),
+                            // добавляем опцию
+                            opt: $(option).data('opt'),
+                            // если элемент отмечен ставим значение 1, если нет - 0
+                            val: $(option).prop('checked') ? 1 : 0,
+                            // добавляем тип атрибута
+                            attrType: $(option).data('type'),
+                            // добавляем тип атрибута
+                            type: $(option).attr('type')
+                        };
+                    }
+
+                    // добавляем поле в массив опций
+                    addit_data.push(data);
+
+                }else if( $(option).get(0).tagName == 'SELECT' ){
+                    // если тег select
+
+                    // выбираем отмеченное поле
+                    var selected = $(option).val();
+
+                    // выбираем все опции селекта
+                    var selectOptions = $(option).find('option');
+
+                    // перебираем все опции селекта и выбираем данные для массива с опциями
+                    $.each( selectOptions, function( key, selectOption){
+
+                        var data = {
+                            // добавляем атрибут
+                            attr: $(selectOption).data('attr'),
+                            // добавляем опцию
+                            opt: $(selectOption).data('opt'),
+                            // если значение выбранно возвращаем 1, если нет - 0
+                            val: $(selectOption).val()==selected ? 1:0,
+                            // добавляем тип атрибута
+                            attrType: $(selectOption).data('type')
+                        };
+
+                        // добавляем поле в массив опций
+                        addit_data.push(data);
+                    });
+
+                }else if( $(option).get(0).tagName == 'TEXTAREA' ){
+                    // если тег select
+
+                    data = {
+                        // добавляем атрибут
+                        attr: $(option).data('attr'),
+                        // добавляем опцию
+                        opt: $(option).data('opt'),
+                        // если элемент отмечен ставим значение 1, если нет - 0
+                        val: $(option).val(),
+                        // добавляем тип атрибута
+                        attrType: $(option).data('type'),
+
+                    };
+
+                    // добавляем поле в массив опций
+                    addit_data.push(data);
+                }
+            });
+
+            // получение данных всех полей
+            var formFields = {
+                sphereId: $('#content').data('sphere_id'),
+                leadId: $('#content').data('lead_id'),
+                name: $('input[name=name]').val(),
+                phone: $('input[name=phone]').val(),
+                email: $('input[name=email]').val(),
+                comments: $('textarea[name=comment]').val(),
+                addit_data: addit_data,
+                options: options
+            };
+
+
+            // добавляем тип в данные
+            formFields.type = 'save';
+
+
+            /**
+             * Отправка данных формы
+             *
+             */
+            $.post(
+                    "{{  route('operator.lead.action') }}",
+                    {
+                        data: formFields,
+                        _token: token
+                    },
+                    function( data ) {
+                        // проверяем ответ
+
+
+//                        console.log( data );
+                        location.href = '/';
+
+                        // проверка статуса ответа
+//                        if( data.status == 0){
+//                            // лид уже на аукционе
+//
+//                            // прячем модальное окно
+//                            $('.apply_lead_mask_modal').modal('hide');
+//                            // показываем блок что лид уже был добавлен на аукцион
+//                            $('.lead_auction_status-0').removeClass('hidden');
+//                            // выводим модальное окно статуса добавления лида на общий аукцион
+//                            $('.lead_auction_status').modal('show');
+//
+//                        }else{
+//                            // лид успешно добавлен на аукцион
+//
+//                            // прячем модальное окно
+//                            $('.apply_lead_mask_modal').modal('hide');
+//                            // показываем блок что лид добавлен на аукцион успешно
+//                            $('.lead_auction_status-1').removeClass('hidden');
+//                            // выводим модальное окно статуса добавления лида на общий аукцион
+//                            $('.lead_auction_status').modal('show');
+//                        }
+
+                    },
+                    "json"
+            );
+
+
+
+            // прячет модальное окно
+//            $('.apply_lead_mask_modal').modal('hide');
+
+        });
+
+
 
 
         /**
