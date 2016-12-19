@@ -1184,7 +1184,8 @@
 
                                                 {{-- переключатель --}}
                                                 <div class="col-xs-4">
-                                                    <div class="togglebutton">
+                                                    {{-- показывает только если это новый элемент --}}
+                                                    <div ng-if="option['id']==0" class="togglebutton">
                                                         <label>
                                                             no
                                                             <input ng-model="option.vale" class="default extend" type="checkbox" value=''>
@@ -1193,6 +1194,8 @@
                                                         </label>
                                                     </div>
                                                 </div>
+
+
 
                                                 {{-- кнопка перемещения --}}
                                                 <div class="col-xs-1 ">

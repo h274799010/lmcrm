@@ -1029,6 +1029,10 @@ class SphereController extends Controller {
             // если агенты есть - добавляем лид им на аукцион и оповещаем
             if( $agents->count() ){
 
+                // помечаем что лид уже был на аукционе
+                $lead->auction_status = 1;
+                $lead->save();
+
                 // Удаляем ранее отредактированного лида с аукциона
                 Auction::where('lead_id', '=', $lead_id)->delete();
 
@@ -1045,6 +1049,10 @@ class SphereController extends Controller {
 
         }elseif( $typeRequest == 'onSelectiveAuction' ){
             // если есть метка 'onSelectiveAuction'
+
+            // помечаем что лид уже был на аукционе
+            $lead->auction_status = 1;
+            $lead->save();
 
             /** добавляем лид на аукцион указанным агентам */
             // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
