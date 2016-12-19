@@ -891,6 +891,58 @@ var app = angular.module('app', ['angular-sortable-view'])
         };
 
 
+        /** Комментарии по сфере */
+
+        /**
+         * Добавление нового комментария
+         *
+         *
+         */
+        $scope.addNote = function(){
+
+            // создаем новый комментарий
+            var newNote =
+            {
+                id:0,       // id комментария
+                note: ''    // текст комментария
+                //position: $scope.data.notes.length + 1 // позиция
+            };
+
+            // добавляем статус в модель
+            $scope.data.notes.push( newNote );
+        };
+
+        /**
+         * Удаление комментария
+         *
+         *
+         * при удалении элемент скрывается
+         * и ему добавляется элемент delete
+         * на сервере этот элемент будет удален из базы
+         */
+        $scope.deleteNote = function( note ){
+
+            // проверка, был ли статус уже сохранен на сервере
+            // (есть или нет id)
+
+            if( note.id == 0){
+                // если заметка еще небыла сохранена на сервере
+                // просто удаляем его
+
+                // находим индекс элемента
+                var index = $scope.data.notes.indexOf(note);
+                // удаляем элемент
+                $scope.data.notes.splice(index, 1);
+
+            }else{
+                // если элемент уже сохранен на сервере
+
+                // добавляем в модель заметок элемент delete
+                note.delete = true;
+            }
+        };
+
+
         /** Общее */
 
         /**
@@ -1004,7 +1056,7 @@ var app = angular.module('app', ['angular-sortable-view'])
                     }else if( data.status == 'error' ){
                         // если есть ошибки валидации
 
-                        // todo записываем все данные в localstorage
+                        // записываем все данные в localstorage
                         localStorage.setItem( 'errors', data.errors );
 
                         // переходим на страницу редактирования

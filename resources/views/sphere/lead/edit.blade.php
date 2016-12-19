@@ -16,6 +16,23 @@
                 <strong>{{ trans('operator/edit.depositor_name') }}</strong> {{ $lead->user->first_name }}
             </div>
 
+
+            @if( $sphere->additionalNotes->count() != 0 )
+
+            <div class="panel panel-default" style="border: solid 1px #D9D9D9">
+                <div class="panel-body">
+
+                    @foreach( $sphere->additionalNotes as $note)
+                        <div style="margin-top: 10px">
+                            {{ $note->note }}
+                        </div>
+                    @endforeach
+
+                </div>
+            </div>
+
+            @endif
+
             <a href="{{ route('operator.sphere.index') }}" class="btn btn-default">{{ trans('operator/edit.button_cancel') }}</a>
             {{-- кнопка на установку BadLead --}}
             <button class="btn btn-danger" type="button" data-toggle="modal" data-target=".set_badLead_modal">{{ trans('operator/edit.button_bad_lead') }}</button>

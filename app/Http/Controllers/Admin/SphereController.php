@@ -19,7 +19,7 @@ use App\Models\Auction;
 
 use App\Models\SphereStatuses;
 use App\Models\SphereFormFilters;
-
+use App\Models\SphereAdditionalNotes;
 
 use App\Models\SphereAdditionForms;
 use Illuminate\Http\Request;
@@ -487,6 +487,14 @@ class SphereController extends AdminController {
             ]
         ];
 
+        $notes =
+        [
+// todo            [ 'id'=>1, 'note'=>'note one'],
+// todo            [ 'id'=>2, 'note'=>'note two'],
+// todo            [ 'id'=>3, 'note'=>'note three'],
+// todo            [ 'id'=>4, 'note'=>'note fore']
+        ];
+
         if($id) {
             $group = Sphere::find($id);
             $data['id']=$id;
@@ -601,9 +609,19 @@ class SphereController extends AdminController {
                 $threshold['values'][]=$arr;
             }
             $threshold['settings']['stat']['minLead']=$group->minLead;
+
+            // добавление заметок в массив данных сферы
+            foreach($group->additionalNotes()->get() as $dbNote) {
+                $arr=[];
+                $arr['id'] = $dbNote->id;
+                $arr['note'] = $dbNote->note;
+                $notes[]=$arr;
+            }
+
+
         }
 
-        $data=['opt'=>$settings,"cform"=>$data,'lead'=>$lead,'threshold'=>$threshold];
+        $data=['opt'=>$settings,"cform"=>$data,'lead'=>$lead,'threshold'=>$threshold, 'notes'=>$notes];
         return response()->json($data);
     }
 
@@ -969,6 +987,9 @@ class SphereController extends AdminController {
 
         // статусы
         $statusData = ($request['threshold']) ? collect( $request['threshold'] ) : FALSE;
+
+        // заметки по сфере
+        $notes = ( count($request['notes']) != 0) ? collect($request['notes']) : collect();
 
 
         /** ----- КОНЕЦ ОБРАБОТКИ ДАННЫХ ПОЛУЧЕННЫХ С ФРОНТЕНДА ---------- */
@@ -1448,6 +1469,53 @@ class SphereController extends AdminController {
             }
 
         }
+
+
+        /**
+         * Обработка заметок
+         */
+        // в эту переменную собираются id заметок, которые нужно удалить
+        $deleteId = false;
+        // перебираем все заметки и обрабатываем
+        $notes->each(function($note) use( $sphere, &$deleteId ){
+
+            // если у атрибуте есть id и он НЕ равен '0'
+            if ( $note['id'] != 0) {
+
+                // проверка на удаление, если нет указание на удаление - просто сохраняем новые данные
+                if( isset( $note['delete'] ) ){
+                    // если задан элемент delete (указание на удаление)
+
+                    // заносим id заметки в список на удаление
+                    // после всего цикла все элементы из этого списка будут удалены
+                    $deleteId[] = $note['id'];
+
+                }else{
+                    // выбираем запись заметки
+                    $dbNote = SphereAdditionalNotes::find($note['id']);
+
+                    // заносим в запись новые данные
+                    $dbNote->note = $note['note'];
+
+                    // и обновляем
+                    $dbNote->save();
+                }
+
+            } else {
+                // если записи нет или он равен 0 создаем его
+                $newNote = new SphereAdditionalNotes();
+                $newNote->sphere_id = $sphere['id'];
+                $newNote->note = $note['note'];
+                $sphere->additionalNotes()->save($newNote);
+            }
+        });
+
+        // если есть заметки для удаления
+        if($deleteId){
+            // удаляем их
+            SphereAdditionalNotes::whereIn('id', $deleteId)->delete();
+        }
+
 
         // валидация, проверка на ошибки
         // если есть ошибки, переключатель сферы переходит в off

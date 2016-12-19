@@ -26,6 +26,7 @@ use App\Helper\Notice;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Helper\PayMaster\Pay;
 use App\Models\OpenLeads;
+use App\Models\SphereAdditionalNotes;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -166,9 +167,15 @@ class SphereController extends Controller {
         }
 
         $data = Sphere::findOrFail($sphere);
-        $data->load('attributes.options','leadAttr.options','leadAttr.validators');
+        $data->load('attributes.options', 'leadAttr.options', 'leadAttr.validators', 'additionalNotes');
+
+//        dd($data);
 
         $lead = Lead::with(['phone', 'user', 'operatorOrganizer'])->find($id);
+
+//        dd( SphereAdditionalNotes::where('sphere_id', $sphere)->get() );
+
+
 
 //        dd($lead);
 

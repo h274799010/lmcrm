@@ -1214,3 +1214,14 @@ table.dataTable thead .sorting:after {
 .form-group.has-error label.control-label, .form-group.has-error .help-block {
     display: inline-block;
 }
+
+textarea.tab_notes{
+    padding: 10px 15px !important;
+}
+
+.delete_note{
+    color: red;
+    cursor: pointer;
+}
+
+

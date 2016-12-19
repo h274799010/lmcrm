@@ -36,6 +36,7 @@
                     <li class="flex-item step"><a href="#tab3" data-toggle="tab" class="btn btn-circle">3</a></li>
                     <li class="flex-item step"><a href="#tab4" data-toggle="tab" class="btn btn-circle">4</a></li>
                     <li class="flex-item step"><a href="#tab5" data-toggle="tab" class="btn btn-circle">5</a></li>
+                    <li class="flex-item step"><a href="#tab6" data-toggle="tab" class="btn btn-circle">6</a></li>
                 </ul>
                 <div class="progress progress-striped">
                     <div class="progress-bar progress-bar-info bar"></div>
@@ -1042,10 +1043,45 @@
                         </form>
                     </div>
                     <div class="tab-pane" id="tab5">
+                        <h3 class="page-header">{{trans('admin/sphere.tab_note_title')}}</h3>
+
+                        <div class="row">
+
+                            {{-- цикл со всеми нотификациями --}}
+                            <div ng-repeat="note in data.notes" class="col-md-12" ng-class="note.delete ? 'hidden' : ''">
+
+                                <div class="row">
+
+                                    {{-- поле для добавления комментария --}}
+                                    <div class="col-md-10">
+                                        <textarea ng-model="note.note" class="form-control tab_notes" placeholder="Add notes"></textarea>
+                                    </div>
+
+                                    {{-- кнопка удаления комментария --}}
+                                    <div class="col-md-1 delete_note center">
+                                        <i class="glyphicon glyphicon-remove-circle" ng-click="deleteNote(note)"></i>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- кнопка добавления нового комментария --}}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button class="btn btn-primary btn-duplicate-add btn-raised flip" type="button" ng-click="addNote()">
+                                    <i class="entypo-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane" id="tab6">
                         <h3 class="page-header">{{trans('admin/sphere.finish')}}</h3>
                         <br class="clearfix">
                         <button class="btn btn-warning btn-save btn-raised" ng-click="saveData()">{{trans('admin/modal.save')}}</button>
                     </div>
+
                     <ul class="pager wizard">
                         <li class="previous first" style="display:none;"><a href="#">{{ trans('pagination.first') }}</a></li>
                         <li class="previous"><a href="#">{{ trans('pagination.previous') }}</a></li>
