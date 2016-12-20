@@ -258,6 +258,91 @@
             <button class="btn btn-success btn-apply_lead_mask" type="button">{{ trans('operator/edit.button_apply') }}</button>
 
             {{ Form::close() }}
+
+            {{-- блок с состоянием лида в системе --}}
+            <div class="panel panel-default lead_state">
+                <div class="panel-body">
+
+                    <div class="lead_state_head">Counter</div>
+                    <table class="table table-bordered lead_state_table">
+                        <tr>
+                            <td>Discoveries</td>
+                            <td> {{ $leadStatus['opened']  }} / {{ $leadStatus['maxOpened'] }} </td>
+                        </tr>
+                        <tr>
+                            <td>Dealings</td>
+                            <td>{{ $leadStatus['closingDeal']  }}</td>
+                        </tr>
+                    </table>
+
+
+                    <div class="lead_state_head">Expenses</div>
+                    <table class="table table-bordered lead_state_table">
+                        <tr>
+                            <td>Operator</td>
+                            <td>{{ $leadStatus['operatorSpend']  }}</td>
+                        </tr>
+                    </table>
+
+
+                    <div class="lead_state_head">Revenue</div>
+                    <table class="table table-bordered lead_state_table">
+                        <tr>
+                            <td>Realization</td>
+                            <td>{{ $leadStatus['revenueForOpen']  }}</td>
+                        </tr>
+                        <tr>
+                            <td>Dealings</td>
+                            <td>{{ $leadStatus['revenueForClosingDeal']  }}</td>
+                        </tr>
+                    </table>
+
+
+                    <div class="lead_state_head">Sales profit</div>
+                    <table class="table table-bordered lead_state_table">
+                        <tr>
+                            <td>Depositor</td>
+                            <td>@if( $leadStatus['depositorProfit']<0 ) {{ $leadStatus['depositorProfit'] }} wasted @else {{ $leadStatus['depositorProfit'] }} @endif</td>
+                        </tr>
+                        <tr>
+                            <td>System</td>
+                            <td>{{ $leadStatus['systemProfit'] }}</td>
+                        </tr>
+                    </table>
+
+
+                    <div class="lead_state_head">Completion time</div>
+                    <table class="table table-bordered lead_state_table">
+                        <tr>
+                            <td>Lead</td>
+                            <td>@if( $leadStatus['expiry_time'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['expiry_time'] }} @endif</td>
+                        </tr>
+                        <tr>
+                            <td>Open leads</td>
+                            <td>@if( $leadStatus['open_lead_expired'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['open_lead_expired'] }} @endif</td>
+                        </tr>
+                    </table>
+
+                    
+                    <div class="lead_state_head">Status</div>
+                    <table class="table table-bordered lead_state_table">
+                        <tr>
+                            <td>Lead</td>
+                            <td>{{ $leadStatus['statusName'] }}</td>
+                        </tr>
+                        <tr>
+                            <td>Auction</td>
+                            <td>@if( $lead->auction_status < 2 ) - @else {{ $leadStatus['auctionStatusName'] }} @endif</td>
+                        </tr>
+                        <tr>
+                            <td>Payment</td>
+                            <td>@if( $lead->payment_status < 1 ) - @else {{ $leadStatus['paymentStatusName'] }} @endif</td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+
         </div>
 
         {{-- Модальное окно на установку badLead --}}
@@ -550,6 +635,30 @@
 
         .addFileButton{
             margin-top: 5px;
+        }
+
+        /* блок с данными по лидам */
+        .lead_state{
+            margin-top: 80px;
+            border: solid 1px #D9D9D9
+        }
+
+        /* заголовок итема статуса */
+        .lead_state_head{
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        /* таблица с блоком данных по лиду */
+        table.lead_state_table{
+            width: 400px !important;
+        }
+
+        /* первая ячейка таблицы */
+        table.lead_state_table td:first-child{
+            background: #63A4B8;
+            color: white;
+            width: 150px;
         }
 
     </style>

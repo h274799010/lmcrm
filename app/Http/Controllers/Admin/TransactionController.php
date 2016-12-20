@@ -94,6 +94,4 @@ class TransactionController extends AdminController {
         return view('admin.system.leadsInfo', [ 'leads'=>$leads ]);
     }
 
-
-
 }

@@ -190,7 +190,26 @@ class SphereController extends Controller {
         // данные всех полей ad в маске
         $adFields = $mask->findAdMask();
 
+        // состояние лида в системе
+        $leadStatus =
+        [
+            'opened' => $lead['opened'],
+            'maxOpened' => $lead->sphere->openLead,
+            'closingDeal' => $lead->ClosingDealCount(),
+            'operatorSpend' => $lead->operatorSpend(),
+            'revenueForOpen' => $lead->revenueForOpen(),
+            'revenueForClosingDeal' => $lead->revenueForClosingDeal(),
+            'depositorProfit' => $lead->depositorProfit(),
+            'systemProfit' => $lead->systemProfit(),
+            'expiry_time' => $lead['expiry_time'],
+            'open_lead_expired' => $lead['open_lead_expired'],
+            'statusName' => $lead->statusName(),
+            'auctionStatusName' => $lead->auctionStatusName(),
+            'paymentStatusName' => $lead->paymentStatusName(),
+        ];
+
         return view('sphere.lead.edit')
+            ->with('leadStatus',$leadStatus)
             ->with('sphere',$data)
             ->with('mask',$shortMask)
             ->with('lead',$lead)
