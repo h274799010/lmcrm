@@ -3,6 +3,7 @@
 use App\Helper\CreditHelper;
 use App\Http\Controllers\AdminController;
 use App\Http\Requests\AgentFormRequest;
+use App\Models\AccountManager;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\Transactions;
@@ -40,8 +41,16 @@ class AgentController extends AdminController
     */
     public function index()
     {
+        $spheres = Sphere::active()->get();
+
+        $role = Sentinel::findRoleBySlug('account_manager');
+        $accountManagers = $role->users()->get();
+
         // Show the page
-        return view('admin.agent.index');
+        return view('admin.agent.index', [
+            'spheres' => $spheres,
+            'accountManagers' => $accountManagers
+        ]);
     }
 
     /**
@@ -278,9 +287,77 @@ class AgentController extends AdminController
      *
      * @return Datatables JSON
      */
-    public function data()
+    public function data(Request $request)
     {
         $agents = Agent::listAll();
+
+        // Если есть параметры фильтра
+        if (count($request->only('filter'))) {
+            // Получаем параметры
+            $eFilter = $request->only('filter')['filter'];
+
+            $filteredIds = array();
+
+            $agentsSphereIds = array();
+            $agentsAccIds = array();
+            $agentsRoleIds = array();
+
+            // Пробегаемся по параметрам из фильтра
+            //
+            foreach ($eFilter as $eFKey => $eFVal) {
+                switch($eFKey) {
+                    case 'sphere':
+                        $agentsSphereIds = array();
+                        if($eFVal) {
+                            $sphere = Sphere::find($eFVal);
+                            $agentsSphereIds = $sphere->agentsAll()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    case 'accountManager':
+                        $agentsAccIds = array();
+                        if($eFVal) {
+                            $accountManager = AccountManager::find($eFVal);
+                            $agentsAccIds = $accountManager->agentsAll()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    case 'role':
+                        $agentsRoleIds = array();
+                        if($eFVal) {
+                            $role = Sentinel::findRoleBySlug($eFVal);
+                            $agentsRoleIds = $role->users()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Обьеденяем id агентов по всем фильтрам
+            $tmp = array_merge($agentsSphereIds, $agentsAccIds, $agentsRoleIds);
+            // Убираем повторяющиеся записи (оставляем только уникальные)
+            $tmp = array_unique($tmp);
+
+            // Ишем обшие id по всем фильтрам
+            foreach ($tmp as $val) {
+                $flag = 0;
+                if(empty($eFilter['sphere']) || in_array($val, $agentsSphereIds)) {
+                    $flag++;
+                }
+                if(empty($eFilter['accountManager']) || in_array($val, $agentsAccIds)) {
+                    $flag++;
+                }
+                if(empty($eFilter['role']) || in_array($val, $agentsRoleIds)) {
+                    $flag++;
+                }
+                if( $flag == 3 ) {
+                    $filteredIds[] = $val;
+                }
+            }
+            // Если фильтры не пустые - то применяем их
+            if( !empty($eFilter['sphere']) || !empty($eFilter['accountManager']) || !empty($eFilter['role']) ) {
+                $agents->whereIn('id', $filteredIds);
+            }
+        }
 
         return Datatables::of($agents)
             ->remove_column('first_name')
@@ -294,6 +371,20 @@ class AgentController extends AdminController
                     }
                 }
                 return $role;
+            })
+            ->add_column('spheres', function($model) {
+                $spheres = $model->spheres()->get()->lists('name')->toArray();
+                if(count($spheres)) {
+                    $spheres = implode(', ', $spheres);
+                }
+                return $spheres;
+            })
+            ->add_column('accountManagers', function($model) {
+                $accountManagers = $model->accountManagers()->get()->lists('email')->toArray();
+                if(count($accountManagers)) {
+                    $accountManagers = implode(', ', $accountManagers);
+                }
+                return $accountManagers;
             })
             ->add_column('actions', function($model) { return view('admin.agent.datatables.control',['user'=>$model]); })
             ->remove_column('id')
