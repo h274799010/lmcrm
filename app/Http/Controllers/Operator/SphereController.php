@@ -26,6 +26,7 @@ use App\Helper\Notice;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Helper\PayMaster\Pay;
 use App\Models\OpenLeads;
+use App\Models\SphereAdditionalNotes;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -166,9 +167,15 @@ class SphereController extends Controller {
         }
 
         $data = Sphere::findOrFail($sphere);
-        $data->load('attributes.options','leadAttr.options','leadAttr.validators');
+        $data->load('attributes.options', 'leadAttr.options', 'leadAttr.validators', 'additionalNotes');
+
+//        dd($data);
 
         $lead = Lead::with(['phone', 'user', 'operatorOrganizer'])->find($id);
+
+//        dd( SphereAdditionalNotes::where('sphere_id', $sphere)->get() );
+
+
 
 //        dd($lead);
 
@@ -183,7 +190,26 @@ class SphereController extends Controller {
         // данные всех полей ad в маске
         $adFields = $mask->findAdMask();
 
+        // состояние лида в системе
+        $leadStatus =
+        [
+            'opened' => $lead['opened'],
+            'maxOpened' => $lead->sphere->openLead,
+            'closingDeal' => $lead->ClosingDealCount(),
+            'operatorSpend' => $lead->operatorSpend(),
+            'revenueForOpen' => $lead->revenueForOpen(),
+            'revenueForClosingDeal' => $lead->revenueForClosingDeal(),
+            'depositorProfit' => $lead->depositorProfit(),
+            'systemProfit' => $lead->systemProfit(),
+            'expiry_time' => $lead['expiry_time'],
+            'open_lead_expired' => $lead['open_lead_expired'],
+            'statusName' => $lead->statusName(),
+            'auctionStatusName' => $lead->auctionStatusName(),
+            'paymentStatusName' => $lead->paymentStatusName(),
+        ];
+
         return view('sphere.lead.edit')
+            ->with('leadStatus',$leadStatus)
             ->with('sphere',$data)
             ->with('mask',$shortMask)
             ->with('lead',$lead)
@@ -882,19 +908,24 @@ class SphereController extends Controller {
             // если лид помечается к аукциону
             // выставляем лиду статус "3"
             $lead->status = 3;
+            $lead->operator_processing_time = date("Y-m-d H:i:s");
+
 
         }elseif( $typeRequest == 'onSelectiveAuction' ){
             // если лид направляется на выборочные аукционы
             // выставляем лиду статус "7"
             $lead->status = 7;
-        }
-        elseif( $typeRequest == 'openLead' || $typeRequest == 'closeDeal' ){
+            $lead->operator_processing_time = date("Y-m-d H:i:s");
+
+
+        }elseif( $typeRequest == 'openLead' || $typeRequest == 'closeDeal' ){
             // если лид открывается только определенным пользователям
             // выставляем лиду статус "4"
             $lead->status = 3;
+            $lead->operator_processing_time = date("Y-m-d H:i:s");
         }
 
-        $lead->operator_processing_time = date("Y-m-d H:i:s");
+//        $lead->operator_processing_time = date("Y-m-d H:i:s");
         $lead->expiry_time = $lead->expiredTime();
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->data['phone'])] );
         $lead->customer_id = $customer->id;
@@ -1017,6 +1048,10 @@ class SphereController extends Controller {
             // если агенты есть - добавляем лид им на аукцион и оповещаем
             if( $agents->count() ){
 
+                // помечаем что лид уже был на аукционе
+                $lead->auction_status = 1;
+                $lead->save();
+
                 // Удаляем ранее отредактированного лида с аукциона
                 Auction::where('lead_id', '=', $lead_id)->delete();
 
@@ -1033,6 +1068,10 @@ class SphereController extends Controller {
 
         }elseif( $typeRequest == 'onSelectiveAuction' ){
             // если есть метка 'onSelectiveAuction'
+
+            // помечаем что лид уже был на аукционе
+            $lead->auction_status = 1;
+            $lead->save();
 
             /** добавляем лид на аукцион указанным агентам */
             // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию

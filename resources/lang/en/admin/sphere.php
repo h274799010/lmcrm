@@ -38,6 +38,8 @@ return [
     'price_call_center' => 'Price call center',
     'sphere_name' => 'Form name',
     'button_add_field' => 'Add field',
+    'tab_note_title' => 'Note',
+
 
     'errors' => [
         'not_activated' => 'Sphere can not be activated for the following reasons:',

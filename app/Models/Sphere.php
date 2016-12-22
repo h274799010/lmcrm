@@ -35,7 +35,17 @@ class Sphere extends Model
      *
      */
     public function filterAttr() {
-        return $this->hasMany('App\Models\SphereFormFilters','sphere_id','id')->orderBy('position');
+        return $this->hasMany('App\Models\SphereFormFilters', 'sphere_id', 'id')->orderBy('position');
+    }
+
+
+    /**
+     * Примечания по сфере
+     *
+     *
+     */
+    public function additionalNotes() {
+        return $this->hasMany('App\Models\SphereAdditionalNotes', 'sphere_id', 'id');
     }
 
 

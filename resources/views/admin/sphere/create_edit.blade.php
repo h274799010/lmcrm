@@ -20,7 +20,6 @@
             </h3>
         </div>
         <div ng-if="errorSwitch" class="alert alert-warning alert-dismissible fade in" role="alert" id="alert" >
-            {{-- todo <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>--}}
             <button type="button" class="close" ng-click="errorSwitchOff"><span aria-hidden="true">×</span></button>
 
             <div class="alertContent">
@@ -37,6 +36,7 @@
                     <li class="flex-item step"><a href="#tab3" data-toggle="tab" class="btn btn-circle">3</a></li>
                     <li class="flex-item step"><a href="#tab4" data-toggle="tab" class="btn btn-circle">4</a></li>
                     <li class="flex-item step"><a href="#tab5" data-toggle="tab" class="btn btn-circle">5</a></li>
+                    <li class="flex-item step"><a href="#tab6" data-toggle="tab" class="btn btn-circle">6</a></li>
                 </ul>
                 <div class="progress progress-striped">
                     <div class="progress-bar progress-bar-info bar"></div>
@@ -677,6 +677,11 @@
                                                 {{ Form::text('phone', null, array('class' => 'form-control','placeholder'=>trans('lead/form.phone'),'required'=>'required', 'data-rule-phone'=>true)) }}
                                             </div>
 
+                                            <div class="form-group">
+                                                <label class="control-label">@lang('lead/lead.email')</label>
+                                                {{ Form::text('email', null, array('class' => 'form-control','placeholder'=>trans('lead/form.email'),'required'=>'required')) }}
+                                            </div>
+
                                             <div class="form-group ">
                                                 <label class="control-label">@lang('lead/lead.comments')</label>
                                                 {{ Form::textarea('comment', null, array('rows'=>'3','class' => 'form-control','placeholder'=>trans('lead/form.comments'))) }}
@@ -1038,10 +1043,45 @@
                         </form>
                     </div>
                     <div class="tab-pane" id="tab5">
+                        <h3 class="page-header">{{trans('admin/sphere.tab_note_title')}}</h3>
+
+                        <div class="row">
+
+                            {{-- цикл со всеми нотификациями --}}
+                            <div ng-repeat="note in data.notes" class="col-md-12" ng-class="note.delete ? 'hidden' : ''">
+
+                                <div class="row">
+
+                                    {{-- поле для добавления комментария --}}
+                                    <div class="col-md-10">
+                                        <textarea ng-model="note.note" class="form-control tab_notes" placeholder="Add notes"></textarea>
+                                    </div>
+
+                                    {{-- кнопка удаления комментария --}}
+                                    <div class="col-md-1 delete_note center">
+                                        <i class="glyphicon glyphicon-remove-circle" ng-click="deleteNote(note)"></i>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- кнопка добавления нового комментария --}}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button class="btn btn-primary btn-duplicate-add btn-raised flip" type="button" ng-click="addNote()">
+                                    <i class="entypo-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane" id="tab6">
                         <h3 class="page-header">{{trans('admin/sphere.finish')}}</h3>
                         <br class="clearfix">
                         <button class="btn btn-warning btn-save btn-raised" ng-click="saveData()">{{trans('admin/modal.save')}}</button>
                     </div>
+
                     <ul class="pager wizard">
                         <li class="previous first" style="display:none;"><a href="#">{{ trans('pagination.first') }}</a></li>
                         <li class="previous"><a href="#">{{ trans('pagination.previous') }}</a></li>
@@ -1144,7 +1184,8 @@
 
                                                 {{-- переключатель --}}
                                                 <div class="col-xs-4">
-                                                    <div class="togglebutton">
+                                                    {{-- показывает только если это новый элемент --}}
+                                                    <div ng-if="option['id']==0" class="togglebutton">
                                                         <label>
                                                             no
                                                             <input ng-model="option.vale" class="default extend" type="checkbox" value=''>
@@ -1153,6 +1194,8 @@
                                                         </label>
                                                     </div>
                                                 </div>
+
+
 
                                                 {{-- кнопка перемещения --}}
                                                 <div class="col-xs-1 ">
