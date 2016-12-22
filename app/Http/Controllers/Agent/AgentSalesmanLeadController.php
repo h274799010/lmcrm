@@ -123,7 +123,7 @@ class AgentSalesmanLeadController extends LeadController
         $balanceJSON = json_encode($balance);
 
         // добавляем на страницу куки с данными по балансу
-        Cookie::queue('balance', $balanceJSON, null, null, null, false, false);
+        Cookie::queue('salesman_balance', $balanceJSON, null, null, null, false, false);
     }
 
     /**

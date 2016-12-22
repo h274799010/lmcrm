@@ -503,7 +503,7 @@ $(function(){
                     $(val.masks).each(function( key, mask ){
                         // перебираем все маски
 
-                        if( mask.status === undefined ){ return false; }
+                        //if( mask.status === undefined ){ return false; }
 
                         // блок с именем
                         var name = $('<span />');
@@ -542,14 +542,6 @@ $(function(){
                 }
 
                 balance.append(li);
-
-                //alert(balance.children().length);
-                //
-                //if( balance.children().length == 0){
-                //    li.text( 'гы' );
-                //    balance.append(li);
-                //}
-
             });
 
         }else{
@@ -592,6 +584,9 @@ function getCookie(name) {
 // Обновление данных по балансу
 function updateBalance() {
     var balance = getCookie('balance');
+    if($('#salesman_balance_data_content').length > 0) {
+        balance = getCookie('salesman_balance');
+    }
 
     if(balance == undefined) {
         return false;
