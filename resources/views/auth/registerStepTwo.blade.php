@@ -5,12 +5,19 @@
             <div class="page-header">
                 <h2>
                     {!! trans('site/user.register_step_two') !!}
-                    <div class="pull-right flip">
+                    {{--<div class="pull-right flip">
                         <a class="btn btn-primary btn-xs close_popup" href="{{ URL::previous() }}">
                             <span class="glyphicon glyphicon-backward"></span> {{ trans('admin/admin.back') }}
                         </a>
-                    </div>
+                    </div>--}}
                 </h2>
+            </div>
+            <div class="row">
+                @if($errors->any())
+                    <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
+                        {{$errors->first('message')}}
+                    </div>
+                @endif
             </div>
         </div>
 

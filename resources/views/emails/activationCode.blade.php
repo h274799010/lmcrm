@@ -3,5 +3,5 @@
 </p>
 <hr>
 <p>
-    <a href="{{ route('activation', [ 'user_id' => $user->id, 'code' => $code ]) }}">activate link</a>
+    <a href="{{ route('activation.link', [ 'user_id' => $user->id, 'code' => $code ]) }}">activate link</a>
 </p>

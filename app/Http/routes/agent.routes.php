@@ -1,7 +1,5 @@
 <?php
 
-Route::get('registerStepTwo', ['as' => 'agent.registerStepTwo', 'uses' => 'Auth\RegisterController@registerStepTwo']);
-
 Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] ], function() {
 
     // страница с отданными лидами

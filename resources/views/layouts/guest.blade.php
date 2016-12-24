@@ -69,6 +69,9 @@
     @section('script') @show
     <script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
     <link rel="shortcut icon" href="{!! asset('assets/web/ico/favicon.ico')  !!} ">
 </head>
 <body>

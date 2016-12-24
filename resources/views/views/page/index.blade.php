@@ -7,7 +7,7 @@
                 <h2>{!! trans('site/user.login_to_account') !!}</h2>
             </div>
         </div>
-        @if( !empty($errors->first('success')) )
+        @if($errors->any())
             <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
                 {{$errors->first('message')}}
             </div>
