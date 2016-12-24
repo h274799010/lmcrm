@@ -33,6 +33,11 @@ $(function(){
 
 	$(document).on('click', ".dialog", function(){
 		var href=$(this).attr("href");
+
+		if($(this).hasClass('leadCreateLink')) {
+		    $('#errorCreateLead').find('.alert').remove();
+        }
+
 		$.ajax({
 			url:href,
 			success:function(response){
@@ -83,7 +88,7 @@ $(function(){
 						}
 
 						if( resp['error'] != undefined && resp['error'] == 'LeadCreateErrorExists' ) {
-                            $('#errorCreateLead').show().find('.alert').html(resp['message']);
+                            $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+resp['message']+'</div>');
                         }
 
 					});

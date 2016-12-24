@@ -141,7 +141,7 @@
 <div style="display: none;" id="errorCreateLead">
     <div class="container">
         <div class="row">
-            <div class="alert alert-danger" role="alert">
+            <div class="col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-9 alertWrap">
 
             </div>
         </div>

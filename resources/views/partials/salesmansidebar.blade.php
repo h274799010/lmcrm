@@ -3,7 +3,7 @@
         <ul class="nav " id="side-menu">
             @if( Sentinel::hasAccess(['agent.salesman.lead.create']) && !$userBanned )
                 <li>
-                    <a href="{{ route('agent.salesman.lead.create', ['salesman_id' => $salesman_id]) }}" class="dialog"><i class="icon icon-add-user"></i>@lang('site/sidebar.add_lead')</a>
+                    <a href="{{ route('agent.salesman.lead.create', ['salesman_id' => $salesman_id]) }}" class="dialog leadCreateLink"><i class="icon icon-add-user"></i>@lang('site/sidebar.add_lead')</a>
                 </li>
             @endif
             @if( Sentinel::hasAccess(['agent.salesman.obtainedLead']) && !$userBanned )
