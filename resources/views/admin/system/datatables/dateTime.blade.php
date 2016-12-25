@@ -1,0 +1,1 @@
+<span class="data_time center">{{ $data }}</span>
