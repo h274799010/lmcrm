@@ -93,9 +93,41 @@ class TransactionController extends AdminController {
         return view('admin.system.leadsInfo'/*, [ 'leads'=>$leads ]*/);
     }
 
-    public function allLeadsInfoData()
+    public function allLeadsInfoData(Request $request)
     {
-        $leads = Lead::where( 'status', '>', 1 )->select(['name', 'opened', 'expiry_time', 'open_lead_expired', 'auction_status', 'payment_status', 'id', 'sphere_id', 'agent_id', 'status', 'auction_status', 'payment_status']);
+        //$leads = Lead::where( 'status', '>', 1 )->select(['name', 'opened', 'expiry_time', 'open_lead_expired', 'auction_status', 'payment_status', 'id', 'sphere_id', 'agent_id', 'status', 'auction_status', 'payment_status'])->get();
+        $leads = Lead::select(['name', 'opened', 'expiry_time', 'open_lead_expired', 'auction_status', 'payment_status', 'id', 'sphere_id', 'agent_id', 'status', 'auction_status', 'payment_status'])->get();
+
+        // Если есть параметры фильтра
+        if (count($request->only('filter'))) {
+            // Получаем параметры
+            $eFilter = $request->only('filter')['filter'];
+
+            // Пробегаемся по параметрам из фильтра
+            foreach ($eFilter as $eFKey => $eFVal) {
+                if($eFVal != 'empty') {
+                    switch ($eFKey) {
+                        case 'lead_status':
+                            $leads = $leads->filter(function ($lead) use ($eFVal) {
+                                return $lead->status == $eFVal;
+                            });
+                            break;
+                        case 'auction_status':
+                            $leads = $leads->filter(function ($lead) use ($eFVal) {
+                                return $lead->auction_status == $eFVal;
+                            });
+                            break;
+                        case 'payment_status':
+                            $leads = $leads->filter(function ($lead) use ($eFVal) {
+                                return $lead->payment_status == $eFVal;
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
 
         return Datatables::of($leads)
             ->remove_column('expiry_time', 'open_lead_expired', 'auction_status', 'payment_status', 'id', 'sphere_id', 'agent_id', 'status', 'auction_status', 'payment_status')
