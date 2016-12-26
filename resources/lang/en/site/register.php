@@ -13,5 +13,7 @@ return [
     'step_one_success' => 'You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.',
     'step_two_success' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.',
 
-    'incorrect_code' => 'Confirmation code does not fit!'
+    'incorrect_code' => 'Confirmation code does not fit!',
+
+    'waiting_activation' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.'
 ];

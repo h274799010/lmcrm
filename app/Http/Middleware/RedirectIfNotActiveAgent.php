@@ -19,9 +19,11 @@ class RedirectIfNotActiveAgent
     {
         $user = Sentinel::getUser();
 
-        $agentInfo = AgentInfo::where('agent_id', '=', $user->id)->first();
-        if($agentInfo->state == 2) {
-            return redirect()->route('home');
+        if($user->inRole('agent')) {
+            $agentInfo = AgentInfo::where('agent_id', '=', $user->id)->first();
+            if($agentInfo->state == 2) {
+                return redirect()->route('home');
+            }
         }
 
         return $next($request);

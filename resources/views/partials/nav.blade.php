@@ -138,6 +138,22 @@
         </div>
     </div>
 </div>
+
+@if( $userNotActive )
+    <div id="userNotActive" style="margin-top: -20px;">
+        <div class="notice_newLead" style="display: block;">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="removeNotice" style="float: none;text-align: center;">
+                            {{ trans('site/register.waiting_activation') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 <div style="display: none;" id="errorCreateLead">
     <div class="container">
         <div class="row">
