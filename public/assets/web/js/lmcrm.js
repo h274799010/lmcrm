@@ -87,8 +87,12 @@ $(function(){
 
 						}
 
-						if( resp['error'] != undefined && resp['error'] == 'LeadCreateErrorExists' ) {
+						if( resp['status'] != undefined && resp['status'] == 'LeadCreateErrorExists' ) {
                             $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+resp['message']+'</div>');
+                        }
+
+						if( resp['status'] != undefined && resp['status'] == 'LeadCreateSuccess' ) {
+                            $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+resp['message']+'</div>');
                         }
 
 					});
