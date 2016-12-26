@@ -139,7 +139,7 @@
     </div>
 </div>
 
-@if( $userNotActive )
+@if( isset($userNotActive) && $userNotActive == true )
     <div id="userNotActive" style="margin-top: -20px;">
         <div class="notice_newLead" style="display: block;">
             <div class="container-fluid">

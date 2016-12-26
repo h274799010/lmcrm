@@ -33,6 +33,8 @@ class SentinelAgentOrSalesmanUser
                 /*Sentinel::logout();
 
                 return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.']);*/
+            } else {
+                view()->share('userNotActive', false);
             }
         } else {
             view()->share('userNotActive', false);
