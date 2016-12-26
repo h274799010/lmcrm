@@ -63,7 +63,7 @@
                 </tbody>
             </table>
 
-        @if( Sentinel::hasAccess(['agent.sphere.edit']) && !$userBanned )
+        @if( Sentinel::hasAccess(['agent.sphere.edit']) && !$userBanned && !$userNotActive )
             @if(isset($salesman_id) && $salesman_id !== false)
                 <a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0, 'salesman_id'=>$salesman_id]) }}" type="button" class="btn btn-xs btn-primary add_mask"> {{ trans("site/mask.add_mask") }}</a>
             @else

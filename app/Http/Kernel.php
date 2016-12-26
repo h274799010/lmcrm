@@ -75,6 +75,7 @@ class Kernel extends HttpKernel
         'localizationRedirect' => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,
         'localeSessionRedirect' => \App\Http\Middleware\LocaleSessionRedirect::class,
         'redirectIfBanned' => \App\Http\Middleware\RedirectIfBanned::class,
+        'redirectIfNotActive' => \App\Http\Middleware\RedirectIfNotActiveAgent::class,
 
 
         'jwt-auth' => \App\Http\Middleware\authJWT::class,
