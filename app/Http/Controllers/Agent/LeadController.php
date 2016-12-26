@@ -868,7 +868,7 @@ class LeadController extends AgentController {
         if($existingLeads) {
             if($request->ajax()){
                 return response()->json([
-                    'error' => 'LeadCreateErrorExists',
+                    'status' => 'LeadCreateErrorExists',
                     'message' => trans('lead/form.exists')
                 ]);
             } else {
