@@ -332,11 +332,11 @@
                         </tr>
                         <tr>
                             <td>Auction</td>
-                            <td>@if( $lead->auction_status < 2 ) - @else {{ $leadStatus['auctionStatusName'] }} @endif</td>
+                            <td>{{ $leadStatus['auctionStatusName'] }}</td>
                         </tr>
                         <tr>
                             <td>Payment</td>
-                            <td>@if( $lead->payment_status < 1 ) - @else {{ $leadStatus['paymentStatusName'] }} @endif</td>
+                            <td>{{ $leadStatus['paymentStatusName'] }}</td>
                         </tr>
                     </table>
 

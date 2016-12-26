@@ -816,7 +816,7 @@ class Lead extends EloquentUser {
             // если лид ни разу не открывался
 
             // делаем расчет по лиду
-            Pay::OperatorRepayment( $this->id );
+//            Pay::OperatorRepayment( $this->id );
 
             // проставляем статусы
             $this->state(
@@ -910,7 +910,7 @@ class Lead extends EloquentUser {
 
 
     /**
-     * Доход со сделок
+     * Общая сумма по доходам со сделок
      *
      */
     public function revenueForClosingDeal()
