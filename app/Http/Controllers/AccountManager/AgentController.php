@@ -108,7 +108,7 @@ class AgentController extends AccountManagerController {
         }
 
         return Datatables::of($agents)
-            ->remove_column('first_name')
+            ->remove_column('first_name', 'email', 'created_at')
             ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
             ->add_column('role', function($model) {
                 // Дополнительная роль (тип) агента
@@ -119,6 +119,14 @@ class AgentController extends AccountManagerController {
                     }
                 }
                 return $role;
+            })
+            ->add_column('spheres', function($model) {
+                $agent = Agent::find($model->id);
+                $spheres = $agent->spheres()->get()->lists('name')->toArray();
+                if(count($spheres)) {
+                    $spheres = implode(', ', $spheres);
+                }
+                return $spheres;
             })
             ->add_column('actions', function($model) { return view('accountManager.agent.datatables.control',['user'=>$model]); })
             ->remove_column('id')
