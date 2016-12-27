@@ -360,7 +360,7 @@ class AgentController extends AdminController
         }
 
         return Datatables::of($agents)
-            ->remove_column('first_name')
+            ->remove_column('first_name', 'created_at', 'email')
             ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
             ->add_column('role', function($model) {
                 // Дополнительная роль (тип) агента
