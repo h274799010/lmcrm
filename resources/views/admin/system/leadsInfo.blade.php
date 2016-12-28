@@ -11,13 +11,57 @@
             </div>
         </h3>
     </div>
+    <div class="row">
+        <div class="col-md-4 col-xs-12" id="leadsListFilter">
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">Lead status</label>
+                    <select data-name="lead_status" class="selectbox dataTables_filter form-control">
+                        <option value="empty"></option>
+                        <option value="0">new lead</option>
+                        <option value="1">operator</option>
+                        <option value="2">operator bad</option>
+                        <option value="3">auction</option>
+                        <option value="4">close auction</option>
+                        <option value="5">agent bad</option>
+                        <option value="6">closed deal</option>
+                        <option value="7">selective auction</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">Auction status</label>
+                    <select data-name="auction_status" class="selectbox dataTables_filter form-control">
+                        <option value="empty"></option>
+                        <option value="2">closed by max open</option>
+                        <option value="3">closed by time expired</option>
+                        <option value="4">closed by agent bad</option>
+                        <option value="5">closed by close deal</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">Payment status</label>
+                    <select data-name="payment_status" class="selectbox dataTables_filter form-control">
+                        <option value="empty"></option>
+                        <option value="0">expects payment</option>
+                        <option value="1">payment to depositor</option>
+                        <option value="2">payment for unsold lead</option>
+                        <option value="3">payment for bad lead</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="col-md-12" id="content">
 
         <div class="tab-pane active" id="leads">
 
 
-            <table class="table table-bordered table-striped table-hover all_leads_info">
+            <table class="table table-bordered table-striped table-hover all_leads_info" id="allLeadsInfo">
 
                 <thead>
                 <tr>
@@ -55,59 +99,8 @@
                     <th> </th>
                 </tr>
                 </thead>
-
-                <tbody>
-
-                @if( count($leads) )
-                    @foreach( $leads as $lead )
-
-                        <tr>
-                            <td>{{ $lead['name'] }}</td>
-                            <td class="center"> {{ $lead['opened'] }} / {{ $lead->sphere->openLead }}</td>
-
-                            <td class="center"> {{ $lead->ClosingDealCount() }}</td>
-
-                            <td style=" color:red; " > {{ $lead->operatorSpend() }} </td>
-                            <td style=" color:green; " > {{ $lead->revenueForOpen()  }} </td>
-                            <td style=" color:green; " > {{ $lead->revenueForClosingDeal()  }} </td>
-
-                            <td> @if( $lead->depositorProfit()<0 ) {{ $lead->depositorProfit() }} wasted @else {{ $lead->depositorProfit() }} @endif </td>
-
-
-                            <td> {{ $lead->systemProfit() }} </td>
-
-
-
-                            <td class="data_time center"> @if( $lead['expiry_time'] =='0000-00-00 00:00:00') - @else {{ $lead['expiry_time'] }} @endif</td>
-                            <td class="data_time center"> @if( $lead['open_lead_expired'] =='0000-00-00 00:00:00') - @else {{ $lead['open_lead_expired'] }} @endif</td>
-
-                            <td class="center"> {{ $lead->statusName() }} </td>
-                            <td class="center"> @if( $lead->auction_status < 2 ) - @else {{ $lead->auctionStatusName() }} @endif</td>
-                            <td class="center"> @if( $lead->payment_status < 1 ) - @else {{ $lead->paymentStatusName() }} @endif</td>
-
-                            <td>
-
-                                <a href="{{ route('admin.system.lead', [$lead['id']])  }}">
-                                    <img class="_icon pull-left flip" src="/assets/web/icons/list-edit.png">
-                                </a>
-
-                            </td>
-                        </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="14">{{ trans('admin/wallet.leads_empty') }}</td>
-                    </tr>
-                @endif
-
-                </tbody>
-
+                <tbody></tbody>
             </table>
-
-            <div class="text-center">
-                {{ $leads->render() }}
-            </div>
-
         </div>
 
 
@@ -198,8 +191,8 @@
         }
 
         .all_leads_info thead tr th{
-            background: #63A4B8;
-            color: white;
+            background: #63A4B8 !important;
+            color: white !important;
             vertical-align: middle;
             text-align: center;
         }
@@ -215,14 +208,111 @@
         .lead_expiry_time{
             width: 77px;
         }
+        span.center {
+            display: block;
+        }
+        div.dataTables_processing {
+            z-index: 99999;
+            top: auto;
+            bottom: 0;
+            background: none;
+        }
 
     </style>
 @stop
 
 
 
-@section('scripts')
-    <script>
+@section('scripts_after')
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var allLeadsInfo;
+            var $container = $('#leadsListFilter');
+
+            allLeadsInfo = $('#allLeadsInfo').DataTable({
+                "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-6'i><'col-md-6'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sProcessing": "{{ trans('table.processing') }}",
+                    "sLengthMenu": "{{ trans('table.showmenu') }}",
+                    "sZeroRecords": "{{ trans('table.noresult') }}",
+                    "sInfo": "{{ trans('table.show') }}",
+                    "sEmptyTable": "{{ trans('table.emptytable') }}",
+                    "sInfoEmpty": "{{ trans('table.view') }}",
+                    "sInfoFiltered": "{{ trans('table.filter') }}",
+                    "sInfoPostFix": "",
+                    "sSearch": "{{ trans('table.search') }}:",
+                    "sUrl": "",
+                    "oPaginate": {
+                        "sFirst": "{{ trans('table.start') }}",
+                        "sPrevious": "{{ trans('table.prev') }}",
+                        "sNext": "{{ trans('table.next') }}",
+                        "sLast": "{{ trans('table.last') }}"
+                    }
+                },
+                "processing": true,
+                "serverSide": true,
+                //"ajax": "/admin/allLeadsInfoData",
+                "ajax": {
+                    "url": "/admin/allLeadsInfoData",
+                    "data": function (d) {
+
+                        // переменная с данными по фильтру
+                        var filter = {};
+
+                        // перебираем фильтры и выбираем данные по ним
+                        $container.find('select.dataTables_filter').each(function () {
+
+                            // если есть name и нет js
+                            if ($(this).data('name') && $(this).data('js') != 1) {
+
+                                // заносим в фильтр данные с именем name и значением опции
+                                filter[$(this).data('name')] = $(this).val();
+                            }
+                        });
+
+                        // данные фильтра
+                        d['filter'] = filter;
+                    }
+                },
+                "fnDrawCallback": function (oSettings) {
+                    $(".iframe").colorbox({
+                        iframe: true,
+                        width: "80%",
+                        height: "80%",
+                        onClosed: function () {
+                            allLeadsInfo.ajax.reload();
+                        }
+                    });
+                }
+            });
+
+            // обработка фильтров таблицы при изменении селекта
+            $container.find('select.dataTables_filter').change(function () {
+
+                // проверяем параметр data-js
+                if ($(this).data('js') == '1') {
+                    // если js равен 1
+
+                    // перечисляем имена
+                    switch ($(this).data('name')) {
+
+                        // если у селекта имя pageLength
+                        case 'pageLength':
+                            // перерисовываем таблицу с нужным количеством строк
+                            if ($(this).val()) oTable.page.len($(this).val()).draw();
+                            break;
+                        default:
+                            ;
+                    }
+                } else {
+                    // если js НЕ равен 1
+
+                    // просто перезагружаем таблицу
+                    allLeadsInfo.ajax.reload();
+                }
+            });
+        });
     </script>
 @stop
 

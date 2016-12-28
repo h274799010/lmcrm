@@ -32,7 +32,11 @@ class AgentController extends AccountManagerController {
 
     public function index()
     {
-        return view('accountManager.agent.index');
+        $accountManager = AccountManager::find(Sentinel::getUser()->id);
+        $spheres = $accountManager->spheres()->get();
+        return view('accountManager.agent.index', [
+            'spheres' => $spheres
+        ]);
     }
 
     /**
@@ -40,10 +44,68 @@ class AgentController extends AccountManagerController {
      *
      * @return mixed
      */
-    public function data()
+    public function data(Request $request)
     {
         $accountManager = AccountManager::find(Sentinel::getUser()->id);
         $agents = $accountManager->agents();
+
+
+        // Если есть параметры фильтра
+        if (count($request->only('filter'))) {
+            // Получаем параметры
+            $eFilter = $request->only('filter')['filter'];
+
+            $filteredIds = array();
+
+            $agentsSphereIds = array();
+            $agentsRoleIds = array();
+
+            // Пробегаемся по параметрам из фильтра
+            //
+            foreach ($eFilter as $eFKey => $eFVal) {
+                switch($eFKey) {
+                    case 'sphere':
+                        $agentsSphereIds = array();
+                        if($eFVal) {
+                            $sphere = Sphere::find($eFVal);
+                            $agentsSphereIds = $sphere->agentsAll()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    case 'role':
+                        $agentsRoleIds = array();
+                        if($eFVal) {
+                            $role = Sentinel::findRoleBySlug($eFVal);
+                            $agentsRoleIds = $role->users()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Обьеденяем id агентов по всем фильтрам
+            $tmp = array_merge($agentsSphereIds, $agentsRoleIds);
+            // Убираем повторяющиеся записи (оставляем только уникальные)
+            $tmp = array_unique($tmp);
+
+            // Ишем обшие id по всем фильтрам
+            foreach ($tmp as $val) {
+                $flag = 0;
+                if(empty($eFilter['sphere']) || in_array($val, $agentsSphereIds)) {
+                    $flag++;
+                }
+                if(empty($eFilter['role']) || in_array($val, $agentsRoleIds)) {
+                    $flag++;
+                }
+                if( $flag == 2 ) {
+                    $filteredIds[] = $val;
+                }
+            }
+            // Если фильтры не пустые - то применяем их
+            if( !empty($eFilter['sphere']) || !empty($eFilter['role']) ) {
+                $agents->whereIn('users.id', $filteredIds);
+            }
+        }
 
         return Datatables::of($agents)
             ->remove_column('first_name')

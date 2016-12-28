@@ -16,6 +16,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     // страница редактирования данных кошелька системы
     Route::get('allLeadsInfo',['as'=>'admin.allLeadsInfo', 'uses' => 'Admin\TransactionController@allLeadsInfo']);
+    Route::get('allLeadsInfoData',['as'=>'admin.allLeadsInfoData', 'uses' => 'Admin\TransactionController@allLeadsInfoData']);
 
 
 

@@ -84,6 +84,10 @@ class Sphere extends Model
         return $this->hasManyThrough('\App\Models\Agent','\App\Models\AgentSphere','sphere_id','agent_id');
     }
 
+    public function agentsAll(){
+        return $this->belongsToMany('\App\Models\Agent','agent_sphere','sphere_id','agent_id');
+    }
+
 
     /**
      * Все маски по сфере из таблицы UserMasks

@@ -2,7 +2,9 @@
 {{-- Content --}}
 @section('content')
     <div class="_page-header" xmlns="http://www.w3.org/1999/html">
-        <a class="btn btn-info pull-right flip" href="{{route('agent.salesman.create')}}"><i class="fa fa-plus"></i> {{ trans("agent/salesman/main.add") }}</a>
+        @if(!$userBanned && !$userNotActive)
+            <a class="btn btn-info pull-right flip" href="{{route('agent.salesman.create')}}"><i class="fa fa-plus"></i> {{ trans("agent/salesman/main.add") }}</a>
+        @endif
     </div>
 
     <div class="panel panel-default">
@@ -22,7 +24,7 @@
                         <tr>
                             <td>
                                 <a href="{{route('agent.salesman.edit',[$salesman->id])}}" class="btn btn-sm" ><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
-                                @if(!$userBanned)
+                                @if(!$userBanned && !$userNotActive)
                                     @if($salesman->banned_at)
                                         <a href="{{ route('agent.salesman.unblock',[$salesman->id]) }}" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.unblock") }}</a>
                                     @else

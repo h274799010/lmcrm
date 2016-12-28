@@ -9,7 +9,7 @@
 
         <h4>{{ $sphere->name }}</h4>
 
-            <table sphereId="{{ $sphere->id }}" class="table table-bordered table-striped table-hover">
+            <table sphereId="{{ $sphere->id }}" class="table table-bordered table-striped table-hover @if( $sphere->masks->count() != 0 ) maskDataTable @endif">
                 <thead>
                     <tr>
                         <th>{{ trans("site/mask.name") }}</th>
@@ -52,17 +52,18 @@
 
                     @empty
                     @endforelse
-
-                        <tr class="noMaskRow @if( $sphere->masks->count() != 0 ) hidden @endif">
+                    @if( $sphere->masks->count() == 0 )
+                        <tr class="noMaskRow">
                             <td colspan="5">
                                 {{ trans("site/mask.no_mask") }}
                             </td>
                         </tr>
+                    @endif
 
                 </tbody>
             </table>
 
-        @if( Sentinel::hasAccess(['agent.sphere.edit']) && !$userBanned )
+        @if( Sentinel::hasAccess(['agent.sphere.edit']) && !$userBanned && !$userNotActive )
             @if(isset($salesman_id) && $salesman_id !== false)
                 <a href="{{ route('agent.salesman.sphere.edit',['sphere_id'=>$sphere->id, 'mask_id'=>0, 'salesman_id'=>$salesman_id]) }}" type="button" class="btn btn-xs btn-primary add_mask"> {{ trans("site/mask.add_mask") }}</a>
             @else
@@ -246,5 +247,14 @@
 
         })
 
+
+        $(window).on('load', function () {
+            $('.maskDataTable').each(function () {
+                $(this).DataTable({
+                    responsive: true,
+                    paging: false
+                });
+            });
+        });
     </script>
 @stop

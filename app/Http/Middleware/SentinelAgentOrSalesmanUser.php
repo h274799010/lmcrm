@@ -29,10 +29,15 @@ class SentinelAgentOrSalesmanUser
             }elseif($agentInfo->state == 1) {
                 return redirect()->route('agent.registerStepTwo');
             } elseif($agentInfo->state == 2) {
-                Sentinel::logout();
+                view()->share('userNotActive', true);
+                /*Sentinel::logout();
 
-                return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.']);
+                return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.']);*/
+            } else {
+                view()->share('userNotActive', false);
             }
+        } else {
+            view()->share('userNotActive', false);
         }
         if($user->banned_at) {
             view()->share('userBanned', true);

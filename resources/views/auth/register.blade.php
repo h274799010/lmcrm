@@ -12,48 +12,17 @@
                 </div>
             </h2>
         </div>
+        @if($errors->any())
+            <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
+                {{$errors->first('message')}}
+            </div>
+        @endif
     </div>
 
         {{-- todo Подправить названия полей (labels) --}}
     <div class="container-fluid">
         <div class="row">
             {!! Form::open(array('route' => ['register.stepOne'], 'method' => 'post', 'class' => 'validate', 'files'=> true)) !!}
-            {{--<div class="form-group  {{ $errors->has('spheres') ? 'has-error' : '' }}">
-                {!! Form::label('spheres', trans('Sphere of influence'), array('class' => 'control-label')) !!}
-                <div class="controls">
-                    {!! Form::select('spheres[]', $spheres, null, array('multiple'=>'multiple', 'class' => 'form-control notSelectBoxIt select2','required'=>'required')) !!}
-                    <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
-                </div>
-            </div>
-            <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
-                {!! Form::label('role', trans('admin/users.role'), array('class' => 'control-label')) !!}
-                <div class="controls">
-                    {!! Form::select('role', $roles, null, array('class' => 'form-control','required'=>'required')) !!}
-                    <span class="help-block">{{ $errors->first('role', ':message') }}</span>
-                </div>
-            </div>
-            <div class="form-group  {{ $errors->has('accountManager') ? 'has-error' : '' }}">
-                {!! Form::label('accountManager', trans('site/user.accountManager'), array('class' => 'control-label')) !!}
-                <div class="controls">
-                    {!! Form::select('accountManager', $accountManagers, null, array('class' => 'form-control','required'=>'required')) !!}
-                    <span class="help-block">{{ $errors->first('accountManager', ':message') }}</span>
-                </div>
-            </div>
-
-            <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
-                {!! Form::label('first_name', trans('admin/users.first_name'), array('class' => 'control-label')) !!}
-                <div class="controls">
-                    {!! Form::text('first_name', null, array('class' => 'form-control','required'=>'required')) !!}
-                    <span class="help-block">{{ $errors->first('first_name', ':message') }}</span>
-                </div>
-            </div>
-            <div class="form-group  {{ $errors->has('last_name') ? 'has-error' : '' }}">
-                {!! Form::label('last_name', trans('admin/users.last_name'), array('class' => 'control-label')) !!}
-                <div class="controls">
-                    {!! Form::text('last_name', null, array('class' => 'form-control','required'=>'required')) !!}
-                    <span class="help-block">{{ $errors->first('last_name', ':message') }}</span>
-                </div>
-            </div>--}}
             <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
                 {!! Form::label('email', trans('site/user.e_mail'), array('class' => 'control-label')) !!}
                 <div class="controls">

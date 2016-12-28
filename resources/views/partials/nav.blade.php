@@ -13,8 +13,8 @@
 
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            {{--@if( isset($balance) && ( isset($salesman_id) ? !$salesman_id : false) )--}}
-            @if(isset($balance))
+            @if( isset($balance) && !isset($salesman_id) )
+            {{--@if(isset($balance))--}}
                 <ul class="nav navbar-top-links navbar-left flip">
                     <li>
                         <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance['wasted']}} </a>
@@ -28,17 +28,15 @@
 
                     </li>
                 </ul>
-            @endif
-            {{--@endif
-
-            @if( isset($balance) && !( isset($salesman_id) ? !$salesman_id : false) )
+            {{--@endif--}}
+            @elseif( isset($balance) && isset($salesman_id) )
                 <ul class="nav navbar-top-links navbar-left flip">
                     <li>
                         <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance['wasted']}} </a>
                     </li>
 
                     <li class="credit_button dropdown salesman_balance_data_container" >
-                        <a id="balance_data" data-target="#" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-copyright bg-blue"></i> <span>--}}{{--{{$balance['minLeadsToBuy']}}--}}{{--</span> {{ trans('navbar.credits') }}</a>
+                        <a id="balance_data" data-target="#" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-copyright bg-blue"></i> <span>{{--{{$balance['minLeadsToBuy']}}--}}</span> {{ trans('navbar.credits') }}</a>
 
                         <ul id="salesman_balance_data_content" class="dropdown-menu balance_data_menu" aria-labelledby="balance_data">
                         </ul>
@@ -46,7 +44,7 @@
                     </li>
                 </ul>
 
-            @endif--}}
+            @endif
 
             <ul class="nav navbar-top-links navbar-right language_bar_chooser flip">
 
@@ -149,10 +147,26 @@
         </div>
     </div>
 </div>
+
+@if( isset($userNotActive) && $userNotActive == true )
+    <div id="userNotActive" style="margin-top: -20px;">
+        <div class="notice_newLead" style="display: block;">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="removeNotice" style="float: none;text-align: center;">
+                            {{ trans('site/register.waiting_activation') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 <div style="display: none;" id="errorCreateLead">
     <div class="container">
         <div class="row">
-            <div class="alert alert-danger" role="alert">
+            <div class="col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-9 alertWrap">
 
             </div>
         </div>

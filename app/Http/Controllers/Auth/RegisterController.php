@@ -37,6 +37,9 @@ class RegisterController extends Controller
      */
     public function registerStepOne(Request $request)
     {
+        if(Sentinel::findByCredentials(['email'=>$request->input('email')])) {
+            return redirect()->back()->withErrors(['success'=>false, 'message' => trans('site/register.user_exists')]);
+        }
         $user = Sentinel::register($request->except('password_confirmation','spheres'));
         $code = Activation::create($user)->code;
 
@@ -62,13 +65,13 @@ class RegisterController extends Controller
         // Отправляем код активации на почту агента
         // todo: заполнить данные отправителя
         Mail::send('emails.activationCode', [ 'user'=>$user, 'code'=>$code ], function ($message) use ($user) {
-            $message->from('us@example.com', 'Laravel');
+            $message->from(trans('site/register.mail_from_mail'), trans('site/register.mail_from'));
 
-            $message->to($user->email)->subject('Activation account!');
+            $message->to($user->email)->subject(trans('site/register.activation_subject'));
         });
 
-        //return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.']);
-        return view('auth.activationPage', [ 'user' => $user ])->withErrors(['success'=>true, 'message' => 'You have successfully registered. To proceed, you need to log in to your account and enter the code that is sent to your email address.']);
+        //return redirect()->route('home')->withErrors(['success'=>true, 'message' => trans('site/register.step_one_success')]);
+        return view('auth.activationPage', [ 'user' => $user ])->withErrors(['success'=>true, 'message' => trans('site/register.step_one_success')]);
     }
 
     /**
@@ -135,7 +138,7 @@ class RegisterController extends Controller
 
         Sentinel::logout();
 
-        return redirect()->route('home')->withErrors(['success'=>true, 'message' => 'Expect to activate your account administrator. After activation you will be notified by e-mail.']);
+        return redirect()->route('home')->withErrors(['success'=>true, 'message' => trans('site/register.step_two_success')]);
     }
 
     /**
@@ -172,7 +175,10 @@ class RegisterController extends Controller
                 } elseif ($user->inRole($agent)) {
                     $agentInfo = AgentInfo::where('agent_id', '=', $user->id)->first();
                     if($agentInfo->state == 1) {
-                        return redirect()->route('agent.registerStepTwo');
+                        return redirect()->route('agent.registerStepTwo')->withErrors([
+                            'success'=>true,
+                            'message' => trans('site/register.activation_success')
+                        ]);
                     } else {
                         return redirect()->intended('/');
                     }
@@ -180,11 +186,17 @@ class RegisterController extends Controller
                     return redirect()->intended('/');
                 }
             }
-            return redirect()->route('agent.registerStepTwo');
+            return redirect()->route('agent.registerStepTwo')->withErrors([
+                'success'=>true,
+                'message' => trans('site/register.activation_success')
+            ]);
         }
         else
         {
-            return redirect()->route('home')->withErrors(['success'=>false, 'message' => 'Confirmation code does not fit!']);
+            return redirect()->route('home')->withErrors([
+                'success'=>false,
+                'message' => trans('site/register.incorrect_code')
+            ]);
         }
     }
 
@@ -203,11 +215,14 @@ class RegisterController extends Controller
         }
 
         Mail::send('emails.activationCode', [ 'user'=>$user, 'code'=>$activation->code ], function ($message) use ($user) {
-            $message->from('us@example.com', 'Laravel');
+            $message->from(trans('site/register.mail_from_mail'), trans('site/register.mail_from'));
 
-            $message->to($user->email)->subject('Activation account!');
+            $message->to($user->email)->subject(trans('site/register.activation_subject'));
         });
 
-        return response()->json(true);
+        return response()->json([
+            'status' => true,
+            'message' => trans('site/register.activation_code_send')
+        ]);
     }
 }

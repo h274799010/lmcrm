@@ -1,7 +1,5 @@
 <?php
 
-Route::get('registerStepTwo', ['as' => 'agent.registerStepTwo', 'uses' => 'Auth\RegisterController@registerStepTwo']);
-
 Route::group(['prefix' => 'salesman','middleware' => ['auth', 'agent|salesman'] ], function() {
 
     // страница с отданными лидами
@@ -34,28 +32,28 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         // страница с отданными лидами
         Route::get('lead/depostited', ['as' => 'agent.lead.deposited', 'uses' => 'Agent\LeadController@deposited']);
         // форма создания нового лида
-        Route::get('lead/create', ['as' => 'agent.lead.create', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\LeadController@create']);
-        Route::get('salesman/lead/create/{salesman_id}', ['as' => 'agent.salesman.lead.create', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\AgentSalesmanLeadController@create']);
+        Route::get('lead/create', ['as' => 'agent.lead.create', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\LeadController@create']);
+        Route::get('salesman/lead/create/{salesman_id}', ['as' => 'agent.salesman.lead.create', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\AgentSalesmanLeadController@create']);
         // сохранение нового лида
-        Route::post('lead/store',['as'=>'agent.lead.store', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\LeadController@store']);
-        Route::post('salesman/lead/store/{salesman_id}',['as'=>'agent.salesman.lead.store', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\AgentSalesmanLeadController@store']);
+        Route::post('lead/store',['as'=>'agent.lead.store', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\LeadController@store']);
+        Route::post('salesman/lead/store/{salesman_id}',['as'=>'agent.salesman.lead.store', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\AgentSalesmanLeadController@store']);
 
         /** страница фильтрации лидов */
         // страница с отфильтрованными лидами
-        Route::get('lead/obtain', ['as' => 'agent.lead.obtain', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\LeadController@obtain']);
+        Route::get('lead/obtain', ['as' => 'agent.lead.obtain', 'uses' => 'Agent\LeadController@obtain']);
         // страница с открытыми лидами
         Route::get('openedLeads', ['as'=>'agent.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
         // открытие лида
-        Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\LeadController@openLead']);
+        Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\LeadController@openLead']);
         // максимальное открытие лида
-        Route::get('lead/openAll/{lead_id}/{mask_id}', ['as' => 'agent.lead.openAll', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\LeadController@openAllLeads']);
+        Route::get('lead/openAll/{lead_id}/{mask_id}', ['as' => 'agent.lead.openAll', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\LeadController@openAllLeads']);
     });
 
 
 
 
     // получение данных для таблицы на странице фильтра лидов
-    Route::get('lead/obtain/data', ['as' => 'agent.lead.obtain.data', 'middleware' => ['redirectIfBanned'], 'uses' => 'Agent\LeadController@obtainData']);
+    Route::get('lead/obtain/data', ['as' => 'agent.lead.obtain.data', 'uses' => 'Agent\LeadController@obtainData']);
 
 
     Route::get('lead/showOpenedLead/{id}',['as'=>'agent.lead.showOpenedLead', 'uses' => 'Agent\LeadController@showOpenedLead']);

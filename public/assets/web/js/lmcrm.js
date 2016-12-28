@@ -33,6 +33,11 @@ $(function(){
 
 	$(document).on('click', ".dialog", function(){
 		var href=$(this).attr("href");
+
+		if($(this).hasClass('leadCreateLink')) {
+		    $('#errorCreateLead').find('.alert').remove();
+        }
+
 		$.ajax({
 			url:href,
 			success:function(response){
@@ -82,8 +87,12 @@ $(function(){
 
 						}
 
-						if( resp['error'] != undefined && resp['error'] == 'LeadCreateErrorExists' ) {
-                            $('#errorCreateLead').show().find('.alert').html(resp['message']);
+						if( resp['status'] != undefined && resp['status'] == 'LeadCreateErrorExists' ) {
+                            $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+resp['message']+'</div>');
+                        }
+
+						if( resp['status'] != undefined && resp['status'] == 'LeadCreateSuccess' ) {
+                            $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+resp['message']+'</div>');
                         }
 
 					});
@@ -503,7 +512,7 @@ $(function(){
                     $(val.masks).each(function( key, mask ){
                         // перебираем все маски
 
-                        if( mask.status === undefined ){ return false; }
+                        //if( mask.status === undefined ){ return false; }
 
                         // блок с именем
                         var name = $('<span />');
@@ -542,14 +551,6 @@ $(function(){
                 }
 
                 balance.append(li);
-
-                //alert(balance.children().length);
-                //
-                //if( balance.children().length == 0){
-                //    li.text( 'гы' );
-                //    balance.append(li);
-                //}
-
             });
 
         }else{
@@ -592,6 +593,9 @@ function getCookie(name) {
 // Обновление данных по балансу
 function updateBalance() {
     var balance = getCookie('balance');
+    if($('#salesman_balance_data_content').length > 0) {
+        balance = getCookie('salesman_balance');
+    }
 
     if(balance == undefined) {
         return false;

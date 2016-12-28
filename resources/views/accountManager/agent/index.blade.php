@@ -17,8 +17,34 @@
             </div>
         </h3>
     </div>
+    <div class="row">
+        <div class="col-md-6 col-xs-12" id="agentsListFilter">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">Spheres</label>
+                    <select data-name="sphere" class="selectbox dataTables_filter form-control">
+                        <option value=""></option>
+                        @foreach($spheres as $sphere)
+                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">Roles</label>
+                    <select data-name="role" class="selectbox dataTables_filter form-control">
+                        <option value=""></option>
+                        <option value="dealmaker">Dealmaker</option>
+                        <option value="leadbayer">Leadbayer</option>
+                        <option value="partner">Partner</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <table id="table" class="table table-striped table-hover">
+    <table id="table" class="table table-striped table-hover table-filter">
         <thead>
         <tr>
             <th>{!! trans("admin/users.name") !!}</th>

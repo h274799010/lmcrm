@@ -868,12 +868,12 @@ class LeadController extends AgentController {
         if($existingLeads) {
             if($request->ajax()){
                 return response()->json([
-                    'error' => 'LeadCreateErrorExists',
+                    'status' => 'LeadCreateErrorExists',
                     'message' => trans('lead/form.exists')
                 ]);
             } else {
                 return redirect()->route('agent.lead.index')->withErrors([
-                    'error' => 'LeadCreateErrorExists',
+                    'status' => 'LeadCreateErrorExists',
                     'message' => trans('lead/form.exists')
                 ]);
             }
@@ -888,7 +888,10 @@ class LeadController extends AgentController {
         $agent->leads()->save($lead);
 
         if($request->ajax()){
-            return response()->json();
+            return response()->json([
+                'status' => 'LeadCreateSuccess',
+                'message' => trans('lead/form.successfully_created')
+            ]);
         } else {
             return redirect()->route('agent.lead.index');
         }

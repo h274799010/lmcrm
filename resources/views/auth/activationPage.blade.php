@@ -1,10 +1,5 @@
 @extends('layouts.guest')
 @section('content')
-    @if($errors->any())
-        <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
-            {{$errors->first('message')}}
-        </div>
-    @endif
     <div class="container">
         <div class="row">
             <div class="page-header">
@@ -17,6 +12,11 @@
                     </div>
                 </h2>
             </div>
+            @if($errors->any())
+                <div class="alert @if($errors->first('success') == true) alert-success @else alert-danger @endif" role="alert">
+                    {{$errors->first('message')}}
+                </div>
+            @endif
         </div>
 
         {{-- todo Подправить названия полей (labels) --}}
@@ -58,11 +58,11 @@
 
         var token = $('meta[name=csrf-token]').attr('content');
         var id = $('input[name=user_id]').val();
-        console.log(id);
+
         $.post('{{  route('sendActivationCode') }}', { 'user_id': id, '_token': token}, function( data ){
 
-            if(data == true) {
-                $('#statusModal').modal();
+            if(data['status'] == true) {
+                $('.page-header').after('<div class="alert alert-success" role="alert">'+data['message']+'</div>');
             }else{
                 // todo вывести какое то сообщение об ошибке на сервере
             }
