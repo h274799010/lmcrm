@@ -526,7 +526,7 @@ class AgentController extends AdminController
 
         $agent->spheres()->sync($request->input('spheres'));
 
-        //$agent->accountManagers()->sync($request->input('accountManagers'));
+        $agent->accountManagers()->sync($request->input('accountManagers'));
 
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
         $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
