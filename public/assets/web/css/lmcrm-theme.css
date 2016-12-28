@@ -161,6 +161,24 @@ footer,.footer,#footer{
 	background-image: url('/assets/web/icons/Document.png');
 }
 
+
+.operator_icon_add {
+	/*display: block;*/
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	margin: 0 auto;
+	background: transparent url('/assets/web/icons/AddUser.png') no-repeat 0px 0px;
+}
+
+.operator_icon_li a:hover{
+	background: #F8F8F8 !important;
+}
+
+.operator_icon_add:hover {
+	background-position: 0px -45px;
+}
+
 .navbar-top-links { /*TEMP!!!*/
 	margin-top: 25px;
 }

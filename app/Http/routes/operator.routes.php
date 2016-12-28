@@ -40,5 +40,11 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // отправка лида оператором на аукцион агента
     Route::post('send/to/auction', ['as' => 'send.to.auction', 'uses' => 'Operator\SphereController@sendToAuction']);
 
+    // форма добавления нового лида
+    Route::get('lead/create', ['as' => 'operator.lead.create', 'uses' => 'Operator\SphereController@create']);
+
+    // сохранение нового лида
+    Route::post('lead/store', ['as' => 'operator.lead.store', 'uses' => 'Operator\SphereController@store']);
+
 
 });
