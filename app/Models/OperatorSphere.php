@@ -12,6 +12,7 @@ use Illuminate\Database\Query\Builder;
 
 class OperatorSphere extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
     use Authenticatable, CanResetPassword;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,6 +21,16 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
     protected $fillable = [
         'first_name', 'last_name','name','email', 'password',
     ];
+
+
+    /**
+     * Название таблицы
+     *
+     *
+     * @var string
+     */
+    protected $table = "operator_sphere";
+
 
     /**
      * The attributes that should be hidden for arrays.

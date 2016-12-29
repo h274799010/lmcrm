@@ -17,7 +17,7 @@ class Operator extends Model
     protected $table = "operator";
 
     /**
-     * Связь с таблицей лидов
+     * Связь с таблицей лидов (первый попавшийся, удалить)
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
@@ -25,6 +25,18 @@ class Operator extends Model
     {
         return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
     }
+
+
+    /**
+     * Связь с таблицей лидов (все лиды оператора)
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function leads()
+    {
+        return $this->hasMany('App\Models\Lead', 'id', 'lead_id');
+    }
+
 
     /**
      * Связь с таблицей пользователей

@@ -31,12 +31,23 @@ use App\Models\SphereAdditionalNotes;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Input;
-//use App\Http\Requests\Admin\ArticleRequest;
+
 
 class SphereController extends Controller {
 
+    // переменная с данными оператора
+    public $operator;
+
+    /**
+     * Конструктор
+     *
+     */
     public function __construct()
     {
+
+        // получаем данные оператора
+        $this->operator = Sentinel::getUser();
+
         view()->share('type', 'article');
     }
 
@@ -86,6 +97,58 @@ class SphereController extends Controller {
 
         // соединяем лиды к перезвону с лидами к редактированию
         $leads = $leadsMarkedToAlert->merge( $leadsToEdit );
+
+        /** todo удалить, наверное... Перебираем все лиды и добавляем данные депозитора */
+        $leads = $leads->map(function( $item ){
+
+            // получаем данные пользователя
+            $currentUser = Sentinel::findById($item->agent_id);
+
+            // действия в зависимости от типа пользователя
+            if( !$currentUser ){
+                // если пользователе нет (удален, скорее всего)
+
+                // выставляем что депозитора нет (удален
+                $item->depositor_name = null;
+
+            }else{
+                // если пользователь есть
+
+                // выбираем все роли пользователя
+                $userRoles = $currentUser->roles()->get();
+
+                // перебираем все роли и обрабатываем в зависимости от роли
+                $userRoles->each(function( $role ) use (&$item){
+
+                    switch( $role->slug ){
+
+                        case 'agent':
+//                            $item->depositor_name = $item->user->agentInfo()->first()->company;
+                            $item->depositor_name = $item->user;
+
+                            break;
+
+                        case 'salesman':
+                            $item->depositor_name = 'salesman';
+                            break;
+
+                        case 'operator':
+                            $item->depositor_name = 'operator';
+                            break;
+
+                        default:
+                            return false;
+                    }
+
+                    return true;
+                });
+
+//                $item->depositor_name = $currentUser->roles()->get();
+            }
+
+            return $item;
+
+        });
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
@@ -1164,5 +1227,96 @@ class SphereController extends Controller {
         }
 
     }
+
+
+    /**
+     * Показывает форму добавления лида
+     *
+     * @return Response
+     */
+    public function create()
+    {
+
+//        dd( OperatorSphere::all() );
+
+        $operatorSpheresId = OperatorSphere::where('operator_id', $this->operator->id)->lists('id');
+
+//        dd($operatorSpheres);
+
+        // выделяем из коллекции сфер только имена и id
+        $spheres = Sphere::whereIn('id', $operatorSpheresId)->pluck('name', 'id');
+
+        return view('sphere.lead.create')->with('lead',[])->with('spheres',$spheres);
+    }
+
+
+    /**
+     * Метод сохранения нового лида в системе
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     * @return Redirect
+     */
+    public function store( Request $request )
+    {
+
+//        dd('ok');
+
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
+            'name' => 'required'
+        ]);
+        $operator =  $this->operator;
+
+        if ( $validator->fails() ) {
+            if($request->ajax()){
+                return response()->json($validator);
+            } else {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+        }
+
+
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
+
+        // Получаем список лидов (активных на аукционе или на обработке у оператора) с введенным номером телефона
+        $existingLeads = $customer->checkExistingLeads($request->input('sphere'))->get()->lists('id')->toArray();
+        // Если лиды нашлись - выводим сообщение об ошибке
+        if($existingLeads) {
+            if($request->ajax()){
+                return response()->json([
+                    'error' => 'LeadCreateErrorExists',
+                    'message' => trans('lead/form.exists')
+                ]);
+            } else {
+                return redirect()->route('/')->withErrors([
+                    'error' => 'LeadCreateErrorExists',
+                    'message' => trans('lead/form.exists')
+                ]);
+            }
+        }
+
+        $lead = new Lead($request->except('phone'));
+        $lead->customer_id=$customer->id;
+        $lead->agent_id = $operator->id;
+        $lead->sphere_id = $request->sphere;
+        $lead->status = 0;
+
+//        dd($lead);
+
+        $lead->save();
+
+        // todo
+//        $operator->lead()->save($lead);
+
+        if($request->ajax()){
+            return response()->json();
+        } else {
+            return redirect()->route('/');
+        }
+    }
+
 
 }

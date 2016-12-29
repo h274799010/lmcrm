@@ -113,10 +113,19 @@
                 @endif
             </ul>
 
+
             @if (!Sentinel::guest())
                 <ul class="nav navbar-top-links navbar-right flip">
                     <li><a class=""><i class="glyphicon glyphicon-bell"></i></a></li>
                 </ul>
+
+                @if(Sentinel::inRole('operator'))
+                    <ul class="nav navbar-top-links navbar-right flip">
+                        {{--ссылки в шапке оператора--}}
+                        <li class="operator_icon_li"><a href="{{ route('operator.lead.create') }}" class="dialog"><i class="operator_icon_add"></i></a></li>
+                    </ul>
+                @endif
+
             @endif
 
         </div>
