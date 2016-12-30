@@ -562,4 +562,26 @@ class AgentController extends AdminController
 
         return redirect()->back();
     }
+
+    function getFilter(Request $request)
+    {
+        $type = $request->input('type');
+        $id = $request->input('id');
+
+        if($id) {
+            if($type == 'sphere') {
+                $sphere = Sphere::find($id);
+                $accountManagers = $sphere->accountManagers()->get();
+                $result = $accountManagers->lists('email', 'id')->toArray();
+            } else {
+                $accountManager = AccountManager::find($id);
+                $spheres = $accountManager->spheres()->get();
+                $result = $spheres->lists('name', 'id');
+            }
+        } else {
+            $result = array();
+        }
+
+        return response()->json(['result' => $result]);
+    }
 }
