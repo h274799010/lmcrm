@@ -36,18 +36,22 @@
                 <td>{{ Lang::has('operator/list.date_format') ?  $lead->updated_at->format( trans('operator/list.date_format') ) : 'operator/list.date_format' }}</td>
                 <td>{{ $lead->sphere->name }}</td>
 
-                @if($lead->user)
-                    @if(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::findById($lead->user->id)->inRole('agent'))
-                        <td>{{ $lead->user->agentInfo()->first()->company }}</td>
-                    @elseif(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::findById($lead->user->id)->inRole('salesman'))
-                        <td>{{ \App\Models\Salesman::find($lead->user->id)->agent()->first()->agentInfo()->first()->company }}</td>
-                    @else
-                        <td> operator </td>
-                    @endif
+                {{-- даные пользователя --}}
+                @if( $lead->leadDepositorData->depositor_status == 'deleted' )
+                    {{-- пользователь удален --}}
+                    <td class="user_data_deleted"> <b>DELETED</b> </td>
 
                 @else
-                    <td style="color: red;"> <b>DELETED</b> </td>
+                    {{-- пользователь существует --}}
+
+                    <td>
+                        <div><span class="user_data_description">User:</span> {{ $lead->leadDepositorData->depositor_name }}</div>
+                        <div><span class="user_data_description">Company:</span> @if($lead->leadDepositorData->depositor_company == 'system_company_name') LM CRM @else {{ $lead->leadDepositorData->depositor_company }} @endif</div>
+                        <div><span class="user_data_description">Roles:</span> {{ $lead->leadDepositorData->roles('string') }}</div>
+                        <div><span class="user_data_description">Status:</span> {{ $lead->leadDepositorData->depositor_status }}</div>
+                    </td>
                 @endif
+
                 <td>
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
                 </td>
@@ -123,6 +127,17 @@
         /* оформление строки таблицы уже редактированного лида */
         .edit_lead{
             color: #236074;
+        }
+
+        /* данные с удаленным агентом */
+        .user_data_deleted{
+            color: #FF685C;
+        }
+
+        /* оформление описания данных */
+        .user_data_description{
+            color: #ABABAB;
+            font-weight: 700;
         }
 
     </style>

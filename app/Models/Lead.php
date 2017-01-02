@@ -197,8 +197,20 @@ class Lead extends EloquentUser {
         return ($agent_id)? $relation->where('agent_id','=',$agent_id) : $relation;
     }
 
+    /**
+     * Связь с таблицей сфер
+     *
+     */
     public function sphere(){
         return $this->hasOne('App\Models\Sphere', 'id', 'sphere_id');
+    }
+
+    /**
+     * Связь с таблицей данных депозитора лида
+     *
+     */
+    public function leadDepositorData(){
+        return $this->hasOne('App\Models\LeadDepositorData', 'lead_id', 'id');
     }
 
     /**

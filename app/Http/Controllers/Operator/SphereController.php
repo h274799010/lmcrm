@@ -14,6 +14,7 @@ use App\Models\OperatorOrganizer;
 use App\Models\SphereFormFilters;
 use App\Models\User;
 use App\Models\Salesman;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use PhpParser\Node\Expr\Cast\Object_;
@@ -27,6 +28,7 @@ use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Helper\PayMaster\Pay;
 use App\Models\OpenLeads;
 use App\Models\SphereAdditionalNotes;
+use App\Models\LeadDepositorData;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -59,6 +61,10 @@ class SphereController extends Controller {
      */
     public function index()
     {
+
+        // todo заполнение таблицы данных по лидам, удалить
+//        \App\Lmcrm\Lead::FillingLeadData();
+
         // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
         // получаем все сферы оператора
@@ -69,7 +75,7 @@ class SphereController extends Controller {
               whereIn('status', [0,1])
             ->whereIn('sphere_id', $spheres)
             ->where( 'operator_processing_time', '<', date("Y-m-d H:i:s") )
-            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
             ->orderBy('operator_processing_time', 'desc')
             ->get();
 
@@ -78,7 +84,7 @@ class SphereController extends Controller {
               where('status', 1)
             ->whereIn('sphere_id', $spheres)
             ->where('operator_processing_time', '=', NULL)
-            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
             ->orderBy('operator_processing_time')
             ->get();
 
@@ -87,7 +93,7 @@ class SphereController extends Controller {
               where('status', 0)
             ->whereIn('sphere_id', $spheres)
             ->where('operator_processing_time', '=', NULL)
-            ->with([ 'sphere', 'user', 'operatorOrganizer' ])
+            ->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
             ->orderBy('created_at', 'desc')
 //            ->take(20)
             ->get();
@@ -97,58 +103,6 @@ class SphereController extends Controller {
 
         // соединяем лиды к перезвону с лидами к редактированию
         $leads = $leadsMarkedToAlert->merge( $leadsToEdit );
-
-        /** todo удалить, наверное... Перебираем все лиды и добавляем данные депозитора */
-        $leads = $leads->map(function( $item ){
-
-            // получаем данные пользователя
-            $currentUser = Sentinel::findById($item->agent_id);
-
-            // действия в зависимости от типа пользователя
-            if( !$currentUser ){
-                // если пользователе нет (удален, скорее всего)
-
-                // выставляем что депозитора нет (удален
-                $item->depositor_name = null;
-
-            }else{
-                // если пользователь есть
-
-                // выбираем все роли пользователя
-                $userRoles = $currentUser->roles()->get();
-
-                // перебираем все роли и обрабатываем в зависимости от роли
-                $userRoles->each(function( $role ) use (&$item){
-
-                    switch( $role->slug ){
-
-                        case 'agent':
-//                            $item->depositor_name = $item->user->agentInfo()->first()->company;
-                            $item->depositor_name = $item->user;
-
-                            break;
-
-                        case 'salesman':
-                            $item->depositor_name = 'salesman';
-                            break;
-
-                        case 'operator':
-                            $item->depositor_name = 'operator';
-                            break;
-
-                        default:
-                            return false;
-                    }
-
-                    return true;
-                });
-
-//                $item->depositor_name = $currentUser->roles()->get();
-            }
-
-            return $item;
-
-        });
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
@@ -1262,8 +1216,6 @@ class SphereController extends Controller {
     public function store( Request $request )
     {
 
-//        dd('ok');
-
         $validator = Validator::make($request->all(), [
             'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
             'name' => 'required'
@@ -1304,12 +1256,28 @@ class SphereController extends Controller {
         $lead->sphere_id = $request->sphere;
         $lead->status = 0;
 
-//        dd($lead);
-
         $lead->save();
 
-        // todo
-//        $operator->lead()->save($lead);
+        // создаем новый экземпляр LeadDepositorData
+        $leadDepositorData = new LeadDepositorData();
+
+        // id лида, к которому привязанны данные
+        $leadDepositorData->lead_id = $lead->id;
+
+        // id пользователя который внес лид в систему
+        $leadDepositorData->depositor_id = $this->operator->id;
+
+        // имя пользователя
+        $leadDepositorData->depositor_name = $this->operator->first_name;
+        // название компании
+        $leadDepositorData->depositor_company = 'system_company_name';
+        // роль пользователя (будут либо две, либо одна)
+        $leadDepositorData->depositor_role = serialize(['operator']);
+        // состояния пользователя (активный, приостановленный, в ожидании, забанненый, удаленный)
+        $leadDepositorData->depositor_status = $this->operator->banned_at ? 'banned':'active';
+
+        $leadDepositorData->save();
+
 
         if($request->ajax()){
             return response()->json();
