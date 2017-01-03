@@ -208,6 +208,14 @@ class Pay
     public static function OperatorPayment( $lead, $initiator_id )
     {
 
+        // получаем роли пользователя
+        $roles = $lead->leadDepositorData->roles();
+
+        // если лид добавлен оператором, выходим
+        if($roles[0] == 'operator'){
+            return $paymentStatus['status'] = false;
+        }
+
         // проверяем оплаченна обработка оператором или нет
         $isPaid = PayInfo::IsOperatorPayment( $lead['id'] );
 
@@ -256,6 +264,15 @@ class Pay
      */
     public static function OperatorRepayment( $lead_id )
     {
+
+        // получаем роли пользователя
+        $roles = $lead->leadDepositorData->roles();
+
+        // если лид добавлен оператором, выходим
+        if($roles[0] == 'operator'){
+            return $paymentStatus['status'] = false;
+        }
+
         // сумма, которая была затрачена на обработку лида оператором
         $amount = PayInfo::OperatorPayment( $lead_id ) * (-1);
 
@@ -285,6 +302,14 @@ class Pay
     public static function rewardForOpenLeads( $lead_id )
     {
         $lead = Lead::find( $lead_id );
+
+        // получаем роли пользователя
+        $roles = $lead->leadDepositorData->roles();
+
+        // если лид добавлен оператором, выходим
+        if($roles[0] == 'operator'){
+            return $paymentStatus['status'] = false;
+        }
 
         // находим депозитора лида
         $agent_id = $lead['agent_id'];

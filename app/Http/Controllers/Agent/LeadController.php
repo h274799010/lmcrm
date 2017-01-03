@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
 use App\Models\Agent;
+use App\Models\AgentInfo;
 use App\Models\Salesman;
 use App\Models\Lead;
 use App\Models\Customer;
@@ -32,6 +33,7 @@ use Datatables;
 use App\Http\Controllers\Notice;
 use App\Models\Auction;
 use Cookie;
+use App\Models\LeadDepositorData;
 
 class LeadController extends AgentController {
 
@@ -884,8 +886,49 @@ class LeadController extends AgentController {
         $lead->sphere_id = $request->sphere;
         $lead->status = 0;
 
-
         $agent->leads()->save($lead);
+
+        // данные агента
+        $agentInfoData = \App\Models\AgentInfo::where('agent_id', $agent->id)->first();
+
+        // выбираем данные текущего пользователя
+        $currentUser = \Sentinel::findById($agent->id);
+
+        // выбираем все роли пользователя
+        $userRoles = $currentUser->roles()->get();
+
+        // массив с ролями пользователя
+        $userRolesArray = [];
+
+        // перебираем объект с ролями и формируем массив
+        $userRoles->each(function( $item ) use(&$userRolesArray){
+            // добавляем роль в массив
+            $userRolesArray[] = $item->slug;
+        });
+
+        // преобразовываем массив с ролями в строку
+        $userRolesSting = serialize($userRolesArray);
+
+
+        // создаем новый экземпляр LeadDepositorData
+        $leadDepositorData = new LeadDepositorData();
+
+        // id лида, к которому привязанны данные
+        $leadDepositorData->lead_id = $lead->id;
+
+        // id пользователя который внес лид в систему
+        $leadDepositorData->depositor_id = $agent->id;
+
+        // имя пользователя
+        $leadDepositorData->depositor_name = $agent->first_name;
+        // название компании
+        $leadDepositorData->depositor_company = $agentInfoData->company;
+        // роль агента (будут либо две, либо одна)
+        $leadDepositorData->depositor_role = $userRolesSting;
+        // состояния пользователя (активный, приостановленный, в ожидании, забанненый, удаленный)
+        $leadDepositorData->depositor_status = $currentUser->banned_at ? 'banned':'active';
+
+        $leadDepositorData->save();
 
         if($request->ajax()){
             return response()->json([

@@ -13,6 +13,7 @@ use App\Models\Organizer;
 use App\Models\Salesman;
 use App\Models\Sphere;
 use Illuminate\Http\Request;
+use App\Models\LeadDepositorData;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -637,8 +638,51 @@ class AgentSalesmanLeadController extends LeadController
         $lead->sphere_id = $request->sphere;
         $lead->status = 0;
 
-
         $this->salesman->leads()->save($lead);
+
+
+        // данные агента
+        $agentInfoData = \App\Models\AgentInfo::where('agent_id', $this->user->id)->first();
+
+        // выбираем данные текущего пользователя
+        $currentUser = \Sentinel::findById($this->salesman->id);
+
+        // выбираем все роли пользователя
+        $userRoles = $currentUser->roles()->get();
+
+        // массив с ролями пользователя
+        $userRolesArray = [];
+
+        // перебираем объект с ролями и формируем массив
+        $userRoles->each(function( $item ) use(&$userRolesArray){
+            // добавляем роль в массив
+            $userRolesArray[] = $item->slug;
+        });
+
+        // преобразовываем массив с ролями в строку
+        $userRolesSting = serialize($userRolesArray);
+
+
+        // создаем новый экземпляр LeadDepositorData
+        $leadDepositorData = new LeadDepositorData();
+
+        // id лида, к которому привязанны данные
+        $leadDepositorData->lead_id = $lead->id;
+
+        // id пользователя который внес лид в систему
+        $leadDepositorData->depositor_id = $currentUser->id;
+
+        // имя пользователя
+        $leadDepositorData->depositor_name = $currentUser->first_name;
+        // название компании
+        $leadDepositorData->depositor_company = $agentInfoData->company;
+        // роль агента (будут либо две, либо одна)
+        $leadDepositorData->depositor_role = $userRolesSting;
+        // состояния пользователя (активный, приостановленный, в ожидании, забанненый, удаленный)
+        $leadDepositorData->depositor_status = $currentUser->banned_at ? 'banned':'active';
+
+        $leadDepositorData->save();
+
 
         if($request->ajax()){
             return response()->json();
