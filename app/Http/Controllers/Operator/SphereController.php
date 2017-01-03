@@ -1195,10 +1195,10 @@ class SphereController extends Controller {
 
         $operatorSpheresId = OperatorSphere::where('operator_id', $this->operator->id)->lists('id');
 
-//        dd($operatorSpheres);
+//        dd($operatorSpheresId);
 
         // выделяем из коллекции сфер только имена и id
-        $spheres = Sphere::whereIn('id', $operatorSpheresId)->pluck('name', 'id');
+        $spheres = Sphere::whereIn('id', $operatorSpheresId)->where('status', 1)->pluck('name', 'id');
 
         return view('sphere.lead.create')->with('lead',[])->with('spheres',$spheres);
     }
