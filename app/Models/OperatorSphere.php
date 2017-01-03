@@ -29,7 +29,7 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
      *
      * @var string
      */
-    protected $table = "operator_sphere";
+    protected $table = "operator";
 
 
     /**

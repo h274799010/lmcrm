@@ -59,6 +59,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // страница редактирования данных агента
     Route::get('agent/{id}/edit',['as'=>'admin.agent.edit', 'uses' => 'Admin\AgentController@edit']);
 
+    Route::post('agent/getFilter',['as'=>'admin.agent.getFilter', 'uses' => 'Admin\AgentController@getFilter']);
+
 
     Route::get('operator', ['as' => 'admin.operator.index', 'uses' => 'Admin\OperatorController@index']);
     Route::get('operator/data', 'Admin\OperatorController@data');
@@ -109,4 +111,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     //Route::resource('sphere', 'Admin\SphereController');
 
+    Route::get('lead/index', ['as' => 'admin.lead.index', 'uses' => 'Admin\LeadController@index']);
+    Route::get('lead/data', ['as' => 'admin.lead.data', 'uses' => 'Admin\LeadController@data']);
+    Route::post('lead/getFilter', ['as' => 'admin.lead.getFilter', 'uses' => 'Admin\LeadController@getFilter']);
 });

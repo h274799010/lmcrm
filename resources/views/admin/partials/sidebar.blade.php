@@ -57,6 +57,11 @@
                     </li>
                 </ul>
             </li>
+                <li>
+                    <a href="{{ route('admin.lead.index') }}">
+                        <i class="fa fa-list"></i> Leads
+                    </a>
+                </li>
 
             <li>
                 <a href="{{ route('admin.user.index') }}">

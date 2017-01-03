@@ -88,6 +88,10 @@ class Sphere extends Model
         return $this->belongsToMany('\App\Models\Agent','agent_sphere','sphere_id','agent_id');
     }
 
+    public function accountManagers(){
+        return $this->belongsToMany('\App\Models\AccountManager','account_manager_sphere','sphere_id','account_manager_id');
+    }
+
 
     /**
      * Все маски по сфере из таблицы UserMasks
