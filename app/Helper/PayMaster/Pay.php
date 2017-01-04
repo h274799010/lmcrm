@@ -16,7 +16,7 @@ use App\Models\Transactions;
 use App\Models\TransactionsDetails;
 use App\Models\AgentBitmask;
 use App\Helper\PayMaster\PayInfo;
-
+use Log;
 
 
 /**
@@ -47,6 +47,9 @@ class Pay
      */
     public static function openLead( $lead, $agent, $mask_id, $leadNumber=1 )
     {
+
+        // начало оплаты по лиду
+        self::log('payOpenLeadLog_lead_payment_start');
 
         // получаем цену лида
         $price = $lead->price( $mask_id ) * $leadNumber;
@@ -84,9 +87,14 @@ class Pay
 
         // если возникли ошибки при платеже
         if( !$paymentStatus ){
+            // оплата за открытый лид прошла с ошибкой
+            self::log('payOpenLeadLog_payment_error');
             // Ошибки при попытке сделать платеж
             return [ 'status' => false, 'description' => trans('lead/lead.openlead.error')];
         }
+
+        // оплата за открытый лид прошла успешно
+        self::log('payOpenLeadLog_payment_completed', ['msg'=>'успешная оплата открытого лида', 'lead_id'=>$lead->id]);
 
         return [ 'status' => true ];
     }
@@ -484,5 +492,106 @@ class Pay
 
     }
 
+
+    /**
+     * Процесс открытия лида
+     *
+     */
+    public static $payLog =
+        [
+
+            /** Процесс открытия лида */
+
+            // начало оплаты по лиду с начальными данными
+            'payOpenLeadLog_lead_payment_start' => 'Начало оплаты по лиду',
+            // начало получения цены за лид
+            'payOpenLeadLog_get_lead_price_start' => 'Начало получения цены за лид',
+            // успешное получение цены за лид
+            'payOpenLeadLog_get_lead_price_completed' => 'успешное получение цены за лид',
+            // получение кошелька агента
+            'payOpenLeadLog_get_agent_wallet' => 'получение кошелька агента',
+            // кошелек принадлежит агенту
+            'payOpenLeadLog_select_agent_wallet' => 'кошелек принадлежит агенту',
+            // кошелек принадлежит продавцу, выбрат кошелек его агента
+            'payOpenLeadLog_select_salesman_agent_wallet' => 'кошелек принадлежит продавцу, выбрат кошелек его агента',
+            // открытие отмененно из-за недостаточного баланса
+            'payOpenLeadLog_cancelled_due_to_low_balance' => 'открытие отмененно из-за недостаточного баланса',
+            // баланс достаточен
+            'payOpenLeadLog_balance_is_sufficient' => 'баланс достаточен',
+            // старт оплаты за открытие лида
+            'payOpenLeadLog_payment_start' => 'старт оплаты за открытие лида',
+            // оплата за открытый лид прошла успешно
+            'payOpenLeadLog_payment_completed' => 'оплата за открытый лид прошла успешно',
+            // оплата за открытый лид прошла с ошибкой
+            'payOpenLeadLog_payment_error' => 'оплата за открытый лид прошла с ошибкой',
+
+        ];
+
+
+
+    public static $logLevel = 1;
+
+
+    public static $logLevelSets =
+        [
+            0 =>
+            [],
+
+            1 =>
+            [
+                // начало оплаты по лиду с начальными данными
+                'payOpenLeadLog_lead_payment_start',
+                // оплата за открытый лид прошла успешно
+                'payOpenLeadLog_payment_completed',
+                // оплата за открытый лид прошла с ошибкой
+                'payOpenLeadLog_payment_error',
+
+            ],
+
+            2 =>
+            [
+                // начало оплаты по лиду с начальными данными
+                'payOpenLeadLog_lead_payment_start',
+                // начало получения цены за лид
+                'payOpenLeadLog_get_lead_price_start',
+                // успешное получение цены за лид
+                'payOpenLeadLog_get_lead_price_completed',
+                // получение кошелька агента
+                'payOpenLeadLog_get_agent_wallet',
+                // кошелек принадлежит агенту
+                'payOpenLeadLog_select_agent_wallet',
+                // кошелек принадлежит продавцу, выбрат кошелек его агента
+                'payOpenLeadLog_select_salesman_agent_wallet',
+                // открытие отмененно из-за недостаточного баланса
+                'payOpenLeadLog_cancelled_due_to_low_balance',
+                // баланс достаточен
+                'payOpenLeadLog_balance_is_sufficient',
+                // старт оплаты за открытие лида
+                'payOpenLeadLog_payment_start',
+                // оплата за открытый лид прошла успешно
+                'payOpenLeadLog_payment_completed',
+                // оплата за открытый лид прошла с ошибкой
+                'payOpenLeadLog_payment_error',
+
+            ],
+
+        ];
+
+    /**
+     * Отписывает лог
+     *
+     *
+     * @param  string  $subject
+     * @param  array  $details
+     */
+    public static function log( $subject, $details=[] ){
+
+        $logSets = array_flip( self::$logLevelSets[self::$logLevel] );
+
+        if(isset($logSets[$subject])){
+            Log::info($subject, $details);
+        }
+
+    }
 
 }
