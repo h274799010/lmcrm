@@ -22,7 +22,7 @@
             <div class="col-xs-4">
                 <div class="form-group">
                     <label class="control-label _col-sm-3">Spheres</label>
-                    <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter">
+                    <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($spheres as $sphere)
                             <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
@@ -33,7 +33,7 @@
             <div class="col-xs-4">
                 <div class="form-group">
                     <label class="control-label _col-sm-3">Account manager</label>
-                    <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter">
+                    <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($accountManagers as $accountManager)
                             <option value="{{ $accountManager->id }}">{{ $accountManager->email }}</option>
@@ -44,7 +44,7 @@
             <div class="col-xs-4">
                 <div class="form-group">
                     <label class="control-label _col-sm-2">Roles</label>
-                    <select data-name="role" class="selectbox dataTables_filter form-control">
+                    <select data-name="role" class="selectbox dataTables_filter form-control" data-placeholder="-">
                         <option value=""></option>
                         <option value="dealmaker">Dealmaker</option>
                         <option value="leadbayer">Leadbayer</option>
@@ -87,6 +87,9 @@
             return options;
         }
         $(document).ready(function () {
+            $('select').select2({
+                allowClear: true
+            });
             $(document).on('change', '.connectedFilter', function () {
                 var $this = $(this);
 
