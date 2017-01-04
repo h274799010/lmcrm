@@ -18,10 +18,10 @@
         </h3>
     </div>
     <div class="row">
-        <div class="col-md-4 col-xs-12" id="agentsListFilter">
+        <div class="col-md-6 col-xs-12" id="agentsListFilter">
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Spheres</label>
+                    <label class="control-label _col-sm-3">Spheres</label>
                     <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter">
                         <option value=""></option>
                         @foreach($spheres as $sphere)
@@ -32,7 +32,7 @@
             </div>
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Account manager</label>
+                    <label class="control-label _col-sm-3">Account manager</label>
                     <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter">
                         <option value=""></option>
                         @foreach($accountManagers as $accountManager)
@@ -73,35 +73,46 @@
 {{-- Scripts --}}
 @section('scripts')
     <script type="text/javascript">
+        function prepareHTMLForFilter(data, selected) {
+            var options = '<option value=""></option>';
+
+            $.each(data, function (i, el) {
+                if(el.id == selected) {
+                    options += '<option value="'+el.id+'" selected="selected">'+el.name+'</option>';
+                } else {
+                    options += '<option value="'+el.id+'">'+el.name+'</option>';
+                }
+            });
+
+            return options;
+        }
         $(document).ready(function () {
             $(document).on('change', '.connectedFilter', function () {
-                var $this = $(this),
-                    $connected = $($this.data('target'));
+                var $this = $(this);
 
-                if($this.val() == '') {
-                    $connected.find('option').show();
-                    $this.removeClass('active');
-                } else if(!$connected.hasClass('active')) {
-                    $this.addClass('active');
-                    $.post('{{ route('admin.agent.getFilter') }}', '_token={{ csrf_token() }}&type='+$this.data('type')+'&id='+$this.val(), function (data) {
-                        $connected.find('option').hide();
-                        $connected.find('option:eq(0)').show();
-                        $.each(data.result, function (i, el) {
-                            $connected.find('option').each(function (ind, option) {
-                                if(ind > 0) {
-                                    if(parseInt($(option).attr('value')) == i) {
-                                        $(option).show();
-                                    } else {
-                                        if( $(option).prop('selected') ) {
-                                            $connected.find('option:eq(0)').prop('selected', true);
-                                            $connected.trigger('change');
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                    })
-                }
+                var $sphereFilter = $('#sphereFilter'),
+                    $accountManagerFilter = $('#accountManagerFilter');
+
+                var params = '_token={{ csrf_token() }}&type='+$this.data('name')+'&id='+$this.val();
+                params += '&sphere_id='+$sphereFilter.val();
+                params += '&accountManager_id='+$accountManagerFilter.val();
+
+                $.post('{{ route('admin.agent.getFilter') }}', params, function (data) {
+                    $.each(data, function (i, el) {
+                        var tmpObj = null;
+                        switch (i) {
+                            case 'spheres':
+                                tmpObj = $sphereFilter;
+                                break;
+                            case 'accountManagers':
+                                tmpObj = $accountManagerFilter;
+                                break;
+                        }
+
+                        var options = prepareHTMLForFilter(el, tmpObj.val());
+                        tmpObj.html(options);
+                    });
+                })
             });
         });
     </script>

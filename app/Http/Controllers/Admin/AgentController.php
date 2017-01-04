@@ -568,20 +568,34 @@ class AgentController extends AdminController
         $type = $request->input('type');
         $id = $request->input('id');
 
+        $sphere_id = $request->input('sphere_id');
+        $accountManager_id = $request->input('accountManager_id');
+
+        $result = array();
         if($id) {
-            if($type == 'sphere') {
-                $sphere = Sphere::find($id);
-                $accountManagers = $sphere->accountManagers()->get();
-                $result = $accountManagers->lists('email', 'id')->toArray();
-            } else {
-                $accountManager = AccountManager::find($id);
-                $spheres = $accountManager->spheres()->get();
-                $result = $spheres->lists('name', 'id');
+            switch ($type) {
+                case 'sphere':
+                    $sphere = Sphere::find($id);
+                    $result['accountManagers'] = $sphere->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
+                    break;
+                case 'accountManager':
+                    $accountManager = AccountManager::find($id);
+                    $result['spheres'] = $accountManager->spheres()->select('spheres.id', 'spheres.name')->get();
+                    break;
+                default:
+                    break;
             }
         } else {
-            $result = array();
+            if(!$sphere_id) {
+                $role = Sentinel::findRoleBySlug('account_manager');
+                $result['accountManagers'] = $role->users()->select('users.id', \DB::raw('users.email AS name'))->get();
+            }
+
+            if(!$accountManager_id) {
+                $result['spheres'] = Sphere::active()->get();
+            }
         }
 
-        return response()->json(['result' => $result]);
+        return response()->json($result);
     }
 }
