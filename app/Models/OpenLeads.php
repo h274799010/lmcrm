@@ -131,14 +131,22 @@ class OpenLeads extends Model {
             // создаем его
 
             // получаем имя маски
-            $maskName = UserMasks::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
+            if($mask_id == 0){
+
+                $maskNameId = 0;
+
+            }else{
+
+                $maskName = UserMasks::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
+                $maskNameId = $maskName->id;
+            }
 
             $openLead = new OpenLeads();
             $openLead->lead_id = $lead->id;                 // id лида
             $openLead->agent_id = $agent_id;                // id агента, который его открыл
             $openLead->mask_id = $mask_id;                  // комментарий (не обазательно)
             $openLead->expiration_time = $expiration_time;  // время истечения лида
-            $openLead->mask_name_id = $maskName->id;        // имя маски
+            $openLead->mask_name_id = $maskNameId;          // имя маски
             $openLead->count = 1;                           // количество открытий (при первом открытии = "1")
 
             $openLead->save();

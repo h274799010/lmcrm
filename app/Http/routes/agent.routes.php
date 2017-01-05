@@ -47,6 +47,15 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\LeadController@openLead']);
         // максимальное открытие лида
         Route::get('lead/openAll/{lead_id}/{mask_id}', ['as' => 'agent.lead.openAll', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\LeadController@openAllLeads']);
+
+        // todo добавить роуты для салесмана
+        // страница передачи лида агентом другим агентам группы
+        Route::get('lead/deposited/{lead_id}/details', ['as' => 'agent.lead.deposited.details', 'uses' => 'Agent\LeadController@depositedDetails']);
+
+        // todo добавить роуты для салесмана
+        // передача лида агентом другому агенту группы
+        Route::post('lead/member/open', ['as' => 'agent.lead.member.open', 'uses' => 'Agent\LeadController@openForMember']);
+
     });
 
 

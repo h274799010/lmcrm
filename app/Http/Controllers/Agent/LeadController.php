@@ -11,7 +11,9 @@ use App\Models\CheckClosedDeals;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
+use App\Models\AgentsPrivateGroups;
 use Carbon\Carbon;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
@@ -22,6 +24,7 @@ use App\Models\Agent;
 use App\Models\AgentInfo;
 use App\Models\Salesman;
 use App\Models\Lead;
+use App\Models\User;
 use App\Models\Customer;
 use App\Models\Sphere;
 use App\Models\OpenLeads;
@@ -76,8 +79,6 @@ class LeadController extends AgentController {
      * (только саму таблицу, строки добавляет метод obtainData)
      *
      *
-     * @param  boolean|integer  $salesman_id
-     *
      * @return object
      */
     public function obtain(){
@@ -104,7 +105,6 @@ class LeadController extends AgentController {
      *
      *
      * @param  Request  $request
-     * @param  boolean|integer  $salesman_id
      *
      * @return object
      */
@@ -886,6 +886,15 @@ class LeadController extends AgentController {
         $lead->sphere_id = $request->sphere;
         $lead->status = 0;
 
+        // если в реквесте есть группа
+        if( isset($request['group']) ){
+            // добавляем лид со статусами к передаче в приватной группе
+
+            $lead->status = 8;
+            $lead->auction_status = 6;
+            $lead->payment_status = 4;
+        }
+
         $agent->leads()->save($lead);
 
         // данные агента
@@ -1389,5 +1398,101 @@ class LeadController extends AgentController {
         } else {
             return 'true';
         }
+    }
+
+
+    /**
+     * Вывод детализации по передаче лида агентом другим агентам в группе
+     *
+     *
+     * @param  integer  $leadId
+     *
+     * @return View
+     */
+    public function depositedDetails( $leadId ){
+
+//        dd($leadId);
+
+//        dd( AgentsPrivateGroups::all() );
+
+//        return view('agent.lead.depositedLeadDetails');
+
+        // получаем лид
+        $lead = Lead::find($leadId);
+
+        // получаем всех участников группы агента
+        $members = AgentsPrivateGroups::
+                      where( 'agent_owner_id', $lead['agent_id'] )
+                    ->with(
+                        [
+                            'memberData',
+                            'openLead'=>function($query) use ($leadId){
+                                // получаем только текущий лид
+                                $query->where('lead_id', $leadId);
+                            }
+                        ]
+                    )
+                    ->get();
+
+//        $openLeads = OpenLeads::where('lead_id', $lead['id'])->get();
+
+        $membersNotOpen = collect();
+        $membersOpen = collect();
+
+        $members->each(function($item) use (&$membersOpen, &$membersNotOpen){
+
+            if( $item['openLead']->count()==0 ){
+
+                $membersNotOpen->push($item);
+
+            }else{
+
+                $membersOpen->push($item);
+            }
+        });
+
+
+
+//        dd( $membersOpen );
+
+        return view('agent.lead.depositedLeadDetails')
+                    ->with('lead', $lead)
+                    ->with('members', $members)
+                    ->with('membersNotOpen', $membersNotOpen)
+                    ->with('membersOpen', $membersOpen);
+
+    }
+
+
+    /**
+     * Открытие лида для участника группы
+     *
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function openForMember(Request $request){
+
+        // находим лид
+        $lead = Lead::find( $request['lead_id'] );
+
+        // находим данные участника группы для которого нужно открыть лид
+        $user = Sentinel::findById($request['member_id']);
+
+
+//        $user = User::find($request['member_id']);
+//        $user = Agent::find($request['member_id']);
+//        $user = Sentinel::getUser($request['member_id']);
+//        dd($user);
+
+//        $data = 'Lead: ' .$request['lead_id'] .', agent: ' .$request['member_id'];
+
+        // открытие лида
+        $openResult = $lead->openForMember( $user );
+
+        // todo отправить данные по лиду на фронтенд
+
+        return $openResult;
     }
 }

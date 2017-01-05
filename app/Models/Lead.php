@@ -60,14 +60,15 @@ class Lead extends EloquentUser {
      */
     public static $status =
     [
-        0 => 'new lead',         // новый лид в системе
-        1 => 'operator',         // лид обрабатывается оператором todo подумать над этим
-        2 => 'operator bad',     // оператор отметил лид как bad
-        3 => 'auction',          // лид на аукционе
-        4 => 'close auction',    // лид снят с аукциона
-        5 => 'agent bad',        // агент пометил лид как bad
-        6 => 'closed deal',      // закрытие сделки по лиду
-        7 => 'selective auction' // добавление лида на аукционы выборочных агентов
+        0 => 'new lead',          // новый лид в системе
+        1 => 'operator',          // лид обрабатывается оператором
+        2 => 'operator bad',      // оператор отметил лид как bad
+        3 => 'auction',           // лид на аукционе
+        4 => 'close auction',     // лид снят с аукциона
+        5 => 'agent bad',         // агент пометил лид как bad
+        6 => 'closed deal',       // закрытие сделки по лиду
+        7 => 'selective auction', // добавление лида на аукционы выборочных агентов
+        8 => 'private group',      // лид для приватной группы
     ];
 
 
@@ -86,6 +87,7 @@ class Lead extends EloquentUser {
         3 => 'closed by time expired',  // снят с аукциона по причине истечения времени по лиду
         4 => 'closed by agent bad',     // снят с аукциона, большая часть агентов пометили его как bad
         5 => 'closed by close deal',    // снят с аукциона по закрытию сделки по лиду
+        6 => 'private group',           // лид для приватной группы в аукционе не учавствует
     ];
 
 
@@ -100,6 +102,7 @@ class Lead extends EloquentUser {
         1 => 'payment to depositor',     // оплата депозитору его доли по лиду
         2 => 'payment for unsold lead',  // "штраф" депозитору за непроданный лид
         3 => 'payment for bad lead',     // оплата агентам по плохому лиду (возврат покупателям, штраф депозитору)
+        4 => 'private group',            // лид для приватной группы в денежной системе не учавствует
     ];
 
 
@@ -496,6 +499,7 @@ class Lead extends EloquentUser {
      *
      * @param  Agent  $agent
      * @param  integer  $mask_id
+     * @param  integer|boolean  $operator
      *
      * @return OpenLeads
      */
@@ -560,6 +564,25 @@ class Lead extends EloquentUser {
             // сообщаем что лид уже открыт (нельзя открыть больше одного раза)
             return trans('lead/lead.openlead.already_open');
         }
+    }
+
+    /**
+     * Открытие лида агентом для агента
+     *
+     *
+     * @param  Agent  $user
+     *
+     * @return OpenLeads
+     */
+    public function openForMember($user){
+
+        $lead = $this;
+
+        // заносим лид в таблицу открытых лидов
+        $openLead =
+            OpenLeads::makeOpen( $lead, $user->id, 0 );
+
+        return $openLead;
     }
 
 
