@@ -38,4 +38,8 @@ Route::group(['prefix' => 'accountManager','middleware' => ['auth'] ], function(
     Route::get('sphere/{sphere}/filters/reprice/{id}/edit/{mask_id}', ['as' => 'accountManager.sphere.reprice.edit', 'uses' => 'AccountManager\SphereController@filtrationEdit']);
     Route::match(['put','post'],'sphere/{sphere}/filters/reprice/{id}', ['as' => 'accountManager.sphere.reprice.update', 'uses' => 'AccountManager\SphereController@filtrationUpdate']);
 
+    Route::get('lead/index', ['as' => 'accountManager.lead.index', 'uses' => 'AccountManager\LeadController@index']);
+    Route::get('lead/data', ['as' => 'accountManager.lead.data', 'uses' => 'AccountManager\LeadController@data']);
+    Route::post('lead/getFilter', ['as' => 'accountManager.lead.getFilter', 'uses' => 'AccountManager\LeadController@getFilter']);
+
 });

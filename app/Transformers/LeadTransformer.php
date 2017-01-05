@@ -37,7 +37,7 @@ class LeadTransformer extends TransformerAbstract
             'opened' => $lead->opened,
             //'depositor' => $depositor->first_name.' '.$depositor->last_name,
             'depositor' => $depositor->email,
-            'expiry_time' => $lead->expiry_time
+            'expiry_time' => $openLead->created_at->toDateTimeString()
         ];
     }
 }

@@ -19,6 +19,11 @@
                     </li>
                 </ul>
             </li>
+            <li>
+                <a href="{{ route('accountManager.lead.index') }}">
+                    <i class="fa fa-list"></i> {{ trans('admin/sidebar.openLeads') }}
+                </a>
+            </li>
 
             <li>
                 <a href="{{ route('accountManager.agent.index') }}">
