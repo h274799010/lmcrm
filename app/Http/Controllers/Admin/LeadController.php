@@ -56,7 +56,8 @@ class LeadController extends Controller
 
     public function data(Request $request)
     {
-        $leads = OpenLeads::join('leads', 'leads.id', '=', 'open_leads.lead_id');
+        $leads = OpenLeads::select('open_leads.id', 'open_leads.lead_id', 'open_leads.agent_id', 'open_leads.count', 'open_leads.status', 'open_leads.created_at')
+            ->join('leads', 'leads.id', '=', 'open_leads.lead_id');
 
         // Если есть параметры фильтра
         if (count($request->only('filter'))) {

@@ -8,13 +8,7 @@
 @section('main')
     <div class="page-header">
         <h3>
-            {!! trans("admin/agent.agents") !!}
-            <div class="pull-right flip">
-                <a href="{!! route('admin.agent.create') !!}"
-                   class="btn btn-sm  btn-primary"><span
-                            class="glyphicon glyphicon-plus-sign"></span> {{
-                                trans("admin/modal.new") }}</a>
-            </div>
+            {!! trans("admin/agent.openLeads") !!}
         </h3>
     </div>
     <div class="row">

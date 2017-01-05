@@ -8,7 +8,7 @@
 @section('content')
     <div class="page-header">
         <h3>
-            {!! trans("admin/agent.agents") !!}
+            {!! trans("admin/agent.openLeads") !!}
         </h3>
     </div>
     <div class="row">
