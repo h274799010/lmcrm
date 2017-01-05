@@ -59,7 +59,7 @@
             </li>
                 <li>
                     <a href="{{ route('admin.lead.index') }}">
-                        <i class="fa fa-list"></i> Leads
+                        <i class="fa fa-list"></i> {{ trans('admin/sidebar.openLeads') }}
                     </a>
                 </li>
 

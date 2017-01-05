@@ -19,7 +19,7 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name','name','email', 'password',
+        'first_name', 'last_name','email', 'password',
     ];
 
 
@@ -29,7 +29,7 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
      *
      * @var string
      */
-    protected $table = "operator";
+    protected $table = "users";
 
 
     /**
@@ -42,11 +42,11 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
     ];
 
     public function spheres() {
-        return $this->belongsToMany('\App\Models\Sphere','operator_sphere','id','sphere_id');
+        return $this->belongsToMany('\App\Models\Sphere','operator_sphere','operator_id','sphere_id');
     }
 
     public function accountManagers() {
-        return $this->belongsToMany('\App\Models\User','account_managers_operators','id','account_manager_id');
+        return $this->belongsToMany('\App\Models\User','account_managers_operators','operator_id','account_manager_id');
     }
 
 }

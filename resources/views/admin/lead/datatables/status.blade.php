@@ -1,5 +1,4 @@
 <ul class="status-list">
     <li><span>Status:</span> {{ $status }}</li>
-    <li><span>Auction status:</span> {{ $auctionStatus }}</li>
-    <li><span>Payment status:</span> {{ $paymentStatus }}</li>
+    <li><span>State:</span> {{ $state }}</li>
 </ul>

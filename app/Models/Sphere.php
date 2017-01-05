@@ -92,6 +92,10 @@ class Sphere extends Model
         return $this->belongsToMany('\App\Models\AccountManager','account_manager_sphere','sphere_id','account_manager_id');
     }
 
+    public function operators(){
+        return $this->belongsToMany('\App\Models\OperatorSphere','operator_sphere','sphere_id','operator_id');
+    }
+
 
     /**
      * Все маски по сфере из таблицы UserMasks

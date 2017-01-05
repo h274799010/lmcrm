@@ -18,12 +18,23 @@
         </h3>
     </div>
     <div class="row">
-        <div class="col-md-10 col-xs-12" id="leadsListFilter">
+        <div class="col-md-12 col-xs-12" id="leadsListFilter">
             <div class="col-xs-2">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Sphere</label>
-                    <select data-name="account_manager" data-target="#agentsFilter" class="selectbox dataTables_filter form-control connectedFilter" id="accountManagerFilter">
-                        <option value="">-</option>
+                    <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.sphere') }}</label>
+                    <select data-name="sphere" class="dataTables_filter form-control connectedFilter" id="spheresFilter" data-placeholder="-">
+                        <option value=""></option>
+                        @foreach($spheres as $sphere)
+                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-2">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.accountManager') }}</label>
+                    <select data-name="account_manager" class="dataTables_filter form-control connectedFilter" id="accountManagersFilter" data-placeholder="-">
+                        <option value=""></option>
                         @foreach($accountManagers as $accountManager)
                             <option value="{{ $accountManager->id }}">{{ $accountManager->email }}</option>
                         @endforeach
@@ -32,20 +43,20 @@
             </div>
             <div class="col-xs-2">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Account manager</label>
-                    <select data-name="account_manager" data-target="#agentsFilter" class="selectbox dataTables_filter form-control connectedFilter" id="accountManagerFilter">
-                        <option value="">-</option>
-                        @foreach($accountManagers as $accountManager)
-                            <option value="{{ $accountManager->id }}">{{ $accountManager->email }}</option>
+                    <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.operator') }}</label>
+                    <select data-name="operator" class="dataTables_filter form-control connectedFilter" id="operatorsFilter" data-placeholder="-">
+                        <option value=""></option>
+                        @foreach($operators as $operator)
+                            <option value="{{ $operator->id }}">{{ $operator->email }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
             <div class="col-xs-2">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Operator</label>
-                    <select data-name="agent" data-target="#accountManagerFilter" class="selectbox dataTables_filter form-control connectedFilter" id="agentsFilter">
-                        <option value="">-</option>
+                    <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.agents') }}</label>
+                    <select data-name="agent" class="dataTables_filter form-control connectedFilter" id="agentsFilter" data-placeholder="-">
+                        <option value=""></option>
                         @foreach($agents as $agent)
                             <option value="{{ $agent->id }}">{{ $agent->email }}</option>
                         @endforeach
@@ -54,87 +65,32 @@
             </div>
             <div class="col-xs-2">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Agents</label>
-                    <select data-name="agent" data-target="#accountManagerFilter" class="selectbox dataTables_filter form-control connectedFilter" id="agentsFilter">
-                        <option value="">-</option>
-                        @foreach($agents as $agent)
-                            <option value="{{ $agent->id }}">{{ $agent->email }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="col-xs-2">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Agent type</label>
-                    <select data-name="agent" data-target="#accountManagerFilter" class="selectbox dataTables_filter form-control connectedFilter" id="agentsFilter">
-                        <option value="">-</option>
+                    <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.agentType') }}</label>
+                    <select data-name="role" class="dataTables_filter form-control" id="rolesFilter" data-placeholder="-">
+                        <option value=""></option>
                         <option value="leadbayer">Lead bayer</option>
                         <option value="dealmaker">Deal maker</option>
-                        <option value="partner">Partner</option>
                     </select>
                 </div>
             </div>
             <div class="col-xs-2">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Time</label>
-                    <select data-name="agent" data-target="#accountManagerFilter" class="selectbox dataTables_filter form-control connectedFilter" id="agentsFilter">
-                        <option value="">-</option>
-                    </select>
+                    <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.period') }}</label><br>
+                    <input type="text" name="reportrange" data-name="period" class="mdl-textfield__input dataTables_filter" value="" id="reportrange" />
                 </div>
             </div>
-            {{--<div class="col-xs-2">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Lead status</label>
-                    <select data-name="lead_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty">-</option>
-                        <option value="0">new lead</option>
-                        <option value="1">operator</option>
-                        <option value="2">operator bad</option>
-                        <option value="3">auction</option>
-                        <option value="4">close auction</option>
-                        <option value="5">agent bad</option>
-                        <option value="6">closed deal</option>
-                        <option value="7">selective auction</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-xs-2">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Auction status</label>
-                    <select data-name="auction_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty">-</option>
-                        <option value="0">not at auction</option>
-                        <option value="2">closed by max open</option>
-                        <option value="3">closed by time expired</option>
-                        <option value="4">closed by agent bad</option>
-                        <option value="5">closed by close deal</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-xs-2">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Payment status</label>
-                    <select data-name="payment_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty">-</option>
-                        <option value="0">expects payment</option>
-                        <option value="1">payment to depositor</option>
-                        <option value="2">payment for unsold lead</option>
-                        <option value="3">payment for bad lead</option>
-                    </select>
-                </div>
-            </div>--}}
         </div>
     </div>
     <table id="leadsTable" class="table table-striped table-hover table-filter">
         <thead>
         <tr>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>E-Mail</th>
-            <th>Status</th>
-            <th>Opened</th>
-            <th>Depositor</th>
-            <th>Expire time</th>
+            <th>{{ trans('admin/openLeads.table.name') }}</th>
+            <th>{{ trans('admin/openLeads.table.phone') }}</th>
+            <th>{{ trans('admin/openLeads.table.email') }}</th>
+            <th>{{ trans('admin/openLeads.table.status') }}</th>
+            <th>{{ trans('admin/openLeads.table.opened') }}</th>
+            <th>{{ trans('admin/openLeads.table.depositor') }}</th>
+            <th>{{ trans('admin/openLeads.table.expire_time') }}</th>
         </tr>
         </thead>
         <tbody></tbody>
@@ -157,8 +113,70 @@
 {{-- Scripts --}}
 @section('scripts')
     <script type="text/javascript">
+        // Генерация наполнения для select-ов фильтров
+        function prepareHTMLForFilter(data, selected) {
+            var options = '<option value=""></option>';
+
+            $.each(data, function (i, el) {
+                if(el.id == selected) {
+                    options += '<option value="'+el.id+'" selected="selected">'+el.name+'</option>';
+                } else {
+                    options += '<option value="'+el.id+'">'+el.name+'</option>';
+                }
+            });
+
+            return options;
+        }
+
         $(document).ready(function () {
-            $('select').select2();
+            $('select').select2({
+                allowClear: true
+            });
+
+            // Изменение связанного фильтра
+            $(document).on('change', '.connectedFilter', function () {
+                var $this = $(this);
+
+                // Связанные фильтры
+                var $spheresFilter = $('#spheresFilter'),
+                    $accountManagersFilter = $('#accountManagersFilter'),
+                    $operatorsFilter = $('#operatorsFilter'),
+                    $agentsFilter = $('#agentsFilter');
+
+                // Строка параметров запроса
+                var params = '_token={{ csrf_token() }}&type='+$this.data('name')+'&id='+$this.val();
+                params += '&sphere_id='+$spheresFilter.val();
+                params += '&accountManager_id='+$accountManagersFilter.val();
+                params += '&operator_id='+$operatorsFilter.val();
+                params += '&agent_id='+$agentsFilter.val();
+
+                // Отправляем запрос на сервер для получение данных для связанных фильтров
+                $.post('{{ route('admin.lead.getFilter') }}', params, function (data) {
+                    // Пробегаемся по полученым данным
+                    $.each(data, function (i, el) {
+                        var tmpObj = null;
+                        // Ищем фильтр
+                        switch (i) {
+                            case 'spheres':
+                                tmpObj = $spheresFilter;
+                                break;
+                            case 'accountManagers':
+                                tmpObj = $accountManagersFilter;
+                                break;
+                            case 'operators':
+                                tmpObj = $operatorsFilter;
+                                break;
+                            case 'agents':
+                                tmpObj = $agentsFilter;
+                                break;
+                        }
+
+                        // Вставляем новые данные в фильтр
+                        var options = prepareHTMLForFilter(el, tmpObj.val());
+                        tmpObj.html(options);
+                    });
+                })
+            });
 
             var leadsTable;
             var $container = $('#leadsListFilter');
@@ -203,7 +221,7 @@
                         var filter = {};
 
                         // перебираем фильтры и выбираем данные по ним
-                        $container.find('select.dataTables_filter').each(function () {
+                        $container.find(':input.dataTables_filter').each(function () {
 
                             // если есть name и нет js
                             if ($(this).data('name') && $(this).data('js') != 1) {
@@ -230,38 +248,46 @@
             });
 
             // обработка фильтров таблицы при изменении селекта
-            $container.find('select.dataTables_filter').change(function () {
+            $container.find(':input.dataTables_filter').change(function () {
                 leadsTable.ajax.reload();
             });
-            $(document).on('change', '.connectedFilter', function () {
-                var $this = $(this),
-                    $connected = $($this.data('target'));
+        });
 
-                if($this.val() == '') {
-                    $connected.find('option').show();
-                    $this.removeClass('active');
-                } else if(!$connected.hasClass('active')) {
-                    $this.addClass('active');
-                    $.post('{{ route('admin.lead.getFilter') }}', '_token={{ csrf_token() }}&type='+$this.data('name')+'&id='+$this.val(), function (data) {
-                        $connected.find('option').hide();
-                        $connected.find('option:eq(0)').show();
-                        $.each(data.result, function (i, el) {
-                            $connected.find('option').each(function (ind, option) {
-                                if(ind > 0) {
-                                    if(parseInt($(option).attr('value')) == i) {
-                                        $(option).show();
-                                    } else {
-                                        if( $(option).prop('selected') ) {
-                                            $connected.find('option:eq(0)').prop('selected', true);
-                                            $connected.trigger('change');
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                    })
+
+
+        $(function() {
+
+            var start = moment().startOf('month');
+            var end = moment().endOf('month');
+
+            function cb(start, end) {
+                $('#reportrange').val(start.format('YYYY-MM-DD') + ' / ' + end.format('YYYY-MM-DD')).trigger('change');
+            }
+
+            $('#reportrange').daterangepicker({
+                autoUpdateInput: false,
+                startDate: start,
+                endDate: end,
+                opens: "left",
+                locale: {
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'This week': [moment().startOf('week'), moment()],
+                    'Previous week': [moment().subtract(1, 'weeks').startOf('week'), moment().subtract(1, 'weeks').endOf('week')],
+                    'This month': [moment().startOf('month'), moment().endOf('month')],
+                    'Previous month': [moment().subtract(1, 'months').startOf('month'), moment().subtract(1, 'months').endOf('month')]
                 }
+            }, cb);
+
+            cb(start, end);
+
+            $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('').trigger('change');
             });
+
         });
     </script>
 @stop

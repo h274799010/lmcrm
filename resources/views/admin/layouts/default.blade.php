@@ -25,6 +25,7 @@
      <link rel="stylesheet" type="text/css" href="{{ asset('components/bootstrap/css/bootstrap-material-design.css') }}">
      <link rel="stylesheet" type="text/css" href="{{ asset('components/bootstrap/css/ripples.min.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
     <style type="text/css">
         .form-group label.control-label, label.control-label {
             color: #3ebbdf;
@@ -44,6 +45,8 @@
     <script type="text/javascript" src="{{ asset('components/bootstrap/js/material.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('components/bootstrap/js/ripples.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
      @yield('scripts')
      <script src="{{ asset('assets/admin/js/admin.js') }}"></script>
 </head>
