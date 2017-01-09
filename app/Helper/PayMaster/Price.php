@@ -10,6 +10,7 @@ use App\Models\Agent;
 use App\Models\AgentInfo;
 use App\Models\Lead;
 use App\Models\TransactionsLeadInfo;
+use App\Models\AgentsPrivateGroups;
 
 use App\Models\Transactions;
 use App\Models\TransactionsDetails;
@@ -59,11 +60,13 @@ class Price
      * Цена за закрытие сделки агентом по лиду
      *
      *
-     * @param  Agent  $agent
+     * @param  integer  $agent_id
+     * @param  integer  $sphere_id
+     * @param  float  $price
      *
      * @return double
      */
-    public static function closeDeal( $agent_id, $sphere_id )
+    public static function closeDeal( $agent_id, $sphere_id, $price )
     {
 
         // находим платежные данные агента
@@ -71,10 +74,33 @@ class Price
         $agentSphere = AgentSphere::where( 'agent_id', '=', $agent_id )->whereAnd( 'sphere_id', '=', $sphere_id )->first();
 
         // процент агента за закрытие сделки по лиду
-        $paymentRevenueShare = $agentSphere->payment_revenue_share * 20;
+        $paymentRevenueShare = ($price / 100) * $agentSphere->payment_revenue_share;
 
         return $paymentRevenueShare;
 
+    }
+
+
+    /**
+     * Цена за закрытие сделки в группе агентов
+     *
+     *
+     * @param  integer  $owner_id
+     * @param  integer  $member_id
+     * @param  float  $price
+     *
+     * @return double
+     */
+    public static function closeDealInGroup( $member_id, $owner_id, $price )
+    {
+
+        // находим процент агента по сделке
+        $agentRevenueShare = AgentsPrivateGroups::where('agent_member_id', $member_id)->where('agent_owner_id', $owner_id)->first()->revenue_share;
+
+        // вычисляем процент агента от сделки
+        $paymentRevenueShare = ($price / 100) * $agentRevenueShare;
+
+        return $paymentRevenueShare;
     }
 
 

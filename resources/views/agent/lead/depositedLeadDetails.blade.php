@@ -32,7 +32,9 @@
 
                                     {{-- Если лид был отмечен как плохой --}}
                                     @if( $member['openLead'][0]['state'] == 1 )
-                                        @lang('agent/openLeads.bad_lead')
+                                        {{--@lang('agent/openLeads.bad_lead')--}}
+                                       bad lead
+
                                         {{-- закрытие сделки --}}
                                     @elseif( $member['openLead'][0]['state'] == 2 )
                                         @lang('site/lead.deal_closed')
