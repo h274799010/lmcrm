@@ -49,13 +49,48 @@ class Pay
     {
 
         // начало оплаты по лиду
-        self::log('payOpenLeadLog_lead_payment_start');
+        self::log(
+            'payOpenLeadLog_lead_payment_start',
+            [
+                'msg' => 'старт оплаты по лиду',
+                'lead_id' => $lead->id,
+                'agent_id' => $agent->id,
+                'mask_id' => $mask_id,
+                'lead_number' => $leadNumber
+            ]
+        );
 
         // получаем цену лида
         $price = $lead->price( $mask_id ) * $leadNumber;
 
+        // получение цены за открытия лида
+        self::log(
+            'payOpenLeadLog_get_lead_price_completed',
+            [
+                'msg' => 'получение цены за открытия лида лид',
+                'lead_id' => $lead->id,
+                'agent_id' => $agent->id,
+                'mask_id' => $mask_id,
+                'lead_number' => $leadNumber,
+                'price' => $price
+            ]
+        );
+
         // получение кошелька пользователя
         $wallet = $agent->wallet;
+
+        // получение кошелька агента
+        self::log(
+            'payOpenLeadLog_get_agent_wallet',
+            [
+                'msg' => 'получение кошелька агента',
+                'lead_id' => $lead->id,
+                'agent_id' => $agent->id,
+                'mask_id' => $mask_id,
+                'lead_number' => $leadNumber,
+                'wallet_id' => $wallet->id
+            ]
+        );
 
         // агента можно легко связать с таблицей кошельков, а salesman пользуется кошельком своего агента,
         // поэтому получить его можно только через дополнительную таблицу salesman_info, данные, которые
@@ -107,10 +142,11 @@ class Pay
      * @param  Lead  $lead
      * @param  Agent  $agent
      * @param  integer  $mask_id
+     * @param  float  $price
      *
      * @return array
      */
-    public static function closingDeal( $lead, $agent, $mask_id  )
+    public static function closingDeal( $lead, $agent, $mask_id, $price )
     {
 
         // получаем цену за закрытие сделки по лиду
@@ -118,21 +154,21 @@ class Pay
             $salesmanInfo = SalesmanInfo::where('salesman_id', '=', $agent->id)->first();
             $agentParent = Agent::find($salesmanInfo->agent_id);
 
-            $price = Price::closeDeal( $agentParent->id, $lead->sphere_id );
+            $amount = Price::closeDeal( $agentParent->id, $lead->sphere_id, $price );
             $user_id = $agentParent->id;
 
             // проверка, может ли агент оплатить сделку
-            if( !$agentParent->wallet->isPossible( $price ) ){
+            if( !$agentParent->wallet->isPossible( $amount ) ){
 
                 // отмена платежа из-за низкого баланса
                 return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
             }
         } else {
-            $price = Price::closeDeal( $agent->id, $lead->sphere_id );
+            $amount = Price::closeDeal( $agent->id, $lead->sphere_id, $price );
             $user_id = $agent->id;
 
             // проверка, может ли агент оплатить сделку
-            if( !$agent->wallet->isPossible( $price ) ){
+            if( !$agent->wallet->isPossible( $amount ) ){
 
                 // отмена платежа из-за низкого баланса
                 return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
@@ -147,6 +183,54 @@ class Pay
                     'user_id'       => $user_id,  // id пользователя, с кошелька которого снимается сумма
                     'type'          => 'closingDeal',  // тип транзакции
                     'amount'        => $price,      // снимаемая с пользователя сумма
+                    'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
+                ]
+            );
+
+        // если возникли ошибки при платеже
+        if( !$paymentStatus ){
+            // Ошибки при попытке сделать платеж
+            return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.error')];
+        }
+
+        return [ 'status' => true ];
+    }
+
+
+    /**
+     * Оплата за закрытие сделки агентом по лиду
+     *
+     *
+     * @param  Lead  $lead
+     * @param  Agent  $member
+     * @param  Agent  $owner
+     * @param  float  $price
+     *
+     * @return array
+     */
+    public static function closingDealInGroup( $lead, $member, $owner, $price  )
+    {
+
+        // получаем процент от суммы по сделке
+        $amount = Price::closeDealInGroup($member['id'], $owner['id'], $price);
+
+        // проверка, может ли агент оплатить сделку
+        if( !$member->wallet->isPossible( $amount ) ){
+
+            // отмена платежа из-за низкого баланса
+            return [ 'status' => 'lowBalance', 'description' => trans('lead/lead.closingDeal.low_balance')];
+        }
+
+
+        // оплачиваем закрытие сделки
+        $paymentStatus =
+            Payment::userToUser(
+                [
+                    'initiator_id'  => $member->id,  // id инициатора платежа
+                    'donor_id'      => $member->id,  // id пользователя, с кошелька которого снимается сумма
+                    'recipient_id'  => $owner->id,  // id пользователя, на кошелек которого зачисляется сумма
+                    'type'          => 'closingDealInGroup',  // тип транзакции
+                    'amount'        => $amount,      // снимаемая с пользователя сумма
                     'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
                 ]
             );
@@ -529,7 +613,7 @@ class Pay
 
 
 
-    public static $logLevel = 1;
+    public static $logLevel = 2;
 
 
     public static $logLevelSets =

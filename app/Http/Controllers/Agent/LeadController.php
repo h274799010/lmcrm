@@ -1121,6 +1121,8 @@ class LeadController extends AgentController {
         // находим данные открытого лида по id лида и id агента
         $openedLead = OpenLeads::find( $openedLeadId );
 
+//        dd($openedLead);
+
         // если открытый лид отмечен как плохой
         if($status == 'bad') {
 
@@ -1147,9 +1149,21 @@ class LeadController extends AgentController {
                 return response()->json('priceRequired');
             }
             // закрываем сделку
-            $openedLead->closeDeal($request->price);
+            $closeDealResult = $openedLead->closeDeal($request->price);
 
-            return response()->json('setClosingDealStatus');
+//            return response()->json('setClosingDealStatus');
+            /** Проверка статуса закрытия сделки */
+            if( $closeDealResult === true ){
+                // сделка закрыта нормально
+
+                // сообщаем что сделка закрыта нормально
+                return response()->json('setClosingDealStatus');
+
+            }else{
+                // ошибка в закрытии сделки
+
+                return response()->json($closeDealResult);
+            }
         }
 
         // если новый статус меньше уже установленного, выходим из метода
@@ -1167,6 +1181,7 @@ class LeadController extends AgentController {
             return response()->json('statusChanged');
         }
     }
+
 
     public function checkUpload(Request $request)
     {
@@ -1207,7 +1222,6 @@ class LeadController extends AgentController {
             }
         });
     }
-
 
 
     /**
@@ -1324,6 +1338,7 @@ class LeadController extends AgentController {
             ->with( 'lead_id', $lead_id );
     }
 
+
     /**
      * Получение одного итема из органайзера
      *
@@ -1339,6 +1354,7 @@ class LeadController extends AgentController {
 
         return response()->json([ $organizer->id, $organizer->time->format('d.m.Y'), $organizer->comment, $organizer->type ]);
     }
+
 
     /**
      * Получение записи для редактирования
@@ -1360,6 +1376,7 @@ class LeadController extends AgentController {
         return view($view,['organizer'=>$organizer])
             ->with('organizer',$organizer);
     }
+
 
     /**
      * Обновление записи органайзера
@@ -1412,6 +1429,11 @@ class LeadController extends AgentController {
     public function depositedDetails( $leadId ){
 
 //        dd($leadId);
+
+//        $a = \App\Helper\PayMaster\Price::closeDealInGroup(1,1);
+//
+//        dd($a);
+
 
 //        dd( AgentsPrivateGroups::all() );
 

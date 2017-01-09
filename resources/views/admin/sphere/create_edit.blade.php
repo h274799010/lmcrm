@@ -42,6 +42,7 @@
                     <div class="progress-bar progress-bar-info bar"></div>
                 </div>
                 <div class="tab-content">
+                    {{-- таб с основными данными по лиду --}}
                     <div class="tab-pane" id="tab1">
                         <h3 class="page-header">{{trans('admin/sphere.settings')}}</h3>
 
@@ -659,6 +660,7 @@
                         </form>
 
                     </div>
+                    {{-- таб с полями по дополнительным данным по лиду --}}
                     <div class="tab-pane" id="tab2">
                         <h3 class="page-header">{{trans('admin/sphere.lead_form')}}</h3>
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
@@ -824,6 +826,7 @@
                             </div>
                         </form>
                     </div>
+                    {{-- поля с данными по маске лида --}}
                     <div class="tab-pane" id="tab3">
                         <h3 class="page-header">{{trans('admin/sphere.agent_form')}}</h3>
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
@@ -958,6 +961,7 @@
                             </div>
                         </form>
                     </div>
+                    {{-- статусы лида --}}
                     <div class="tab-pane" id="tab4">
                         <h3 class="page-header">{{trans('admin/sphere.statuses')}}</h3>
                         <form method="post" class="jSplash-form form-horizontal noEnterKey _validate" action="#" >
@@ -1042,6 +1046,7 @@
                             </div>
                         </form>
                     </div>
+                    {{-- комментарии по лиду --}}
                     <div class="tab-pane" id="tab5">
                         <h3 class="page-header">{{trans('admin/sphere.tab_note_title')}}</h3>
 
@@ -1076,6 +1081,7 @@
                         </div>
 
                     </div>
+                    {{-- сохранение данных --}}
                     <div class="tab-pane" id="tab6">
                         <h3 class="page-header">{{trans('admin/sphere.finish')}}</h3>
                         <br class="clearfix">
