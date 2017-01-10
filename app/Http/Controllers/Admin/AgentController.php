@@ -173,7 +173,11 @@ class AgentController extends AdminController
         // все данные агента по кредитам (кошелек, история, транзакции)
         $userInfo = PayMaster::userInfo($id);
 
-        $agentSpheres = $agent->agentSphere()->with('sphere')->get();
+        $agentSpheres = $agent->agentSphere()->with(['sphere' => function($query) {
+            $query->with('statuses');
+        }])->get();
+
+        $openLeadsStatistic = $agent->openLeadsStatistic();
 
         $accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
 
@@ -190,7 +194,8 @@ class AgentController extends AdminController
             'userInfo'=>$userInfo,
             'agentSpheres'=>$agentSpheres,
             'accountManagers'=>$accountManagers,
-            'agentMasks' => $agentMasks
+            'agentMasks' => $agentMasks,
+            'statistic' => $openLeadsStatistic
         ]);
     }
 
