@@ -175,7 +175,7 @@ class LeadController extends Controller
                         });
                     }
 
-                    $res['agents'] = $res['agents']->get();
+                    $res['agents'] = $res['agents']->groupBy('users.id')->get();
 
                     break;
                 case 'agent':
@@ -199,7 +199,7 @@ class LeadController extends Controller
                         });
                     }
 
-                    $res['operators'] = $res['operators']->get();
+                    $res['operators'] = $res['operators']->groupBy('users.id')->get();
 
                     break;
                 default:
