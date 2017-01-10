@@ -48,7 +48,6 @@
                         <option value=""></option>
                         <option value="dealmaker">Dealmaker</option>
                         <option value="leadbayer">Leadbayer</option>
-                        <option value="partner">Partner</option>
                     </select>
                 </div>
             </div>
