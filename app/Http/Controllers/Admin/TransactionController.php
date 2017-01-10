@@ -199,7 +199,7 @@ class TransactionController extends AdminController {
             ->add_column('lead_depositor', function ($model) {
                 $depositor = $model->depositor()->first();
 
-                if($depositor->id) {
+                if(isset($depositor->id)) {
                     return $depositor->email;
                 } else {
                     return '-';
