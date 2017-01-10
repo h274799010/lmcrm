@@ -19,7 +19,7 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name','name','email', 'password',
+        'first_name', 'last_name','email', 'password',
     ];
 
 
@@ -29,7 +29,7 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
      *
      * @var string
      */
-    protected $table = "operator_sphere";
+    protected $table = "users";
 
 
     /**

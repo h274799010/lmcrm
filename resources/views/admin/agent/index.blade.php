@@ -18,11 +18,11 @@
         </h3>
     </div>
     <div class="row">
-        <div class="col-md-4 col-xs-12" id="agentsListFilter">
+        <div class="col-md-6 col-xs-12" id="agentsListFilter">
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Spheres</label>
-                    <select data-name="sphere" class="selectbox dataTables_filter form-control">
+                    <label class="control-label _col-sm-3">Spheres</label>
+                    <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($spheres as $sphere)
                             <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
@@ -32,8 +32,8 @@
             </div>
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Account manager</label>
-                    <select data-name="accountManager" class="selectbox dataTables_filter form-control">
+                    <label class="control-label _col-sm-3">Account manager</label>
+                    <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($accountManagers as $accountManager)
                             <option value="{{ $accountManager->id }}">{{ $accountManager->email }}</option>
@@ -44,11 +44,10 @@
             <div class="col-xs-4">
                 <div class="form-group">
                     <label class="control-label _col-sm-2">Roles</label>
-                    <select data-name="role" class="selectbox dataTables_filter form-control">
+                    <select data-name="role" class="selectbox dataTables_filter form-control" data-placeholder="-">
                         <option value=""></option>
                         <option value="dealmaker">Dealmaker</option>
                         <option value="leadbayer">Leadbayer</option>
-                        <option value="partner">Partner</option>
                     </select>
                 </div>
             </div>
@@ -72,4 +71,51 @@
 
 {{-- Scripts --}}
 @section('scripts')
+    <script type="text/javascript">
+        function prepareHTMLForFilter(data, selected) {
+            var options = '<option value=""></option>';
+
+            $.each(data, function (i, el) {
+                if(el.id == selected) {
+                    options += '<option value="'+el.id+'" selected="selected">'+el.name+'</option>';
+                } else {
+                    options += '<option value="'+el.id+'">'+el.name+'</option>';
+                }
+            });
+
+            return options;
+        }
+        $(document).ready(function () {
+            $('select').select2({
+                allowClear: true
+            });
+            $(document).on('change', '.connectedFilter', function () {
+                var $this = $(this);
+
+                var $sphereFilter = $('#sphereFilter'),
+                    $accountManagerFilter = $('#accountManagerFilter');
+
+                var params = '_token={{ csrf_token() }}&type='+$this.data('name')+'&id='+$this.val();
+                params += '&sphere_id='+$sphereFilter.val();
+                params += '&accountManager_id='+$accountManagerFilter.val();
+
+                $.post('{{ route('admin.agent.getFilter') }}', params, function (data) {
+                    $.each(data, function (i, el) {
+                        var tmpObj = null;
+                        switch (i) {
+                            case 'spheres':
+                                tmpObj = $sphereFilter;
+                                break;
+                            case 'accountManagers':
+                                tmpObj = $accountManagerFilter;
+                                break;
+                        }
+
+                        var options = prepareHTMLForFilter(el, tmpObj.val());
+                        tmpObj.html(options);
+                    });
+                })
+            });
+        });
+    </script>
 @stop

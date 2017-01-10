@@ -55,6 +55,12 @@
                         {{ trans('admin/modal.masks') }} </a>
                 </li>
             @endif
+            @if(isset($statistic) && count($statistic))
+                <li>
+                    <a href="#statistic" data-toggle="tab">Statistic</a>
+                </li>
+            @endif
+
 
 
         </ul>
@@ -143,7 +149,7 @@
         <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
             {{ Form::label('role', trans("admin/users.role"), array('class' => 'control-label')) }}
             <div class="controls">
-                {{ Form::select('role', ['leadbayer' => 'Lead bayer', 'partner' => 'Partner', 'dealmaker' => 'Deal maker'], $role, array('class' => 'form-control')) }}
+                {{ Form::select('role', ['leadbayer' => 'Lead bayer', 'dealmaker' => 'Deal maker'], $role, array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('role', ':message') }}</span>
             </div>
         </div>
@@ -511,6 +517,94 @@
                     </table>
                 </div>
             @endif
+            @if(isset($statistic) && count($statistic))
+                <div class="tab-pane" id="statistic">
+                <h3>Statistic</h3>
+
+                @foreach($agentSpheres as $sphere)
+                    @if(isset($statistic[ $sphere->sphere->id ]))
+                        <h4>{{ $sphere->sphere->name }}</h4>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>Step</th>
+                                <th>Leads (%)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Bad lead</td>
+                                <td>
+                                    @if(isset($statistic[$sphere->sphere->id]['bad']) && $statistic[$sphere->sphere->id]['bad'] > 0)
+                                        <span class="red">{{ $statistic[$sphere->sphere->id]['bad'] }}%</span>
+                                    @else
+                                        <span class="green">0%</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Not status</td>
+                                <td>
+                                    @if(isset($statistic[$sphere->sphere->id]['not_status']) && $statistic[$sphere->sphere->id]['bad'] > 0)
+                                        <span class="red">{{ $statistic[$sphere->sphere->id]['not_status'] }}%</span>
+                                    @else
+                                        <span class="green">0%</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Closing deal</td>
+                                <td>
+                                    @if(isset($statistic[$sphere->sphere->id]['close_deal']) && $statistic[$sphere->sphere->id]['bad'] > 0)
+                                        <span class="green">{{ $statistic[$sphere->sphere->id]['close_deal'] }}%</span>
+                                    @else
+                                        <span class="red">0%</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @if(isset($sphere->sphere->statuses) && count($sphere->sphere->statuses))
+                                @foreach($sphere->sphere->statuses as $status)
+                                    <tr>
+                                        <td>{{ $status->position + 3 }}</td>
+                                        <td>{{ $status->stepname }}</td>
+
+
+                                        <td>
+                                        @if($status->minmax == 1)
+                                            @if(isset($statistic[$sphere->sphere->id][$status->id]) && $statistic[$sphere->sphere->id][$status->id] > $status->percent)
+                                                <span class="red">
+                                            @else
+                                                <span class="green">
+                                            @endif
+                                                @if(isset($statistic[$sphere->sphere->id][$status->id])) {{ $statistic[$sphere->sphere->id][$status->id] }}% @else 0% @endif
+                                                </span> (max {{ $status->percent }}%)
+                                        @else
+                                            @if(isset($statistic[$sphere->sphere->id][$status->id]) && $statistic[$sphere->sphere->id][$status->id] < $status->percent)
+                                                <span class="red">
+                                            @else
+                                                <span class="green">
+                                            @endif
+                                                @if(isset($statistic[$sphere->sphere->id][$status->id])) {{ $statistic[$sphere->sphere->id][$status->id] }}% @else 0% @endif
+                                                </span> (min {{ $status->percent }}%)
+                                        @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="3">Sphere not statuses</td>
+                                </tr>
+                            @endif
+                            </tbody>
+                        </table>
+                    @endif
+                @endforeach
+            </div>
+            @endif
         </div>
     </div>
 @stop
@@ -621,6 +715,13 @@
     }
     .nav-tabs li.active:before {
         width: 100%;
+    }
+
+    span.red {
+        color: red;
+    }
+    span.green {
+        color: green;
     }
 
 </style>

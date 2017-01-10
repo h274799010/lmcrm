@@ -173,7 +173,11 @@ class AgentController extends AdminController
         // все данные агента по кредитам (кошелек, история, транзакции)
         $userInfo = PayMaster::userInfo($id);
 
-        $agentSpheres = $agent->agentSphere()->with('sphere')->get();
+        $agentSpheres = $agent->agentSphere()->with(['sphere' => function($query) {
+            $query->with('statuses');
+        }])->get();
+
+        $openLeadsStatistic = $agent->openLeadsStatistic();
 
         $accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
 
@@ -190,7 +194,8 @@ class AgentController extends AdminController
             'userInfo'=>$userInfo,
             'agentSpheres'=>$agentSpheres,
             'accountManagers'=>$accountManagers,
-            'agentMasks' => $agentMasks
+            'agentMasks' => $agentMasks,
+            'statistic' => $openLeadsStatistic
         ]);
     }
 
@@ -561,5 +566,41 @@ class AgentController extends AdminController
         $agent->accountManagers()->sync( $accountManagers );
 
         return redirect()->back();
+    }
+
+    function getFilter(Request $request)
+    {
+        $type = $request->input('type');
+        $id = $request->input('id');
+
+        $sphere_id = $request->input('sphere_id');
+        $accountManager_id = $request->input('accountManager_id');
+
+        $result = array();
+        if($id) {
+            switch ($type) {
+                case 'sphere':
+                    $sphere = Sphere::find($id);
+                    $result['accountManagers'] = $sphere->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
+                    break;
+                case 'accountManager':
+                    $accountManager = AccountManager::find($id);
+                    $result['spheres'] = $accountManager->spheres()->select('spheres.id', 'spheres.name')->get();
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            if(!$sphere_id) {
+                $role = Sentinel::findRoleBySlug('account_manager');
+                $result['accountManagers'] = $role->users()->select('users.id', \DB::raw('users.email AS name'))->get();
+            }
+
+            if(!$accountManager_id) {
+                $result['spheres'] = Sphere::active()->get();
+            }
+        }
+
+        return response()->json($result);
     }
 }

@@ -105,7 +105,7 @@
                 <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
                     {{ Form::label('role', trans("admin/users.role"), array('class' => 'control-label')) }}
                     <div class="controls">
-                        {{ Form::select('role', ['leadbayer' => 'Lead bayer', 'partner' => 'Partner', 'dealmaker' => 'Deal maker'], $role, array('class' => 'form-control')) }}
+                        {{ Form::select('role', ['leadbayer' => 'Lead bayer', 'dealmaker' => 'Deal maker'], $role, array('class' => 'form-control')) }}
                         <span class="help-block">{{ $errors->first('role', ':message') }}</span>
                     </div>
                 </div>

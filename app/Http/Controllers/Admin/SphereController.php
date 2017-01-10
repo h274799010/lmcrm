@@ -11,6 +11,7 @@ use App\Models\FormFiltersOptions;
 use App\Models\AdditionFormsOptions;
 
 use App\Models\LeadBitmask;
+use App\Models\UserMasks;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Input;
 use App\Models\User;
@@ -1762,6 +1763,10 @@ class SphereController extends AdminController {
 
         // сохранение изменений
         $mask->save();
+
+        $userMask = UserMasks::where('sphere_id', '=', $sphere)->where('mask_id', '=', $mask->id)->first();
+        $userMask->active = 1;
+        $userMask->save();
 
         // добавлаем лиды агенту в таблицу аукциона (если есть лиды по маске)
         Auction::addByAgentMask( $mask_id, $sphere );

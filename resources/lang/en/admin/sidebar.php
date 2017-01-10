@@ -16,5 +16,6 @@ return [
     'operators' => 'Operators',
     'logout' => 'Logout',
     'accountManagers' => 'Account managers',
-    'newAgents' => 'New Agents'
+    'newAgents' => 'New Agents',
+    'openLeads' => 'Open leads'
 ];

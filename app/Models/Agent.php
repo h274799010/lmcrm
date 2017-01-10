@@ -46,6 +46,11 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $this->hasOne('\App\Models\OpenLeads','agent_id','id')->where('open_leads.lead_id', '=', $id);
     }
 
+    public function openLeads()
+    {
+        return $this->hasMany('\App\Models\OpenLeads', 'agent_id', 'id');
+    }
+
 
     public function salesmen(){
         return $this->belongsToMany('\App\Models\Salesman','salesman_info','agent_id','salesman_id');
@@ -185,6 +190,75 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         }
 
         return $masks;
+    }
+
+    /**
+     * Считаем процент открытых лидов по статусам
+     *
+     * @return array
+     */
+    public function openLeadsStatistic()
+    {
+        // Получаем список сфер агента
+        $spheres = $this->spheres()->get();
+
+        // Открытые лиды агента
+        $openLeads = $this->openLeads()->with('lead')->get();
+
+        // Сортируем открытых лидов по сферам
+        $openLeadsInSpheres = array();
+
+        foreach ($openLeads as $openLead) {
+            $openLeadsInSpheres[ $openLead->lead->sphere_id ][] = $openLead;
+        }
+
+        // Проходим по всем сферам
+        $openLeadsInStatuses = array();
+        foreach ($spheres as $sphere) {
+            // Проверяем существование открытых лидов в данной сфере
+            // И проверяем чтоб их кол-во было больше minLead
+            if(isset($openLeadsInSpheres[$sphere->id]) && count( $openLeadsInSpheres[$sphere->id] ) > $sphere->minLead) {
+                // Общее кол-во лидов в сфере
+                $countLeads = count( $openLeadsInSpheres[$sphere->id] );
+
+                // Статические статусы
+                $tmp = array(
+                    'bad' => 0, // Лиды отмеченные как плохие
+                    'close_deal' => 0, // Закрытые сделки
+                    'not_status' => 0 // Статус еще не установлен
+                );
+
+                // Считаем кол-во лидов по каждому из статусов
+                foreach ($openLeadsInSpheres[$sphere->id] as $openLead) {
+                    if($openLead->state == 1) {
+                        $tmp['bad'] += 1;
+                    } elseif ($openLead->state == 2) {
+                        $tmp['close_deal'] += 1;
+                    } else {
+                        if($openLead->status == 0) {
+                            $tmp['not_status'] += 1;
+                        } else {
+                            if(isset($tmp[$openLead->status])) {
+                                $tmp[$openLead->status] += 1;
+                            } else {
+                                $tmp[$openLead->status] = 1;
+                            }
+                        }
+                    }
+                }
+
+                // Высчитываем процент по статусу от обшего кол-ва
+                foreach ($tmp as $status => $count) {
+                    $tmp[$status] = $count * 100 / $countLeads;
+                    $tmp[$status] = round($tmp[$status], 2);
+                }
+
+                $openLeadsInStatuses[$sphere->id] = $tmp;
+
+            }
+        }
+
+        return $openLeadsInStatuses;
     }
 
 }

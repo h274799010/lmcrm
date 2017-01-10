@@ -179,23 +179,31 @@ class TransactionController extends AdminController {
                 return view('admin.system.datatables.dateTime',['data'=>$data]);
             })
             ->add_column('lead_status', function ($model) {
-                return view('admin.system.datatables.center',['data'=>$model->statusName()]);
-            })
-            ->add_column('lead_auction_status', function ($model) {
                 if($model->auction_status < 2) {
-                    $data = '-';
+                    $auctionStatus = '-';
                 } else {
-                    $data = $model->auctionStatusName();
+                    $auctionStatus = $model->auctionStatusName();
                 }
-                return view('admin.system.datatables.center',['data'=>$data]);
-            })
-            ->add_column('lead_payment_status', function ($model) {
                 if($model->payment_status < 1) {
-                    $data = '-';
+                    $paymentStatus = '-';
                 } else {
-                    $data = $model->paymentStatusName();
+                    $paymentStatus = $model->paymentStatusName();
                 }
-                return view('admin.system.datatables.center',['data'=>$data]);
+
+                return view('admin.system.datatables.status',[
+                    'leadStatus'    => $model->statusName(),
+                    'auctionStatus' => $auctionStatus,
+                    'paymentStatus' => $paymentStatus
+                ])->render();
+            })
+            ->add_column('lead_depositor', function ($model) {
+                $depositor = $model->depositor()->first();
+
+                if(isset($depositor->id)) {
+                    return $depositor->email;
+                } else {
+                    return '-';
+                }
             })
             ->add_column('actions', function($model) {
                 return view('admin.system.datatables.leadControl',['lead'=>$model]);

@@ -74,7 +74,8 @@
                     <th colspan="2">{{ trans('admin/wallet.sales_profit') }}</th>
 
                     <th colspan="2">{{ trans('admin/wallet.completion_time') }}</th>
-                    <th colspan="3">{{ trans('admin/wallet.status') }}</th>
+                    <th rowspan="2">{{ trans('admin/wallet.status') }}</th>
+                    <th rowspan="2">{{ trans('admin/wallet.depositor') }}</th>
 
                     <th> </th>
                 </tr>
@@ -91,10 +92,6 @@
 
                     <th class="lead_expiry_time">{{ trans('admin/wallet.lead') }}</th>
                     <th>{{ trans('admin/wallet.open_leads') }}</th>
-
-                    <th>{{ trans('admin/wallet.lead') }}</th>
-                    <th>{{ trans('admin/wallet.auction') }}</th>
-                    <th>{{ trans('admin/wallet.payment') }}</th>
 
                     <th> </th>
                 </tr>
@@ -216,6 +213,10 @@
             top: auto;
             bottom: 0;
             background: none;
+        }
+        .label-status {
+            font-weight: bold;
+            color: #ABABAB;
         }
 
     </style>

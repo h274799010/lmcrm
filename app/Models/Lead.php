@@ -438,6 +438,16 @@ class Lead extends EloquentUser {
         return $this->hasOne('App\Models\User', 'id', 'agent_id')->select('id','first_name');
     }
 
+    /**
+     * Данные пользователя добавившего лида
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function depositor()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'agent_id');
+    }
+
 
     /**
      * Маска лида
