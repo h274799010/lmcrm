@@ -127,7 +127,7 @@ class LeadController extends AgentController {
             ->where( 'user_id', $user_id )
             ->where( 'sphere_id', $sphere->id )
             ->whereNotIn('lead_id', $salesmansOpenedLeads)
-            ->with('lead') /*->with('maskName') */ ->get();
+            ->with('lead')->with('maskName')->get();
 
         // маска лида
         $leadBitmask = new LeadBitmask( $sphere->id );
@@ -194,6 +194,9 @@ class LeadController extends AgentController {
             }
         }
 
+        $auctionData = $auctionData->filter(function ($auction) {
+            return $auction['maskName']['active'] == 1;
+        });
 
         $datatable = Datatables::of( $auctionData )
             ->add_column('count', function( $data ) {

@@ -32,7 +32,7 @@
                             <td>{{ $mask->updated_at }}</td>
                             <td>
                                 <div class="material-switch">
-                                    <input id="someSwitchOptionDanger_{{ $mask->mask_id }}" name="" disabled type="checkbox" checked="checked"/>
+                                    <input id="someSwitchOptionDanger_{{ $mask->mask_id }}" class="maskStatusTrigger" name="" value="{{ $mask->id }}" type="checkbox" @if($mask->active == 1) checked="checked"@endif />
                                     <label for="someSwitchOptionDanger_{{ $mask->mask_id }}" class="label-success"></label>
                                 </div>
                             </td>
@@ -246,6 +246,36 @@
             $('#removeModal').modal();
 
         })
+
+
+        $(document).on('change', '.maskStatusTrigger', function (e) {
+            e.preventDefault();
+
+            var active = 1;
+            if( $(this).prop('checked') == false ) {
+                active = 0;
+            }
+
+            var params = 'active='+active+'&mask_id='+$(this).val()+'&_token={{ csrf_token() }}';
+
+
+            $('#errorCreateLead').find('.alert').remove();
+
+            $.post('{{ route('agent.sphere.activateMask') }}', params, function (data) {
+                if(data == 'success') {
+                    var message = '';
+                    if(active == 1) {
+                        message = '{{ trans('agent/mask/edit.activated') }}';
+                    } else {
+                        message = '{{ trans('agent/mask/edit.deactivated') }}';
+                    }
+
+                    $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+message+'</div>');
+                } else {
+                    $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>{{ trans('agent/mask/edit.not_activated') }}</div>');
+                }
+            });
+        });
 
 
         $(window).on('load', function () {

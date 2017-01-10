@@ -108,6 +108,8 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
             // страница всех масок агента по сферам
             Route::get('sphere', ['middleware' => [ 'leadbayer|dealmaker' ], 'as' => 'agent.sphere.index', 'uses' => 'Agent\SphereController@index']);
 
+            Route::post('sphere/activateMask', ['middleware' => [ 'leadbayer|dealmaker' ], 'as' => 'agent.sphere.activateMask', 'uses' => 'Agent\SphereController@activateMask']);
+
             // страница всех масок агента по сферам (под продавцом)
             Route::get('sphere/{salesman_id}', ['as' => 'agent.salesman.sphere.index', 'uses' => 'Agent\AgentSalesmanSphereController@index']);
 

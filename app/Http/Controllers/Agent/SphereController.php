@@ -292,5 +292,15 @@ class SphereController extends AgentController {
         dd($agent);
     }
 
+    public function activateMask(Request $request)
+    {
+        $userMask = UserMasks::find($request->input('mask_id'));
+
+        $userMask->active = $request->input('active');
+        $userMask->save();
+
+        return response()->json('success');
+    }
+
 
 }
