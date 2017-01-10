@@ -13,39 +13,45 @@
     </div>
     <div class="row">
         <div class="col-md-4 col-xs-12" id="leadsListFilter">
-            <div class="col-xs-4">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Lead status</label>
-                    <select data-name="lead_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty"></option>
-                        @foreach(\App\Models\Lead::$status as $status => $name)
-                            <option value="{{ $status }}">{{ $name }}</option>
-                        @endforeach
-                    </select>
+            @if($statuses)
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="control-label _col-sm-2">Lead status</label>
+                        <select data-name="lead_status" class="selectbox dataTables_filter form-control">
+                            <option value="empty"></option>
+                            @foreach($statuses as $status => $name)
+                                <option value="{{ $status }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col-xs-4">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Auction status</label>
-                    <select data-name="auction_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty"></option>
-                        @foreach(\App\Models\Lead::$auctionStatus as $status => $name)
-                            <option value="{{ $status }}">{{ $name }}</option>
-                        @endforeach
-                    </select>
+            @endif
+            @if($auctionStatuses)
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="control-label _col-sm-2">Auction status</label>
+                        <select data-name="auction_status" class="selectbox dataTables_filter form-control">
+                            <option value="empty"></option>
+                            @foreach($auctionStatuses as $status => $name)
+                                <option value="{{ $status }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col-xs-4">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Payment status</label>
-                    <select data-name="payment_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty"></option>
-                        @foreach(\App\Models\Lead::$paymentStatus as $status => $name)
-                            <option value="{{ $status }}">{{ $name }}</option>
-                        @endforeach
-                    </select>
+            @endif
+            @if($paymentStatuses)
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="control-label _col-sm-2">Payment status</label>
+                        <select data-name="payment_status" class="selectbox dataTables_filter form-control">
+                            <option value="empty"></option>
+                            @foreach($paymentStatuses as $status => $name)
+                                <option value="{{ $status }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 

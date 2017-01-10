@@ -90,7 +90,11 @@ class TransactionController extends AdminController {
         /*$leads =
             Lead::where( 'status', '>', 1 );*/
 
-        return view('admin.system.leadsInfo'/*, [ 'leads'=>$leads ]*/);
+        return view('admin.system.leadsInfo', [
+            'statuses' => \App\Facades\Lead::getStatuses('status'),
+            'auctionStatuses' => \App\Facades\Lead::getStatuses('auctionStatus'),
+            'paymentStatuses' => \App\Facades\Lead::getStatuses('paymentStatus')
+        ]);
     }
 
     public function allLeadsInfoData(Request $request)
