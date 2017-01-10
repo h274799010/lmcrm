@@ -18,14 +18,9 @@
                     <label class="control-label _col-sm-2">Lead status</label>
                     <select data-name="lead_status" class="selectbox dataTables_filter form-control">
                         <option value="empty"></option>
-                        <option value="0">new lead</option>
-                        <option value="1">operator</option>
-                        <option value="2">operator bad</option>
-                        <option value="3">auction</option>
-                        <option value="4">close auction</option>
-                        <option value="5">agent bad</option>
-                        <option value="6">closed deal</option>
-                        <option value="7">selective auction</option>
+                        @foreach(\App\Models\Lead::$status as $status => $name)
+                            <option value="{{ $status }}">{{ $name }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -34,10 +29,9 @@
                     <label class="control-label _col-sm-2">Auction status</label>
                     <select data-name="auction_status" class="selectbox dataTables_filter form-control">
                         <option value="empty"></option>
-                        <option value="2">closed by max open</option>
-                        <option value="3">closed by time expired</option>
-                        <option value="4">closed by agent bad</option>
-                        <option value="5">closed by close deal</option>
+                        @foreach(\App\Models\Lead::$auctionStatus as $status => $name)
+                            <option value="{{ $status }}">{{ $name }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -46,10 +40,9 @@
                     <label class="control-label _col-sm-2">Payment status</label>
                     <select data-name="payment_status" class="selectbox dataTables_filter form-control">
                         <option value="empty"></option>
-                        <option value="0">expects payment</option>
-                        <option value="1">payment to depositor</option>
-                        <option value="2">payment for unsold lead</option>
-                        <option value="3">payment for bad lead</option>
+                        @foreach(\App\Models\Lead::$paymentStatus as $status => $name)
+                            <option value="{{ $status }}">{{ $name }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
