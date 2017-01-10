@@ -12,6 +12,7 @@ use App\Models\TransactionsLeadInfo;
 use App\Models\Transactions;
 use App\Models\TransactionsDetails;
 use App\Helper\PayMaster\PayCalculation;
+use Log;
 
 
 /**
@@ -647,5 +648,74 @@ class Payment
         return $paymentInfo;
     }
 
+
+    /**
+     * Перевод денег от агента к агенту
+     * todo
+     * @param  array  $data
+     *
+     * @return array
+     */
+    public static function userToUser( $data ){
+        /** Шаблон данных которые нужно передавать в массиве
+        $data=
+        [
+            'initiator_id'  => '',  // id инициатора платежа
+            'donor_id'      => '',  // id пользователя, с кошелька которого снимается сумма
+            'recipient_id'  => '',  // id пользователя, которому добавляются деньги
+            'wallet_type'   => '',  // (не обязательно) тип кошелька с которого снимается сумма
+            'type'          => '',  // тип транзакции
+            'amount'        => '',  // снимаемая с пользователя сумма
+            'lead_id'       => '',  // (не обязательно) id лида если он учавствует в платеже
+            'lead_number'   => '',  // (не обязательно) количество лидов, если их несколько
+        ];
+         */
+
+
+        // выставляем данные по платежу
+        $paymentData =
+            [
+                'initiator_id'  => $data['initiator_id'],  // инициатор платежа
+
+                'donor'         =>                         // плательщик (с которого снимаются деньги)
+                    [
+                        'user_id'      => $data['donor_id'],   // пользователь с которого снимаются деньги
+                    ],
+
+                'recipient'     =>     // получатель платежа (которому деньги зачисляются)
+                    [
+                        'user_id'      => $data['recipient_id'],  // пользователь с которого снимаются деньги
+                        'wallet_type'  => 'earned',            // тип хранилища кошелька
+                    ],
+
+                'type'          => $data['type'],          // тип самой транзакции
+
+                'amount'        => $data['amount'],        // прибавляемая сумма
+            ];
+
+        // если задан тип кошелька - передаем его в данные массива
+        if( isset($data['wallet_type']) ){
+            // указываем тип кошелька
+            $paymentData['donor']['wallet_type'] = $data['wallet_type'];
+        }
+
+        // если задан лид
+        if( isset($data['lead_id']) ){
+            // заносим id лида в платеж
+            $paymentData['lead_id'] = $data['lead_id'];
+        }
+
+        // если заданно количество лидов
+        if( isset($data['lead_number']) ){
+            // заносим в платеж
+            $paymentData['lead_number'] = $data['lead_number'];
+        }
+
+        // выполняем платеж
+        $paymentInfo =
+            self::payment( $paymentData );
+
+        return $paymentInfo;
+    }
 
 }

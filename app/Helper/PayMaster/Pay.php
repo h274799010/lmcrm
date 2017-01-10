@@ -16,7 +16,7 @@ use App\Models\Transactions;
 use App\Models\TransactionsDetails;
 use App\Models\AgentBitmask;
 use App\Helper\PayMaster\PayInfo;
-
+use Log;
 
 
 /**
@@ -47,6 +47,9 @@ class Pay
      */
     public static function openLead( $lead, $agent, $mask_id, $leadNumber=1 )
     {
+
+        // начало оплаты по лиду
+        self::log('payOpenLeadLog_lead_payment_start');
 
         // получаем цену лида
         $price = $lead->price( $mask_id ) * $leadNumber;
@@ -84,9 +87,14 @@ class Pay
 
         // если возникли ошибки при платеже
         if( !$paymentStatus ){
+            // оплата за открытый лид прошла с ошибкой
+            self::log('payOpenLeadLog_payment_error');
             // Ошибки при попытке сделать платеж
             return [ 'status' => false, 'description' => trans('lead/lead.openlead.error')];
         }
+
+        // оплата за открытый лид прошла успешно
+        self::log('payOpenLeadLog_payment_completed', ['msg'=>'успешная оплата открытого лида', 'lead_id'=>$lead->id]);
 
         return [ 'status' => true ];
     }
@@ -99,10 +107,11 @@ class Pay
      * @param  Lead  $lead
      * @param  Agent  $agent
      * @param  integer  $mask_id
+     * @param  float  $price
      *
      * @return array
      */
-    public static function closingDeal( $lead, $agent, $mask_id  )
+    public static function closingDeal( $lead, $agent, $mask_id, $price )
     {
 
         // получаем цену за закрытие сделки по лиду
@@ -110,21 +119,21 @@ class Pay
             $salesmanInfo = SalesmanInfo::where('salesman_id', '=', $agent->id)->first();
             $agentParent = Agent::find($salesmanInfo->agent_id);
 
-            $price = Price::closeDeal( $agentParent->id, $lead->sphere_id );
+            $amount = Price::closeDeal( $agentParent->id, $lead->sphere_id, $price );
             $user_id = $agentParent->id;
 
             // проверка, может ли агент оплатить сделку
-            if( !$agentParent->wallet->isPossible( $price ) ){
+            if( !$agentParent->wallet->isPossible( $amount ) ){
 
                 // отмена платежа из-за низкого баланса
                 return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
             }
         } else {
-            $price = Price::closeDeal( $agent->id, $lead->sphere_id );
+            $amount = Price::closeDeal( $agent->id, $lead->sphere_id, $price );
             $user_id = $agent->id;
 
             // проверка, может ли агент оплатить сделку
-            if( !$agent->wallet->isPossible( $price ) ){
+            if( !$agent->wallet->isPossible( $amount ) ){
 
                 // отмена платежа из-за низкого баланса
                 return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
@@ -139,6 +148,108 @@ class Pay
                     'user_id'       => $user_id,  // id пользователя, с кошелька которого снимается сумма
                     'type'          => 'closingDeal',  // тип транзакции
                     'amount'        => $price,      // снимаемая с пользователя сумма
+                    'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
+                ]
+            );
+
+        // если возникли ошибки при платеже
+        if( !$paymentStatus ){
+            // Ошибки при попытке сделать платеж
+            return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.error')];
+        }
+
+        return [ 'status' => true ];
+    }
+
+
+    /**
+     * Оплата за закрытие сделки агентом по лиду
+     *
+     *
+     * @param  Lead  $lead
+     * @param  Agent  $member
+     * @param  Agent  $owner
+     * @param  float  $price
+     *
+     * @return array
+     */
+    public static function closingDealInGroup( $lead, $member, $owner, $price  )
+    {
+
+        // получаем процент от суммы по сделке
+        $amount = Price::closeDealInGroup($member['id'], $owner['id'], $price);
+
+        // проверка, может ли агент оплатить сделку
+        if( !$member->wallet->isPossible( $amount ) ){
+
+            // отмена платежа из-за низкого баланса
+            return [ 'status' => 'lowBalance', 'description' => trans('lead/lead.closingDeal.low_balance')];
+        }
+
+
+//        return 'perelet';
+
+        // todo переводим деньги
+
+
+
+        // todo получаем цену за сделку и id пользователя
+        // todo цена за сделку лежит в таблице привязки агента к группе
+        // получаем цену пользователя за закрытие сделки по лиду
+//        if($member->inRole('salesman')) {
+//            // если пользователь в роли salesman
+//            // todo доработать работу с продавцом позже
+//
+//            // todo просмотреть из какой таблицы выбирать
+//            // выбираем инфо пользователя
+//            $salesmanInfo = SalesmanInfo::where('salesman_id', '=', $member->id)->first();
+//            // находим агента, к которому прикреплен продавец
+//            $agentParent = Agent::find($salesmanInfo->agent_id);
+//
+//            // todo переписать метод
+//            // находим процент по сделке
+//            $price = Price::closeDeal( $agentParent->id, $lead->sphere_id );
+//            // выбираем пользователя
+//            $user_id = $agentParent->id;
+//
+//            // проверка, может ли агент оплатить сделку
+//            if( !$agentParent->wallet->isPossible( $price ) ){
+//
+//                // отмена платежа из-за низкого баланса
+//                return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
+//            }
+//        } else {
+//            // если пользователь в роли agent
+//
+//            // todo доработать, сделать новый метод под группу
+//            // находим процент от сделки
+//            $price = Price::closeDeal( $member->id, $lead->sphere_id );
+//            // выбираем id пользователя
+//            $member_id = $member->id;
+//
+//            // проверка, может ли агент оплатить сделку
+//            if( !$member->wallet->isPossible( $price ) ){
+//
+//                // отмена платежа из-за низкого баланса
+//                return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
+//            }
+//        }
+//
+
+        // todo поверка овнера
+        // todo проверить салесман или агент
+        // todo если агент - выбрать его id
+        // todo если салесман - выбрать id его агента
+
+        // оплачиваем закрытие сделки
+        $paymentStatus =
+            Payment::userToUser(
+                [
+                    'initiator_id'  => $member->id,  // id инициатора платежа
+                    'donor_id'      => $member->id,  // id пользователя, с кошелька которого снимается сумма
+                    'recipient_id'  => $owner->id,  // id пользователя, на кошелек которого зачисляется сумма
+                    'type'          => 'closingDealInGroup',  // тип транзакции
+                    'amount'        => $amount,      // снимаемая с пользователя сумма
                     'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
                 ]
             );
@@ -484,5 +595,106 @@ class Pay
 
     }
 
+
+    /**
+     * Процесс открытия лида
+     *
+     */
+    public static $payLog =
+        [
+
+            /** Процесс открытия лида */
+
+            // начало оплаты по лиду с начальными данными
+            'payOpenLeadLog_lead_payment_start' => 'Начало оплаты по лиду',
+            // начало получения цены за лид
+            'payOpenLeadLog_get_lead_price_start' => 'Начало получения цены за лид',
+            // успешное получение цены за лид
+            'payOpenLeadLog_get_lead_price_completed' => 'успешное получение цены за лид',
+            // получение кошелька агента
+            'payOpenLeadLog_get_agent_wallet' => 'получение кошелька агента',
+            // кошелек принадлежит агенту
+            'payOpenLeadLog_select_agent_wallet' => 'кошелек принадлежит агенту',
+            // кошелек принадлежит продавцу, выбрат кошелек его агента
+            'payOpenLeadLog_select_salesman_agent_wallet' => 'кошелек принадлежит продавцу, выбрат кошелек его агента',
+            // открытие отмененно из-за недостаточного баланса
+            'payOpenLeadLog_cancelled_due_to_low_balance' => 'открытие отмененно из-за недостаточного баланса',
+            // баланс достаточен
+            'payOpenLeadLog_balance_is_sufficient' => 'баланс достаточен',
+            // старт оплаты за открытие лида
+            'payOpenLeadLog_payment_start' => 'старт оплаты за открытие лида',
+            // оплата за открытый лид прошла успешно
+            'payOpenLeadLog_payment_completed' => 'оплата за открытый лид прошла успешно',
+            // оплата за открытый лид прошла с ошибкой
+            'payOpenLeadLog_payment_error' => 'оплата за открытый лид прошла с ошибкой',
+
+        ];
+
+
+
+    public static $logLevel = 1;
+
+
+    public static $logLevelSets =
+        [
+            0 =>
+            [],
+
+            1 =>
+            [
+                // начало оплаты по лиду с начальными данными
+                'payOpenLeadLog_lead_payment_start',
+                // оплата за открытый лид прошла успешно
+                'payOpenLeadLog_payment_completed',
+                // оплата за открытый лид прошла с ошибкой
+                'payOpenLeadLog_payment_error',
+
+            ],
+
+            2 =>
+            [
+                // начало оплаты по лиду с начальными данными
+                'payOpenLeadLog_lead_payment_start',
+                // начало получения цены за лид
+                'payOpenLeadLog_get_lead_price_start',
+                // успешное получение цены за лид
+                'payOpenLeadLog_get_lead_price_completed',
+                // получение кошелька агента
+                'payOpenLeadLog_get_agent_wallet',
+                // кошелек принадлежит агенту
+                'payOpenLeadLog_select_agent_wallet',
+                // кошелек принадлежит продавцу, выбрат кошелек его агента
+                'payOpenLeadLog_select_salesman_agent_wallet',
+                // открытие отмененно из-за недостаточного баланса
+                'payOpenLeadLog_cancelled_due_to_low_balance',
+                // баланс достаточен
+                'payOpenLeadLog_balance_is_sufficient',
+                // старт оплаты за открытие лида
+                'payOpenLeadLog_payment_start',
+                // оплата за открытый лид прошла успешно
+                'payOpenLeadLog_payment_completed',
+                // оплата за открытый лид прошла с ошибкой
+                'payOpenLeadLog_payment_error',
+
+            ],
+
+        ];
+
+    /**
+     * Отписывает лог
+     *
+     *
+     * @param  string  $subject
+     * @param  array  $details
+     */
+    public static function log( $subject, $details=[] ){
+
+        $logSets = array_flip( self::$logLevelSets[self::$logLevel] );
+
+        if(isset($logSets[$subject])){
+            Log::info($subject, $details);
+        }
+
+    }
 
 }

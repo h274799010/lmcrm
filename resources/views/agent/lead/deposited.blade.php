@@ -22,7 +22,7 @@
                     <tbody>
                     @forelse($leads as $lead)
                         <tr>
-                            <td>{{ $lead->statusName() }}</td>
+                            <td>{{ $lead->statusName() }} @if( $lead['status'] == 8 ) <a href="{{ route('agent.lead.deposited.details', ['lead_id'=>$lead['id']]) }}"><img src="/assets/web/icons/list-edit.png"></a> @endif</td>
                             <td>{{ $lead->updated_at }}</td>
                             <td>{{ $lead['sphere']['name'] }}</td>
                             <td>{{ $lead->name }}</td>

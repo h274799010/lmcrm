@@ -131,14 +131,22 @@ class OpenLeads extends Model {
             // создаем его
 
             // получаем имя маски
-            $maskName = UserMasks::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
+            if($mask_id == 0){
+
+                $maskNameId = 0;
+
+            }else{
+
+                $maskName = UserMasks::where('sphere_id', '=', $lead->sphere_id)->where('mask_id', '=', $mask_id)->first();
+                $maskNameId = $maskName->id;
+            }
 
             $openLead = new OpenLeads();
             $openLead->lead_id = $lead->id;                 // id лида
             $openLead->agent_id = $agent_id;                // id агента, который его открыл
             $openLead->mask_id = $mask_id;                  // комментарий (не обазательно)
             $openLead->expiration_time = $expiration_time;  // время истечения лида
-            $openLead->mask_name_id = $maskName->id;        // имя маски
+            $openLead->mask_name_id = $maskNameId;          // имя маски
             $openLead->count = 1;                           // количество открытий (при первом открытии = "1")
 
             $openLead->save();
@@ -266,7 +274,7 @@ class OpenLeads extends Model {
 
         // выбираем лид
         $lead = Lead::find( $this['lead_id'] );
-        // выбираем агента
+        // выбираем агента который открыл этот лид
         $agent = Agent::find( $this['agent_id'] );
 
         // проверяем лид,
@@ -274,13 +282,46 @@ class OpenLeads extends Model {
         // если были - игнорим этот шаг
         $lead->checkCloseDeal();
 
-        // снимаем деньги за сделку по лиду
-        $paymentStatus =
-        Pay::closingDeal(
-            $lead,
-            $agent,
-            $this['mask_id']
-        );
+        /** Проверка, это сделка по группе, или сделка в системе */
+        if( $this['mask_id']==0 ){
+            // лид закрывается по группе
+
+            $owner = Agent::find( $lead['agent_id'] );
+
+            // todo дописать логику
+            // снимаем деньги за сделку по лиду по группе
+            $paymentStatus =
+                Pay::closingDealInGroup(
+                    $lead,
+                    $agent,
+                    $owner,
+                    $price
+                );
+
+        }else{
+            // лид закрывается в системе
+
+            // проверяем лид,
+            // если сделок по нему нет - расчитываем и закрываем
+            // если были - игнорим этот шаг
+            $lead->checkCloseDeal();
+
+            // снимаем деньги за сделку по лиду в системе
+            $paymentStatus =
+                Pay::closingDeal(
+                    $lead,
+                    $agent,
+                    $this['mask_id'],
+                    $price
+                );
+        }
+
+
+        // если сделка не проплаченна
+        if(!$paymentStatus){
+            // выходим из метода
+            return false;
+        }
 
         // получаем id отправителя
         $sender_id = $senderId ? $senderId : $agent->id;

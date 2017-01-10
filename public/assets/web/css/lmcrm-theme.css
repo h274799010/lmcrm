@@ -334,3 +334,8 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before
 		max-width: 100%;
 	}
 }
+
+.group_checkbox .checkbox{
+	margin-top: 0;
+}
+

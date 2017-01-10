@@ -62,7 +62,15 @@
                     <td><div>{{ $openLead['lead']['name'] }}</div></td>
                     <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
                     <td><div>{{ $openLead['lead']['email'] }}</div></td>
-                    <td>@if($openLead->maskName2)<div> {{ $openLead->maskName2->name }}</div> @else <div class="mask_deleted">@lang('agent/openLeads.mask_deleted')</div>  @endif</td>
+                    <td>
+                        @if($openLead['mask_id']==0)
+                            <div class="from_agent">from agent</div>
+                        @elseif($openLead->maskName2)
+                            <div> {{ $openLead->maskName2->name }}</div>
+                        @else
+                            <div class="mask_deleted">@lang('agent/openLeads.mask_deleted')</div>
+                        @endif
+                    </td>
                     <td class="edit">
                         <div>
                             <a href="#">
@@ -189,7 +197,8 @@
                     {{ trans("site/lead.opened.modal.button.Cancel") }}
                 </button>
 
-                <button id="checkModalChange" type="button" class="btn btn-danger disabled" disabled="disabled">
+                <button id="checkModalChange" type="button" class="btn btn-danger" >
+                {{--<button id="checkModalChange" type="button" class="btn btn-danger disabled" disabled="disabled">--}}
                     {{ trans("site/lead.opened.modal.button.OK") }}
                 </button>
             </div>
@@ -408,6 +417,10 @@
 
         table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before, table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
             display: none;
+        }
+
+        .from_agent{
+            color: blue;
         }
 
     </style>
@@ -860,6 +873,15 @@
             disabledSelectOption();
 
 
+            /**
+             * Сохранение состояние модального окна при закрытии сделки
+             *
+             * при отмене закрытия сделки, меняется состояние селектбокса
+             * и опять выскакивает окно подтверждения смены статуса
+             * чтобы такого небыло, используется эта переменная
+             */
+            var closeDealModalTrigger = false;
+
             /** реакция на изменение выпадающего списка на openLeads */
             $('.select_cell').change(function(){
 
@@ -888,11 +910,11 @@
 
                     // событие на нажатие кнопки Cancel на модальном окне
                     $( '#checkModalCancel').bind( 'click', function(){
-                        $('#checkModalChange').addClass('disabled').prop('disabled', true);
+//                        $('#checkModalChange').addClass('disabled').prop('disabled', true);
 
                         $('#checkModal form').find('input').val('');
 
-                        // выбераем первый активный статус
+                        // выбираем первый активный статус
                         $.each( self.find('li'), function (k, li) {
 
                             // если обьект selectboxit не равен NULL
@@ -920,7 +942,14 @@
 
                     });
 
+
+                    // помечаем что открыто модальное окно по сделке
+                    closeDealModalTrigger = true;
+
                     $( '#checkModalChange' ).bind( 'click', function(){
+
+                        // помечаем что модальное окно по сделке закрыто
+                        closeDealModalTrigger = false;
 
                         var price = $('#checkModal').find('input[name=price]').val();
 
@@ -942,7 +971,24 @@
                                 }else{
 
                                     // todo вывести какое то сообщение об ошибке на сервере
-                                    alert( 'ошибки на сервере' );
+//                                    alert( 'ошибки на сервере' );
+
+
+//                                    console.log(data['status']);
+
+                                    if(data['status'] == 'lowBalance'){
+                                        bootbox.dialog({
+//                                            message: data['description'],
+                                            message: 'low balance',
+                                            show: true
+                                        });
+
+                                    }else{
+
+                                        alert( 'ошибки на сервере' );
+                                    }
+
+
                                 }
 
                                 // сбрасываем значения переменных к NULL
@@ -960,6 +1006,14 @@
                     $('#checkModal').modal();
                 }
                 else if(status != '') {
+
+                    // если открыто модальное окно по сделкам
+                    if(closeDealModalTrigger){
+                        // помечаем что модальное окно по сделке закрыто
+                        closeDealModalTrigger = false;
+                        return true
+                    }
+
                     // событие на клик, по кнопке "Change status" (изменение статуса)
                     $( '#statusModalChange' ).bind( 'click', function(){
 

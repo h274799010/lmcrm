@@ -11,7 +11,9 @@ use App\Models\CheckClosedDeals;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
+use App\Models\AgentsPrivateGroups;
 use Carbon\Carbon;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
@@ -22,6 +24,7 @@ use App\Models\Agent;
 use App\Models\AgentInfo;
 use App\Models\Salesman;
 use App\Models\Lead;
+use App\Models\User;
 use App\Models\Customer;
 use App\Models\Sphere;
 use App\Models\OpenLeads;
@@ -76,8 +79,6 @@ class LeadController extends AgentController {
      * (только саму таблицу, строки добавляет метод obtainData)
      *
      *
-     * @param  boolean|integer  $salesman_id
-     *
      * @return object
      */
     public function obtain(){
@@ -104,7 +105,6 @@ class LeadController extends AgentController {
      *
      *
      * @param  Request  $request
-     * @param  boolean|integer  $salesman_id
      *
      * @return object
      */
@@ -889,6 +889,15 @@ class LeadController extends AgentController {
         $lead->sphere_id = $request->sphere;
         $lead->status = 0;
 
+        // если в реквесте есть группа
+        if( isset($request['group']) ){
+            // добавляем лид со статусами к передаче в приватной группе
+
+            $lead->status = 8;
+            $lead->auction_status = 6;
+            $lead->payment_status = 4;
+        }
+
         $agent->leads()->save($lead);
 
         // данные агента
@@ -1115,6 +1124,8 @@ class LeadController extends AgentController {
         // находим данные открытого лида по id лида и id агента
         $openedLead = OpenLeads::find( $openedLeadId );
 
+//        dd($openedLead);
+
         // если открытый лид отмечен как плохой
         if($status == 'bad') {
 
@@ -1141,9 +1152,21 @@ class LeadController extends AgentController {
                 return response()->json('priceRequired');
             }
             // закрываем сделку
-            $openedLead->closeDeal($request->price);
+            $closeDealResult = $openedLead->closeDeal($request->price);
 
-            return response()->json('setClosingDealStatus');
+//            return response()->json('setClosingDealStatus');
+            /** Проверка статуса закрытия сделки */
+            if( $closeDealResult === true ){
+                // сделка закрыта нормально
+
+                // сообщаем что сделка закрыта нормально
+                return response()->json('setClosingDealStatus');
+
+            }else{
+                // ошибка в закрытии сделки
+
+                return response()->json($closeDealResult);
+            }
         }
 
         // если новый статус меньше уже установленного, выходим из метода
@@ -1161,6 +1184,7 @@ class LeadController extends AgentController {
             return response()->json('statusChanged');
         }
     }
+
 
     public function checkUpload(Request $request)
     {
@@ -1201,7 +1225,6 @@ class LeadController extends AgentController {
             }
         });
     }
-
 
 
     /**
@@ -1318,6 +1341,7 @@ class LeadController extends AgentController {
             ->with( 'lead_id', $lead_id );
     }
 
+
     /**
      * Получение одного итема из органайзера
      *
@@ -1333,6 +1357,7 @@ class LeadController extends AgentController {
 
         return response()->json([ $organizer->id, $organizer->time->format('d.m.Y'), $organizer->comment, $organizer->type ]);
     }
+
 
     /**
      * Получение записи для редактирования
@@ -1354,6 +1379,7 @@ class LeadController extends AgentController {
         return view($view,['organizer'=>$organizer])
             ->with('organizer',$organizer);
     }
+
 
     /**
      * Обновление записи органайзера
@@ -1392,5 +1418,106 @@ class LeadController extends AgentController {
         } else {
             return 'true';
         }
+    }
+
+
+    /**
+     * Вывод детализации по передаче лида агентом другим агентам в группе
+     *
+     *
+     * @param  integer  $leadId
+     *
+     * @return View
+     */
+    public function depositedDetails( $leadId ){
+
+//        dd($leadId);
+
+//        $a = \App\Helper\PayMaster\Price::closeDealInGroup(1,1);
+//
+//        dd($a);
+
+
+//        dd( AgentsPrivateGroups::all() );
+
+//        return view('agent.lead.depositedLeadDetails');
+
+        // получаем лид
+        $lead = Lead::find($leadId);
+
+        // получаем всех участников группы агента
+        $members = AgentsPrivateGroups::
+                      where( 'agent_owner_id', $lead['agent_id'] )
+                    ->with(
+                        [
+                            'memberData',
+                            'openLead'=>function($query) use ($leadId){
+                                // получаем только текущий лид
+                                $query->where('lead_id', $leadId);
+                            }
+                        ]
+                    )
+                    ->get();
+
+//        $openLeads = OpenLeads::where('lead_id', $lead['id'])->get();
+
+        $membersNotOpen = collect();
+        $membersOpen = collect();
+
+        $members->each(function($item) use (&$membersOpen, &$membersNotOpen){
+
+            if( $item['openLead']->count()==0 ){
+
+                $membersNotOpen->push($item);
+
+            }else{
+
+                $membersOpen->push($item);
+            }
+        });
+
+
+
+//        dd( $membersOpen );
+
+        return view('agent.lead.depositedLeadDetails')
+                    ->with('lead', $lead)
+                    ->with('members', $members)
+                    ->with('membersNotOpen', $membersNotOpen)
+                    ->with('membersOpen', $membersOpen);
+
+    }
+
+
+    /**
+     * Открытие лида для участника группы
+     *
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function openForMember(Request $request){
+
+        // находим лид
+        $lead = Lead::find( $request['lead_id'] );
+
+        // находим данные участника группы для которого нужно открыть лид
+        $user = Sentinel::findById($request['member_id']);
+
+
+//        $user = User::find($request['member_id']);
+//        $user = Agent::find($request['member_id']);
+//        $user = Sentinel::getUser($request['member_id']);
+//        dd($user);
+
+//        $data = 'Lead: ' .$request['lead_id'] .', agent: ' .$request['member_id'];
+
+        // открытие лида
+        $openResult = $lead->openForMember( $user );
+
+        // todo отправить данные по лиду на фронтенд
+
+        return $openResult;
     }
 }

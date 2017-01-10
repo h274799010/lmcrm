@@ -15,6 +15,16 @@
 
     </div>
 
+    <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+        <div class="col-xs-10 group_checkbox">
+            <div class="checkbox">
+                {{ Form::checkbox('group', 'private', false, array('class' => '', 'id'=>'group') ) }} <label for="group">for private group</label>
+                <span class="help-block">{{ $errors->first('group', ':message') }}</span>
+            </div>
+
+        </div>
+    </div>
+
     <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
         <div class="col-xs-10">
             {{ Form::text('name', null, array('class' => 'form-control','placeholder'=>trans('lead/form.name'),'required'=>'required','data-rule-minLength'=>'2')) }}
