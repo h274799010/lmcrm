@@ -24,4 +24,6 @@ return [
 
     'lead.sphere_deleted' => 'Sphere deleted',
     'lead.sphere_off' => 'Sphere is off',
+
+    'open.error.banned' => 'You can not open the lead, as your account is banned'
 ];

@@ -44,9 +44,9 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         // страница с открытыми лидами
         Route::get('openedLeads', ['as'=>'agent.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
         // открытие лида
-        Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\LeadController@openLead']);
+        Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'middleware' => ['redirectIfNotActive'], 'uses' => 'Agent\LeadController@openLead']);
         // максимальное открытие лида
-        Route::get('lead/openAll/{lead_id}/{mask_id}', ['as' => 'agent.lead.openAll', 'middleware' => ['redirectIfBanned', 'redirectIfNotActive'], 'uses' => 'Agent\LeadController@openAllLeads']);
+        Route::get('lead/openAll/{lead_id}/{mask_id}', ['as' => 'agent.lead.openAll', 'middleware' => ['redirectIfNotActive'], 'uses' => 'Agent\LeadController@openAllLeads']);
 
         // todo добавить роуты для салесмана
         // страница передачи лида агентом другим агентам группы

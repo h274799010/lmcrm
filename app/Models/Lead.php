@@ -519,6 +519,9 @@ class Lead extends EloquentUser {
         // лид
         $lead = $this;
 
+        if($agent->banned_at != NULL && $agent->banned_at != '0000-00-00 00:00:00') {
+            return trans('lead/lead.open.error.banned');
+        }
 
         // если сфера лида удалена
         if( !$lead->sphere ){
@@ -610,6 +613,10 @@ class Lead extends EloquentUser {
 
         // лид
         $lead = $this;
+
+        if($agent->banned_at != NULL && $agent->banned_at != '0000-00-00 00:00:00') {
+            return trans('lead/lead.open.error.banned');
+        }
 
 
         // если сфера лида удалена
