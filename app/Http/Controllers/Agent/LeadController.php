@@ -12,6 +12,7 @@ use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
 use App\Models\AgentsPrivateGroups;
+use App\Models\OpenLeadsStatusDetails;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
@@ -1124,8 +1125,6 @@ class LeadController extends AgentController {
         // находим данные открытого лида по id лида и id агента
         $openedLead = OpenLeads::find( $openedLeadId );
 
-//        dd($openedLead);
-
         // если открытый лид отмечен как плохой
         if($status == 'bad') {
 
@@ -1134,6 +1133,9 @@ class LeadController extends AgentController {
 
                 // помечаем его как плохой
                 $openedLead->setBadLead();
+
+                // сохраняем историю статусов
+                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -1);
 
                 return response()->json('setBadStatus');
 
@@ -1154,10 +1156,12 @@ class LeadController extends AgentController {
             // закрываем сделку
             $closeDealResult = $openedLead->closeDeal($request->price);
 
-//            return response()->json('setClosingDealStatus');
             /** Проверка статуса закрытия сделки */
             if( $closeDealResult === true ){
                 // сделка закрыта нормально
+
+                // сохраняем историю статусов
+                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -2);
 
                 // сообщаем что сделка закрыта нормально
                 return response()->json('setClosingDealStatus');
@@ -1177,8 +1181,14 @@ class LeadController extends AgentController {
         }else{
             // если статус больше - изменяем статус открытого лида
 
+            // сохраняем старый статус
+            $previous_status = $openedLead->status;
+
             $openedLead->status = $status;
             $openedLead->save();
+
+            // сохраняем историю статусов
+            OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status);
 
             // присылаем подтверждение что статус изменен
             return response()->json('statusChanged');
