@@ -12,6 +12,7 @@ use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
 use App\Models\AgentsPrivateGroups;
+use App\Models\OpenLeadsStatusDetails;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
@@ -1135,6 +1136,9 @@ class LeadController extends AgentController {
                 // помечаем его как плохой
                 $openedLead->setBadLead();
 
+                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -1);
+
+
                 return response()->json('setBadStatus');
 
             } else {
@@ -1159,6 +1163,9 @@ class LeadController extends AgentController {
             if( $closeDealResult === true ){
                 // сделка закрыта нормально
 
+                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -2);
+
+
                 // сообщаем что сделка закрыта нормально
                 return response()->json('setClosingDealStatus');
 
@@ -1177,8 +1184,13 @@ class LeadController extends AgentController {
         }else{
             // если статус больше - изменяем статус открытого лида
 
+            // сохраняем старый статус
+            $previous_status = $openedLead->status;
+
             $openedLead->status = $status;
             $openedLead->save();
+
+            OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status);
 
             // присылаем подтверждение что статус изменен
             return response()->json('statusChanged');

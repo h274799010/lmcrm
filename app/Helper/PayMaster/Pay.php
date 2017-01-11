@@ -49,13 +49,48 @@ class Pay
     {
 
         // начало оплаты по лиду
-        self::log('payOpenLeadLog_lead_payment_start');
+        self::log(
+            'payOpenLeadLog_lead_payment_start',
+            [
+                'msg' => 'старт оплаты по лиду',
+                'lead_id' => $lead->id,
+                'agent_id' => $agent->id,
+                'mask_id' => $mask_id,
+                'lead_number' => $leadNumber
+            ]
+        );
 
         // получаем цену лида
         $price = $lead->price( $mask_id ) * $leadNumber;
 
+        // получение цены за открытия лида
+        self::log(
+            'payOpenLeadLog_get_lead_price_completed',
+            [
+                'msg' => 'получение цены за открытия лида лид',
+                'lead_id' => $lead->id,
+                'agent_id' => $agent->id,
+                'mask_id' => $mask_id,
+                'lead_number' => $leadNumber,
+                'price' => $price
+            ]
+        );
+
         // получение кошелька пользователя
         $wallet = $agent->wallet;
+
+        // получение кошелька агента
+        self::log(
+            'payOpenLeadLog_get_agent_wallet',
+            [
+                'msg' => 'получение кошелька агента',
+                'lead_id' => $lead->id,
+                'agent_id' => $agent->id,
+                'mask_id' => $mask_id,
+                'lead_number' => $leadNumber,
+                'wallet_id' => $wallet->id
+            ]
+        );
 
         // агента можно легко связать с таблицей кошельков, а salesman пользуется кошельком своего агента,
         // поэтому получить его можно только через дополнительную таблицу salesman_info, данные, которые
@@ -186,60 +221,6 @@ class Pay
             return [ 'status' => 'lowBalance', 'description' => trans('lead/lead.closingDeal.low_balance')];
         }
 
-
-//        return 'perelet';
-
-        // todo переводим деньги
-
-
-
-        // todo получаем цену за сделку и id пользователя
-        // todo цена за сделку лежит в таблице привязки агента к группе
-        // получаем цену пользователя за закрытие сделки по лиду
-//        if($member->inRole('salesman')) {
-//            // если пользователь в роли salesman
-//            // todo доработать работу с продавцом позже
-//
-//            // todo просмотреть из какой таблицы выбирать
-//            // выбираем инфо пользователя
-//            $salesmanInfo = SalesmanInfo::where('salesman_id', '=', $member->id)->first();
-//            // находим агента, к которому прикреплен продавец
-//            $agentParent = Agent::find($salesmanInfo->agent_id);
-//
-//            // todo переписать метод
-//            // находим процент по сделке
-//            $price = Price::closeDeal( $agentParent->id, $lead->sphere_id );
-//            // выбираем пользователя
-//            $user_id = $agentParent->id;
-//
-//            // проверка, может ли агент оплатить сделку
-//            if( !$agentParent->wallet->isPossible( $price ) ){
-//
-//                // отмена платежа из-за низкого баланса
-//                return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
-//            }
-//        } else {
-//            // если пользователь в роли agent
-//
-//            // todo доработать, сделать новый метод под группу
-//            // находим процент от сделки
-//            $price = Price::closeDeal( $member->id, $lead->sphere_id );
-//            // выбираем id пользователя
-//            $member_id = $member->id;
-//
-//            // проверка, может ли агент оплатить сделку
-//            if( !$member->wallet->isPossible( $price ) ){
-//
-//                // отмена платежа из-за низкого баланса
-//                return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
-//            }
-//        }
-//
-
-        // todo поверка овнера
-        // todo проверить салесман или агент
-        // todo если агент - выбрать его id
-        // todo если салесман - выбрать id его агента
 
         // оплачиваем закрытие сделки
         $paymentStatus =
@@ -632,7 +613,7 @@ class Pay
 
 
 
-    public static $logLevel = 1;
+    public static $logLevel = 2;
 
 
     public static $logLevelSets =
