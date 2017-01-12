@@ -1,0 +1,1 @@
+<a href="{{ route('accountManager.statistic.agent',[$user->id]) }}" class="btn btn-sm btn-success" title="Statistic">Statistic</a>

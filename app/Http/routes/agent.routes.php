@@ -111,6 +111,9 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
     #Route::match(['put','post'],'lead/{id}',['as'=>'agent.lead.update', 'uses' => 'Agent\LeadController@update']);
     //Route::resource('lead','Agent\LeadController@create');
 
+    // Статистика
+    Route::get('statistic/index', ['as' => 'agent.statistic.index', 'uses' => 'Agent\StatisticController@agentStatistic']);
+
     Route::group( ['middleware'=>['agent']],function() {
         // Группа роутов для которых проверяются разрешения
         Route::group([ 'middleware' => ['permissions'] ], function () {

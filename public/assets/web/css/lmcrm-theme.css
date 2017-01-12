@@ -338,4 +338,9 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before
 .group_checkbox .checkbox{
 	margin-top: 0;
 }
-
+.sidebar-link .fa {
+	font-size: 34px;display: block;color: #6d6d6d;
+}
+.sidebar-link a:hover .fa, .sidebar-link a.active .fa {
+	color: #98dbee;
+}

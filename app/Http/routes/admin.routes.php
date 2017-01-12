@@ -114,4 +114,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('lead/index', ['as' => 'admin.lead.index', 'uses' => 'Admin\LeadController@index']);
     Route::get('lead/data', ['as' => 'admin.lead.data', 'uses' => 'Admin\LeadController@data']);
     Route::post('lead/getFilter', ['as' => 'admin.lead.getFilter', 'uses' => 'Admin\LeadController@getFilter']);
+
+    // Статистика
+    Route::get('statistic/agents', ['as' => 'admin.statistic.agents', 'uses' => 'Admin\StatisticController@agentsList']);
+    Route::get('statistic/agentsData', ['as' => 'admin.statistic.agentsData', 'uses' => 'Admin\StatisticController@agentsData']);
+    Route::get('statistic/agent/{id}', ['as' => 'admin.statistic.agent', 'uses' => 'Admin\StatisticController@agentStatistic']);
+    Route::post('statistic/getFilterAgent',['as'=>'admin.statistic.getFilterAgent', 'uses' => 'Admin\StatisticController@getFilterAgent']);
 });

@@ -38,6 +38,9 @@
                         <a href="{{ route('agent.lead.opened')  }}"><i class="icon icon-document"></i>@lang('site/sidebar.lead_opened')</a>
                     </li>
                 @endif
+                    <li class="sidebar-link">
+                        <a href="{{ route('agent.statistic.index')  }}"><i class="fa fa-line-chart"></i>Statistic</a>
+                    </li>
             @endif
         </ul>
     </div>
