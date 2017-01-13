@@ -121,8 +121,13 @@ class LeadController extends AgentController {
 
         $user_id = $agent->id;
 
-        $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
-        $salesmansOpenedLeads = OpenLeads::whereIn('agent_id', $salesmans)->select('lead_id')->get()->lists('lead_id')->toArray();
+        if($agent->inRole('agent')) {
+            $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
+            $salesmansOpenedLeads = OpenLeads::whereIn('agent_id', $salesmans)->select('lead_id')->get()->lists('lead_id')->toArray();
+        } else {
+            $salesmans = $agent->agent()->first();
+            $salesmansOpenedLeads = OpenLeads::where('agent_id', '=', $salesmans->id)->select('lead_id')->get()->lists('lead_id')->toArray();
+        }
 
         // выборка всех лидов агента
         $auctionData = Auction::where('status', 0)
