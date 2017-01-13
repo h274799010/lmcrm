@@ -344,3 +344,9 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before
 .sidebar-link a:hover .fa, .sidebar-link a.active .fa {
 	color: #98dbee;
 }
+.group-select {
+	display: none;
+}
+.group-select .col-xs-10 {
+	margin-bottom: 10px;
+}

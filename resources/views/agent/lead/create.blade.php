@@ -25,6 +25,11 @@
         </div>
     </div>
 
+    <div class="form-group group-select {{ $errors->has('agents') ? 'has-error' : '' }}" id="groupSelectWrap">
+        <div class="col-xs-10 wrap">
+        </div>
+    </div>
+
     <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
         <div class="col-xs-10">
             {{ Form::text('name', null, array('class' => 'form-control','placeholder'=>trans('lead/form.name'),'required'=>'required','data-rule-minLength'=>'2')) }}
@@ -64,3 +69,46 @@
 
     {{ Form::close() }}
 @stop
+
+@section('scripts')
+    <script type="text/javascript">
+        function generateSelect(data) {
+            var html = '<option></option>';
+            $.each(data, function (i, email) {
+                html += '<option value="'+i+'">'+email+'</option>';
+            });
+
+            html = '<select class="form-control notSelectBoxIt" name="agents[]" data-placeholder="Select agents" multiple="multiple" required="required">'+html+'</select>';
+
+            return html;
+        }
+        $(document).ready(function () {
+            $(document).on('change', '#group', function (e) {
+                e.preventDefault();
+
+                var $groupSelectWrap = $(document).find('#groupSelectWrap');
+                var $this = $(this);
+
+                if($this.prop('checked') == true) {
+                    var _token = '{{ csrf_token() }}';
+
+                    $this.prop('disabled', true);
+
+                    $.post('{{ route('agent.privateGroup.getAgentPrivateGroup') }}', '_token='+_token, function (data) {
+                        if(Object.keys(data).length > 0) {
+                            var html = generateSelect(data);
+
+                            $groupSelectWrap.find('.wrap').html(html);
+                            $groupSelectWrap.show();
+                            $groupSelectWrap.find('select').select2();
+                        }
+                        $this.prop('disabled', false);
+                    });
+                } else {
+                    $groupSelectWrap.hide().find('.wrap').empty();
+                    $this.prop('disabled', false);
+                }
+            })
+        });
+    </script>
+@endsection

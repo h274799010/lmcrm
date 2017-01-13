@@ -111,6 +111,18 @@ class CreateLead
 
         $user->leads()->save($lead);
 
+        if( isset($request['group']) && isset($request['agents']) && $user->inRole('agent')){
+            if(  count($request['agents']) > 0 ) {
+                foreach ($request['agents'] as $agent_id) {
+                    $lead = Lead::find( $lead->id );
+
+                    $groupAgent = Sentinel::findById($agent_id);
+
+                    $lead->openForMember( $groupAgent );
+                }
+            }
+        }
+
         if(!$user->inRole('operator')) {
             // данные агента
             $agentInfoData = AgentInfo::where('agent_id', $agent->id)->first();
