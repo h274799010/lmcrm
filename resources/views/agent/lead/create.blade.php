@@ -101,6 +101,9 @@
                             $groupSelectWrap.find('.wrap').html(html);
                             $groupSelectWrap.show();
                             $groupSelectWrap.find('select').select2();
+                        } else {
+                            $groupSelectWrap.find('.wrap').html('Empty agents');
+                            $groupSelectWrap.show();
                         }
                         $this.prop('disabled', false);
                     });
