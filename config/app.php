@@ -244,6 +244,7 @@ return [
         'Plupload' => Jenky\LaravelPlupload\Facades\Plupload::class,
 
         'Lead' => App\Facades\Lead::class,
+        'CreateLead' => App\Facades\CreateLead::class,
 
     ],
 

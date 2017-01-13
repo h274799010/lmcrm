@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Facades\CreateLead;
 use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
@@ -1202,21 +1203,13 @@ class SphereController extends Controller {
     /**
      * Показывает форму добавления лида
      *
-     * @return Response
+     * @return View
      */
     public function create()
     {
+        $data = CreateLead::create($this->operator->id);
 
-//        dd( OperatorSphere::all() );
-
-        $operatorSpheresId = OperatorSphere::where('operator_id', $this->operator->id)->lists('id');
-
-//        dd($operatorSpheresId);
-
-        // выделяем из коллекции сфер только имена и id
-        $spheres = Sphere::whereIn('id', $operatorSpheresId)->where('status', 1)->pluck('name', 'id');
-
-        return view('sphere.lead.create')->with('lead',[])->with('spheres',$spheres);
+        return view('sphere.lead.create', $data);
     }
 
 
@@ -1231,75 +1224,9 @@ class SphereController extends Controller {
      */
     public function store( Request $request )
     {
+        $result = CreateLead::store($request, $this->operator->id);
 
-        $validator = Validator::make($request->all(), [
-            'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
-            'name' => 'required'
-        ]);
-        $operator =  $this->operator;
-
-        if ( $validator->fails() ) {
-            if($request->ajax()){
-                return response()->json($validator);
-            } else {
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
-        }
-
-
-        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
-
-        // Получаем список лидов (активных на аукционе или на обработке у оператора) с введенным номером телефона
-        $existingLeads = $customer->checkExistingLeads($request->input('sphere'))->get()->lists('id')->toArray();
-        // Если лиды нашлись - выводим сообщение об ошибке
-        if($existingLeads) {
-            if($request->ajax()){
-                return response()->json([
-                    'error' => 'LeadCreateErrorExists',
-                    'message' => trans('lead/form.exists')
-                ]);
-            } else {
-                return redirect()->route('/')->withErrors([
-                    'error' => 'LeadCreateErrorExists',
-                    'message' => trans('lead/form.exists')
-                ]);
-            }
-        }
-
-        $lead = new Lead($request->except('phone'));
-        $lead->customer_id=$customer->id;
-        $lead->agent_id = $operator->id;
-        $lead->sphere_id = $request->sphere;
-        $lead->status = 0;
-
-        $lead->save();
-
-        // создаем новый экземпляр LeadDepositorData
-        $leadDepositorData = new LeadDepositorData();
-
-        // id лида, к которому привязанны данные
-        $leadDepositorData->lead_id = $lead->id;
-
-        // id пользователя который внес лид в систему
-        $leadDepositorData->depositor_id = $this->operator->id;
-
-        // имя пользователя
-        $leadDepositorData->depositor_name = $this->operator->first_name;
-        // название компании
-        $leadDepositorData->depositor_company = 'system_company_name';
-        // роль пользователя (будут либо две, либо одна)
-        $leadDepositorData->depositor_role = serialize(['operator']);
-        // состояния пользователя (активный, приостановленный, в ожидании, забанненый, удаленный)
-        $leadDepositorData->depositor_status = $this->operator->banned_at ? 'banned':'active';
-
-        $leadDepositorData->save();
-
-
-        if($request->ajax()){
-            return response()->json();
-        } else {
-            return redirect()->route('/');
-        }
+        return $result;
     }
 
 

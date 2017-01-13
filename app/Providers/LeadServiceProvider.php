@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Helper\CreateLead;
 use App\Models\Lead;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +28,9 @@ class LeadServiceProvider extends ServiceProvider
     {
         App::bind('lead', function () {
             return new Lead();
+        });
+        $this->app->bind('createlead', function () {
+            return new CreateLead();
         });
     }
 }
