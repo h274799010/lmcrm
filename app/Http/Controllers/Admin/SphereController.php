@@ -473,7 +473,11 @@ class SphereController extends AdminController {
 
             "values"=>
             [
-                ["id"=>0,"val"=>'First step',"vale"=>[1,15],"position"=>1],
+                1 => [],
+                2 => [],
+                3 => [],
+                4 => [],
+
             ],
 
             "settings"=>
@@ -488,13 +492,7 @@ class SphereController extends AdminController {
             ]
         ];
 
-        $notes =
-        [
-// todo            [ 'id'=>1, 'note'=>'note one'],
-// todo            [ 'id'=>2, 'note'=>'note two'],
-// todo            [ 'id'=>3, 'note'=>'note three'],
-// todo            [ 'id'=>4, 'note'=>'note fore']
-        ];
+        $notes = [];
 
         if($id) {
             $group = Sphere::find($id);
@@ -600,14 +598,22 @@ class SphereController extends AdminController {
 //                dd($chrct->validators()->get());
             }
 
-            if($group->has('statuses')) { $threshold['values']=array(); }
+//            if($group->has('statuses')) { $threshold['values']=array(); }
             foreach($group->statuses()->get() as $chrct) {
                 $arr=[];
+//                $arr['id'] = $chrct->id;
+//                $arr['val'] = $chrct->stepname;
+//                $arr['vale'] = [$chrct->minmax,$chrct->percent];
+//                $arr['position'] = $chrct->position;
+
                 $arr['id'] = $chrct->id;
-                $arr['val'] = $chrct->stepname;
-                $arr['vale'] = [$chrct->minmax,$chrct->percent];
+                $arr['type'] = $chrct->type;
+                $arr['stepname'] = $chrct->stepname;
+                $arr['comment'] = $chrct->comment;
                 $arr['position'] = $chrct->position;
-                $threshold['values'][]=$arr;
+
+
+                $threshold['values'][ $arr['type'] ][]=$arr;
             }
             $threshold['settings']['stat']['minLead']=$group->minLead;
 
@@ -1424,43 +1430,50 @@ class SphereController extends AdminController {
 
             // преобразовываем данные в коллекцию
             $collectStatusData = collect($statusData['values']);
-            // перебираем все атрибуты, создаем/обновляем его данные
-            $collectStatusData->each(function($status) use( $sphere, &$deleteId ){
 
-                // если у атрибуте есть id и он НЕ равен '0'
-                if (isset($status['id']) && $status['id']) {
+            // перебираем все типы статосов, создаем/обновляем его данные
+            $collectStatusData->each(function($statusesTypes) use( $sphere, &$deleteId ){
 
-                    // проверка на удаление, если нет указание на удаление - просто сохраняем новые данные
-                    if( isset( $status['delete'] ) ){
-                        // если задан элемент delete (указание на удаление)
+                // преобразовываем статусы в коллекцию
+                $statusesTypes = collect($statusesTypes);
+                // обрабатываем каждый статус
+                $statusesTypes->each(function($status) use( $sphere, &$deleteId ){
 
-                        // заносим id статуса в список на удаление
-                        // после всего цикла все элементы из этого списка будут удалены
-                        $deleteId[] = $status['id'];
+                    // если у атрибуте есть id и он НЕ равен '0'
+                    if (isset($status['id']) && $status['id']) {
 
-                    }else{
-                        // выбираем его
-                        $dbStatus = SphereStatuses::find($status['id']);
+                        // проверка на удаление, если нет указание на удаление - просто сохраняем новые данные
+                        if( isset( $status['delete'] ) ){
+                            // если задан элемент delete (указание на удаление)
 
-                        // заносим туда данные
-                        $dbStatus->stepname = $status['val'];
-                        $dbStatus->minmax = $status['vale'][0];
-                        $dbStatus->percent = $status['vale'][1];
-                        $dbStatus->position = (isset($status['position'])) ? $status['position'] : 0;
+                            // заносим id статуса в список на удаление
+                            // после всего цикла все элементы из этого списка будут удалены
+                            $deleteId[] = $status['id'];
 
-                        // и обновляем
-                        $dbStatus->save();
+                        }else{
+                            // выбираем его
+                            $dbStatus = SphereStatuses::find($status['id']);
+
+                            // заносим туда данные
+                            $dbStatus->stepname = $status['stepname'];
+                            $dbStatus->type = $status['type'];
+                            $dbStatus->comment = $status['comment'];
+                            $dbStatus->position = (isset($status['position'])) ? $status['position'] : 0;
+
+                            // и обновляем
+                            $dbStatus->save();
+                        }
+
+                    } else {
+                        // если атрибута нет или он равен 0 создаем его
+                        $newStatus = new SphereStatuses();
+                        $newStatus->stepname = $status['stepname'];
+                        $newStatus->type = $status['type'];
+                        $newStatus->comment = $status['comment'];
+                        $newStatus->position = (isset($status['position'])) ? $status['position'] : 0;
+                        $sphere->statuses()->save($newStatus);
                     }
-
-                } else {
-                    // если атрибута нет или он равен 0 создаем его
-                    $newStatus = new SphereStatuses();
-                    $newStatus->stepname = $status['val'];
-                    $newStatus->minmax = $status['vale'][0];
-                    $newStatus->percent = $status['vale'][1];
-                    $newStatus->position = (isset($status['position'])) ? $status['position'] : 0;
-                    $sphere->statuses()->save($newStatus);
-                }
+                });
             });
 
             // если есть статусы сферы для удаления

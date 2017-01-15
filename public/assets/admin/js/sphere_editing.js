@@ -841,23 +841,26 @@ var app = angular.module('app', ['angular-sortable-view'])
          *
          *
          */
-        $scope.addStatus = function(){
+        $scope.addStatus = function(type){
 
             // создаем новый статус
             var newStatus =
             {
-                id:0,       // id статуса
-                val:'',     // имя
-                vale:       // значения
-                    [
-                        0,  // значения переключателя min/max
-                        0   // процент
-                    ],
-                position: $scope.data.threshold.values.length + 1 // позиция
+                id:0,           // id статуса
+                type: type,     // тип
+                stepname: '',   // имя статуса
+                comment: '',    // комментарий
+
+                //vale:       // значения
+                //    [
+                //        0,  // значения переключателя min/max
+                //        0   // процент
+                //    ],
+                position: $scope.data.threshold.values[type].length + 1 // позиция
             };
 
             // добавляем статус в модель
-            $scope.data.threshold.values.push( newStatus );
+            $scope.data.threshold.values[type].push( newStatus );
         };
 
         /**
@@ -878,9 +881,9 @@ var app = angular.module('app', ['angular-sortable-view'])
                 // просто удаляе его
 
                 // находим индекс элемента
-                var index = $scope.data.threshold.values.indexOf(status);
+                var index = $scope.data.threshold.values[status.type].indexOf(status);
                 // удаляем элемент
-                $scope.data.threshold.values.splice(index, 1);
+                $scope.data.threshold.values[status.type].splice(index, 1);
 
             }else{
                 // если статус уже сохранен на сервере
@@ -988,9 +991,9 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 /** переключатель на статусе не понимает 1 и 0, приходится преобразовывать в булев тип */
                 // преобразовываем данные статусов в булев тип
-                $.each(data.threshold.values, function( key, val){
-                    val.vale[0] = (val.vale[0] == 1);
-                });
+                //$.each(data.threshold.values, function( key, val){
+                //    val.vale[0] = (val.vale[0] == 1);
+                //});
 
                 // преобразовываем данные фильтра агента в булев тип
                 $.each(data.cform.values, function( key, val ){

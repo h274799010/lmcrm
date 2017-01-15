@@ -968,59 +968,183 @@
                             <div class="jSplash-data" id="threshold">
                                 <div class="statuses">
 
-                                    {{-- Статусы --}}
-                                    <div class="row row-container">
-                                        <div class="form-group col-xs-12 is-empty">
+                                    {{-- Процессные статусы --}}
+                                    <div class="panel panel-defoult">
+                                        <div class="panel-heading process-statuses-heading">Process</div>
+                                        <div class="panel-body">
+                                            {{-- Статусы --}}
+
                                             <div class="row">
+
                                                 <div class="col-xs-12">
-                                                    <label class="control-label">Statuses:</label>
-                                                </div>
-                                            </div>
 
-                                            {{-- шаблон итема статуса --}}
-                                            <div ng-repeat="status in data.threshold.values" class="row duplicate duplicated" ng-class="status.delete ? 'hidden' : ''">
+                                                    {{-- шаблон итема статуса --}}
+                                                    <div ng-repeat="status in data.threshold.values[1]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
-                                                {{-- название статуса --}}
-                                                <div class="col-xs-5">
-                                                    <input ng-model="status.val" class="form-control pull-left flip select" type="text" value="" >
-                                                </div>
+                                                        {{-- название статуса --}}
+                                                        <div class="col-xs-5">
+                                                            <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
 
-                                                {{-- переключатель статуса min/max --}}
-                                                <div class="col-xs-2">
-                                                    <div class="togglebutton">
-                                                        <label>
-                                                            min
-                                                            <input ng-model="status.vale[0]" class="extend" type="checkbox">
-                                                            <span class="toggle"></span>
-                                                            max
-                                                        </label>
+                                                        {{-- кнопка удаления статуса --}}
+                                                        <div class="col-xs-1">
+                                                            <button class="btn btn-danger btn-duplicate-remove pull-right flip" ng-click="deleteStatus(status)" type="button">
+                                                                <i class="glyphicon glyphicon-remove-circle"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- поле комментария к статусу --}}
+                                                        <div class="col-xs-12">
+                                                            <textarea ng-model="status.comment" class="form-control extend" placeholder="Comment">
+                                                            </textarea>
+                                                        </div>
+
                                                     </div>
-                                                </div>
 
-                                                {{-- процент по статусу --}}
-                                                <div class="col-xs-3">
-                                                    <div class="input-group">
-                                                        <input ng-model="status.vale[1]" class="form-control extend" type="text" value="">
-                                                        <span class="input-group-addon">%</span>
+                                                    {{-- кнопка добавления нового статуса --}}
+                                                    <div class="col-xs-12">
+                                                        <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" ng-click="addStatus(1)" type="button">
+                                                            <i class="entypo-plus"></i>
+                                                        </button>
                                                     </div>
+
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                                {{-- кнопка удаления статуса --}}
-                                                <div class="col-xs-2">
-                                                    <button class="btn btn-danger btn-duplicate-remove pull-right flip" ng-click="deleteStatus(status)" type="button">
-                                                        <i class="entypo-cancel"></i>
-                                                    </button>
+                                    {{-- Неопределенные статусы --}}
+                                    <div class="panel panel-defoult">
+                                        <div class="panel-heading uncertain-statuses-heading">Uncertain</div>
+                                        <div class="panel-body">
+                                            {{-- Статусы --}}
+
+                                            <div class="row">
+
+                                                <div class="col-xs-12">
+
+                                                    {{-- шаблон итема статуса --}}
+                                                    <div ng-repeat="status in data.threshold.values[2]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+
+                                                        {{-- название статуса --}}
+                                                        <div class="col-xs-5">
+                                                            <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- кнопка удаления статуса --}}
+                                                        <div class="col-xs-1">
+                                                            <button class="btn btn-danger btn-duplicate-remove pull-right flip" ng-click="deleteStatus(status)" type="button">
+                                                                <i class="glyphicon glyphicon-remove-circle"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- поле комментария к статусу --}}
+                                                        <div class="col-xs-12">
+                                                            <textarea ng-model="status.comment" class="form-control extend" placeholder="Comment">
+                                                            </textarea>
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- кнопка добавления нового статуса --}}
+                                                    <div class="col-xs-12">
+                                                        <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" ng-click="addStatus(2)" type="button">
+                                                            <i class="entypo-plus"></i>
+                                                        </button>
+                                                    </div>
+
                                                 </div>
-
                                             </div>
+                                        </div>
+                                    </div>
 
-                                            {{-- кнопка добавления нового статуса --}}
-                                            <div class="col-xs-12">
-                                                <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" ng-click="addStatus()" type="button">
-                                                    <i class="entypo-plus"></i>
-                                                </button>
+                                    {{-- Статусы отказа --}}
+                                    <div class="panel panel-defoult">
+                                        <div class="panel-heading refuseniks-statuses-heading">Refuseniks</div>
+                                        <div class="panel-body">
+                                            {{-- Статусы --}}
+
+                                            <div class="row">
+
+                                                <div class="col-xs-12">
+
+                                                    {{-- шаблон итема статуса --}}
+                                                    <div ng-repeat="status in data.threshold.values[3]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+
+                                                        {{-- название статуса --}}
+                                                        <div class="col-xs-5">
+                                                            <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- кнопка удаления статуса --}}
+                                                        <div class="col-xs-1">
+                                                            <button class="btn btn-danger btn-duplicate-remove pull-right flip" ng-click="deleteStatus(status)" type="button">
+                                                                <i class="glyphicon glyphicon-remove-circle"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- поле комментария к статусу --}}
+                                                        <div class="col-xs-12">
+                                                            <textarea ng-model="status.comment" class="form-control extend" placeholder="Comment">
+                                                            </textarea>
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- кнопка добавления нового статуса --}}
+                                                    <div class="col-xs-12">
+                                                        <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" ng-click="addStatus(3)" type="button">
+                                                            <i class="entypo-plus"></i>
+                                                        </button>
+                                                    </div>
+
+                                                </div>
                                             </div>
+                                        </div>
+                                    </div>
 
+                                    {{-- Плохие статусы --}}
+                                    <div class="panel panel-defoult">
+                                        <div class="panel-heading bad-statuses-heading">Uncertain</div>
+                                        <div class="panel-body">
+                                            {{-- Статусы --}}
+
+                                            <div class="row">
+
+                                                <div class="col-xs-12">
+
+                                                    {{-- шаблон итема статуса --}}
+                                                    <div ng-repeat="status in data.threshold.values[4]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+
+                                                        {{-- название статуса --}}
+                                                        <div class="col-xs-5">
+                                                            <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- кнопка удаления статуса --}}
+                                                        <div class="col-xs-1">
+                                                            <button class="btn btn-danger btn-duplicate-remove pull-right flip" ng-click="deleteStatus(status)" type="button">
+                                                                <i class="glyphicon glyphicon-remove-circle"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- поле комментария к статусу --}}
+                                                        <div class="col-xs-12">
+                                                            <textarea ng-model="status.comment" class="form-control extend" placeholder="Comment">
+                                                            </textarea>
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- кнопка добавления нового статуса --}}
+                                                    <div class="col-xs-12">
+                                                        <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" ng-click="addStatus(4)" type="button">
+                                                            <i class="entypo-plus"></i>
+                                                        </button>
+                                                    </div>
+
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1600,6 +1724,7 @@
     <link type="text/css" rel="stylesheet" href="{{ asset('components/nouislider/css/nouislider.pips.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('components/entypo/css/entypo.css') }}">
     <style>
+
         #opt .panel-body .form-group.select-group {
             width: 80px;
             float: left;
@@ -1608,12 +1733,58 @@
             margin-top: 0;
             margin-right: 6px;
         }
+
         #opt .panel-body .form-group.select-group label {
             margin-top: 0;
             padding-top: 0;
             font-weight: normal;
             font-size: 13px;
         }
+
+        /* шапка рабочих статусов */
+        .process-statuses-heading{
+            background: #ACF58C !important;
+            color: #236626 !important;
+        }
+
+        /* шапка неопределенных статусов */
+        .uncertain-statuses-heading{
+            background: #E4F693 !important;
+            color: #689111 !important;
+        }
+
+        /* шапка отказных статусов */
+        .refuseniks-statuses-heading{
+            background: #FFFBB2 !important;
+            color: #B5763B !important;
+        }
+
+        /* шапка плохих статусов */
+        .bad-statuses-heading{
+            background: #EED4D4 !important;
+            color: #A94442 !important;
+        }
+
+        div.row div.col-xs-12.status_separator hr{
+            color: #009688 !important;
+            border: none;
+            background-color: #009688;
+        }
+
+        .status_row:first-child{
+            margin-top: 0;
+        }
+
+        .status_row{
+            /*margin-top: 20px;*/
+            margin: 20px 20px 20px 0;
+            padding: 10px 10px;
+            border: solid 1px #CACACA;
+            border-radius: 15px;
+            background: #FBFBFB;
+        }
+
+
     </style>
 @stop
 {{-- Scripts --}}
