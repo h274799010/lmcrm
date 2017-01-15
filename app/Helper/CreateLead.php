@@ -55,6 +55,19 @@ class CreateLead
             $agent = OperatorSphere::find($user_id);
             $user = $agent;
         }
+        if($user->banned_at) {
+            if($request->ajax()){
+                return response()->json([
+                    'status' => 'LeadCreateError',
+                    'message' => trans('lead/form.user_banned')
+                ]);
+            } else {
+                return redirect()->back()->withErrors([
+                    'status' => 'LeadCreateError',
+                    'message' => trans('lead/form.user_banned')
+                ]);
+            }
+        }
 
 
         if($user->inRole('operator')) {
@@ -84,12 +97,12 @@ class CreateLead
         if($existingLeads) {
             if($request->ajax()){
                 return response()->json([
-                    'status' => 'LeadCreateErrorExists',
+                    'status' => 'LeadCreateError',
                     'message' => trans('lead/form.exists')
                 ]);
             } else {
                 return redirect()->back()->withErrors([
-                    'status' => 'LeadCreateErrorExists',
+                    'status' => 'LeadCreateError',
                     'message' => trans('lead/form.exists')
                 ]);
             }

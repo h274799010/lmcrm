@@ -2,7 +2,7 @@
 {{-- Content --}}
 @section('content')
 
-    {{ Form::open(array('route' => ['operator.lead.store'], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) }}
+    {{ Form::open(array('route' => ['operator.lead.store'], 'method' => 'post', 'class'=>'ajax-form validate leadCreateForm', 'files'=> false)) }}
 
     {{--@if( isset($salesman_id) )--}}
         {{--{{ Form::open(array('route' => ['agent.salesman.lead.store', $salesman_id], 'method' => 'post', 'class'=>'ajax-form validate', 'files'=> false)) }}--}}

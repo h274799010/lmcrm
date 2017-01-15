@@ -1,7 +1,7 @@
 <div class=" sidebar" role="navigation">
     <div class="sidebar-nav">
         <ul class="nav " id="side-menu">
-            @if( Sentinel::hasAccess(['agent.lead.create']) && !$userBanned && !$userNotActive )
+            @if( Sentinel::hasAccess(['agent.lead.create']) && !$userNotActive )
                 <li>
                     <a href="{{ route('agent.lead.create') }}" class="dialog leadCreateLink"><i class="icon icon-add-user"></i>@lang('site/sidebar.add_lead')</a>
                 </li>

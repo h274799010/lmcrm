@@ -7,5 +7,6 @@ return [
     'comments' => 'Comments if nessecary',
     'exists' => 'A lead with this phone number is already at auction',
     'email' => 'Enter e-mail : mail@mail.com',
-    'successfully_created' => 'Lead successfully created'
+    'successfully_created' => 'Lead successfully created',
+    'user_banned' => 'Error! Your account banned!'
 ];

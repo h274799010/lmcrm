@@ -47,6 +47,7 @@ $(function(){
 				});
 				dialog.on("show.bs.modal", function() {
 					$(this).find('.ajax-form').ajaxForm(function(resp) {
+                        $(document).find('.leadCreateForm .alert').remove();
                         if( resp[0] == 'OrganizerItemError' ) {
 
                             $.each(resp['errors'], function (key, error) {
@@ -58,12 +59,14 @@ $(function(){
                             });
 
                         } else {
-                            dialog.modal('hide');
+                            if(resp['status'] == undefined) {
+                                dialog.modal('hide');
+                            }
                         }
 
                         if (resp=='reload') location.reload();
 
-						if ( resp[0]=='OrganizerItemsaved' ){
+						if ( resp[0]=='OrganizerItemsaved' && resp['status'] == undefined ){
 
                             // получение токена
                             var token = $('meta[name=csrf-token]').attr('content');
@@ -74,7 +77,7 @@ $(function(){
                             });
 
                         }
-                        if ( resp[0] == 'OrganizerItemUpdated' ) {
+                        if ( resp[0] == 'OrganizerItemUpdated' && resp['status'] == undefined ) {
 
 							// получение токена
 							var token = $('meta[name=csrf-token]').attr('content');
@@ -87,11 +90,12 @@ $(function(){
 
 						}
 
-						if( resp['status'] != undefined && resp['status'] == 'LeadCreateErrorExists' ) {
-                            $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+resp['message']+'</div>');
+						if( resp['status'] != undefined && resp['status'] == 'LeadCreateError' ) {
+                            $(document).find('.leadCreateForm').prepend('<div class="alert alert-danger" style="margin-top: 16px" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+resp['message']+'</div>');
                         }
 
 						if( resp['status'] != undefined && resp['status'] == 'LeadCreateSuccess' ) {
+                            dialog.modal('hide');
                             $('#errorCreateLead').show().find('.alertWrap').html('<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+resp['message']+'</div>');
                         }
 
