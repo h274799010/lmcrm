@@ -908,8 +908,8 @@ var app = angular.module('app', ['angular-sortable-view'])
          *
          */
         function makeStatusTransitions(){
-            console.log('запустил транзиты статусов');
 
+            // создаем массив с транзитами
             $scope.data.currentStatusTransition = [];
 
             $scope.data.currentStatusTransition[0] =
@@ -924,6 +924,7 @@ var app = angular.module('app', ['angular-sortable-view'])
             $.each($scope.data.threshold.values[4], function( valKey, status){
                 $scope.data.currentStatusTransition[0].statuses.push(
                     {
+                        id: status.id,
                         outerId: status.outerId,
                         type: status.type,
                         index: $scope.data.threshold.values[status.type].indexOf(status),
@@ -942,6 +943,7 @@ var app = angular.module('app', ['angular-sortable-view'])
             $.each($scope.data.threshold.values[1], function( valKey, status){
                 $scope.data.currentStatusTransition[0].statuses.push(
                     {
+                        id: status.id,
                         outerId: status.outerId,
                         type: status.type,
                         index: $scope.data.threshold.values[status.type].indexOf(status),
@@ -959,6 +961,7 @@ var app = angular.module('app', ['angular-sortable-view'])
             $.each($scope.data.threshold.values[2], function( valKey, status){
                 $scope.data.currentStatusTransition[0].statuses.push(
                     {
+                        id: status.id,
                         outerId: status.outerId,
                         type: status.type,
                         index: $scope.data.threshold.values[status.type].indexOf(status),
@@ -976,6 +979,7 @@ var app = angular.module('app', ['angular-sortable-view'])
             $.each($scope.data.threshold.values[3], function( valKey, status){
                 $scope.data.currentStatusTransition[0].statuses.push(
                     {
+                        id: status.id,
                         outerId: status.outerId,
                         type: status.type,
                         index: $scope.data.threshold.values[status.type].indexOf(status),
@@ -997,6 +1001,7 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 $scope.data.currentStatusTransition[statusesLength] = {
 
+                    id: val.id,
                     outerId: val.outerId,
                     statuses: [],
                     type: val.type,
@@ -1006,9 +1011,9 @@ var app = angular.module('app', ['angular-sortable-view'])
                 $.each($scope.data.threshold.values[1], function( statusKey, status){
 
                     if( val.outerId != status.outerId && val.position < status.position){
-                        console.log('сработал');
                         $scope.data.currentStatusTransition[statusesLength].statuses.push(
                         {
+                            id: status.id,
                             outerId: status.outerId,
                             type: status.type,
                             index: $scope.data.threshold.values[status.type].indexOf(status),
@@ -1024,12 +1029,11 @@ var app = angular.module('app', ['angular-sortable-view'])
                     }
                 });
 
-
-
                 $.each($scope.data.threshold.values[2], function( statusKey, status){
 
                     $scope.data.currentStatusTransition[statusesLength].statuses.push(
                         {
+                            id: status.id,
                             outerId: status.outerId,
                             type: status.type,
                             index: $scope.data.threshold.values[status.type].indexOf(status),
@@ -1048,6 +1052,7 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                     $scope.data.currentStatusTransition[statusesLength].statuses.push(
                         {
+                            id: status.id,
                             outerId: status.outerId,
                             type: status.type,
                             index: $scope.data.threshold.values[status.type].indexOf(status),
@@ -1061,37 +1066,9 @@ var app = angular.module('app', ['angular-sortable-view'])
                         });
                 });
 
-                //$.each(val, function( valKey, status){
-                //    $scope.data.currentStatusTransition[0].statuses.push(
-                //        {
-                //            outerId: status.outerId,
-                //            type: status.type,
-                //            index: $scope.data.threshold.values[status.type].indexOf(status),
-                //            data: 'data'
-                //
-                //        });
-                //});
             });
 
-
-            //$.each($scope.data.threshold.values, function( key, val){
-            //    $.each(val, function( valKey, status){
-            //        $scope.data.currentStatusTransition[0].statuses.push(
-            //            {
-            //                outerId: status.outerId,
-            //                type: status.type,
-            //                index: $scope.data.threshold.values[status.type].indexOf(status),
-            //                data: 'data'
-            //
-            //            });
-            //    });
-            //});
-
-            // outerId: status.outerId,
-
-
-
-                console.log( $scope.data );
+            console.log( $scope.data );
             console.log( $scope.data.currentStatusTransition );
         }
 
@@ -1238,7 +1215,62 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 // отдаем модель
                 $scope.data = data;
+
+                // создаем транзиты из текущих статусов
                 makeStatusTransitions();
+
+                var dbStatusTransitions = {};
+
+                console.log( data);
+
+                // оформляем данные по сфере в объект
+                $.each(data.statusTransitions, function(key, val){
+
+                    //console.log( dbStatusTransitions[val.previous_status_id] );
+
+                    if( dbStatusTransitions[val.previous_status_id] == undefined ){
+                        dbStatusTransitions[val.previous_status_id] ={};
+                    }
+
+                    //dbStatusTransitions[val.previous_status_id].push(val);
+
+                    //console.log( val);
+
+                    dbStatusTransitions[val.previous_status_id][val.status_id] = val;
+                });
+
+
+                $.each( $scope.data.currentStatusTransition, function(key, val){
+
+                    if(val.outerId == 'no status'){
+
+                        $.each( val.statuses, function(key, status){
+
+                            status.levels[1] = dbStatusTransitions[0][status.id]['level_1'];
+                            status.levels[2] = dbStatusTransitions[0][status.id]['level_2'];
+                            status.levels[3] = dbStatusTransitions[0][status.id]['level_3'];
+                            status.levels[4] = dbStatusTransitions[0][status.id]['level_4'];
+                        });
+
+                    }else{
+
+                        $.each( val.statuses, function(key, status){
+
+                            status.levels[1] = dbStatusTransitions[val.id][status.id]['level_1'];
+                            status.levels[2] = dbStatusTransitions[val.id][status.id]['level_2'];
+                            status.levels[3] = dbStatusTransitions[val.id][status.id]['level_3'];
+                            status.levels[4] = dbStatusTransitions[val.id][status.id]['level_4'];
+                        });
+
+                    }
+
+                });
+
+                //console.log($scope.data.currentStatusTransition);
+
+                //console.log(dbStatusTransitions);
+                //console.log(data.statusTransitions);
+
 
             })
             .error(function ( data ) {
@@ -1280,13 +1312,13 @@ var app = angular.module('app', ['angular-sortable-view'])
                         localStorage.setItem( 'errors', data.errors );
 
                         // переходим на страницу редактирования
-                        location.href = data.route;
+                         location.href = data.route;
 
                     }else{
                         // непонятный ответ сервера
 
                         // идем на главную страницу
-                        location.href = '/';
+                         location.href = '/';
                     }
 
                 })

@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Input;
 use App\Models\User;
 use App\Models\Sphere;
 use App\Models\Auction;
+use App\Models\SphereStatusTransitions;
+
 
 use App\Models\SphereStatuses;
 use App\Models\SphereFormFilters;
@@ -492,8 +494,18 @@ class SphereController extends AdminController {
             ]
         ];
 
-        $statusTransitions = [];
+        $allStatusTransitions = SphereStatusTransitions::where('sphere_id', $id)->get();
 
+        $statusTransitions = $allStatusTransitions;
+
+//        dd($statusTransitions);
+
+//        $allStatusTransitions->each(function($status) use (&$statusTransitions){
+//
+//            $statusData =
+//
+//        });
+//
         $notes = [];
 
         if($id) {
@@ -997,6 +1009,8 @@ class SphereController extends AdminController {
         // статусы
         $statusData = ($request['threshold']) ? collect( $request['threshold'] ) : FALSE;
 
+        $currentStatusTransition = collect($request['currentStatusTransition']);
+
         // заметки по сфере
         $notes = ( count($request['notes']) != 0) ? collect($request['notes']) : collect();
 
@@ -1421,6 +1435,8 @@ class SphereController extends AdminController {
 
 
 
+        $statusOuterId = [];
+
         /**
          * Обработка статусов
          */
@@ -1433,13 +1449,13 @@ class SphereController extends AdminController {
             // преобразовываем данные в коллекцию
             $collectStatusData = collect($statusData['values']);
 
-            // перебираем все типы статосов, создаем/обновляем его данные
-            $collectStatusData->each(function($statusesTypes) use( $sphere, &$deleteId ){
+            // перебираем все типы статусов, создаем/обновляем его данные
+            $collectStatusData->each(function($statusesTypes) use( $sphere, &$deleteId, &$statusOuterId ){
 
                 // преобразовываем статусы в коллекцию
                 $statusesTypes = collect($statusesTypes);
                 // обрабатываем каждый статус
-                $statusesTypes->each(function($status) use( $sphere, &$deleteId ){
+                $statusesTypes->each(function($status) use( $sphere, &$deleteId, &$statusOuterId ){
 
                     // если у атрибуте есть id и он НЕ равен '0'
                     if (isset($status['id']) && $status['id']) {
@@ -1464,6 +1480,8 @@ class SphereController extends AdminController {
 
                             // и обновляем
                             $dbStatus->save();
+
+                            $statusData = $dbStatus;
                         }
 
                     } else {
@@ -1473,16 +1491,104 @@ class SphereController extends AdminController {
                         $newStatus->type = $status['type'];
                         $newStatus->comment = $status['comment'];
                         $newStatus->position = (isset($status['position'])) ? $status['position'] : 0;
-                        $sphere->statuses()->save($newStatus);
+                        $statusData = $sphere->statuses()->save($newStatus);
                     }
+
+                    $statusOuterId[ $status['outerId'] ] = $statusData->id;
                 });
             });
+
+//            dd($statusOuterId);
 
             // если есть статусы сферы для удаления
             if($deleteId){
                 // удаляем их
                 SphereStatuses::whereIn('id', $deleteId)->delete();
             }
+
+
+//            dd($currentStatusTransition);
+
+            $currentStatusTransition->each(function($status) use ($statusOuterId, $sphere){
+
+//                dd($status);
+
+                if($status['outerId'] == 'no status' ){
+
+                    $transition = collect($status['statuses']);
+
+                    $transition->each(function( $transitionStatus ) use ( $statusOuterId, $status, $sphere ){
+
+                        $sphereStatusTransitions = SphereStatusTransitions::
+                              where( 'previous_status_id', 0 )
+                            ->where( 'status_id', $statusOuterId[ $transitionStatus['outerId'] ] )
+                            ->first();
+
+                        if($sphereStatusTransitions){
+                            // если запись существует - обновляем существующую
+
+                            $sphereStatusTransitions->level_1 = $transitionStatus['levels'][1];
+                            $sphereStatusTransitions->level_2 = $transitionStatus['levels'][2];
+                            $sphereStatusTransitions->level_3 = $transitionStatus['levels'][3];
+                            $sphereStatusTransitions->level_4 = $transitionStatus['levels'][4];
+                            $sphereStatusTransitions->save();
+
+                        }else{
+                            // если записи не существует - создаем
+
+                            $newSphereStatusTransitions = new SphereStatusTransitions();
+                            $newSphereStatusTransitions->sphere_id = $sphere->id;
+                            $newSphereStatusTransitions->previous_status_id = 0;
+                            $newSphereStatusTransitions->status_id = $statusOuterId[ $transitionStatus['outerId'] ];
+                            $newSphereStatusTransitions->level_1 = $transitionStatus['levels'][1];
+                            $newSphereStatusTransitions->level_2 = $transitionStatus['levels'][2];
+                            $newSphereStatusTransitions->level_3 = $transitionStatus['levels'][3];
+                            $newSphereStatusTransitions->level_4 = $transitionStatus['levels'][4];
+                            $newSphereStatusTransitions->save();
+
+                        }
+
+                    });
+
+                }else{
+
+                    $transition = collect($status['statuses']);
+
+                    $transition->each(function( $transitionStatus ) use ( $statusOuterId, $status, $sphere ){
+
+                        $sphereStatusTransitions = SphereStatusTransitions::
+                        where( 'previous_status_id', $statusOuterId[ $status['outerId'] ] )
+                            ->where( 'status_id', $statusOuterId[ $transitionStatus['outerId'] ] )
+                            ->first();
+
+                        if($sphereStatusTransitions){
+                            // если запись существует - обновляем существующую
+
+                            $sphereStatusTransitions->level_1 = $transitionStatus['levels'][1];
+                            $sphereStatusTransitions->level_2 = $transitionStatus['levels'][2];
+                            $sphereStatusTransitions->level_3 = $transitionStatus['levels'][3];
+                            $sphereStatusTransitions->level_4 = $transitionStatus['levels'][4];
+                            $sphereStatusTransitions->save();
+
+                        }else{
+                            // если записи не существует - создаем
+
+                            $newSphereStatusTransitions = new SphereStatusTransitions();
+                            $newSphereStatusTransitions->sphere_id = $sphere->id;
+                            $newSphereStatusTransitions->previous_status_id = $statusOuterId[ $status['outerId'] ];
+                            $newSphereStatusTransitions->status_id = $statusOuterId[ $transitionStatus['outerId'] ];
+                            $newSphereStatusTransitions->level_1 = $transitionStatus['levels'][1];
+                            $newSphereStatusTransitions->level_2 = $transitionStatus['levels'][2];
+                            $newSphereStatusTransitions->level_3 = $transitionStatus['levels'][3];
+                            $newSphereStatusTransitions->level_4 = $transitionStatus['levels'][4];
+                            $newSphereStatusTransitions->save();
+                        }
+                    });
+                }
+
+            });
+
+//            SphereStatusTransitions
 
         }
 
