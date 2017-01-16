@@ -492,6 +492,8 @@ class SphereController extends AdminController {
             ]
         ];
 
+        $statusTransitions = [];
+
         $notes = [];
 
         if($id) {
@@ -628,7 +630,7 @@ class SphereController extends AdminController {
 
         }
 
-        $data=['opt'=>$settings,"cform"=>$data,'lead'=>$lead,'threshold'=>$threshold, 'notes'=>$notes];
+        $data=['opt'=>$settings,"cform"=>$data,'lead'=>$lead,'threshold'=>$threshold, 'notes'=>$notes, 'statusTransitions'=>$statusTransitions];
         return response()->json($data);
     }
 

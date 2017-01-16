@@ -37,6 +37,7 @@
                     <li class="flex-item step"><a href="#tab4" data-toggle="tab" class="btn btn-circle">4</a></li>
                     <li class="flex-item step"><a href="#tab5" data-toggle="tab" class="btn btn-circle">5</a></li>
                     <li class="flex-item step"><a href="#tab6" data-toggle="tab" class="btn btn-circle">6</a></li>
+                    <li class="flex-item step"><a href="#tab7" data-toggle="tab" class="btn btn-circle">7</a></li>
                 </ul>
                 <div class="progress progress-striped">
                     <div class="progress-bar progress-bar-info bar"></div>
@@ -1170,8 +1171,62 @@
                             </div>
                         </form>
                     </div>
-                    {{-- комментарии по лиду --}}
+
+                    {{-- страница с соответствиями статусов --}}
                     <div class="tab-pane" id="tab5">
+                        <h3 class="page-header">Status transitions</h3>
+
+
+                        <div ng-repeat="status in data.currentStatusTransition" class="panel panel-defoult">
+                            <div ng-if="status.outerId=='no status'" class="panel-heading current_status_transition_header">No status</div>
+                            <div ng-if="status.outerId!='no status'" class="panel-heading current_status_transition_header">@{{ data.threshold.values[status.type][status.index].stepname }}</div>
+                            <div class="panel-body">
+
+                                <div ng-repeat="transition in status.statuses">
+
+                                    <div ng-if="status.outerId=='no status'" class="row staus_transition_row">
+
+                                        <div class="col-md-12 staus_transition_row_head">
+                                            No status <i class="glyphicon glyphicon-arrow-right"></i> @{{ data.threshold.values[transition.type][transition.index].stepname }}
+                                        </div>
+                                        <div class="col-md-12 staus_transition_row_body">
+                                            <div class="col-md-12"><b>level 5:</b> @{{ transition.levels[4] }} <i class="glyphicon glyphicon-resize-horizontal"></i> 100</div>
+                                            <div class="col-md-12"><b>level 4:</b> @{{ transition.levels[3] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[4]" type="text"></div>
+                                            <div class="col-md-12"><b>level 3:</b> @{{ transition.levels[2] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[3]" type="text"></div>
+                                            <div class="col-md-12"><b>level 2:</b> @{{ transition.levels[1] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[2]" type="text"></div>
+                                            <div class="col-md-12"><b>level 1:</b> 0 <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[1]" type="text"></div>
+                                        </div>
+                                    </div>
+
+                                    <div ng-if="status.outerId!='no status'" class="row staus_transition_row">
+
+                                        <div class="col-md-12">
+                                            @{{ data.threshold.values[status.type][status.index].stepname }} <i class="glyphicon glyphicon-arrow-right"></i> @{{ data.threshold.values[transition.type][transition.index].stepname }}
+
+                                        </div>
+                                        <div class="col-md-12 staus_transition_row_body">
+                                            <div class="col-md-12"><b>level 5:</b> @{{ transition.levels[4] }} <i class="glyphicon glyphicon-resize-horizontal"></i> 100</div>
+                                            <div class="col-md-12"><b>level 4:</b> @{{ transition.levels[3] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[4]" type="text"></div>
+                                            <div class="col-md-12"><b>level 3:</b> @{{ transition.levels[2] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[3]" type="text"></div>
+                                            <div class="col-md-12"><b>level 2:</b> @{{ transition.levels[1] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[2]" type="text"></div>
+                                            <div class="col-md-12"><b>level 1:</b> 0 <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[1]" type="text"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        {{--<div ng-repeat="status in data.currentStatusTransition" class="row">--}}
+                            {{--<div class="col-md-12">--}}
+                                {{--@{{ status.outerId }}--}}
+                            {{--</div>--}}
+                        {{--</div>--}}
+
+                    </div>
+                    {{-- комментарии по лиду --}}
+                    <div class="tab-pane" id="tab6">
                         <h3 class="page-header">{{trans('admin/sphere.tab_note_title')}}</h3>
 
                         <div class="row">
@@ -1206,7 +1261,7 @@
 
                     </div>
                     {{-- сохранение данных --}}
-                    <div class="tab-pane" id="tab6">
+                    <div class="tab-pane" id="tab7">
                         <h3 class="page-header">{{trans('admin/sphere.finish')}}</h3>
                         <br class="clearfix">
                         <button class="btn btn-warning btn-save btn-raised" ng-click="saveData()">{{trans('admin/modal.save')}}</button>
@@ -1784,6 +1839,23 @@
             background: #FBFBFB;
         }
 
+        .current_status_transition_header{
+            color: black !important;
+        }
+
+        .staus_transition_row{
+            margin-bottom: 20px;
+        }
+
+        .staus_transition_row_head{
+            font-weight: 500;
+        }
+
+        .staus_transition_input{
+            background: white;
+            width: 20px;
+            border: none;
+        }
 
     </style>
 @stop

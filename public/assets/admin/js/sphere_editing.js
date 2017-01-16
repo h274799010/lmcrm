@@ -1,4 +1,9 @@
 
+
+var sphereStatuses = [];
+var sphereStatusesCount = 0;
+
+
 var app = angular.module('app', ['angular-sortable-view'])
 
     .controller('SphereCtrl', function ( $scope, $http ) {
@@ -850,7 +855,7 @@ var app = angular.module('app', ['angular-sortable-view'])
                 type: type,     // тип
                 stepname: '',   // имя статуса
                 comment: '',    // комментарий
-
+                outerId: ++sphereStatusesCount,
                 //vale:       // значения
                 //    [
                 //        0,  // значения переключателя min/max
@@ -861,6 +866,8 @@ var app = angular.module('app', ['angular-sortable-view'])
 
             // добавляем статус в модель
             $scope.data.threshold.values[type].push( newStatus );
+
+            makeStatusTransitions();
         };
 
         /**
@@ -891,7 +898,202 @@ var app = angular.module('app', ['angular-sortable-view'])
                 // добавляем в модель статуса элемент delete
                 status.delete = true;
             }
+
+            makeStatusTransitions();
         };
+
+        /**
+         * Создает массив транзитов статусов
+         *
+         *
+         */
+        function makeStatusTransitions(){
+            console.log('запустил транзиты статусов');
+
+            $scope.data.currentStatusTransition = [];
+
+            $scope.data.currentStatusTransition[0] =
+            {
+                outerId: 'no status',
+                //type: val.type,
+                //index: $scope.data.threshold.values[val.type].indexOf(val)  ,
+                statuses: []
+            };
+
+            // добавляем плохие лиды к no status
+            $.each($scope.data.threshold.values[4], function( valKey, status){
+                $scope.data.currentStatusTransition[0].statuses.push(
+                    {
+                        outerId: status.outerId,
+                        type: status.type,
+                        index: $scope.data.threshold.values[status.type].indexOf(status),
+                        levels:
+                        {
+                            1: 0,
+                            2: 0,
+                            3: 0,
+                            4: 0
+                        }
+
+                    });
+            });
+
+            // добавляем рабочие лиды к no status
+            $.each($scope.data.threshold.values[1], function( valKey, status){
+                $scope.data.currentStatusTransition[0].statuses.push(
+                    {
+                        outerId: status.outerId,
+                        type: status.type,
+                        index: $scope.data.threshold.values[status.type].indexOf(status),
+                        levels:
+                        {
+                            1: 0,
+                            2: 0,
+                            3: 0,
+                            4: 0
+                        }
+                    });
+            });
+
+            // добавляем отказников к no status
+            $.each($scope.data.threshold.values[2], function( valKey, status){
+                $scope.data.currentStatusTransition[0].statuses.push(
+                    {
+                        outerId: status.outerId,
+                        type: status.type,
+                        index: $scope.data.threshold.values[status.type].indexOf(status),
+                        levels:
+                        {
+                            1: 0,
+                            2: 0,
+                            3: 0,
+                            4: 0
+                        }
+                    });
+            });
+
+            // добавляем непонятные лиды к no status
+            $.each($scope.data.threshold.values[3], function( valKey, status){
+                $scope.data.currentStatusTransition[0].statuses.push(
+                    {
+                        outerId: status.outerId,
+                        type: status.type,
+                        index: $scope.data.threshold.values[status.type].indexOf(status),
+                        levels:
+                        {
+                            1: 0,
+                            2: 0,
+                            3: 0,
+                            4: 0
+                        }
+                    });
+            });
+
+
+            // перебираем все рабочие статусы и подбираю по ним статусы на которые можно перейти с этого статуса
+            $.each($scope.data.threshold.values[1], function( key, val){
+
+                var statusesLength = $scope.data.currentStatusTransition.length;
+
+                $scope.data.currentStatusTransition[statusesLength] = {
+
+                    outerId: val.outerId,
+                    statuses: [],
+                    type: val.type,
+                    index: $scope.data.threshold.values[val.type].indexOf(val)  ,
+                };
+
+                $.each($scope.data.threshold.values[1], function( statusKey, status){
+
+                    if( val.outerId != status.outerId && val.position < status.position){
+                        console.log('сработал');
+                        $scope.data.currentStatusTransition[statusesLength].statuses.push(
+                        {
+                            outerId: status.outerId,
+                            type: status.type,
+                            index: $scope.data.threshold.values[status.type].indexOf(status),
+                            levels:
+                            {
+                                1: 0,
+                                2: 0,
+                                3: 0,
+                                4: 0
+                            }
+
+                        });
+                    }
+                });
+
+
+
+                $.each($scope.data.threshold.values[2], function( statusKey, status){
+
+                    $scope.data.currentStatusTransition[statusesLength].statuses.push(
+                        {
+                            outerId: status.outerId,
+                            type: status.type,
+                            index: $scope.data.threshold.values[status.type].indexOf(status),
+                            levels:
+                            {
+                                1: 0,
+                                2: 0,
+                                3: 0,
+                                4: 0
+                            }
+
+                        });
+                });
+
+                $.each($scope.data.threshold.values[3], function( statusKey, status){
+
+                    $scope.data.currentStatusTransition[statusesLength].statuses.push(
+                        {
+                            outerId: status.outerId,
+                            type: status.type,
+                            index: $scope.data.threshold.values[status.type].indexOf(status),
+                            levels:
+                            {
+                                1: 0,
+                                2: 0,
+                                3: 0,
+                                4: 0
+                            }
+                        });
+                });
+
+                //$.each(val, function( valKey, status){
+                //    $scope.data.currentStatusTransition[0].statuses.push(
+                //        {
+                //            outerId: status.outerId,
+                //            type: status.type,
+                //            index: $scope.data.threshold.values[status.type].indexOf(status),
+                //            data: 'data'
+                //
+                //        });
+                //});
+            });
+
+
+            //$.each($scope.data.threshold.values, function( key, val){
+            //    $.each(val, function( valKey, status){
+            //        $scope.data.currentStatusTransition[0].statuses.push(
+            //            {
+            //                outerId: status.outerId,
+            //                type: status.type,
+            //                index: $scope.data.threshold.values[status.type].indexOf(status),
+            //                data: 'data'
+            //
+            //            });
+            //    });
+            //});
+
+            // outerId: status.outerId,
+
+
+
+                console.log( $scope.data );
+            console.log( $scope.data.currentStatusTransition );
+        }
 
 
         /** Комментарии по сфере */
@@ -995,6 +1197,19 @@ var app = angular.module('app', ['angular-sortable-view'])
                 //    val.vale[0] = (val.vale[0] == 1);
                 //});
 
+
+                /**
+                 * Перебираем все статусы и добавляем каждому внешний id (outerId)
+                 *
+                 * просто уникальный идентификатор в основном чтобы как то идентифицировать
+                 * только что созданные статусы, у который id равен 0
+                 */
+                $.each(data.threshold.values, function( key, val){
+                    $.each(val, function( valKey, status){
+                        status.outerId = ++sphereStatusesCount;
+                    });
+                });
+
                 // преобразовываем данные фильтра агента в булев тип
                 $.each(data.cform.values, function( key, val ){
                     //val.vale[0] = (val.vale[0] == 1);
@@ -1023,6 +1238,8 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 // отдаем модель
                 $scope.data = data;
+                makeStatusTransitions();
+
             })
             .error(function ( data ) {
                 // сообщение об ошибке при получении данных
