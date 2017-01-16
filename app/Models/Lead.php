@@ -58,7 +58,7 @@ class Lead extends EloquentUser {
      *
      * @var array
      */
-    public static $status =
+    private static $status =
     [
         0 => 'new lead',          // новый лид в системе
         1 => 'operator',          // лид обрабатывается оператором
@@ -77,7 +77,7 @@ class Lead extends EloquentUser {
      *
      * @var array
      */
-    public static $auctionStatus =
+    private static $auctionStatus =
     [
         // todo вместо этих двух достаточно просто "no status"
         0 => 'not at auction',          // не на аукциоа
@@ -96,7 +96,7 @@ class Lead extends EloquentUser {
      *
      * @var array
      */
-    public static $paymentStatus =
+    private static $paymentStatus =
     [
         0 => 'expects payment',          // ожидание платежа по лиду
         1 => 'payment to depositor',     // оплата депозитору его доли по лиду
@@ -385,7 +385,8 @@ class Lead extends EloquentUser {
     public function statusName()
     {
         // выбираем значение из переменной статуса лида
-        return self::$status[ $this['status'] ];
+        //return self::$status[ $this['status'] ];
+        return trans('lead/statuses.status.'.$this['status']);
     }
 
 
@@ -399,7 +400,8 @@ class Lead extends EloquentUser {
     public function auctionStatusName()
     {
         // выбираем значение из переменной статуса лида на аукционе
-        return self::$auctionStatus[ $this['auction_status'] ];
+        //return self::$auctionStatus[ $this['auction_status'] ];
+        return trans('lead/statuses.auctionStatus.'.$this['status']);
     }
 
 
@@ -413,7 +415,8 @@ class Lead extends EloquentUser {
     public function paymentStatusName()
     {
         // выбираем значение из переменной статуса лида по оплате
-        return self::$paymentStatus[ $this['payment_status'] ];
+        //return self::$paymentStatus[ $this['payment_status'] ];
+        return trans('lead/statuses.paymentStatus.'.$this['status']);
     }
 
 
@@ -519,6 +522,9 @@ class Lead extends EloquentUser {
         // лид
         $lead = $this;
 
+        if($agent->banned_at != NULL && $agent->banned_at != '0000-00-00 00:00:00') {
+            return trans('lead/lead.open.error.banned');
+        }
 
         // если сфера лида удалена
         if( !$lead->sphere ){
@@ -610,6 +616,10 @@ class Lead extends EloquentUser {
 
         // лид
         $lead = $this;
+
+        if($agent->banned_at != NULL && $agent->banned_at != '0000-00-00 00:00:00') {
+            return trans('lead/lead.open.error.banned');
+        }
 
 
         // если сфера лида удалена
@@ -1117,6 +1127,32 @@ class Lead extends EloquentUser {
         }
 
         return $this;
+    }
+
+    public function getStatuses($status)
+    {
+        switch ($status) {
+            case 'status':
+                $res = self::$status;
+                break;
+            case 'auctionStatus':
+                $res = self::$auctionStatus;
+                break;
+            case 'paymentStatus':
+                $res = self::$paymentStatus;
+                break;
+            default:
+                $res = false;
+                break;
+        }
+
+        if($res) {
+            foreach ($res as $key => $name) {
+                $res[$key] = trans('lead/statuses.'.$status.'.'.$key);
+            }
+        }
+
+        return $res;
     }
 
 }

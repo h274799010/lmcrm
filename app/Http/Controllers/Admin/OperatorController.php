@@ -89,7 +89,7 @@ class OperatorController extends AdminController {
 
     public function update( Request $request, $id )
     {
-        $operator = Sentinel::findById($id);
+        $operator = OperatorSphere::find($id);
 
         $password = $request->password;
         $passwordConfirmation = $request->password_confirmation;

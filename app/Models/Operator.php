@@ -58,4 +58,7 @@ class Operator extends Model
         return $this->belongsToMany('App\Models\Sphere', 'operator_sphere', 'operator_id', 'sphere_id');
     }
 
+    public function sphere(){
+        return $this->spheres()->first();
+    }
 }

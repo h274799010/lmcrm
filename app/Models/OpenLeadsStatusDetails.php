@@ -35,4 +35,14 @@ class OpenLeadsStatusDetails extends Model
         $status->save();
     }
 
+    public function getStatisticAgentBySphereStatuses($agent_id)
+    {
+        //
+    }
+
+    public function getPerformanceAgent($agent_id)
+    {
+        //
+    }
+
 }

@@ -42,11 +42,19 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
     ];
 
     public function spheres() {
-        return $this->belongsToMany('\App\Models\Sphere','operator_sphere','operator_id','sphere_id');
+        return $this->belongsToMany('\App\Models\Sphere','operator_sphere','operator_id','sphere_id')->where('status', '=', 1);
     }
 
     public function accountManagers() {
         return $this->belongsToMany('\App\Models\User','account_managers_operators','operator_id','account_manager_id');
+    }
+    /**
+     * Связь с таблицей лидов (все лиды оператора)
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function leads(){
+        return $this->hasMany('\App\Models\Lead','agent_id','id');
     }
 
 }

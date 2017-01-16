@@ -24,6 +24,19 @@
                     <i class="fa fa-list"></i> {{ trans('admin/sidebar.openLeads') }}
                 </a>
             </li>
+            <li>
+                <a href="{{ route('accountManager.statistic.agents') }}">
+                    <i class="fa fa-line-chart"></i> {{ trans('admin/sidebar.statistic') }}
+                    <span class="fa arrow"></span>
+                </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('accountManager.statistic.agents') }}">
+                            <i class="fa fa-list"></i> {{ trans('admin/sidebar.agents') }}
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <li>
                 <a href="{{ route('accountManager.agent.index') }}">

@@ -12,5 +12,6 @@
         @yield('content')
         <span class="clearfix"></span>
     </div>
+@yield('scripts')
 </body>
 </html>

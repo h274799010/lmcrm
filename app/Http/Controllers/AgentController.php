@@ -31,9 +31,6 @@ class AgentController extends BaseController
     public $wallet;
 
 
-
-
-
     // конструктор класса
     public function __construct()
     {
@@ -187,5 +184,13 @@ class AgentController extends BaseController
         Cookie::queue('balance', $balanceJSON, null, null, null, false, false);
 
         return true;
+    }
+
+    public function getAgentPrivateGroup()
+    {
+        $agent = Agent::find(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::getUser()->id);
+        $agents = $agent->agentsPrivetGroups()->select('users.id', 'users.email')->get()->pluck('email', 'id');
+
+        return response()->json($agents);
     }
 }

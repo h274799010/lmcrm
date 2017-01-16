@@ -13,46 +13,45 @@
     </div>
     <div class="row">
         <div class="col-md-4 col-xs-12" id="leadsListFilter">
-            <div class="col-xs-4">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Lead status</label>
-                    <select data-name="lead_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty"></option>
-                        <option value="0">new lead</option>
-                        <option value="1">operator</option>
-                        <option value="2">operator bad</option>
-                        <option value="3">auction</option>
-                        <option value="4">close auction</option>
-                        <option value="5">agent bad</option>
-                        <option value="6">closed deal</option>
-                        <option value="7">selective auction</option>
-                    </select>
+            @if($statuses)
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="control-label _col-sm-2">Lead status</label>
+                        <select data-name="lead_status" class="selectbox dataTables_filter form-control">
+                            <option value="empty"></option>
+                            @foreach($statuses as $status => $name)
+                                <option value="{{ $status }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col-xs-4">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Auction status</label>
-                    <select data-name="auction_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty"></option>
-                        <option value="2">closed by max open</option>
-                        <option value="3">closed by time expired</option>
-                        <option value="4">closed by agent bad</option>
-                        <option value="5">closed by close deal</option>
-                    </select>
+            @endif
+            @if($auctionStatuses)
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="control-label _col-sm-2">Auction status</label>
+                        <select data-name="auction_status" class="selectbox dataTables_filter form-control">
+                            <option value="empty"></option>
+                            @foreach($auctionStatuses as $status => $name)
+                                <option value="{{ $status }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col-xs-4">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Payment status</label>
-                    <select data-name="payment_status" class="selectbox dataTables_filter form-control">
-                        <option value="empty"></option>
-                        <option value="0">expects payment</option>
-                        <option value="1">payment to depositor</option>
-                        <option value="2">payment for unsold lead</option>
-                        <option value="3">payment for bad lead</option>
-                    </select>
+            @endif
+            @if($paymentStatuses)
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="control-label _col-sm-2">Payment status</label>
+                        <select data-name="payment_status" class="selectbox dataTables_filter form-control">
+                            <option value="empty"></option>
+                            @foreach($paymentStatuses as $status => $name)
+                                <option value="{{ $status }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 

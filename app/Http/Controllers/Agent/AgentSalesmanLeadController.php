@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Facades\CreateLead;
 use App\Lmcrm\Lead;
 use App\Models\Agent;
 use App\Models\AgentBitmask;
@@ -578,12 +579,9 @@ class AgentSalesmanLeadController extends LeadController
      */
     public function create()
     {
-        // выделяем из коллекции сфер только имена и id
-        $spheres = $this->allSphere->pluck('name', 'id');
+        $data = CreateLead::create($this->salesman->id);
 
-        return view('agent.lead.create')->with('lead',[])->with([
-            'spheres' => $spheres
-        ]);
+        return view('agent.lead.create', $data);
     }
 
     /**
@@ -597,97 +595,8 @@ class AgentSalesmanLeadController extends LeadController
      */
     public function store( Request $request )
     {
-        $validator = Validator::make($request->all(), [
-            'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
-            'name' => 'required'
-        ]);
-        $agent =  $this->salesman->agent()->first();
+        $result = CreateLead::store($request, $this->salesman->id);
 
-        if ($validator->fails() || !$agent->sphere()) {
-            if($request->ajax()){
-                return response()->json($validator);
-            } else {
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
-        }
-
-
-        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
-
-        // Получаем список лидов (активных на аукционе или на обработке у оператора) с введенным номером телефона
-        $existingLeads = $customer->checkExistingLeads($request->input('sphere'))->get()->lists('id')->toArray();
-        // Если лиды нашлись - выводим сообщение об ошибке
-        if($existingLeads) {
-            if($request->ajax()){
-                return response()->json([
-                    'error' => 'LeadCreateErrorExists',
-                    'message' => trans('lead/form.exists')
-                ]);
-            } else {
-                return redirect()->route('agent.lead.index')->withErrors([
-                    'error' => 'LeadCreateErrorExists',
-                    'message' => trans('lead/form.exists')
-                ]);
-            }
-        }
-
-        $lead = new Lead();
-        $lead->name = $request->input('name');
-        $lead->comment = $request->input('comment');
-        $lead->customer_id=$customer->id;
-        $lead->sphere_id = $request->sphere;
-        $lead->status = 0;
-
-        $this->salesman->leads()->save($lead);
-
-
-        // данные агента
-        $agentInfoData = \App\Models\AgentInfo::where('agent_id', $this->user->id)->first();
-
-        // выбираем данные текущего пользователя
-        $currentUser = \Sentinel::findById($this->salesman->id);
-
-        // выбираем все роли пользователя
-        $userRoles = $currentUser->roles()->get();
-
-        // массив с ролями пользователя
-        $userRolesArray = [];
-
-        // перебираем объект с ролями и формируем массив
-        $userRoles->each(function( $item ) use(&$userRolesArray){
-            // добавляем роль в массив
-            $userRolesArray[] = $item->slug;
-        });
-
-        // преобразовываем массив с ролями в строку
-        $userRolesSting = serialize($userRolesArray);
-
-
-        // создаем новый экземпляр LeadDepositorData
-        $leadDepositorData = new LeadDepositorData();
-
-        // id лида, к которому привязанны данные
-        $leadDepositorData->lead_id = $lead->id;
-
-        // id пользователя который внес лид в систему
-        $leadDepositorData->depositor_id = $currentUser->id;
-
-        // имя пользователя
-        $leadDepositorData->depositor_name = $currentUser->first_name;
-        // название компании
-        $leadDepositorData->depositor_company = $agentInfoData->company;
-        // роль агента (будут либо две, либо одна)
-        $leadDepositorData->depositor_role = $userRolesSting;
-        // состояния пользователя (активный, приостановленный, в ожидании, забанненый, удаленный)
-        $leadDepositorData->depositor_status = $currentUser->banned_at ? 'banned':'active';
-
-        $leadDepositorData->save();
-
-
-        if($request->ajax()){
-            return response()->json();
-        } else {
-            return redirect()->route('agent.salesman.depositedLead')->with('salesman_id', $this->salesman->id);
-        }
+        return $result;
     }
 }

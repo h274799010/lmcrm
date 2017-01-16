@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Facades\CreateLead;
 use App\Helper\PayMaster;
 use App\Helper\PayMaster\PayInfo;
 use App\Helper\PayMaster\Pay;
@@ -120,8 +121,13 @@ class LeadController extends AgentController {
 
         $user_id = $agent->id;
 
-        $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
-        $salesmansOpenedLeads = OpenLeads::whereIn('agent_id', $salesmans)->select('lead_id')->get()->lists('lead_id')->toArray();
+        if($agent->inRole('agent')) {
+            $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
+            $salesmansOpenedLeads = OpenLeads::whereIn('agent_id', $salesmans)->select('lead_id')->get()->lists('lead_id')->toArray();
+        } else {
+            $salesmans = $agent->agent()->first();
+            $salesmansOpenedLeads = OpenLeads::where('agent_id', '=', $salesmans->id)->select('lead_id')->get()->lists('lead_id')->toArray();
+        }
 
         // выборка всех лидов агента
         $auctionData = Auction::where('status', 0)
@@ -830,14 +836,13 @@ class LeadController extends AgentController {
     /**
      * Show the form for creating a new resource.
      *
-     * @return Response
+     * @return View
      */
     public function create()
     {
-        // выделяем из коллекции сфер только имена и id
-        $spheres = $this->spheres->pluck('name', 'id');
+        $data = CreateLead::create($this->user->id);
 
-        return view('agent.lead.create')->with('lead',[])->with('spheres',$spheres);
+        return view('agent.lead.create', $data);
     }
 
     /**
@@ -851,106 +856,9 @@ class LeadController extends AgentController {
      */
     public function store( Request $request )
     {
-        $validator = Validator::make($request->all(), [
-            'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
-            'name' => 'required'
-        ]);
-        $agent =  $this->user;
+       $result = CreateLead::store($request, $this->user->id);
 
-        if ($validator->fails() || !$agent->sphere()) {
-            if($request->ajax()){
-                return response()->json($validator);
-            } else {
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
-        }
-
-
-        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $request->input('phone'))] );
-
-        // Получаем список лидов (активных на аукционе или на обработке у оператора) с введенным номером телефона
-        $existingLeads = $customer->checkExistingLeads($request->input('sphere'))->get()->lists('id')->toArray();
-        // Если лиды нашлись - выводим сообщение об ошибке
-        if($existingLeads) {
-            if($request->ajax()){
-                return response()->json([
-                    'status' => 'LeadCreateErrorExists',
-                    'message' => trans('lead/form.exists')
-                ]);
-            } else {
-                return redirect()->route('agent.lead.index')->withErrors([
-                    'status' => 'LeadCreateErrorExists',
-                    'message' => trans('lead/form.exists')
-                ]);
-            }
-        }
-
-        $lead = new Lead($request->except('phone'));
-        $lead->customer_id=$customer->id;
-        $lead->sphere_id = $request->sphere;
-        $lead->status = 0;
-
-        // если в реквесте есть группа
-        if( isset($request['group']) ){
-            // добавляем лид со статусами к передаче в приватной группе
-
-            $lead->status = 8;
-            $lead->auction_status = 6;
-            $lead->payment_status = 4;
-        }
-
-        $agent->leads()->save($lead);
-
-        // данные агента
-        $agentInfoData = \App\Models\AgentInfo::where('agent_id', $agent->id)->first();
-
-        // выбираем данные текущего пользователя
-        $currentUser = \Sentinel::findById($agent->id);
-
-        // выбираем все роли пользователя
-        $userRoles = $currentUser->roles()->get();
-
-        // массив с ролями пользователя
-        $userRolesArray = [];
-
-        // перебираем объект с ролями и формируем массив
-        $userRoles->each(function( $item ) use(&$userRolesArray){
-            // добавляем роль в массив
-            $userRolesArray[] = $item->slug;
-        });
-
-        // преобразовываем массив с ролями в строку
-        $userRolesSting = serialize($userRolesArray);
-
-
-        // создаем новый экземпляр LeadDepositorData
-        $leadDepositorData = new LeadDepositorData();
-
-        // id лида, к которому привязанны данные
-        $leadDepositorData->lead_id = $lead->id;
-
-        // id пользователя который внес лид в систему
-        $leadDepositorData->depositor_id = $agent->id;
-
-        // имя пользователя
-        $leadDepositorData->depositor_name = $agent->first_name;
-        // название компании
-        $leadDepositorData->depositor_company = $agentInfoData->company;
-        // роль агента (будут либо две, либо одна)
-        $leadDepositorData->depositor_role = $userRolesSting;
-        // состояния пользователя (активный, приостановленный, в ожидании, забанненый, удаленный)
-        $leadDepositorData->depositor_status = $currentUser->banned_at ? 'banned':'active';
-
-        $leadDepositorData->save();
-
-        if($request->ajax()){
-            return response()->json([
-                'status' => 'LeadCreateSuccess',
-                'message' => trans('lead/form.successfully_created')
-            ]);
-        } else {
-            return redirect()->route('agent.lead.index');
-        }
+       return $result;
     }
 
 
@@ -1125,6 +1033,8 @@ class LeadController extends AgentController {
         // находим данные открытого лида по id лида и id агента
         $openedLead = OpenLeads::find( $openedLeadId );
 
+//        dd($openedLead);
+
         // если открытый лид отмечен как плохой
         if($status == 'bad') {
 
@@ -1134,8 +1044,8 @@ class LeadController extends AgentController {
                 // помечаем его как плохой
                 $openedLead->setBadLead();
 
-                // сохраняем историю статусов
                 OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -1);
+
 
                 return response()->json('setBadStatus');
 

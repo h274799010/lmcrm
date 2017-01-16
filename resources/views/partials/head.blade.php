@@ -37,6 +37,7 @@
     <link href="{{ asset('components/font-awesome/css/font-awesome.min.css')}}" rel="stylesheet" type="text/css">
     <!-- Custom THEME -->
     <link href="{{ asset('assets/web/css/lmcrm-theme.css')}}" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
 
     @yield('styles')
             <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -83,6 +84,7 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="{{ asset('assets/web/js/sb-admin.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
     @section('script') @show
     <script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
 

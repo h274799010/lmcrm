@@ -180,6 +180,8 @@ return [
          */
         Jenky\LaravelPlupload\PluploadServiceProvider::class,
 
+        \App\Providers\LeadServiceProvider::class,
+
     ],
 
     /*
@@ -240,6 +242,9 @@ return [
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
 
         'Plupload' => Jenky\LaravelPlupload\Facades\Plupload::class,
+
+        'Lead' => App\Facades\Lead::class,
+        'CreateLead' => App\Facades\CreateLead::class,
 
     ],
 
