@@ -96,6 +96,11 @@ class Sphere extends Model
         return $this->belongsToMany('\App\Models\OperatorSphere','operator_sphere','sphere_id','operator_id');
     }
 
+    public function statusTransitions()
+    {
+        return $this->hasMany('\App\Models\SphereStatusTransitions', 'sphere_id', 'id');
+    }
+
 
     /**
      * Все маски по сфере из таблицы UserMasks

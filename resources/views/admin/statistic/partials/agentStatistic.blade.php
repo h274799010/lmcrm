@@ -1,0 +1,168 @@
+@foreach($spheres as $sphere)
+    <h4>{{ $sphere->name }}</h4>
+
+    <div class="row">
+        <div class="col-md-4">
+            <table class="table table-striped table-hover process-statuses">
+                <thead>
+                <tr>
+                    <th colspan="4">Процессные статусы</th>
+                </tr>
+                <tr>
+                    <th>Статус</th>
+                    <th>Кол-во лидов</th>
+                    <th>Процент от общего числа</th>
+                    <th>Процент за выбранный период</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($sphere->statuses as $status)
+                    @if($status->type == 1)
+                        <tr>
+                            <td>{{ $status->stepname }}</td>
+                            <td>{{ $status->countOpenLeads }}</td>
+                            <td>{{ $status->percentOpenLeads }}%</td>
+                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                        </tr>
+                    @endif
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <table class="table table-striped table-hover undefined-statuses">
+                <thead>
+                <tr>
+                    <th colspan="4">Не определенные</th>
+                </tr>
+                <tr>
+                    <th>Статус</th>
+                    <th>Кол-во лидов</th>
+                    <th>Процент от общего числа</th>
+                    <th>Процент за выбранный период</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($sphere->statuses as $status)
+                    @if($status->type == 2)
+                        <tr>
+                            <td>{{ $status->stepname }}</td>
+                            <td>{{ $status->countOpenLeads }}</td>
+                            <td>{{ $status->percentOpenLeads }}%</td>
+                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                        </tr>
+                    @endif
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <table class="table table-striped table-hover fail-statuses">
+                <thead>
+                <tr>
+                    <th colspan="4">Отказники</th>
+                </tr>
+                <tr>
+                    <th>Статус</th>
+                    <th>Кол-во лидов</th>
+                    <th>Процент от общего числа</th>
+                    <th>Процент за выбранный период</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($sphere->statuses as $status)
+                    @if($status->type == 3)
+                        <tr>
+                            <td>{{ $status->stepname }}</td>
+                            <td>{{ $status->countOpenLeads }}</td>
+                            <td>{{ $status->percentOpenLeads }}%</td>
+                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                        </tr>
+                    @endif
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <table class="table table-striped table-hover bad-statuses">
+                <thead>
+                <tr>
+                    <th colspan="4">Плохие</th>
+                </tr>
+                <tr>
+                    <th>Статус</th>
+                    <th>Кол-во лидов</th>
+                    <th>Процент от общего числа</th>
+                    <th>Процент за выбранный период</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($sphere->statuses as $status)
+                    @if($status->type == 4)
+                        <tr>
+                            <td>{{ $status->stepname }}</td>
+                            <td>{{ $status->countOpenLeads }}</td>
+                            <td>{{ $status->percentOpenLeads }}%</td>
+                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                        </tr>
+                    @endif
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+        @if(isset($sphere->statusTransitions) && count($sphere->statusTransitions) > 0)
+            <div class="col-md-8">
+                <table class="table table-striped table-hover performance-table">
+                    <thead>
+                    <tr>
+                        <th colspan="5">уровень производительности</th>
+                    </tr>
+                    <tr>
+                        <th>Статус 1</th>
+                        <th>Статус 2</th>
+                        <th>Процент от общего числа</th>
+                        <th>Процент за выбранный период</th>
+                        <th>Оценка</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($sphere->statusTransitions as $status)
+                        <tr>
+                            <td>
+                                @if(isset($status->previewStatus->stepname))
+                                    {{ $status->previewStatus->stepname }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>
+                                @if(isset($status->status->stepname))
+                                    {{ $status->status->stepname }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>{{ $status->percent }}%</td>
+                            <td>{{ $status->percentPeriod }}%</td>
+                            @if($status->percent <= $status->level_1)
+                                <td class="rating_bad">Плохо</td>
+                            @elseif($status->percent > $status->level_1 && $status->percent <= $status->level_2)
+                                <td class="rating_takes_significant_improvements">Требуется значительное улучшение</td>
+                            @elseif($status->percent > $status->level_2 && $status->percent <= $status->level_3)
+                                <td class="rating_needs_improvements">Требуется улучшение</td>
+                            @elseif($status->percent > $status->level_4 && $status->percent <= $status->level_4)
+                                <td class="rating_good">Хорошо</td>
+                            @else
+                                <td class="rating_very_good">Очень хорошо</td>
+                            @endif
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+@endforeach

@@ -21,181 +21,8 @@
         </div>
     </div>
 
-    <h4>Sphere name</h4>
-
-    <div class="row">
-        <div class="col-md-4">
-            <table class="table table-bordered table-striped table-hover process-statuses">
-                <thead>
-                <tr>
-                    <th colspan="4">Процессные статусы</th>
-                </tr>
-                <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>50</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                </tr>
-                <tr>
-                    <td>Step 2</td>
-                    <td>30</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-4">
-            <table class="table table-bordered table-striped table-hover undefined-statuses">
-                <thead>
-                <tr>
-                    <th colspan="4">Не определенные</th>
-                </tr>
-                <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>50</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                </tr>
-                <tr>
-                    <td>Step 2</td>
-                    <td>30</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-4">
-            <table class="table table-bordered table-striped table-hover fail-statuses">
-                <thead>
-                <tr>
-                    <th colspan="4">Отказники</th>
-                </tr>
-                <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>50</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                </tr>
-                <tr>
-                    <td>Step 2</td>
-                    <td>30</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-4">
-            <table class="table table-bordered table-striped table-hover bad-statuses">
-                <thead>
-                <tr>
-                    <th colspan="4">Плохие</th>
-                </tr>
-                <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>50</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                </tr>
-                <tr>
-                    <td>Step 2</td>
-                    <td>30</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-8">
-            <table class="table table-bordered table-striped table-hover performance-table">
-                <thead>
-                <tr>
-                    <th colspan="5">уровень производительности</th>
-                </tr>
-                <tr>
-                    <th>Статус 1</th>
-                    <th>Статус 2</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                    <th>Оценка</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>Step 2</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                    <td class="rating_very_good">Очень хорошо</td>
-                </tr>
-                <tr>
-                    <td>Step 3</td>
-                    <td>Step 4</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                    <td class="rating_good">Хорошо</td>
-                </tr>
-                <tr>
-                    <td>Step 5</td>
-                    <td>Step 6</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                    <td class="rating_needs_improvements">Требуется улучшение</td>
-                </tr>
-                <tr>
-                    <td>Step 7</td>
-                    <td>Step 8</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                    <td class="rating_takes_significant_improvements">Требуется значительное улучшение</td>
-                </tr>
-                <tr>
-                    <td>Step 9</td>
-                    <td>Step 10</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                    <td class="rating_bad">Плохо</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+    <div id="statisticWrapper">
+        {{-- @include('admin.statistic.partials.agentStatistic')--}}
     </div>
 @stop
 
@@ -208,7 +35,23 @@
         span.green {
             color: green;
         }
-        .table thead tr:first-child th {
+        .process-statuses thead tr:first-child th {
+            text-align: center;
+            color: green;
+        }
+        .undefined-statuses  thead tr:first-child th {
+            text-align: center;
+            color: #00ca00;
+        }
+        .fail-statuses  thead tr:first-child th {
+            text-align: center;
+            color: #e1d12a;
+        }
+        .bad-statuses  thead tr:first-child th {
+            text-align: center;
+            color: red;
+        }
+        .performance-table  thead tr:first-child th {
             text-align: center;
         }
 
@@ -233,6 +76,27 @@
 {{-- Scripts --}}
 @section('scripts')
     <script type="text/javascript">
+        function loadStatistic() {
+            var params = '_token={{ csrf_token() }}&agent_id={{ $agent->id }}&period='+$('#reportrange').val();
+
+            $.post('{{ route('agent.statistic.agentData') }}', params, function (data) {
+                $('#statisticWrapper').html(data);
+            });
+        }
+        $(document).ready(function () {
+            $('select').select2({
+                allowClear: true
+            });
+            $(document).on('change', '#reportrange', function () {
+                loadStatistic();
+            })
+        });
+        $(window).on('load', function () {
+            loadStatistic();
+        });
+
+
+
         $(function() {
 
             var start = moment().startOf('month');
@@ -246,7 +110,7 @@
                 autoUpdateInput: false,
                 startDate: start,
                 endDate: end,
-                opens: "left",
+                opens: "right",
                 locale: {
                     cancelLabel: 'Clear'
                 },

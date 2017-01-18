@@ -25,268 +25,8 @@
         </div>
     </div>
 
-    {{--@if(isset($statistic) && count($statistic))
-        @foreach($spheres as $sphere)
-            @if(isset($statistic[ $sphere->id ]))
-                <h4>{{ $sphere->name }}</h4>
-                <table class="table table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th>№</th>
-                        <th>Step</th>
-                        <th>Leads (%)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Bad lead</td>
-                        <td>
-                            @if(isset($statistic[$sphere->id]['bad']) && $statistic[$sphere->id]['bad'] > 0)
-                                <span class="red">{{ $statistic[$sphere->id]['bad'] }}%</span>
-                            @else
-                                <span class="green">0%</span>
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Not status</td>
-                        <td>
-                            @if(isset($statistic[$sphere->id]['not_status']) && $statistic[$sphere->id]['bad'] > 0)
-                                <span class="red">{{ $statistic[$sphere->id]['not_status'] }}%</span>
-                            @else
-                                <span class="green">0%</span>
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Closing deal</td>
-                        <td>
-                            @if(isset($statistic[$sphere->id]['close_deal']) && $statistic[$sphere->id]['bad'] > 0)
-                                <span class="green">{{ $statistic[$sphere->id]['close_deal'] }}%</span>
-                            @else
-                                <span class="red">0%</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @if(isset($sphere->statuses) && count($sphere->statuses))
-                        @foreach($sphere->statuses as $status)
-                            <tr>
-                                <td>{{ $status->position + 3 }}</td>
-                                <td>{{ $status->stepname }}</td>
-
-
-                                <td>
-                                    @if($status->minmax == 1)
-                                        @if(isset($statistic[$sphere->id][$status->id]) && $statistic[$sphere->id][$status->id] > $status->percent)
-                                            <span class="red">
-                                        @else
-                                            <span class="green">
-                                        @endif
-                                            @if(isset($statistic[$sphere->id][$status->id])) {{ $statistic[$sphere->id][$status->id] }}
-                                            % @else 0% @endif
-                                            </span> (max {{ $status->percent }}%)
-                                            @else
-                                                        @if(isset($statistic[$sphere->id][$status->id]) && $statistic[$sphere->id][$status->id] < $status->percent)
-                                                            <span class="red">
-                                            @else
-                                                                    <span class="green">
-                                            @endif
-                                                                        @if(isset($statistic[$sphere->id][$status->id])) {{ $statistic[$sphere->id][$status->id] }}
-                                                                        % @else 0% @endif
-                                                </span> (min {{ $status->percent }}%)
-                                        @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    @else
-                        <tr>
-                            <td colspan="3">Sphere not statuses</td>
-                        </tr>
-                    @endif
-                    </tbody>
-                </table>
-            @endif
-        @endforeach
-    @endif--}}
-
-    <h4>Sphere name</h4>
-
-    <div class="row">
-        <div class="col-md-4">
-            <table class="table table-striped table-hover process-statuses">
-                <thead>
-                <tr>
-                    <th colspan="4">Процессные статусы</th>
-                </tr>
-                <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>50</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                </tr>
-                <tr>
-                    <td>Step 2</td>
-                    <td>30</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-4">
-            <table class="table table-striped table-hover undefined-statuses">
-                <thead>
-                <tr>
-                    <th colspan="4">Не определенные</th>
-                </tr>
-                <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>50</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                </tr>
-                <tr>
-                    <td>Step 2</td>
-                    <td>30</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-4">
-            <table class="table table-striped table-hover fail-statuses">
-                <thead>
-                <tr>
-                    <th colspan="4">Отказники</th>
-                </tr>
-                <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>50</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                </tr>
-                <tr>
-                    <td>Step 2</td>
-                    <td>30</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-4">
-            <table class="table table-striped table-hover bad-statuses">
-                <thead>
-                <tr>
-                    <th colspan="4">Плохие</th>
-                </tr>
-                <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>50</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                </tr>
-                <tr>
-                    <td>Step 2</td>
-                    <td>30</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-8">
-            <table class="table table-striped table-hover performance-table">
-                <thead>
-                <tr>
-                    <th colspan="5">уровень производительности</th>
-                </tr>
-                <tr>
-                    <th>Статус 1</th>
-                    <th>Статус 2</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
-                    <th>Оценка</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Step 1</td>
-                    <td>Step 2</td>
-                    <td>18%</td>
-                    <td>10%</td>
-                    <td class="rating_very_good">Очень хорошо</td>
-                </tr>
-                <tr>
-                    <td>Step 3</td>
-                    <td>Step 4</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                    <td class="rating_good">Хорошо</td>
-                </tr>
-                <tr>
-                    <td>Step 5</td>
-                    <td>Step 6</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                    <td class="rating_needs_improvements">Требуется улучшение</td>
-                </tr>
-                <tr>
-                    <td>Step 7</td>
-                    <td>Step 8</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                    <td class="rating_takes_significant_improvements">Требуется значительное улучшение</td>
-                </tr>
-                <tr>
-                    <td>Step 9</td>
-                    <td>Step 10</td>
-                    <td>20%</td>
-                    <td>18%</td>
-                    <td class="rating_bad">Плохо</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+    <div id="statisticWrapper">
+       {{-- @include('admin.statistic.partials.agentStatistic')--}}
     </div>
 @stop
 
@@ -340,70 +80,23 @@
 {{-- Scripts --}}
 @section('scripts')
     <script type="text/javascript">
-        // Генерация наполнения для select-ов фильтров
-        function prepareHTMLForFilter(data, selected) {
-            var options = '<option value=""></option>';
+        function loadStatistic() {
+            var params = '_token={{ csrf_token() }}&agent_id={{ $agent->id }}&period='+$('#reportrange').val();
 
-            $.each(data, function (i, el) {
-                if(el.id == selected) {
-                    options += '<option value="'+el.id+'" selected="selected">'+el.name+'</option>';
-                } else {
-                    options += '<option value="'+el.id+'">'+el.name+'</option>';
-                }
+            $.post('{{ route('admin.statistic.agentData') }}', params, function (data) {
+                $('#statisticWrapper').html(data);
             });
-
-            return options;
         }
-
         $(document).ready(function () {
             $('select').select2({
                 allowClear: true
             });
-
-            // Изменение связанного фильтра
-            /*$(document).on('change', '.connectedFilter', function () {
-                var $this = $(this);
-
-                // Связанные фильтры
-                var $spheresFilter = $('#spheresFilter'),
-                    $accountManagersFilter = $('#accountManagersFilter'),
-                    $operatorsFilter = $('#operatorsFilter'),
-                    $agentsFilter = $('#agentsFilter');
-
-                // Строка параметров запроса
-                var params = '_token={{ csrf_token() }}&type='+$this.data('name')+'&id='+$this.val();
-                params += '&sphere_id='+$spheresFilter.val();
-                params += '&accountManager_id='+$accountManagersFilter.val();
-                params += '&operator_id='+$operatorsFilter.val();
-                params += '&agent_id='+$agentsFilter.val();
-
-                // Отправляем запрос на сервер для получение данных для связанных фильтров
-                $.post('{{ route('admin.lead.getFilter') }}', params, function (data) {
-                    // Пробегаемся по полученым данным
-                    $.each(data, function (i, el) {
-                        var tmpObj = null;
-                        // Ищем фильтр
-                        switch (i) {
-                            case 'spheres':
-                                tmpObj = $spheresFilter;
-                                break;
-                            case 'accountManagers':
-                                tmpObj = $accountManagersFilter;
-                                break;
-                            case 'operators':
-                                tmpObj = $operatorsFilter;
-                                break;
-                            case 'agents':
-                                tmpObj = $agentsFilter;
-                                break;
-                        }
-
-                        // Вставляем новые данные в фильтр
-                        var options = prepareHTMLForFilter(el, tmpObj.val());
-                        tmpObj.html(options);
-                    });
-                })
-            });*/
+            $(document).on('change', '#reportrange', function () {
+                loadStatistic();
+            })
+        });
+        $(window).on('load', function () {
+            loadStatistic();
         });
 
 
@@ -421,7 +114,7 @@
                 autoUpdateInput: false,
                 startDate: start,
                 endDate: end,
-                opens: "left",
+                opens: "right",
                 locale: {
                     cancelLabel: 'Clear'
                 },

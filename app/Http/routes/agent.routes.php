@@ -113,6 +113,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
 
     // Статистика
     Route::get('statistic/index', ['as' => 'agent.statistic.index', 'uses' => 'Agent\StatisticController@agentStatistic']);
+    Route::post('statistic/agentData/', ['as' => 'agent.statistic.agentData', 'uses' => 'Agent\StatisticController@agentStatisticData']);
 
     Route::post('getAgentPrivateGroup', ['as' => 'agent.privateGroup.getAgentPrivateGroup', 'uses' => 'AgentController@getAgentPrivateGroup']);
 
