@@ -46,6 +46,7 @@ Route::group(['prefix' => 'accountManager','middleware' => ['auth'] ], function(
     Route::get('statistic/agents', ['as' => 'accountManager.statistic.agents', 'uses' => 'AccountManager\StatisticController@agentsList']);
     Route::get('statistic/agentsData', ['as' => 'accountManager.statistic.agentsData', 'uses' => 'AccountManager\StatisticController@agentsData']);
     Route::get('statistic/agent/{id}', ['as' => 'accountManager.statistic.agent', 'uses' => 'AccountManager\StatisticController@agentStatistic']);
+    Route::post('statistic/agentData/', ['as' => 'accountManager.statistic.agentData', 'uses' => 'AccountManager\StatisticController@agentStatisticData']);
     Route::post('statistic/getFilterAgent',['as'=>'accountManager.statistic.getFilterAgent', 'AccountManager' => 'Admin\StatisticController@getFilterAgent']);
 
 });

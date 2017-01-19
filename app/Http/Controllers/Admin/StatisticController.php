@@ -160,12 +160,17 @@ class StatisticController extends Controller
     {
         $agent = Agent::find($agent_id);
 
-        $spheres = $agent->spheres()->get();
-        $openLeadsStatistic = $agent->openLeadsStatistic();
-
         return view('admin.statistic.agent', [
-            'agent' => $agent,
-            'statistic' => $openLeadsStatistic,
+            'agent' => $agent
+        ]);
+    }
+
+    public function agentStatisticData(Request $request)
+    {
+        $agent = Agent::find($request->input('agent_id'));
+        $spheres = $agent->openLeadsStatistic2($request->period);
+
+        return view('admin.statistic.partials.agentStatistic', [
             'spheres' => $spheres
         ]);
     }

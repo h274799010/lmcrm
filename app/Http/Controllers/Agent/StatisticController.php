@@ -22,12 +22,17 @@ class StatisticController extends Controller
     {
         $agent = Agent::find(Sentinel::getUser()->id);
 
-        $spheres = $agent->spheres()->get();
-        $openLeadsStatistic = $agent->openLeadsStatistic();
-
         return view('agent.statistic.index', [
-            'agent' => $agent,
-            'statistic' => $openLeadsStatistic,
+            'agent' => $agent
+        ]);
+    }
+
+    public function agentStatisticData(Request $request)
+    {
+        $agent = Agent::find(Sentinel::getUser()->id);
+        $spheres = $agent->openLeadsStatistic2($request->input('period'));
+
+        return view('agent.statistic.partials.agentStatistic', [
             'spheres' => $spheres
         ]);
     }

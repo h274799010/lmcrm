@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Cartalyst\Sentinel\Users\EloquentUser;
 
 use Illuminate\Auth\Authenticatable;
@@ -99,6 +100,15 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     public function agentsPrivetGroups()
     {
         return $this->belongsToMany('\App\Models\Agent', 'agents_private_groups', 'agent_owner_id', 'agent_member_id');
+    }
+
+    public function openLeadsInSphere($sphere_id)
+    {
+        return $this->hasMany('\App\Models\OpenLeads', 'agent_id', 'id')
+            ->join('leads', function ($join) use ($sphere_id) {
+                $join->on('open_leads.lead_id', '=', 'leads.id')
+                    ->where('leads.sphere_id', '=', $sphere_id);
+            });
     }
 
 
@@ -264,6 +274,140 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         }
 
         return $openLeadsInStatuses;
+    }
+
+    public function openLeadsStatistic2($period)
+    {
+        // Список сфер агента
+        $spheres = $this->spheres()->with('statuses')->get();
+
+        // Проходим по всем сферам
+        foreach ($spheres as $key => $sphere) {
+            // Получаем все открытые лиды агента в сфере
+            $openLeads = $this->openLeadsInSphere($sphere->id)
+                ->with('lead')->select('open_leads.*')->get();
+
+            // Количество лидов в сфере
+            $countOpenLeads = count($openLeads);
+
+            // Если лидов больше чем minLead сферы - считаем по ней статистику
+            if( $countOpenLeads > $sphere->minLead ) {
+                $spheres[$key]->countOpenLeads = $countOpenLeads;
+
+                // Период за который нужно отобразить статистику
+                $dateFrom = $dateTo = null;
+                if(isset($period) && !empty($period)) {
+                    $period = explode('/', $period);
+                    $dateFrom = str_replace(' ', '', $period[0]);
+                    $dateTo = str_replace(' ', '', $period[1]);
+
+                    $dateFrom = Carbon::createFromFormat('Y-m-d', $dateFrom)->timestamp;
+                    $dateTo = Carbon::createFromFormat('Y-m-d', $dateTo)->timestamp;
+
+                    /*$countOpenLeadsPeriod = $this->openLeadsInSphere($sphere->id)
+                        ->where('open_leads.created_at', '>=', $dateFrom)
+                        ->where('open_leads.created_at', '<=', $dateTo)
+                        ->count();*/
+                }
+
+                // Сортируем открытых лидов по статусам
+                $openLeadsInStatuses = $openLeadsInPeriod = array();
+                foreach ($openLeads as $openLead) {
+                    $openLeadsInStatuses[ $openLead->status ][] = $openLead;
+                    $created_at = Carbon::createFromFormat('Y-m-d H:i:s', $openLead->created_at)->timestamp;
+                    if($created_at >= $dateFrom && $created_at <= $dateTo) {
+                        $openLeadsInPeriod[ $openLead->status ][] = $openLead;
+                    }
+                }
+
+                // Проходимся по статусам сферы
+                foreach ($sphere->statuses as $statusKey => $status) {
+                    // Подсчет процента лидов
+                    $statusCountOpenLeads = 0;
+                    if( isset($openLeadsInStatuses[ $status->id ]) ) {
+                        $statusCountOpenLeads = count( $openLeadsInStatuses[ $status->id ] );
+                    }
+
+                    $statusPercentOpenLeads = $statusCountOpenLeads * 100 / $countOpenLeads;
+
+                    $spheres[$key]->statuses[$statusKey]->countOpenLeads = $statusCountOpenLeads;
+                    $spheres[$key]->statuses[$statusKey]->percentOpenLeads = $statusPercentOpenLeads;
+
+                    // Подсчет процента лидов за определенный период
+                    if($dateFrom != null && $dateTo != null) {
+                        $statusCountOpenLeads = 0;
+                        if( isset($openLeadsInPeriod[ $status->id ]) ) {
+                            $statusCountOpenLeads = count( $openLeadsInPeriod[ $status->id ] );
+                        }
+                        $statusPercentOpenLeads = $statusCountOpenLeads * 100 / $countOpenLeads;
+                    }
+
+                    $spheres[$key]->statuses[$statusKey]->percentPeriodOpenLeads = $statusPercentOpenLeads;
+                }
+
+                // Связанные статусы
+                $statusTransitions = $sphere->statusTransitions()->with(['previewStatus', 'status'])->get();
+
+                $openLeadsIds = $openLeads->lists('id')->toArray();
+                foreach ($statusTransitions as $statusKey => $status) {
+                    $prevStatusId = 0;
+                    $currStatusId = 0;
+
+                    if(isset($status->previewStatus->id)) {
+                        $prevStatusId = $status->previewStatus->id;
+                    }
+                    if(isset($status->status->id)) {
+                        $currStatusId = $status->status->id;
+                    }
+
+                    // Детали смены статусов по лидам
+                    $openLeadsStatusDetails = OpenLeadsStatusDetails::where('previous_status_id', '=', $prevStatusId)
+                        ->where('status_id', '=', $currStatusId)
+                        ->whereIn('open_lead_id', $openLeadsIds)
+                        ->get();
+
+                    $openLeadsPeriodStatusDetails = $openLeadsStatusDetails;
+
+                    // Процент смены статусов
+                    foreach ($openLeadsStatusDetails as $detailsKey => $detail) {
+                        $lastDetail = OpenLeadsStatusDetails::where('open_lead_id', '=', $detail->open_lead_id)->max('id');
+                        if($lastDetail != $detail->id) {
+                            unset($openLeadsStatusDetails[$detailsKey]);
+                        }
+                    }
+
+                    $percentCount = count($openLeadsStatusDetails) * 100 / $countOpenLeads;
+                    $statusTransitions[$statusKey]->percent = $percentCount;
+
+                    // Процент смены статусов за определенный период
+                    if($dateFrom != null && $dateTo != null) {
+                        foreach ($openLeadsPeriodStatusDetails as $detailKey => $detail) {
+                            $lastDetail = OpenLeadsStatusDetails::where('open_lead_id', '=', $detail->open_lead_id)
+                                ->where('created_at', '>=', date('Y-m-d H:i:s', $dateFrom))
+                                ->where('created_at', '<=', date('Y-m-d H:i:s', $dateTo))
+                                ->max('id');
+
+                            if($lastDetail != $detail->id) {
+                                unset($openLeadsPeriodStatusDetails[$detailKey]);
+                            }
+                        }
+                    } else {
+                        $openLeadsPeriodStatusDetails = $openLeadsStatusDetails;
+                    }
+
+                    $percentCount = count($openLeadsPeriodStatusDetails) * 100 / $countOpenLeads;
+                    $statusTransitions[$statusKey]->percentPeriod = $percentCount;
+                }
+
+                $spheres[$key]->statusTransitions = $statusTransitions;
+            }
+            else {
+                // Если лидов меньше чем minLead сферы - удаляем сферу из списка
+                unset($spheres[$key]);
+            }
+        }
+
+        return $spheres;
     }
 
 }

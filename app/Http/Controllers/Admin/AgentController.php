@@ -16,6 +16,7 @@ use App\Models\Sphere;
 //use App\Http\Requests\Admin\UserRequest;
 use App\Http\Requests\AdminUsersEditFormRequest;
 use Carbon\Carbon;
+use Cartalyst\Sentinel\Roles\EloquentRole;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 //use App\Repositories\UserRepositoryInterface;
@@ -214,6 +215,11 @@ class AgentController extends AdminController
         $password = $request->password;
         $passwordConfirmation = $request->password_confirmation;
 
+        if(!$agent->inRole($request->input('role'))) {
+            $roles = EloquentRole::whereIn('slug', ['agent', $request->input('role')])->get();
+            $agent->roles()->sync($roles);
+        }
+
         if (!empty($password)) {
             if ($password === $passwordConfirmation) {
                 //$user->password = bcrypt($password);
@@ -401,11 +407,11 @@ class AgentController extends AdminController
     {
         $user = Sentinel::findById($user_id);
 
-        $user->banned_at = Carbon::now();
-        $user->save();
-
         if($user->inRole('agent')) {
             $agent = Agent::findOrFail($user->id);
+            $agent->banned_at = Carbon::now();
+            $agent->save();
+
             $salesmans = $agent->salesmen()->get();
 
             if(count($salesmans)) {
@@ -414,6 +420,9 @@ class AgentController extends AdminController
                     $salesman->save();
                 }
             }
+        } else {
+            $user->banned_at = Carbon::now();
+            $user->save();
         }
 
         return redirect()->back();
@@ -425,6 +434,9 @@ class AgentController extends AdminController
 
         if($user->inRole('agent')) {
             $agent = Agent::findOrFail($user->id);
+            $agent->banned_at = null;
+            $agent->save();
+
             $salesmans = $agent->salesmen()->get();
 
             if(count($salesmans)) {
@@ -439,10 +451,12 @@ class AgentController extends AdminController
             if($agent->banned_at != null) {
                 return redirect()->back()->withErrors(['success'=>false, 'message' => 'The seller can not be unlocked, as his agent blocked.']);
             }
+            $salesman->banned_at = null;
+            $salesman->save();
+        } else {
+            $user->banned_at = null;
+            $user->save();
         }
-
-        $user->banned_at = null;
-        $user->save();
 
         return redirect()->back();
     }
