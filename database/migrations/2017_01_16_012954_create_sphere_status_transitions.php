@@ -14,13 +14,19 @@ class CreateSphereStatusTransitions extends Migration
     {
         Schema::create('sphere_status_transitions', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('sphere_id');           // id сферы
-            $table->integer('previous_status_id');  // предыдущий статус
-            $table->integer('status_id');           // статус
-            $table->float('level_1');               // процент 1 уровня
-            $table->float('level_2');               // процент 2 уровня
-            $table->float('level_3');               // процент 3 уровня
-            $table->float('level_4');               // процент 4 уровня
+            $table->integer('sphere_id');             // id сферы
+
+            $table->integer('previous_status_id');    // предыдущий статус
+            $table->integer('status_id');             // статус
+
+            $table->integer('transition_direction');  // направление транзакции
+
+            $table->float('rating_1');                 // процент 1 уровня
+            $table->float('rating_2');                 // процент 2 уровня
+            $table->float('rating_3');                 // процент 3 уровня
+            $table->float('rating_4');                 // процент 4 уровня
+            $table->float('rating_5');                 // процент 5 уровня
+
             $table->timestamps();
         });
     }
