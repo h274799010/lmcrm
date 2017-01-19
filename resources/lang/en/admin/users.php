@@ -22,4 +22,10 @@ return [
 
     'edit' => 'Edit user:',
 
+    'create_admin' => 'Admin create',
+    'create_user' => 'Users create',
+    'create_agent' => 'Agent create',
+    'create_operator' => 'Operator create',
+    'create_account_manager' => 'Account manager create',
+
 ];

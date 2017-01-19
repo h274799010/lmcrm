@@ -33,4 +33,24 @@
 
 {{-- Scripts --}}
 @section('scripts')
+    <script type="text/javascript">
+        $(document).on('click', ".dialog", function(){
+            var href=$(this).attr("href");
+
+            if($(this).hasClass('leadCreateLink')) {
+                $('#errorCreateLead').find('.alert').remove();
+            }
+
+            $.ajax({
+                url:href,
+                success:function(response){
+                    var dialog = bootbox.dialog({
+                        message:response,
+                        show: true
+                    });
+                }
+            });
+            return false;
+        });
+    </script>
 @stop
