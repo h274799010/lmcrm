@@ -1,6 +1,9 @@
 <?php namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
+use App\Http\Requests\Request;
+use App\Models\Agent;
+use App\Models\Salesman;
 use App\Models\User;
 //use App\Http\Requests\Admin\UserRequest;
 use App\Http\Requests\AdminUsersEditFormRequest;
@@ -38,7 +41,7 @@ class UserController extends AdminController
      */
     public function create()
     {
-        return view('admin.user.create_edit');
+        return view('admin.user.create');
     }
 
     /**
@@ -65,17 +68,26 @@ class UserController extends AdminController
     public function edit($id)
     {
         $user=User::findOrFail($id);
-        return view('admin.user.create_edit', ['user'=>$user]);
+        return view('admin.user.edit', ['user'=>$user]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param $user
-     * @return Response
+     * @param AdminUsersEditFormRequest $request
+     * @param $user_id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(AdminUsersEditFormRequest $request, User $user)
+    public function update(AdminUsersEditFormRequest $request, $user_id)
     {
+        $user = Sentinel::findById($user_id);
+
+        if($user->inRole('agent')) {
+            $user = Agent::find($user->id);
+        } elseif ($user->inRole('salesman')) {
+            $user = Salesman::find($user->id);
+        }
+
         $password = $request->password;
         $passwordConfirmation = $request->password_confirmation;
 
@@ -86,6 +98,8 @@ class UserController extends AdminController
             }
         }
         $user->update($request->except('password','password_confirmation'));
+
+        return redirect()->route('admin.user.index');
     }
 
     /**

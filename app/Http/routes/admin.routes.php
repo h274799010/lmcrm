@@ -41,6 +41,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('user/create',['as'=>'admin.user.create', 'uses' => 'Admin\UserController@create']);
     Route::get('user/{id}/edit',['as'=>'admin.user.edit', 'uses' => 'Admin\UserController@edit']);
     Route::get('user/{id}/delete', ['as'=>'admin.user.delete', 'uses' => 'Admin\UserController@delete']);
+    Route::match(['put','post'],'user/update/{user_id}', ['as'=>'admin.user.update', 'uses' => 'Admin\UserController@update']);
     //Route::resource('user', 'Admin\UserController');
 
     Route::get('agent', ['as' => 'admin.agent.index', 'uses' => 'Admin\AgentController@index']);
