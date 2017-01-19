@@ -1,8 +1,23 @@
 
 
-var sphereStatuses = [];
+/**
+ * Счетчик внешних статусов
+ *
+ */
 var sphereStatusesCount = 0;
 
+
+
+// todo сделать такой же в обратную сторону
+/**
+ * Переменная с соответствиями id статусов
+ *
+ * Показывает какой id статуса соответствует
+ * внешнему статусу outerId
+ */
+var statusToOuterId = { 0:0 };
+
+var outerIdToStatus = { 0:0 };
 
 var app = angular.module('app', ['angular-sortable-view'])
 
@@ -856,18 +871,14 @@ var app = angular.module('app', ['angular-sortable-view'])
                 stepname: '',   // имя статуса
                 comment: '',    // комментарий
                 outerId: ++sphereStatusesCount,
-                //vale:       // значения
-                //    [
-                //        0,  // значения переключателя min/max
-                //        0   // процент
-                //    ],
                 position: $scope.data.threshold.values[type].length + 1 // позиция
             };
 
             // добавляем статус в модель
             $scope.data.threshold.values[type].push( newStatus );
 
-            makeStatusTransitions();
+            // перестройка транзитов статусов (уже ненужно)
+            //makeStatusTransitions();
         };
 
         /**
@@ -899,8 +910,130 @@ var app = angular.module('app', ['angular-sortable-view'])
                 status.delete = true;
             }
 
-            makeStatusTransitions();
+
+            // удаление транзитов в которых учавствует статус
+
+            // перебираем все транзиты
+            angular.forEach($scope.data.statusTransitions, function( transition ) {
+
+                // если "предыдущий внешний статус" либо текущий внешний статус транзита равен внешнему id статуса
+                if(transition.outer_previous_status_id == status.outerId || transition.outer_status_id == status.outerId){
+                    // удаляем этот транзит
+                    $scope.deleteStatusTransition( transition );
+                }
+            });
+
         };
+
+
+
+        /** Транзиты по статусам */
+
+        /**
+         * Добавление нового транзита
+         *
+         *
+         */
+        $scope.addStatusTransition = function(){
+
+            // создаем новый статус
+            var newStatusTransition =
+            {
+                id: 0,
+
+                previous_status_id: 0,
+                status_id: 0,
+
+                outer_previous_status_id: "",
+                outer_status_id: "",
+
+                transition_direction: 1,
+                rating_1: 20,
+                rating_2: 40,
+                rating_3: 60,
+                rating_4: 80,
+                rating_5: 100
+            };
+
+            // добавляем статус в модель
+            $scope.data.statusTransitions.push( newStatusTransition );
+
+
+            setTimeout(function(){
+
+                $('.transition_selectbox').select2({
+                    allowClear: true
+                });
+            }, 10);
+
+        };
+
+
+        /**
+         * Изменение направленности транзита статусов
+         *
+         */
+        $scope.changeTransitionDirection = function(transition){
+
+            // проверка текущей направленности транзита
+
+            if(transition.transition_direction == 1){
+                // если транзит прямой
+
+                // транзит меняется на обратный
+                transition.transition_direction = 2;
+
+                // transition.rating_1 = 100;
+                // transition.rating_2 = 80;
+                // transition.rating_3 = 60;
+                // transition.rating_4 = 40;
+                // transition.rating_5 = 20;
+
+            }else{
+                // если транзит обратный
+
+                // транзит меняется на прямой
+                transition.transition_direction = 1;
+
+                // transition.rating_1 = 20;
+                // transition.rating_2 = 40;
+                // transition.rating_3 = 60;
+                // transition.rating_4 = 80;
+                // transition.rating_5 = 100;
+            }
+        };
+
+
+        /**
+         * Удаление статуса
+         *
+         *
+         * при удалении элемент скрывается
+         * и ему добавляется элемент delete
+         * на сервере этот элемент будет удален из базы
+         */
+        $scope.deleteStatusTransition = function( transition ){
+
+            // проверка, был ли транзит уже сохранен на сервере
+            // (есть или нет id)
+
+            if( transition.id == 0){
+                // если транзит еще небыл сохранен на сервере
+                // просто удаляем его
+
+                // находим индекс элемента
+                var index = $scope.data.statusTransitions.indexOf(status);
+                // удаляем элемент
+                $scope.data.statusTransitions.splice(index, 1);
+
+            }else{
+                // если транзит уже сохранен на сервере
+
+                // добавляем в модель транзитов элемент delete
+                transition.delete = true;
+            }
+        };
+
 
         /**
          * Создает массив транзитов статусов
@@ -1168,7 +1301,6 @@ var app = angular.module('app', ['angular-sortable-view'])
             .success(function ( data ) {
                 // преобразование данных и добавление на страницы
 
-                
                 /**
                  * Перебираем все статусы и добавляем каждому внешний id (outerId)
                  *
@@ -1177,7 +1309,11 @@ var app = angular.module('app', ['angular-sortable-view'])
                  */
                 $.each(data.threshold.values, function( key, val){
                     $.each(val, function( valKey, status){
+                        // добавляем внешние id
                         status.outerId = ++sphereStatusesCount;
+                        // формируем объект в котором статус будет соответствовать вшеншему статусу
+                        statusToOuterId[status.id] = String( status.outerId );
+                        outerIdToStatus[status.outerId] = String( status.id );
                     });
                 });
 
@@ -1189,6 +1325,19 @@ var app = angular.module('app', ['angular-sortable-view'])
                     });
 
                 });
+
+                /**
+                 * Перебираю все транзиты статусов и преобразовываю id в строку
+                 *
+                 */
+                $.each(data.statusTransitions, function(key, transition){
+                    transition.outer_status_id = String( statusToOuterId[transition.status_id] );
+                    transition.outer_previous_status_id = String( statusToOuterId[transition.previous_status_id] );
+                });
+
+                //data.statusTransitions[0].status_id = String( data.statusTransitions[0].status_id );
+                //data.statusTransitions[0].previous_status_id = String( data.statusTransitions[0].previous_status_id );
+
 
                 /** Преобразовываем поля int в строки */
                 // срок пребывания на аукциона
@@ -1233,38 +1382,12 @@ var app = angular.module('app', ['angular-sortable-view'])
                     dbStatusTransitions[val.previous_status_id][val.status_id] = val;
                 });
 
+                setTimeout(function(){
 
-                $.each( $scope.data.currentStatusTransition, function(key, val){
-
-                    if(val.outerId == 'no status'){
-
-                        $.each( val.statuses, function(key, status){
-
-                            status.levels[1] = dbStatusTransitions[0][status.id]['level_1'];
-                            status.levels[2] = dbStatusTransitions[0][status.id]['level_2'];
-                            status.levels[3] = dbStatusTransitions[0][status.id]['level_3'];
-                            status.levels[4] = dbStatusTransitions[0][status.id]['level_4'];
-                        });
-
-                    }else{
-
-                        $.each( val.statuses, function(key, status){
-
-                            status.levels[1] = dbStatusTransitions[val.id][status.id]['level_1'];
-                            status.levels[2] = dbStatusTransitions[val.id][status.id]['level_2'];
-                            status.levels[3] = dbStatusTransitions[val.id][status.id]['level_3'];
-                            status.levels[4] = dbStatusTransitions[val.id][status.id]['level_4'];
-                        });
-
-                    }
-
-                });
-
-                //console.log($scope.data.currentStatusTransition);
-
-                //console.log(dbStatusTransitions);
-                //console.log(data.statusTransitions);
-
+                    $('.transition_selectbox').select2({
+                        allowClear: true
+                    });
+                }, 500);
 
             })
             .error(function ( data ) {

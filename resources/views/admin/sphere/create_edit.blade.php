@@ -1177,52 +1177,91 @@
                         <h3 class="page-header">Status transitions</h3>
 
 
-                        <div ng-repeat="status in data.currentStatusTransition" class="panel panel-defoult">
-                            <div ng-if="status.outerId=='no status'" class="panel-heading current_status_transition_header">No status</div>
-                            <div ng-if="status.outerId!='no status'" class="panel-heading current_status_transition_header">@{{ data.threshold.values[status.type][status.index].stepname }}</div>
-                            <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-bordered status_transitions_table">
+                            <tr>
+                                <th>From status</th>
+                                <th>To status</th>
+                                <th>Direction</th>
 
-                                <div ng-repeat="transition in status.statuses">
+                                <th class="status_parcent">Col</th>
+                                <th class="status_parcent">Badly</th>
+                                <th class="status_parcent">Secondary</th>
+                                <th class="status_parcent">Satisfactorily</th>
+                                <th class="status_parcent">Good</th>
 
-                                    <div ng-if="status.outerId=='no status'" class="row staus_transition_row">
+                                <th>Action</th>
+                            </tr>
 
-                                        <div class="col-md-12 staus_transition_row_head">
-                                            No status <i class="glyphicon glyphicon-arrow-right"></i> @{{ data.threshold.values[transition.type][transition.index].stepname }}
-                                        </div>
-                                        <div class="col-md-12 staus_transition_row_body">
-                                            <div class="col-md-12"><b>level 5:</b> @{{ transition.levels[4] }} <i class="glyphicon glyphicon-resize-horizontal"></i> 100</div>
-                                            <div class="col-md-12"><b>level 4:</b> @{{ transition.levels[3] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[4]" type="text"></div>
-                                            <div class="col-md-12"><b>level 3:</b> @{{ transition.levels[2] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[3]" type="text"></div>
-                                            <div class="col-md-12"><b>level 2:</b> @{{ transition.levels[1] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[2]" type="text"></div>
-                                            <div class="col-md-12"><b>level 1:</b> 0 <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[1]" type="text"></div>
-                                        </div>
+                            <tr ng-repeat="transition in data.statusTransitions" ng-class="transition.delete ? 'hidden' : ''">
+                                <td class="selectbox_cell">
+                                    <select name="repeatSelect" id="repeatSelect" data-placeholder="-" ng-model="transition.outer_previous_status_id" class="selectbox transition_selectbox">
+                                        <option value=""></option>
+                                        <option value="0">No status</option>
+                                        <option ng-repeat="option in data.threshold.values[1]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option vdisabled>----------</option>
+                                        <option ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option disabled>----------</option>
+                                        <option ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option disabled>----------</option>
+                                        <option ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                    </select>
+                                </td>
+                                <td class="selectbox_cell">
+                                    <select data-placeholder="-" ng-model="transition.outer_status_id" class="selectbox transition_selectbox">
+                                        <option value=""></option>
+                                        <option ng-repeat="option in data.threshold.values[1]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option value="-" disabled>----------</option>
+                                        <option ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option value="-" disabled>----------</option>
+                                        <option ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option value="-" disabled>----------</option>
+                                        <option ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                    </select>
+                                </td>
+                                <td class="transition_direction" ng-click="changeTransitionDirection( transition )">
+                                    {{--<input ng-model="transition.start_point" type="text" class="status_percent">--}}
+                                    <div ng-if="transition.transition_direction == 1">
+                                        0 <i class="glyphicon glyphicon-arrow-right"></i> 100
                                     </div>
 
-                                    <div ng-if="status.outerId!='no status'" class="row staus_transition_row">
-
-                                        <div class="col-md-12">
-                                            @{{ data.threshold.values[status.type][status.index].stepname }} <i class="glyphicon glyphicon-arrow-right"></i> @{{ data.threshold.values[transition.type][transition.index].stepname }}
-
-                                        </div>
-                                        <div class="col-md-12 staus_transition_row_body">
-                                            <div class="col-md-12"><b>level 5:</b> @{{ transition.levels[4] }} <i class="glyphicon glyphicon-resize-horizontal"></i> 100</div>
-                                            <div class="col-md-12"><b>level 4:</b> @{{ transition.levels[3] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[4]" type="text"></div>
-                                            <div class="col-md-12"><b>level 3:</b> @{{ transition.levels[2] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[3]" type="text"></div>
-                                            <div class="col-md-12"><b>level 2:</b> @{{ transition.levels[1] }} <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[2]" type="text"></div>
-                                            <div class="col-md-12"><b>level 1:</b> 0 <i class="glyphicon glyphicon-resize-horizontal"></i> <input class="staus_transition_input" ng-model="transition.levels[1]" type="text"></div>
-                                        </div>
+                                    <div ng-if="transition.transition_direction == 2">
+                                        100 <i class="glyphicon glyphicon-arrow-right"></i> 0
                                     </div>
 
-                                </div>
+                                </td>
+                                <td>
+                                    <input ng-model="transition.rating_1" type="text" class="status_percent">
+                                </td>
+                                <td>
+                                    <input ng-model="transition.rating_2" type="text" class="status_percent">
+                                </td>
+                                <td>
+                                    <input ng-model="transition.rating_3" type="text" class="status_percent">
+                                </td>
+                                <td>
+                                    <input ng-model="transition.rating_4" type="text" class="status_percent">
+                                </td>
+                                <td>
+                                    <input ng-model="transition.rating_5" type="text" class="status_percent">
+                                </td>
+
+                                <td>
+                                    <i class="glyphicon glyphicon-remove transit_dell_button" ng-click="deleteStatusTransition(transition)"></i>
+                                </td>
+
+                            </tr>
+
+                        </table>
                             </div>
                         </div>
 
-
-                        {{--<div ng-repeat="status in data.currentStatusTransition" class="row">--}}
-                            {{--<div class="col-md-12">--}}
-                                {{--@{{ status.outerId }}--}}
-                            {{--</div>--}}
-                        {{--</div>--}}
+                        <div class="row">
+                            <div class="col-md-offset-11 col-md-1">
+                                <div class="btn btn-primary btn-fab transit_add_button" ng-click="addStatusTransition()">+</div>
+                            </div>
+                        </div>
 
                     </div>
                     {{-- комментарии по лиду --}}
@@ -1855,6 +1894,51 @@
             background: white;
             width: 20px;
             border: none;
+        }
+
+        .selectbox{
+            width: 120px;
+        }
+
+        .selectbox_cell{
+            width: 130px;
+        }
+
+        input.status_percent{
+            width: 100%;
+            background: white;
+            border: none;
+            text-align: center;
+        }
+
+        .status_transitions_table tr th{
+            text-align: center;
+            background: #63A3DB;
+            vertical-align: middle !important;
+        }
+
+        .status_transitions_table tr td{
+            text-align: center;
+            vertical-align: middle !important;
+            width: 80px !important;
+        }
+
+        .select2-search__field{
+            background: white;
+        }
+
+        .transit_add_button{
+            background: #63A3DB !important;
+            padding-top: 12px !important;
+        }
+
+        .transit_dell_button{
+            color: #B63939;
+            cursor: pointer;
+        }
+
+        .transition_direction{
+            cursor: pointer;
         }
 
     </style>
