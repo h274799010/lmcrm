@@ -331,7 +331,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
                     $statusPercentOpenLeads = $statusCountOpenLeads * 100 / $countOpenLeads;
 
                     $spheres[$key]->statuses[$statusKey]->countOpenLeads = $statusCountOpenLeads;
-                    $spheres[$key]->statuses[$statusKey]->percentOpenLeads = $statusPercentOpenLeads;
+                    $spheres[$key]->statuses[$statusKey]->percentOpenLeads = round($statusPercentOpenLeads, 2);
 
                     // Подсчет процента лидов за определенный период
                     if($dateFrom != null && $dateTo != null) {
@@ -342,7 +342,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
                         $statusPercentOpenLeads = $statusCountOpenLeads * 100 / $countOpenLeads;
                     }
 
-                    $spheres[$key]->statuses[$statusKey]->percentPeriodOpenLeads = $statusPercentOpenLeads;
+                    $spheres[$key]->statuses[$statusKey]->percentPeriodOpenLeads = round($statusPercentOpenLeads, 2);
                 }
 
                 // Связанные статусы
@@ -377,7 +377,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
                     }
 
                     $percentCount = count($openLeadsStatusDetails) * 100 / $countOpenLeads;
-                    $statusTransitions[$statusKey]->percent = $percentCount;
+                    $statusTransitions[$statusKey]->percent = round($percentCount, 2);
 
                     // Процент смены статусов за определенный период
                     if($dateFrom != null && $dateTo != null) {
@@ -396,7 +396,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
                     }
 
                     $percentCount = count($openLeadsPeriodStatusDetails) * 100 / $countOpenLeads;
-                    $statusTransitions[$statusKey]->percentPeriod = $percentCount;
+                    $statusTransitions[$statusKey]->percentPeriod = round($percentCount, 2);
                 }
 
                 $spheres[$key]->statusTransitions = $statusTransitions;
