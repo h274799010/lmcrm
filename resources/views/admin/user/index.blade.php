@@ -11,7 +11,7 @@
             {!! trans("admin/users.users") !!}
                 <div class="pull-right flip">
                     <a href="{!! route('admin.user.create') !!}"
-                       class="btn btn-sm  btn-primary iframe"><span
+                       class="btn btn-sm  btn-primary dialog"><span
                                 class="glyphicon glyphicon-plus-sign"></span> {{
 					trans("admin/modal.new") }}</a>
                 </div>
@@ -33,4 +33,24 @@
 
 {{-- Scripts --}}
 @section('scripts')
+    <script type="text/javascript">
+        $(document).on('click', ".dialog", function(){
+            var href=$(this).attr("href");
+
+            if($(this).hasClass('leadCreateLink')) {
+                $('#errorCreateLead').find('.alert').remove();
+            }
+
+            $.ajax({
+                url:href,
+                success:function(response){
+                    var dialog = bootbox.dialog({
+                        message:response,
+                        show: true
+                    });
+                }
+            });
+            return false;
+        });
+    </script>
 @stop

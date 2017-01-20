@@ -1,10 +1,14 @@
 <?php namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
+use App\Http\Requests\Request;
+use App\Models\Agent;
+use App\Models\Salesman;
 use App\Models\User;
 //use App\Http\Requests\Admin\UserRequest;
 use App\Http\Requests\AdminUsersEditFormRequest;
 //use App\Repositories\UserRepositoryInterface;
+use Cartalyst\Sentinel\Laravel\Facades\Activation;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
 
@@ -38,7 +42,17 @@ class UserController extends AdminController
      */
     public function create()
     {
-        return view('admin.user.create_edit');
+        return view('admin.user.create');
+    }
+
+    /**
+     * Страница создания администратора
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function adminCreate()
+    {
+        return view('admin.user.admin_create');
     }
 
     /**
@@ -57,6 +71,31 @@ class UserController extends AdminController
     }
 
     /**
+     * Сохранение админа в БД
+     *
+     * @param AdminUsersEditFormRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function adminStore(AdminUsersEditFormRequest $request)
+    {
+        $user = Sentinel::getUserRepository()->create(array(
+            'email'    => $request->input('email'),
+            'password' => $request->input('password'),
+            'first_name' => $request->input('first_name'),
+            'last_name' => $request->input('last_name')
+
+        ));
+        $code = Activation::create($user)->code;
+
+        Activation::complete($user, $code);
+
+        $role = Sentinel::findRoleBySlug('administrator');
+        $user->roles()->attach($role);
+
+        return redirect()->route('admin.user.index');
+    }
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @param $id
@@ -65,17 +104,26 @@ class UserController extends AdminController
     public function edit($id)
     {
         $user=User::findOrFail($id);
-        return view('admin.user.create_edit', ['user'=>$user]);
+        return view('admin.user.edit', ['user'=>$user]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param $user
-     * @return Response
+     * @param AdminUsersEditFormRequest $request
+     * @param $user_id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(AdminUsersEditFormRequest $request, User $user)
+    public function update(AdminUsersEditFormRequest $request, $user_id)
     {
+        $user = Sentinel::findById($user_id);
+
+        if($user->inRole('agent')) {
+            $user = Agent::find($user->id);
+        } elseif ($user->inRole('salesman')) {
+            $user = Salesman::find($user->id);
+        }
+
         $password = $request->password;
         $passwordConfirmation = $request->password_confirmation;
 
@@ -86,6 +134,8 @@ class UserController extends AdminController
             }
         }
         $user->update($request->except('password','password_confirmation'));
+
+        return redirect()->route('admin.user.index');
     }
 
     /**
@@ -95,9 +145,13 @@ class UserController extends AdminController
      * @return Response
      */
 
-    public function delete(User $user)
+    public function delete($id)
     {
-        return view('admin.user.delete', compact('user'));
+        if($id != Sentinel::getUser()->id) {
+            $user = Sentinel::findById($id);
+            $user->delete();
+        }
+        return redirect()->route('admin.user.index');
     }
 
     /**
@@ -118,11 +172,12 @@ class UserController extends AdminController
      */
     public function data()
     {
-        $users = User::whereNotIn('id', [1, Sentinel::getUser()->id])->select(array('users.id', 'users.last_name', 'users.first_name', 'users.email', 'users.created_at'));
+        $users = User::whereNotIn('id', [1])->select(array('users.id', 'users.last_name', 'users.first_name', 'users.email', 'users.created_at'));
+        $user = Sentinel::getUser();
 
         return Datatables::of($users)
             ->edit_column('last_name',function($model) { return $model->last_name.' '.$model->first_name; })
-            ->add_column('actions',function($model) { return view('admin.user.datatables.control',['id'=>$model->id]); })
+            ->add_column('actions',function($model) use ($user) { return view('admin.user.datatables.control',['id'=>$model->id, 'user'=>$user]); })
             ->remove_column('first_name')
             ->remove_column('id')
             ->make();
