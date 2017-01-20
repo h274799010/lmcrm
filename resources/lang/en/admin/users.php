@@ -18,6 +18,14 @@ return [
     'lead_revenue_share' => 'Lead revenue share',
     'payment_revenue_share' => 'Payment revenue share',
     'company' => 'Company',
-    'spheres' => 'Spheres'
+    'spheres' => 'Spheres',
+
+    'edit' => 'Edit user:',
+
+    'create_admin' => 'Admin create',
+    'create_user' => 'Users create',
+    'create_agent' => 'Agent create',
+    'create_operator' => 'Operator create',
+    'create_account_manager' => 'Account manager create',
 
 ];
