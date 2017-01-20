@@ -1005,6 +1005,129 @@ var app = angular.module('app', ['angular-sortable-view'])
 
 
         /**
+         * Проверка правильного направления транзитам
+         *
+         *
+         * transition
+         * транзит
+         *
+         * rating
+         * уровень оценки (от 1 до 5)
+         *
+         * возвращает либо true либо false
+         */
+        $scope.transitionDirectionCheck = function( transition, rating ){
+
+            // обработка значения транзита в зависимости от заданного уровня оценки
+            switch (rating) {
+
+                case 1:
+                    // если оценка 1
+
+                    // если поле пустое возвращаем false
+                    if(transition.rating_1 === ''){ return false; }
+
+                    // проверка направления транзита
+                    if( transition.transition_direction == 1 ){
+                        // если транзит прямой
+
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_1) < parseInt(transition.rating_2);
+
+                    }else{
+                        // если транзит обратный
+
+                        return parseInt(transition.rating_1) > parseInt(transition.rating_2);
+                    }
+
+                    break;
+
+                case 2:
+                    // если оценка 2
+
+                    // если поле пустое возвращаем false
+                    if(transition.rating_2 === ''){ return false; }
+
+                    // проверка направления транзита
+                    if( transition.transition_direction == 1 ){
+
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_2) < parseInt(transition.rating_3) && parseInt(transition.rating_1) < parseInt(transition.rating_2);
+
+                    }else{
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_2) > parseInt(transition.rating_3) && parseInt(transition.rating_1) > parseInt(transition.rating_2);
+                    }
+                    break;
+
+                case 3:
+                    // если оценка 3
+
+                    // если поле пустое возвращаем false
+                    if(transition.rating_3 === ''){ return false; }
+
+                    // проверка направления транзита
+                    if( transition.transition_direction == 1 ){
+
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_3) < parseInt(transition.rating_4) && parseInt(transition.rating_2) < parseInt(transition.rating_3);
+
+                    }else{
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_3) > parseInt(transition.rating_4) && parseInt(transition.rating_2) > parseInt(transition.rating_3);
+                    }
+
+                    break;
+
+                case 4:
+                    // если оценка 4
+
+                    // если поле пустое возвращаем false
+                    if(transition.rating_4 === ''){ return false; }
+
+                    // проверка направления транзита
+                    if( transition.transition_direction == 1 ){
+
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_4) < parseInt(transition.rating_5) && parseInt(transition.rating_3) < parseInt(transition.rating_4);
+
+                    }else{
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_4) > parseInt(transition.rating_5) && parseInt(transition.rating_3) > parseInt(transition.rating_4);
+                    }
+
+                    break;
+
+                case 5:
+                    // если оценка 5
+
+                    // если поле пустое возвращаем false
+                    if(transition.rating_5 === ''){ return false; }
+
+                    // проверка направления транзита
+                    if( transition.transition_direction == 1 ){
+
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_4) < parseInt(transition.rating_5);
+
+                    }else{
+                        // проверяем чтобы предыдущая оценка была меньше последующей
+                        return parseInt(transition.rating_4) > parseInt(transition.rating_5);
+                    }
+
+                    break;
+
+                default:
+                    // если уровень не задан
+
+                    // возвращается false
+                    return true;
+                    break;
+            }
+        };
+
+
+        /**
          * Удаление статуса
          *
          *

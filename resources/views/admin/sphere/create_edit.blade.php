@@ -1231,19 +1231,19 @@
                                     </div>
 
                                 </td>
-                                <td>
+                                <td ng-class="transitionDirectionCheck(transition, 1) ? '':'error_col_content' ">
                                     <input ng-model="transition.rating_1" type="text" class="status_percent">
                                 </td>
-                                <td>
+                                <td ng-class="transitionDirectionCheck(transition, 2) ? '':'error_col_content' ">
                                     <input ng-model="transition.rating_2" type="text" class="status_percent">
                                 </td>
-                                <td>
+                                <td ng-class="transitionDirectionCheck(transition, 3) ? '':'error_col_content' ">
                                     <input ng-model="transition.rating_3" type="text" class="status_percent">
                                 </td>
-                                <td>
+                                <td ng-class="transitionDirectionCheck(transition, 4) ? '':'error_col_content' ">
                                     <input ng-model="transition.rating_4" type="text" class="status_percent">
                                 </td>
-                                <td>
+                                <td ng-class="transitionDirectionCheck(transition, 5) ? '':'error_col_content' ">
                                     <input ng-model="transition.rating_5" type="text" class="status_percent">
                                 </td>
 
@@ -1939,6 +1939,12 @@
 
         .transition_direction{
             cursor: pointer;
+        }
+
+        .error_col_content, .error_col_content input{
+            background: #CF9296 !important;
+            color: darkred;
+            font-weight: 600;
         }
 
     </style>
