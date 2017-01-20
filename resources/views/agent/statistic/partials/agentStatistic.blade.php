@@ -147,17 +147,7 @@
                             </td>
                             <td>{{ $status->percent }}%</td>
                             <td>{{ $status->percentPeriod }}%</td>
-                            @if($status->percent <= $status->level_1)
-                                <td class="rating_bad">Плохо</td>
-                            @elseif($status->percent > $status->level_1 && $status->percent <= $status->level_2)
-                                <td class="rating_takes_significant_improvements">Требуется значительное улучшение</td>
-                            @elseif($status->percent > $status->level_2 && $status->percent <= $status->level_3)
-                                <td class="rating_needs_improvements">Требуется улучшение</td>
-                            @elseif($status->percent > $status->level_4 && $status->percent <= $status->level_4)
-                                <td class="rating_good">Хорошо</td>
-                            @else
-                                <td class="rating_very_good">Очень хорошо</td>
-                            @endif
+                            <td class="status_{{ $status->rating }}">{{ $status->rating }}</td>
                         </tr>
                     @endforeach
                     </tbody>

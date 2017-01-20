@@ -1225,3 +1225,39 @@ textarea.tab_notes{
 }
 
 
+
+.process-statuses thead tr:first-child th {
+    text-align: center;
+    color: green;
+}
+.undefined-statuses  thead tr:first-child th {
+    text-align: center;
+    color: #00ca00;
+}
+.fail-statuses  thead tr:first-child th {
+    text-align: center;
+    color: #e1d12a;
+}
+.bad-statuses  thead tr:first-child th {
+    text-align: center;
+    color: red;
+}
+.performance-table  thead tr:first-child th {
+    text-align: center;
+}
+
+.status_Good {
+    color: rgb(0, 176, 80);
+}
+.status_Satisfactorily {
+    color: rgb(146, 208, 80);
+}
+.status_Secondary {
+    color: rgb(191, 143, 0);
+}
+.status_Badly {
+    color: rgb(237, 125, 49);
+}
+.status_Col {
+    color: red;
+}
