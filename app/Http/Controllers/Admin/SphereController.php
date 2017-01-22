@@ -1531,6 +1531,8 @@ class SphereController extends AdminController {
                     // обновляем запись транзита статусов
                     $dbTransit = SphereStatusTransitions::find($transit['id']);
 
+                    $dbTransit->position = $transit['position'];
+
                     $dbTransit->transition_direction = $transit['transition_direction'];
                     $dbTransit->rating_1 = $transit['rating_1'];
                     $dbTransit->rating_2 = $transit['rating_2'];
@@ -1547,6 +1549,8 @@ class SphereController extends AdminController {
                 $newTransit->sphere_id = $sphere->id;
                 $newTransit->previous_status_id = $statusOuterId[ $transit['outer_previous_status_id'] ];
                 $newTransit->status_id = $statusOuterId[ $transit['outer_status_id'] ];
+
+                $newTransit->position = $transit['position'];
 
                 $newTransit->transition_direction = $transit['transition_direction'];
                 $newTransit->rating_1 = $transit['rating_1'];

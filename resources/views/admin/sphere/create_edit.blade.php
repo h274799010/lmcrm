@@ -977,10 +977,10 @@
 
                                             <div class="row">
 
-                                                <div class="col-xs-12">
+                                                <div sv-root sv-part="data.threshold.values[1]" sv-on-sort="positioning($partFrom)" class="col-xs-12">
 
                                                     {{-- шаблон итема статуса --}}
-                                                    <div ng-repeat="status in data.threshold.values[1]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+                                                    <div ng-repeat="status in data.threshold.values[1]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
                                                         {{-- название статуса --}}
                                                         <div class="col-xs-5">
@@ -988,7 +988,7 @@
                                                         </div>
 
                                                         {{-- смена позиции статуса --}}
-                                                        <div class="col-xs-1">
+                                                        <div sv-handle class="col-xs-1">
                                                             <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
                                                                 <i class="glyphicon glyphicon-move"></i>
                                                             </button>
@@ -1029,14 +1029,21 @@
 
                                             <div class="row">
 
-                                                <div class="col-xs-12">
+                                                <div sv-root sv-part="data.threshold.values[2]" sv-on-sort="positioning($partFrom)"  class="col-xs-12">
 
                                                     {{-- шаблон итема статуса --}}
-                                                    <div ng-repeat="status in data.threshold.values[2]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+                                                    <div ng-repeat="status in data.threshold.values[2]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
                                                         {{-- название статуса --}}
                                                         <div class="col-xs-5">
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- смена позиции статуса --}}
+                                                        <div sv-handle class="col-xs-1">
+                                                            <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
+                                                                <i class="glyphicon glyphicon-move"></i>
+                                                            </button>
                                                         </div>
 
                                                         {{-- кнопка удаления статуса --}}
@@ -1074,14 +1081,21 @@
 
                                             <div class="row">
 
-                                                <div class="col-xs-12">
+                                                <div sv-root sv-part="data.threshold.values[3]" sv-on-sort="positioning($partFrom)" class="col-xs-12">
 
                                                     {{-- шаблон итема статуса --}}
-                                                    <div ng-repeat="status in data.threshold.values[3]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+                                                    <div ng-repeat="status in data.threshold.values[3]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
                                                         {{-- название статуса --}}
                                                         <div class="col-xs-5">
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- смена позиции статуса --}}
+                                                        <div sv-handle class="col-xs-1">
+                                                            <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
+                                                                <i class="glyphicon glyphicon-move"></i>
+                                                            </button>
                                                         </div>
 
                                                         {{-- кнопка удаления статуса --}}
@@ -1119,14 +1133,21 @@
 
                                             <div class="row">
 
-                                                <div class="col-xs-12">
+                                                <div sv-root sv-part="data.threshold.values[4]" sv-on-sort="positioning($partFrom)" class="col-xs-12">
 
                                                     {{-- шаблон итема статуса --}}
-                                                    <div ng-repeat="status in data.threshold.values[4]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+                                                    <div ng-repeat="status in data.threshold.values[4]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
                                                         {{-- название статуса --}}
                                                         <div class="col-xs-5">
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- смена позиции статуса --}}
+                                                        <div sv-handle class="col-xs-1">
+                                                            <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
+                                                                <i class="glyphicon glyphicon-move"></i>
+                                                            </button>
                                                         </div>
 
                                                         {{-- кнопка удаления статуса --}}
@@ -1186,22 +1207,22 @@
 
                         <div class="row">
                             <div class="col-md-12">
-                                <table class="table table-bordered status_transitions_table">
-                            <tr>
-                                <th>From status</th>
-                                <th>To status</th>
-                                <th>Direction</th>
+                                <table sv-root sv-part="data.statusTransitions" sv-on-sort="positioning($partFrom)" class="table table-bordered status_transitions_table">
+                                    <tr>
+                                        <th>From status</th>
+                                        <th>To status</th>
+                                        <th>Direction</th>
 
-                                <th class="status_parcent">Col <div class="percent_sign">(%)</div></th>
-                                <th class="status_parcent">Badly <div class="percent_sign">(%)</div></th>
-                                <th class="status_parcent">Secondary <div class="percent_sign">(%)</div></th>
-                                <th class="status_parcent">Satisfactorily <div class="percent_sign">(%)</div></th>
-                                <th class="status_parcent">Good <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Col <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Badly <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Secondary <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Satisfactorily <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Good <div class="percent_sign">(%)</div></th>
 
-                                <th>Action</th>
-                            </tr>
+                                        <th>Action</th>
+                                    </tr>
 
-                            <tr ng-repeat="transition in data.statusTransitions" ng-class="transition.delete ? 'hidden' : ''">
+                                    <tr ng-repeat="transition in data.statusTransitions" sv-element ng-class="transition.delete ? 'hidden' : ''" class="status_transition_row">
                                 <td class="selectbox_cell">
                                     <select name="repeatSelect" id="repeatSelect" data-placeholder="-" ng-model="transition.outer_previous_status_id" class="selectbox transition_selectbox">
                                         <option value=""></option>
@@ -1275,6 +1296,7 @@
                                 </td>
 
                                 <td>
+                                    <i sv-handle class="glyphicon glyphicon-move transit_move_button"></i>
                                     <i class="glyphicon glyphicon-remove transit_dell_button" ng-click="deleteStatusTransition(transition)"></i>
                                 </td>
 
@@ -2004,6 +2026,15 @@
             color: #910000;
         }
 
+        .transit_move_button{
+            cursor: pointer;
+            padding-right: 20px;
+            color: #3F51B5;
+        }
+
+        tr.status_transition_row{
+            background: #FFFFFF;
+        }
 
     </style>
 @stop
