@@ -15,17 +15,23 @@
 
         <div class="dataTables_container_{{ $sphere->id }}">
             <div class="col-md-12">
-                <select data-name="date" class="selectbox dataTables_filter">
-                    <option></option>
-                    <option value="2d">last 2 days</option>
-                    <option value="1m">last month</option>
-                </select>
-                <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
-                    <option></option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                </select>
+                <label class="obtain-label-period">
+                    Period:
+                    <select data-name="date" class="selectbox dataTables_filter">
+                        <option></option>
+                        <option value="2d">last 2 days</option>
+                        <option value="1m">last month</option>
+                    </select>
+                </label>
+                <label>
+                    Show
+                    <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
+                        <option></option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select> entries
+                </label>
             </div>
 
             <div class="col-md-12">

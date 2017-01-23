@@ -401,3 +401,6 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before
 	font-weight: bold;
 	text-align: center;
 }
+.obtain-label-period {
+	margin-right: 15px;
+}
