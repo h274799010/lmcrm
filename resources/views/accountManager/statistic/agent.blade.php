@@ -39,41 +39,6 @@
         span.green {
             color: green;
         }
-        .process-statuses thead tr:first-child th {
-            text-align: center;
-            color: green;
-        }
-        .undefined-statuses  thead tr:first-child th {
-            text-align: center;
-            color: #00ca00;
-        }
-        .fail-statuses  thead tr:first-child th {
-            text-align: center;
-            color: #e1d12a;
-        }
-        .bad-statuses  thead tr:first-child th {
-            text-align: center;
-            color: red;
-        }
-        .performance-table  thead tr:first-child th {
-            text-align: center;
-        }
-
-        .rating_very_good {
-            color: rgb(0, 176, 80);
-        }
-        .rating_good {
-            color: rgb(146, 208, 80);
-        }
-        .rating_needs_improvements {
-            color: rgb(191, 143, 0);
-        }
-        .rating_takes_significant_improvements {
-            color: rgb(237, 125, 49);
-        }
-        .rating_bad {
-            color: red;
-        }
     </style>
 @stop
 

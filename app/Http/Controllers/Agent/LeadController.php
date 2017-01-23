@@ -667,6 +667,7 @@ class LeadController extends AgentController {
             ->with( ['lead' => function( $query ){
                 $query->with('sphereStatuses');
             }])
+            ->with('statusInfo')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -797,44 +798,12 @@ class LeadController extends AgentController {
     public function setOpenLeadStatus( Request $request ){
 
         $openedLeadId  = $request->openedLeadId;
-        $status   = $request->status;
-
-        if($request->salesman_id) {
-            $user_id = $request->salesman_id;
-        } else {
-            $user_id = $this->uid;
-        }
 
         // находим данные открытого лида по id лида и id агента
         $openedLead = OpenLeads::find( $openedLeadId );
 
-//        dd($openedLead);
-
-        // если открытый лид отмечен как плохой
-        if($status == 'bad') {
-
-            if(time() < strtotime($openedLead->expiration_time)) {
-                // если время открытого лида еще не вышло
-
-                // помечаем его как плохой
-                $openedLead->setBadLead();
-
-                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -1);
-
-
-                return response()->json('setBadStatus');
-
-            } else {
-                // если время открытого лида уже вышло
-
-                // отменяем всю ничего не делаем, выходим
-                return response()->json('pendingTimeExpire');
-            }
-        }
-
-
         // Если сделка отмечается закрытой
-        if($status == 'closing_deal') {
+        if($request->status == 'closing_deal') {
             if(empty($request->price)) {
                 return response()->json('priceRequired');
             }
@@ -856,27 +825,59 @@ class LeadController extends AgentController {
 
                 return response()->json($closeDealResult);
             }
-        }
+        } else {
+            $status   = SphereStatuses::find($request->status);
 
-        // если новый статус меньше уже установленного, выходим из метода
-        // или лид отмечен как плохой
-        if( $status < $openedLead->status || $openedLead->state == 1 || $openedLead->state == 2 ){
-            return response()->json(FALSE);
+            // если открытый лид отмечен как плохой
+            if(isset($status->type) && $status->type == 4) {
 
-        }else{
-            // если статус больше - изменяем статус открытого лида
+                if(time() < strtotime($openedLead->expiration_time)) {
+                    // если время открытого лида еще не вышло
 
-            // сохраняем старый статус
-            $previous_status = $openedLead->status;
+                    // помечаем его как плохой
+                    $openedLead->setBadLead();
 
-            $openedLead->status = $status;
-            $openedLead->save();
+                    // сохраняем старый статус
+                    $previous_status = $openedLead->status;
 
-            // сохраняем историю статусов
-            OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status);
+                    $openedLead->status = $status->id;
+                    $openedLead->save();
 
-            // присылаем подтверждение что статус изменен
-            return response()->json('statusChanged');
+                    OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
+
+
+                    return response()->json('setBadStatus');
+
+                } else {
+                    // если время открытого лида уже вышло
+
+                    // отменяем всю ничего не делаем, выходим
+                    return response()->json('pendingTimeExpire');
+                }
+            }
+
+
+
+            // если новый статус меньше уже установленного, выходим из метода
+            // или лид отмечен как плохой
+            if( $status->id < $openedLead->status || $openedLead->state == 1 || $openedLead->state == 2 ){
+                return response()->json(FALSE);
+
+            }else{
+                // если статус больше - изменяем статус открытого лида
+
+                // сохраняем старый статус
+                $previous_status = $openedLead->status;
+
+                $openedLead->status = $status->id;
+                $openedLead->save();
+
+                // сохраняем историю статусов
+                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
+
+                // присылаем подтверждение что статус изменен
+                return response()->json('statusChanged');
+            }
         }
     }
 

@@ -397,6 +397,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
 
                     $percentCount = count($openLeadsPeriodStatusDetails) * 100 / $countOpenLeads;
                     $statusTransitions[$statusKey]->percentPeriod = round($percentCount, 2);
+                    $statusTransitions[$statusKey]->rating = SphereStatusTransitions::getRating($prevStatusId, $currStatusId, round($percentCount, 2));
                 }
 
                 $spheres[$key]->statusTransitions = $statusTransitions;

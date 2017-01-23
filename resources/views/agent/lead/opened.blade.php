@@ -31,7 +31,12 @@
 
                             {{-- Если лид был отмечен как плохой --}}
                             @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
-                                @lang('agent/openLeads.bad_lead')
+                                {{--@lang('agent/openLeads.bad_lead')--}}
+                                @if(isset($openLead->statusInfo->stepname))
+                                    {{ $openLead->statusInfo->stepname }}
+                                @else
+                                    @lang('agent/openLeads.bad_lead')
+                                @endif
                             {{-- впротивном случае вывод select со статусами --}}
                             @elseif( $openLead->state == 2 )
                                 @lang('site/lead.deal_closed')
@@ -41,12 +46,20 @@
                                     @if( $openLead->status == 0 )
                                         <option selected="selected" class="emptyOption"></option>
                                     @endif
-                                    @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
+                                    {{--@if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
                                         <option value="bad" class="badOption">bad lead</option>
+                                    @endif--}}
+                                    @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
+                                        @foreach($openLead['lead']->sphereStatuses->statuses as $status)
+                                            <option value="{{ $status->id }}" @if($status->type == 4) class="badOption" @endif @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                        @endforeach
+                                    @else
+                                        @foreach($openLead['lead']->sphereStatuses->statuses as $status)
+                                            @if($status->type != 4)
+                                                <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                                            @endif
+                                        @endforeach
                                     @endif
-                                    @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                                        <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                                    @endforeach
                                         <option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>
                                 </select>
                             @endif
@@ -1024,6 +1037,7 @@
                         // изменяем статусы на сервере
                         $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'openedLeadId': openedLeadId, 'lead_id': lead_id, '_token': token}, function( data ){
 
+                            var badOption = self.find('option.badOption');
                             // если статус изменен нормально
                             if( data == 'statusChanged'){
 
@@ -1034,6 +1048,16 @@
                                 if(emptyOption.length > 0) {
                                     // удаляем его
                                     emptyOption.remove();
+
+                                    // обновляем select
+                                    selectBox.refresh();
+                                }
+
+                                // и удаляем статус bad_lead из списка
+                                // если путое поле найдено
+                                if(badOption.length > 0) {
+                                    // удаляем его
+                                    badOption.remove();
 
                                     // обновляем select
                                     selectBox.refresh();
@@ -1063,7 +1087,6 @@
                                 });
 
                                 // и удаляем статус bad_lead из списка
-                                var badOption = self.find('option.badOption');
                                 // если путое поле найдено
                                 if(badOption.length > 0) {
                                     // удаляем его

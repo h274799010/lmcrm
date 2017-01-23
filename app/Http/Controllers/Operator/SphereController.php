@@ -1077,6 +1077,8 @@ class SphereController extends Controller {
             // + и его продавцов
             $agents = $agentBitmasks
                 ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
+                ->orderBy('lead_price', 'desc')
+                ->groupBy('user_id')
                 ->get();
 
             // если агенты есть - добавляем лид им на аукцион и оповещаем
