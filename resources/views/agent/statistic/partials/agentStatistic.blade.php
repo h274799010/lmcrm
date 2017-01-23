@@ -3,7 +3,7 @@
 
     <div class="row">
         <div class="col-md-4">
-            <table class="table table-striped table-hover process-statuses">
+            <table class="table table-bordered table-striped table-hover process-statuses">
                 <thead>
                 <tr>
                     <th colspan="4">Процессные статусы</th>
@@ -20,9 +20,9 @@
                     @if($status->type == 1)
                         <tr>
                             <td>{{ $status->stepname }}</td>
-                            <td>{{ $status->countOpenLeads }}</td>
-                            <td>{{ $status->percentOpenLeads }}%</td>
-                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->countOpenLeads }}</td>
+                            <td class="percent-col">{{ $status->percentOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriodOpenLeads }}%</td>
                         </tr>
                     @endif
                 @endforeach
@@ -30,7 +30,7 @@
             </table>
         </div>
         <div class="col-md-4">
-            <table class="table table-striped table-hover undefined-statuses">
+            <table class="table table-bordered table-striped table-hover undefined-statuses">
                 <thead>
                 <tr>
                     <th colspan="4">Не определенные</th>
@@ -47,9 +47,9 @@
                     @if($status->type == 2)
                         <tr>
                             <td>{{ $status->stepname }}</td>
-                            <td>{{ $status->countOpenLeads }}</td>
-                            <td>{{ $status->percentOpenLeads }}%</td>
-                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->countOpenLeads }}</td>
+                            <td class="percent-col">{{ $status->percentOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriodOpenLeads }}%</td>
                         </tr>
                     @endif
                 @endforeach
@@ -57,7 +57,7 @@
             </table>
         </div>
         <div class="col-md-4">
-            <table class="table table-striped table-hover fail-statuses">
+            <table class="table table-bordered table-striped table-hover fail-statuses">
                 <thead>
                 <tr>
                     <th colspan="4">Отказники</th>
@@ -74,9 +74,9 @@
                     @if($status->type == 3)
                         <tr>
                             <td>{{ $status->stepname }}</td>
-                            <td>{{ $status->countOpenLeads }}</td>
-                            <td>{{ $status->percentOpenLeads }}%</td>
-                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->countOpenLeads }}</td>
+                            <td class="percent-col">{{ $status->percentOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriodOpenLeads }}%</td>
                         </tr>
                     @endif
                 @endforeach
@@ -87,7 +87,7 @@
 
     <div class="row">
         <div class="col-md-4">
-            <table class="table table-striped table-hover bad-statuses">
+            <table class="table table-bordered table-striped table-hover bad-statuses">
                 <thead>
                 <tr>
                     <th colspan="4">Плохие</th>
@@ -104,9 +104,9 @@
                     @if($status->type == 4)
                         <tr>
                             <td>{{ $status->stepname }}</td>
-                            <td>{{ $status->countOpenLeads }}</td>
-                            <td>{{ $status->percentOpenLeads }}%</td>
-                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->countOpenLeads }}</td>
+                            <td class="percent-col">{{ $status->percentOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriodOpenLeads }}%</td>
                         </tr>
                     @endif
                 @endforeach
@@ -115,7 +115,7 @@
         </div>
         @if(isset($sphere->statusTransitions) && count($sphere->statusTransitions) > 0)
             <div class="col-md-8">
-                <table class="table table-striped table-hover performance-table">
+                <table class="table table-bordered table-striped table-hover performance-table">
                     <thead>
                     <tr>
                         <th colspan="5">уровень производительности</th>
@@ -145,8 +145,8 @@
                                     -
                                 @endif
                             </td>
-                            <td>{{ $status->percent }}%</td>
-                            <td>{{ $status->percentPeriod }}%</td>
+                            <td class="percent-col">{{ $status->percent }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriod }}%</td>
                             <td class="status_{{ $status->rating }}">{{ $status->rating }}</td>
                         </tr>
                     @endforeach

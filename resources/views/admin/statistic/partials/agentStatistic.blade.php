@@ -20,9 +20,9 @@
                     @if($status->type == 1)
                         <tr>
                             <td>{{ $status->stepname }}</td>
-                            <td>{{ $status->countOpenLeads }}</td>
-                            <td>{{ $status->percentOpenLeads }}%</td>
-                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->countOpenLeads }}</td>
+                            <td class="percent-col">{{ $status->percentOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriodOpenLeads }}%</td>
                         </tr>
                     @endif
                 @endforeach
@@ -47,9 +47,9 @@
                     @if($status->type == 2)
                         <tr>
                             <td>{{ $status->stepname }}</td>
-                            <td>{{ $status->countOpenLeads }}</td>
-                            <td>{{ $status->percentOpenLeads }}%</td>
-                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->countOpenLeads }}</td>
+                            <td class="percent-col">{{ $status->percentOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriodOpenLeads }}%</td>
                         </tr>
                     @endif
                 @endforeach
@@ -74,9 +74,9 @@
                     @if($status->type == 3)
                         <tr>
                             <td>{{ $status->stepname }}</td>
-                            <td>{{ $status->countOpenLeads }}</td>
-                            <td>{{ $status->percentOpenLeads }}%</td>
-                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->countOpenLeads }}</td>
+                            <td class="percent-col">{{ $status->percentOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriodOpenLeads }}%</td>
                         </tr>
                     @endif
                 @endforeach
@@ -104,9 +104,9 @@
                     @if($status->type == 4)
                         <tr>
                             <td>{{ $status->stepname }}</td>
-                            <td>{{ $status->countOpenLeads }}</td>
-                            <td>{{ $status->percentOpenLeads }}%</td>
-                            <td>{{ $status->percentPeriodOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->countOpenLeads }}</td>
+                            <td class="percent-col">{{ $status->percentOpenLeads }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriodOpenLeads }}%</td>
                         </tr>
                     @endif
                 @endforeach
@@ -145,8 +145,8 @@
                                     -
                                 @endif
                             </td>
-                            <td>{{ $status->percent }}%</td>
-                            <td>{{ $status->percentPeriod }}%</td>
+                            <td class="percent-col">{{ $status->percent }}%</td>
+                            <td class="percent-col">{{ $status->percentPeriod }}%</td>
                             <td class="status_{{ $status->rating }}">{{ $status->rating }}</td>
                         </tr>
                     @endforeach

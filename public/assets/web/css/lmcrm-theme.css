@@ -350,38 +350,54 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before
 .group-select .col-xs-10 {
 	margin-bottom: 10px;
 }
+
 .process-statuses thead tr:first-child th {
 	text-align: center;
-	color: green;
 }
 .undefined-statuses  thead tr:first-child th {
 	text-align: center;
-	color: #00ca00;
 }
 .fail-statuses  thead tr:first-child th {
 	text-align: center;
-	color: #e1d12a;
 }
 .bad-statuses  thead tr:first-child th {
 	text-align: center;
-	color: red;
 }
 .performance-table  thead tr:first-child th {
 	text-align: center;
 }
 
 .status_Good {
-	color: rgb(0, 176, 80);
+	background-color: rgb(0, 176, 80);
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
 }
 .status_Satisfactorily {
-	color: rgb(146, 208, 80);
+	background-color: rgb(146, 208, 80);
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
 }
 .status_Secondary {
-	color: rgb(191, 143, 0);
+	background-color: rgb(191, 143, 0);
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
 }
 .status_Badly {
-	color: rgb(237, 125, 49);
+	background-color: rgb(237, 125, 49);
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
 }
 .status_Col {
-	color: red;
+	background-color: red;
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
+}
+.percent-col {
+	font-weight: bold;
+	text-align: center;
 }
