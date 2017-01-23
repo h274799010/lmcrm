@@ -1228,10 +1228,10 @@
                                         <option value=""></option>
                                         <option value="0">No status</option>
                                         <option ng-repeat="option in data.threshold.values[1]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
-                                        <option ng-if="statusSeparator(2)" disabled>----------</option>
-                                        <option ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
-                                        <option ng-if="statusSeparator(3)" disabled>----------</option>
-                                        <option ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        {{--<option ng-if="statusSeparator(2)" disabled>----------</option>--}}
+                                        {{--<option ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>--}}
+                                        {{--<option ng-if="statusSeparator(3)" disabled>----------</option>--}}
+                                        {{--<option ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>--}}
                                         {{--<option disabled>----------</option>--}}
                                         {{--<option ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>--}}
                                     </select>

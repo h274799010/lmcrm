@@ -644,6 +644,20 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
+
+//        dd(1);
+
+//        $openedLead = OpenLeads::find(14);
+
+//        dd($openedLead);
+
+//        OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, 45);
+
+
+//        dd('Перелет');
+
+
+
         // получаем данные агента
         $user = $this->user;
 
