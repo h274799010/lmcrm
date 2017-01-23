@@ -31,18 +31,18 @@ Route::get('notice', ['as' => 'notification', 'middleware' => ['auth', 'agent|sa
 Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notified']);
 
 // todo удалить, это для проверки выдачи статистики
-//Route::get('transitionTest/{status}', function($status){
-//
-////    $a = \App\Models\SphereStatusTransitions::all();
-//
-//    $a = \App\Models\SphereStatusTransitions::getRating( 1, 2, $status);
-//
-//
-////    dd($a);
-//
-//    return $a;
-//
-//});
+Route::get('transitionTest/{status}', function($status){
+
+//    $a = \App\Models\SphereStatusTransitions::all();
+
+    $a = \App\Models\SphereStatusTransitions::getRating( 1, 2, $status);
+
+
+//    dd($a);
+
+    return $a;
+
+});
 
 
 
