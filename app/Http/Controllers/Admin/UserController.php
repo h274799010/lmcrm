@@ -177,6 +177,12 @@ class UserController extends AdminController
 
         return Datatables::of($users)
             ->edit_column('last_name',function($model) { return $model->last_name.' '.$model->first_name; })
+            ->add_column('roles', function ($model) {
+                $roles = $model->roles()->get()->lists('name')->toArray();
+                $roles = implode(', ', $roles);
+
+                return $roles;
+            })
             ->add_column('actions',function($model) use ($user) { return view('admin.user.datatables.control',['id'=>$model->id, 'user'=>$user]); })
             ->remove_column('first_name')
             ->remove_column('id')
