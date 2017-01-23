@@ -1868,7 +1868,11 @@ class SphereController extends AdminController {
         $userMask->save();
 
         // добавлаем лиды агенту в таблицу аукциона (если есть лиды по маске)
-        Auction::addByAgentMask( $mask_id, $sphere );
+        //Auction::addByAgentMask( $mask_id, $sphere );
+
+        // обновляем данные аукциона по агенту
+        // выводим на аукцион лидов по самим дорогим маскам
+        Auction::addLeadInExpensiveMasks($mask->user_id, $sphere);
 
         return redirect()->route('admin.sphere.reprice');
     }
