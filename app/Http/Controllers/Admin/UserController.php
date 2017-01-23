@@ -104,7 +104,15 @@ class UserController extends AdminController
     public function edit($id)
     {
         $user=User::findOrFail($id);
-        return view('admin.user.edit', ['user'=>$user]);
+        if($user->inRole('agent')) {
+            return redirect()->route('admin.agent.edit', ['id' => $user->id]);
+        } elseif($user->inRole('operator')) {
+            return redirect()->route('admin.operator.edit', ['id' => $user->id]);
+        } elseif ($user->inRole('account_manager')) {
+            return redirect()->route('admin.accountManager.edit', ['id' => $user->id]);
+        } else {
+            return view('admin.user.edit', ['user'=>$user]);
+        }
     }
 
     /**
