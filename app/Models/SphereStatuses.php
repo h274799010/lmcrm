@@ -21,7 +21,7 @@ class SphereStatuses extends Model
             1 => 'process',
             2 => 'uncertain',
             3 => 'refuseniks',
-            4 => 'uncertain'
+            4 => 'bad'
         ];
 
 

@@ -19,6 +19,8 @@ class CreateSphereStatusTransitions extends Migration
             $table->integer('previous_status_id');    // предыдущий статус
             $table->integer('status_id');             // текущий статус
 
+            $table->integer('position');              // позиция транзита
+
             $table->integer('transition_direction');  // направление транзакции
 
             $table->float('rating_1');                 // процент 1 оценки

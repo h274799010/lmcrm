@@ -977,14 +977,21 @@
 
                                             <div class="row">
 
-                                                <div class="col-xs-12">
+                                                <div sv-root sv-part="data.threshold.values[1]" sv-on-sort="positioning($partFrom)" class="col-xs-12">
 
                                                     {{-- шаблон итема статуса --}}
-                                                    <div ng-repeat="status in data.threshold.values[1]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+                                                    <div ng-repeat="status in data.threshold.values[1]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
                                                         {{-- название статуса --}}
                                                         <div class="col-xs-5">
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- смена позиции статуса --}}
+                                                        <div sv-handle class="col-xs-1">
+                                                            <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
+                                                                <i class="glyphicon glyphicon-move"></i>
+                                                            </button>
                                                         </div>
 
                                                         {{-- кнопка удаления статуса --}}
@@ -1022,14 +1029,21 @@
 
                                             <div class="row">
 
-                                                <div class="col-xs-12">
+                                                <div sv-root sv-part="data.threshold.values[2]" sv-on-sort="positioning($partFrom)"  class="col-xs-12">
 
                                                     {{-- шаблон итема статуса --}}
-                                                    <div ng-repeat="status in data.threshold.values[2]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+                                                    <div ng-repeat="status in data.threshold.values[2]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
                                                         {{-- название статуса --}}
                                                         <div class="col-xs-5">
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- смена позиции статуса --}}
+                                                        <div sv-handle class="col-xs-1">
+                                                            <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
+                                                                <i class="glyphicon glyphicon-move"></i>
+                                                            </button>
                                                         </div>
 
                                                         {{-- кнопка удаления статуса --}}
@@ -1067,14 +1081,21 @@
 
                                             <div class="row">
 
-                                                <div class="col-xs-12">
+                                                <div sv-root sv-part="data.threshold.values[3]" sv-on-sort="positioning($partFrom)" class="col-xs-12">
 
                                                     {{-- шаблон итема статуса --}}
-                                                    <div ng-repeat="status in data.threshold.values[3]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+                                                    <div ng-repeat="status in data.threshold.values[3]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
                                                         {{-- название статуса --}}
                                                         <div class="col-xs-5">
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- смена позиции статуса --}}
+                                                        <div sv-handle class="col-xs-1">
+                                                            <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
+                                                                <i class="glyphicon glyphicon-move"></i>
+                                                            </button>
                                                         </div>
 
                                                         {{-- кнопка удаления статуса --}}
@@ -1106,20 +1127,27 @@
 
                                     {{-- Плохие статусы --}}
                                     <div class="panel panel-defoult">
-                                        <div class="panel-heading bad-statuses-heading">Uncertain</div>
+                                        <div class="panel-heading bad-statuses-heading">Bad status</div>
                                         <div class="panel-body">
                                             {{-- Статусы --}}
 
                                             <div class="row">
 
-                                                <div class="col-xs-12">
+                                                <div sv-root sv-part="data.threshold.values[4]" sv-on-sort="positioning($partFrom)" class="col-xs-12">
 
                                                     {{-- шаблон итема статуса --}}
-                                                    <div ng-repeat="status in data.threshold.values[4]" class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+                                                    <div ng-repeat="status in data.threshold.values[4]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
 
                                                         {{-- название статуса --}}
                                                         <div class="col-xs-5">
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- смена позиции статуса --}}
+                                                        <div sv-handle class="col-xs-1">
+                                                            <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
+                                                                <i class="glyphicon glyphicon-move"></i>
+                                                            </button>
                                                         </div>
 
                                                         {{-- кнопка удаления статуса --}}
@@ -1179,45 +1207,45 @@
 
                         <div class="row">
                             <div class="col-md-12">
-                                <table class="table table-bordered status_transitions_table">
-                            <tr>
-                                <th>From status</th>
-                                <th>To status</th>
-                                <th>Direction</th>
+                                <table sv-root sv-part="data.statusTransitions" sv-on-sort="positioning($partFrom)" class="table table-bordered status_transitions_table">
+                                    <tr>
+                                        <th>From status</th>
+                                        <th>To status</th>
+                                        <th>Direction</th>
 
-                                <th class="status_parcent">Col</th>
-                                <th class="status_parcent">Badly</th>
-                                <th class="status_parcent">Secondary</th>
-                                <th class="status_parcent">Satisfactorily</th>
-                                <th class="status_parcent">Good</th>
+                                        <th class="status_parcent">Col <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Badly <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Secondary <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Satisfactorily <div class="percent_sign">(%)</div></th>
+                                        <th class="status_parcent">Good <div class="percent_sign">(%)</div></th>
 
-                                <th>Action</th>
-                            </tr>
+                                        <th>Action</th>
+                                    </tr>
 
-                            <tr ng-repeat="transition in data.statusTransitions" ng-class="transition.delete ? 'hidden' : ''">
+                                    <tr ng-repeat="transition in data.statusTransitions" sv-element ng-class="transition.delete ? 'hidden' : ''" class="status_transition_row">
                                 <td class="selectbox_cell">
                                     <select name="repeatSelect" id="repeatSelect" data-placeholder="-" ng-model="transition.outer_previous_status_id" class="selectbox transition_selectbox">
                                         <option value=""></option>
                                         <option value="0">No status</option>
                                         <option ng-repeat="option in data.threshold.values[1]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
-                                        <option  disabled>----------</option>
-                                        <option ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
-                                        <option disabled>----------</option>
-                                        <option ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
-                                        <option disabled>----------</option>
-                                        <option ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        {{--<option ng-if="statusSeparator(2)" disabled>----------</option>--}}
+                                        {{--<option ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>--}}
+                                        {{--<option ng-if="statusSeparator(3)" disabled>----------</option>--}}
+                                        {{--<option ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>--}}
+                                        {{--<option disabled>----------</option>--}}
+                                        {{--<option ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>--}}
                                     </select>
                                 </td>
                                 <td class="selectbox_cell">
-                                    <select data-placeholder="-" ng-model="transition.outer_status_id" class="selectbox transition_selectbox">
+                                    <select data-placeholder="-" ng-model="transition.outer_status_id" class="selectbox transition_selectbox" ng-disabled="toStatusDisabled(transition)">
                                         <option value=""></option>
-                                        <option ng-repeat="option in data.threshold.values[1]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
-                                        <option disabled>----------</option>
-                                        <option ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
-                                        <option disabled>----------</option>
-                                        <option ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
-                                        <option disabled>----------</option>
-                                        <option ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[1]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option ng-if="statusSeparator(2)" disabled>----------</option>
+                                        <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option ng-if="statusSeparator(3)" disabled>----------</option>
+                                        <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option ng-if="statusSeparator(4)" disabled>----------</option>
+                                        <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                     </select>
                                 </td>
                                 <td class="transition_direction" ng-click="changeTransitionDirection( transition )">
@@ -1231,23 +1259,44 @@
                                     </div>
 
                                 </td>
-                                <td ng-class="transitionDirectionCheck(transition, 1) ? '':'error_col_content' ">
+
+                                {{-- Оценка Col --}}
+                                <td ng-class="transitionInspection(transition, 'col') ? '':'error_col_content' " class="input_cell">
+                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 1" class="more_less_item">less than</span>
+                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 2" class="more_less_item">more than</span>
                                     <input ng-model="transition.rating_1" type="text" class="status_percent">
                                 </td>
-                                <td ng-class="transitionDirectionCheck(transition, 2) ? '':'error_col_content' ">
+
+                                {{-- Оценка Badly --}}
+                                <td ng-class="transitionInspection(transition, 'badly') ? '':'error_col_content' " class="input_cell">
+                                    <input ng-model="transition.rating_1" type="text" class="status_percent">
+                                     <i class="glyphicon glyphicon-resize-horizontal transition_sign"></i>
+                                    <input ng-model="transition.rating_2" type="text" class="status_percent status_percent_second">
+                                </td>
+
+                                {{-- Оценка Secondary --}}
+                                <td ng-class="transitionInspection(transition, 'secondary') ? '':'error_col_content' " class="input_cell">
                                     <input ng-model="transition.rating_2" type="text" class="status_percent">
+                                    <i class="glyphicon glyphicon-resize-horizontal transition_sign"></i>
+                                    <input ng-model="transition.rating_3" type="text" class="status_percent status_percent_second">
                                 </td>
-                                <td ng-class="transitionDirectionCheck(transition, 3) ? '':'error_col_content' ">
+
+                                {{-- Оценка Satisfactorily --}}
+                                <td ng-class="transitionInspection(transition, 'satisfactorily') ? '':'error_col_content' " class="input_cell">
                                     <input ng-model="transition.rating_3" type="text" class="status_percent">
+                                    <i class="glyphicon glyphicon-resize-horizontal transition_sign"></i>
+                                    <input ng-model="transition.rating_4" type="text" class="status_percent status_percent_second">
                                 </td>
-                                <td ng-class="transitionDirectionCheck(transition, 4) ? '':'error_col_content' ">
+
+                                {{-- Оценка Good --}}
+                                <td ng-class="transitionInspection(transition, 'good') ? '':'error_col_content' " class="input_cell">
+                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 1" class="more_less_item">more than</span>
+                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 2" class="more_less_item">less than</span>
                                     <input ng-model="transition.rating_4" type="text" class="status_percent">
-                                </td>
-                                <td ng-class="transitionDirectionCheck(transition, 5) ? '':'error_col_content' ">
-                                    <input ng-model="transition.rating_5" type="text" class="status_percent">
                                 </td>
 
                                 <td>
+                                    <i sv-handle class="glyphicon glyphicon-move transit_move_button"></i>
                                     <i class="glyphicon glyphicon-remove transit_dell_button" ng-click="deleteStatusTransition(transition)"></i>
                                 </td>
 
@@ -1905,10 +1954,14 @@
         }
 
         input.status_percent{
-            width: 100%;
+            width: 25px;
             background: white;
             border: none;
-            text-align: center;
+            text-align: right;
+        }
+
+        input.status_percent_second{
+            text-align: left;
         }
 
         .status_transitions_table tr th{
@@ -1920,7 +1973,12 @@
         .status_transitions_table tr td{
             text-align: center;
             vertical-align: middle !important;
+            /*font-size: 12px;*/
             width: 80px !important;
+        }
+
+        .status_transitions_table tr td.input_cell{
+            vertical-align: bottom !important;
         }
 
         .select2-search__field{
@@ -1942,9 +2000,40 @@
         }
 
         .error_col_content, .error_col_content input{
+            /*display: inline;*/
             background: #CF9296 !important;
             color: darkred;
             font-weight: 600;
+        }
+
+        .more_less_item{
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: grey;
+        }
+
+        .percent_sign{
+            font-size: 10px;
+        }
+
+        .transition_sign{
+            font-size: 12px;
+            color: grey;
+        }
+
+        .more_less_item_error{
+            color: #910000;
+        }
+
+        .transit_move_button{
+            cursor: pointer;
+            padding-right: 20px;
+            color: #3F51B5;
+        }
+
+        tr.status_transition_row{
+            background: #FFFFFF;
         }
 
     </style>

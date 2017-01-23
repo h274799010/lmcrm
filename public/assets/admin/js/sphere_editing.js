@@ -1005,7 +1005,182 @@ var app = angular.module('app', ['angular-sortable-view'])
 
 
         /**
-         * Проверка правильного направления транзитам
+         * Сравнение двух оценок в транзите
+         *
+         * возвращает true либо false
+         *
+         */
+        function transitionCheck(transition, first, second){
+
+            // проверка, не является ли значение в first пустым
+            if( transition['rating_' + first] == '' ){
+                // выставляем значение в 0
+                transition['rating_' + first] = 0;
+            }
+
+            // пробуем преобразовать первый аргумент в число
+            var firstInt = parseInt( transition['rating_' + first] );
+
+            // проверка данных в первом аргументе
+            if( !firstInt ){
+                // если это строка
+
+                // заводим данные в ноль
+                transition['rating_' + first] = 0;
+
+            }else{
+                // если число
+
+                // проверка диапазона чисел
+                if( firstInt > 100 ){
+                    // если значение больше 100
+
+                    // заводим значение в 100
+                    transition['rating_' + first] = 100;
+
+                }else{
+                    // если не больше 100 или 100
+
+                    // добавляем число в значение
+                    transition['rating_' + first] = firstInt;
+                }
+            }
+
+
+            // проверка второго значения, если оно есть
+            if(second != undefined){
+
+                // проверка, не является ли значение в second пустым
+                if( transition['rating_' + second] == '' ){
+                    // выставляем значение в 0
+                    transition['rating_' + second] = 0;
+                }
+
+                // пробуем преобразовать второй аргумент в число
+                var secondInt = parseInt( transition['rating_' + second] );
+
+                // проверка данных во втором аргументе
+                if( !secondInt ){
+                    // если это строка
+
+                    // заводим данные в ноль
+                    transition['rating_' + second] = 0;
+
+                }else{
+                    // если число
+
+                    // проверка диапазона чисел
+                    if( secondInt > 100 ){
+                        // если значение больше 100
+
+                        // заводим значение в 100
+                        transition['rating_' + second] = 100;
+
+                    }else{
+                        // если не больше 100 или 100
+
+                        // добавляем число в значение
+                        transition['rating_' + second] = secondInt;
+                    }
+                }
+
+                // проверка на совпадение значений
+                if( transition['rating_' + first] == transition['rating_' + second] ){
+                    // если значения совпадают - возвращается false
+                    return false;
+                }
+
+
+                // проверка направления
+
+                // если направление прямое
+                if( transition.transition_direction == 1 ){
+                    // при прямом направле предыдущее значение должно быть меньше последующего
+                    if( transition['rating_' + first] > transition['rating_' + second] ){
+                        // если предыдущее значение больше - возвращается false
+                        return false;
+                    }
+                }
+
+                // если направление обратное
+                if( transition.transition_direction == 2 ){
+                    // при обратном направлении предыдущее значение должно быть больше последующего
+                    if( transition['rating_' + first] < transition['rating_' + second] ){
+                        // если предыдущее значение меньш - возвращается false
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+
+        /**
+         * Проверка данных в ячейке транзита
+         *
+         *
+         * rating =
+         *     col
+         *     badly
+         *     secondary
+         *     satisfactorily
+         *     good
+         *
+         * возвращает либо true либо false
+         */
+        $scope.transitionInspection = function( transition, rating ){
+
+            // обработка значения транзита в зависимости от заданного уровня оценки
+            switch (rating) {
+
+                case 'col':
+                    // если оценка col
+
+                    // проверка между 1 и 4 оценкой транзита
+                    return transitionCheck(transition, 1, 4);
+                    break;
+
+                case 'badly':
+                    // если оценка badly
+
+                    // проверка между 1 и 2 оценкой транзита
+                    return transitionCheck(transition, 1, 2);
+                    break;
+
+                case 'secondary':
+                    // если оценка secondary
+
+                    // проверка между 2 и 3 оценкой транзита
+                    return transitionCheck(transition, 2, 3);
+                    break;
+
+                case 'satisfactorily':
+                    // если оценка satisfactorily
+
+                    // проверка между 3 и 4 оценкой транзита
+                    return transitionCheck(transition, 3, 4);
+                    break;
+
+                case 'good':
+                    // если оценка good
+
+                    // проверка между 1 и 4 оценкой транзита
+                    return transitionCheck(transition, 1, 4);
+                    break;
+
+                default:
+                    // если уровень не задан
+
+                    // возвращается false
+                    return false;
+                    break;
+            }
+        };
+
+
+        /**
+         * Проверка правильного направления транзита
          *
          *
          * transition
@@ -1023,6 +1198,14 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 case 1:
                     // если оценка 1
+
+                    var aa = parseInt( transition.rating_1 );
+
+                    console.log( typeof aa + ' -> ' + transition.rating_1 + ' -> ' + aa );
+
+                    //if(typeof transition.rating_1 == 'string'){
+                    //    transition.rating_1 = null;
+                    //}
 
                     // если поле пустое возвращаем false
                     if(transition.rating_1 === ''){ return false; }
@@ -1124,6 +1307,68 @@ var app = angular.module('app', ['angular-sortable-view'])
                     return true;
                     break;
             }
+        };
+
+
+        /**
+         * Отображение/скрытие сепаратора статуса
+         *
+         *
+         */
+        $scope.statusSeparator = function( type ){
+
+            var result = 0;
+
+            angular.forEach($scope.data.threshold.values[type], function( status ){
+
+
+                return status['delete'] ? false : ++result;
+            });
+
+
+            return result != 0;
+        };
+
+
+        /**
+         * Отключение селекта "to status"
+         *
+         */
+        $scope.toStatusDisabled = function( transition ){
+
+            if( transition.outer_previous_status_id=='' ){
+
+                transition.outer_status_id = false;
+                return true;
+            }
+
+            return false;
+        };
+
+
+        /**
+         * Показывает/скрывает опции toStatus
+         *
+         */
+        $scope.toStatusOptionShow = function( transition, option ){
+
+            // если эта опция выбрана в предыдущих статусах, опция скрывается в toStatus
+            if( transition.outer_previous_status_id == option.outerId ){
+                return false;
+            }
+
+            if( transition.outer_previous_status_id != '0' ){
+
+                if( option['type'] == 4 ){
+                    return false;
+                }
+            }
+
+            //if(){
+            //
+            //}
+
+            return true;
         };
 
 
