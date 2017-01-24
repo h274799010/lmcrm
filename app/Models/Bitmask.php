@@ -60,12 +60,6 @@ class Bitmask extends Model
         // поля таблицы
         $this->tableFields = $tableFields;
 
-
-                // todo добавить админу при создании сферы, а отсюда убрать
-                if ( $id && !DB::getSchemaBuilder()->hasTable( $this->table ) ) {
-                    $this->createTable();
-                }
-
         // сохраняем данные конструктора запросов (на будущее удалить)
         $this->tableDB = DB::table($this->table);
 
@@ -106,6 +100,30 @@ class Bitmask extends Model
         return $mask;
     }
 
+
+    /**
+     * Создание таблиц
+     * agent_bitmask_*
+     * lead_bitmask_*
+     *
+     * @param $id
+     */
+    public static function createTables($id)
+    {
+        $agentBitmaskTable = 'agent_bitmask_'.$id;
+        $agentBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
+
+        if ( $id && !DB::getSchemaBuilder()->hasTable( $agentBitmaskTable ) ) {
+            DB::statement('CREATE TABLE IF NOT EXISTS `' . $agentBitmaskTable .'`' .$agentBitmaskFields , []);
+        }
+
+        $leadBitmaskTable = 'lead_bitmask_'.$id;
+        $leadBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
+
+        if ( $id && !DB::getSchemaBuilder()->hasTable( $leadBitmaskTable ) ) {
+            DB::statement('CREATE TABLE IF NOT EXISTS `' . $leadBitmaskTable .'`' .$leadBitmaskFields , []);
+        }
+    }
 
     /**
      * Создание новой таблицы
