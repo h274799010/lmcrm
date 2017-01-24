@@ -404,3 +404,40 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before
 .obtain-label-period {
 	margin-right: 15px;
 }
+
+.table-statuses {
+	display: inline-block;
+	vertical-align: top;
+	padding: 0 15px;
+	margin-left: -4px;
+}
+.table-statuses.table-statuses-small {
+	width: 33.33333%;
+}
+.table-statuses.table-statuses-large {
+	width: 66.66666%;
+}
+.table-statuses-row {
+	padding-left: 4px;
+}
+
+@media only screen and (max-width: 1614px) {
+	.table-statuses.table-statuses-small {
+		width: 50%;
+	}
+	.table-statuses.table-statuses-large {
+		width: 100%;
+	}
+}
+
+@media only screen and (max-width: 1122px) {
+	.table-statuses {
+		margin-left: 0;
+	}
+	.table-statuses-row {
+		padding-left: 0;
+	}
+	.table-statuses.table-statuses-small {
+		width: 100%;
+	}
+}

@@ -1,8 +1,8 @@
 @foreach($spheres as $sphere)
     <h4>{{ $sphere->name }}</h4>
 
-    <div class="row">
-        <div class="col-md-4">
+    <div class="row table-statuses-row">
+        <div class="table-statuses table-statuses-small">
             <table class="table table-bordered table-striped table-hover process-statuses">
                 <thead>
                 <tr>
@@ -29,7 +29,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-md-4">
+        <div class="table-statuses table-statuses-small">
             <table class="table table-bordered table-striped table-hover undefined-statuses">
                 <thead>
                 <tr>
@@ -56,7 +56,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-md-4">
+        <div class="table-statuses table-statuses-small">
             <table class="table table-bordered table-striped table-hover fail-statuses">
                 <thead>
                 <tr>
@@ -83,10 +83,8 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-4">
+        <div class="table-statuses table-statuses-small">
             <table class="table table-bordered table-striped table-hover bad-statuses">
                 <thead>
                 <tr>
@@ -114,7 +112,7 @@
             </table>
         </div>
         @if(isset($sphere->statusTransitions) && count($sphere->statusTransitions) > 0)
-            <div class="col-md-8">
+            <div class="table-statuses table-statuses-large">
                 <table class="table table-bordered table-striped table-hover performance-table">
                     <thead>
                     <tr>
