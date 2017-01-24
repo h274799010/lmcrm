@@ -644,20 +644,6 @@ class LeadController extends AgentController {
      */
     public function openedLeads(){
 
-
-//        dd(1);
-
-//        $openedLead = OpenLeads::find(14);
-
-//        dd($openedLead);
-
-//        OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, 45);
-
-
-//        dd('Перелет');
-
-
-
         // получаем данные агента
         $user = $this->user;
 
@@ -860,7 +846,11 @@ class LeadController extends AgentController {
 
             // если новый статус меньше уже установленного, выходим из метода
             // или лид отмечен как плохой
-            if( $status->id < $openedLead->status || $openedLead->state == 1 || $openedLead->state == 2 ){
+//            if( $status->id < $openedLead->status || $openedLead->state == 1 || $openedLead->state == 2 ){
+            if( $openedLead->state == 1 || $openedLead->state == 2 ) {
+                return response()->json(FALSE);
+
+            }elseif( $status->type == 1 && $status->id < $openedLead->status ){
                 return response()->json(FALSE);
 
             }else{
