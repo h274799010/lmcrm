@@ -92,37 +92,31 @@ class OpenLeadsStatusDetails extends Model
         // получаем все статусы сферы
         $allStatuses = SphereStatuses::where('sphere_id', $currentStatus->sphere_id)->get();
 
-
         // разбираем все статусы по типам и каждый тип по позиции
         $statusesByType = [];
-        $allStatuses->each(function($item) use (&$statusesByType, &$previous_status, &$previous_status_id){
-            // перебираем каждый тип по позиции
-            $item->each(function($status) use (&$statusesByType, &$previous_status, &$previous_status_id){
-                // сохраняем данные в массивы
+        $allStatuses->each(function($status) use (&$statusesByType, &$previous_status, &$previous_status_id){
+            // сохраняем данные в массивы
 
-                // действия в зависимости от предыдущего статуса
-                if($previous_status_id == 0){
-                    // если статус нулевой
+            // действия в зависимости от предыдущего статуса
+            if($previous_status_id === 0){
+                // если статус нулевой
 
-                    // выбираем статус из рабочих с позицией 1
-                    if( $status->type == 1 && $status->position == 1){
-                        $previous_status = $status;
-                    }
-
-                }else{
-                    // если статус не нулевой
-
-                    // выбираем данные статусо относительно его id
-                    if( $status->id == $previous_status_id){
-                        $previous_status = $status;
-                    }
+                // выбираем статус из рабочих с позицией 1
+                if( $status->type === 1 && $status->position === 1){
+                    $previous_status = $status;
                 }
 
+            }else{
+                // если статус не нулевой
 
-                $statusesByType[$status->type][$status->position] = $status->toArray();
-            });
+                // выбираем данные статусо относительно его id
+                if( $status->id === $previous_status_id){
+                    $previous_status = $status;
+                }
+            }
+
+            $statusesByType[$status->type][$status->position] = $status->toArray();
         });
-
 
         // если переходим на статус Process
         if( $currentStatus->type == 1 ){
