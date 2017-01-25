@@ -5,11 +5,15 @@
 <div class="row">
     <div class="col-md-12" id="openedLeadsFilters">
         <label class="obtain-label-period">
-            Period:
-            <select data-name="date" class="selectbox dataTables_filter">
+            Sphere:
+            <select data-name="sphere" class="selectbox dataTables_filter" id="spheresFilter">
                 <option></option>
-                <option value="2d">last 2 days</option>
-                <option value="1m">last month</option>
+            </select>
+        </label>
+        <label class="obtain-label-period">
+            Status:
+            <select data-name="status" class="selectbox dataTables_filter" id="statusesFilter" disabled="disabled">
+                <option></option>
             </select>
         </label>
         <label>
@@ -387,6 +391,7 @@
 @section('scripts')
     <script>
 
+        var jsonSpheres = $.parseJSON('{!! $jsonSpheres !!}');
 
         /**
          * Делает опции выпадающего меню на странице openLeads недоступными (отрабатывает только на фронтенде)
@@ -413,6 +418,31 @@
                     }
                 });
             });
+        }
+
+        function prependSphereFilter(spheres) {
+            var html = '<option selected="selected" value=""></option>';
+            $.each(spheres, function (i, sphere) {
+                html += '<option value="'+sphere.id+'">'+sphere.name+'</option>';
+            });
+
+            return html;
+        }
+
+        function prependStatusesFilter(spheres, sphere_id) {
+            var html = '<option selected="selected" value=""></option>';
+
+            $.each(spheres, function (i, sphere) {
+                if(sphere.id == sphere_id) {
+                    var statuses = sphere.statuses;
+
+                    $.each(statuses, function (i, status) {
+                        html += '<option value="'+status.id+'">'+status.stepname+'</option>';
+                    });
+                }
+            });
+
+            return html;
         }
 
         $(window).on('load', function () {
@@ -478,9 +508,28 @@
                 } else {
                     // если js НЕ равен 1
 
+                    if($(this).data('name') == 'sphere') {
+                        $('#statusesFilter').val('');
+                    }
                     // просто перезагружаем таблицу
                     dTable.ajax.reload();
                 }
+            });
+
+            var $spheresFilter = $('#spheresFilter'),
+                $statusesFilter = $('#statusesFilter');
+            $spheresFilter.html(prependSphereFilter(jsonSpheres));
+            $spheresFilter.data("selectBox-selectBoxIt").refresh();
+
+            $(document).on('change', '#spheresFilter', function () {
+                $statusesFilter.html('<option selected="selected" value=""></option>');
+                if($(this).val() != '') {
+                    $statusesFilter.html( prependStatusesFilter(jsonSpheres, $(this).val()) );
+                    $statusesFilter.prop('disabled', false);
+                } else {
+                    $statusesFilter.prop('disabled', true).trigger('change');
+                }
+                $statusesFilter.data("selectBox-selectBoxIt").refresh();
             });
         });
 
