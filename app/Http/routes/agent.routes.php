@@ -43,6 +43,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         Route::get('lead/obtain', ['as' => 'agent.lead.obtain', 'uses' => 'Agent\LeadController@obtain']);
         // страница с открытыми лидами
         Route::get('openedLeads', ['as'=>'agent.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
+        Route::get('openedLeadsData', ['as'=>'agent.lead.openedData', 'uses'=>'Agent\LeadController@openedLeadsData']);
         // открытие лида
         Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'middleware' => ['redirectIfNotActive'], 'uses' => 'Agent\LeadController@openLead']);
         // максимальное открытие лида

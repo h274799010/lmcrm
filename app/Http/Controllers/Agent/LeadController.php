@@ -15,6 +15,7 @@ use App\Models\SphereStatuses;
 use App\Models\AgentsPrivateGroups;
 use App\Models\OpenLeadsStatusDetails;
 use App\Transformers\ObtainedLeadsTransformer;
+use App\Transformers\OpenedLeadsTransformer;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
@@ -661,6 +662,25 @@ class LeadController extends AgentController {
         $view = 'agent.lead.opened';
 
         return view($view, [ 'openLeads'=>$openLeads ]);
+    }
+
+    public function openedLeadsData(Request $request)
+    {
+        $user = $this->user;
+
+        $openLeads = OpenLeads::where('agent_id', '=', $user->id)
+            ->with('maskName2')
+            ->with([
+                'lead' => function ($query) {
+                    $query->with('sphereStatuses');
+                }
+            ])
+            ->with('statusInfo')
+            ->orderBy('created_at', 'desc');
+
+        return Datatables::of( $openLeads )
+            ->setTransformer(new OpenedLeadsTransformer())
+            ->make();
     }
 
 

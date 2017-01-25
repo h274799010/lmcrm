@@ -182,7 +182,8 @@ class SentinelDatabaseSeeder extends Seeder
                 "agent.salesman.store" => true,
                 "agent.salesman.edit" => true,
                 "agent.salesman.update" => true,
-                'agent.sphere.activateMask' => true
+                'agent.sphere.activateMask' => true,
+                'agent.lead.openedData' => true
             ]
         ));
 
