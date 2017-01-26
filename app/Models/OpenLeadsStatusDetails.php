@@ -182,6 +182,10 @@ class OpenLeadsStatusDetails extends Model
         return false;
     }
 
+
+
+
+
     public function getStatisticAgentBySphereStatuses($agent_id)
     {
         //

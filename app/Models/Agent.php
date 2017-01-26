@@ -63,8 +63,18 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
      *
      */
     public function spheres(){
-        return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')->where('status', 1);
+        return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')->with('SphereStatusTransitions')->where('status', 1);
     }
+
+
+    /**
+     * Записи в по смене статусов открытых лидов агента
+     *
+     */
+    public function openLeadStatusesHistory(){
+        return $this->hasMany('\App\Models\OpenLeadsStatusDetails', 'user_id', 'id');
+    }
+
 
     public function accountManagers() {
         return $this->belongsToMany('\App\Models\User','account_managers_agents','agent_id','account_manager_id');
@@ -410,5 +420,133 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
 
         return $spheres;
     }
+
+
+    public function statistics(){
+
+
+//        $dateFrom = $dateTo = null;
+//        if(isset($period) && !empty($period)) {
+//            $period = explode('/', $period);
+//            $dateFrom = str_replace(' ', '', $period[0]);
+//            $dateTo = str_replace(' ', '', $period[1]);
+//
+//            $dateFrom = Carbon::createFromFormat('Y-m-d', $dateFrom)->timestamp;
+//            $dateTo = Carbon::createFromFormat('Y-m-d', $dateTo)->timestamp;
+//
+//            /*$countOpenLeadsPeriod = $this->openLeadsInSphere($sphere->id)
+//                ->where('open_leads.created_at', '>=', $dateFrom)
+//                ->where('open_leads.created_at', '<=', $dateTo)
+//                ->count();*/
+//        }
+
+
+
+        // подгружаем сферы, если их нет
+        $spheres = $this->spheres;
+
+        // подключение всей истории пользователя
+        $userTransitionsHistory = $this->openLeadStatusesHistory;
+
+
+        /** Разбор истории пользователя */
+        // история статусов пользователя разобранная по previous_status_id
+        $userTransitions = collect();
+        // заполнение переменной $userTransitions
+        $userTransitionsHistory->each(function( $transition ) use ( &$userTransitions ){
+
+            // проверяем существует ли коллекция с ключем previous_status_id
+            if( empty($userTransitions[$transition->previous_status_id]) ){
+                // если нет - создаем
+                $userTransitions[$transition->previous_status_id] = collect();
+            }
+
+            // проверяем существует ли коллекция в нутри previous_status_id с ключем status_id
+            if( empty($userTransitions[$transition->previous_status_id][$transition->status_id]) ){
+                // если нет - создаем
+                $userTransitions[$transition->previous_status_id][$transition->status_id] = collect();
+            }
+
+            // добавляем транзит в коллекцию
+            $userTransitions[$transition->previous_status_id][$transition->status_id]->push( $transition );
+        });
+
+        // добавляем историю в модель
+        $this->history = $userTransitions;
+
+
+        // переменная со статистикой
+        $statistics = collect();
+
+        /** Разбор транзитов пользовтеля по транзитам сферы */
+        // транзиты сфер разобранные по сферам
+        $transitionsBySpheres = collect();
+        // разбор транзитов сфер по сферам и запись в коллекцию $transitionsBySpheres с ключом id сферы
+        $spheres->each(function( $sphere ) use ( &$transitionsBySpheres, &$statistics, $userTransitions ){
+
+            // транзиты сфер
+            $transitions = collect();
+
+            // разбор транзитов и запись в коллекцию $transitions c ключом position транзита
+            $sphere->SphereStatusTransitions->each(function( $transit ) use ( &$transitions, &$statistics, $userTransitions, $sphere ){
+
+                // проверяем на наличие записи в статистике
+                if( !$statistics->has($sphere->id) ){
+                    // если их нет
+
+                    // создаем
+                    $statistics->put( $sphere->id, collect() );
+                }
+
+//                dd($userTransitions);
+
+                // если в транзитах пользователя содержится совпадение по начальному и конечному статусу - фиксируем это
+                if( $userTransitions->has($transit->previous_status_id) && $userTransitions[$transit->previous_status_id]->has($transit->status_id) ){
+
+                    if( !$statistics[$sphere->id]->has( $transit->position ) ){
+                        $statistics[$sphere->id]->put( $transit->position, collect() );
+                    }
+
+//                    dd($userTransitions[$transit->previous_status_id][$transit->status_id]);
+
+//                    dd($transit);
+
+                    $statistics[$sphere->id][$transit->position]->put( 'fromStatus', $transit['previous_status_id'] );
+                    $statistics[$sphere->id][$transit->position]->put( 'toStatus', $transit['status_id'] );
+
+                    $statistics[$sphere->id][$transit->position]->put( 'rating', 'good' );
+
+                    $statistics[$sphere->id][$transit->position]->put( 'amount', $userTransitions[$transit->previous_status_id][$transit->status_id]->count() );
+                    $statistics[$sphere->id][$transit->position]->put( 'model', $userTransitions[$transit->previous_status_id][$transit->status_id] );
+
+                }else{
+
+                    if( empty($statistics[$sphere->id][$transit->position]) ){
+                        $statistics[$sphere->id][$transit->position] = [];
+                    }
+
+                    $statistics[$sphere->id][$transit->position] = collect();
+                }
+
+                // добавляе транзит в коллекцию транзитов
+                $transitions->put( $transit->position, $transit );
+            });
+
+            // добаляем транзиты в коллекцию $transitionsBySpheres
+            $transitionsBySpheres->put( $sphere->id, $transitions );
+        });
+        // добавляем транзиты в модель транзитов
+        $this->sphereTransitions = $transitionsBySpheres;
+
+
+
+//        dd($userTransitions);
+
+        // добавление статистики в атрибуты модели
+        $this->statistics = $statistics;
+
+        return true;
+    }
+
 
 }

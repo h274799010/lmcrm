@@ -494,7 +494,7 @@ class SphereController extends AdminController {
             ]
         ];
 
-        $statusTransitions = SphereStatusTransitions::where('sphere_id', $id)->get();
+        $statusTransitions = SphereStatusTransitions::where('sphere_id', $id)->orderBy('position')->get();
 
         $notes = [];
 
@@ -1513,6 +1513,7 @@ class SphereController extends AdminController {
          */
         $statusTransitions->each(function($transit) use ($statusOuterId, $sphere, &$transitionsDeletedId){
 
+
             // проверяем существует ли уже запись с таким транзитом
             if($transit['id'] != 0 ){
                 // если существует
@@ -1530,6 +1531,9 @@ class SphereController extends AdminController {
 
                     // обновляем запись транзита статусов
                     $dbTransit = SphereStatusTransitions::find($transit['id']);
+                    $dbTransit->sphere_id = $sphere->id;
+                    $dbTransit->previous_status_id = $statusOuterId[ $transit['outer_previous_status_id'] ];
+                    $dbTransit->status_id = $statusOuterId[ $transit['outer_status_id'] ];
 
                     $dbTransit->position = $transit['position'];
 

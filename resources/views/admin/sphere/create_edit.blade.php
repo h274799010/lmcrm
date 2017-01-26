@@ -1222,6 +1222,8 @@
                                         <th>Action</th>
                                     </tr>
 
+                                    {{--| orderBy: 'position'--}}
+
                                     <tr ng-repeat="transition in data.statusTransitions" sv-element ng-class="transition.delete ? 'hidden' : ''" class="status_transition_row">
                                 <td class="selectbox_cell">
                                     <select name="repeatSelect" id="repeatSelect" data-placeholder="-" ng-model="transition.outer_previous_status_id" class="selectbox transition_selectbox">

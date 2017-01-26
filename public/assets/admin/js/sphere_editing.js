@@ -947,6 +947,8 @@ var app = angular.module('app', ['angular-sortable-view'])
                 outer_previous_status_id: "",
                 outer_status_id: "",
 
+                position: $scope.data.statusTransitions.length + 1, // позиция
+
                 transition_direction: 1,
                 rating_1: 20,
                 rating_2: 40,
@@ -1364,10 +1366,6 @@ var app = angular.module('app', ['angular-sortable-view'])
                 }
             }
 
-            //if(){
-            //
-            //}
-
             return true;
         };
 
@@ -1650,10 +1648,24 @@ var app = angular.module('app', ['angular-sortable-view'])
          */
         $scope.positioning = function( list ){
             // перебираем список и выставляем соответствующую позицию каждому элементу
-            list.forEach(function(item, i) {
-                // проставляем позицию
+
+            //console.log( $scope.data );
+
+            angular.forEach(list, function(item, i){
+
                 item.position = i+1;
             });
+
+
+            //list.forEach(function(item, i) {
+            //    // проставляем позицию
+            //    console.log('позиционирование: ' + item.id);
+            //    console.log('до: ' + item.position);
+            //
+            //    item.position = i+1;
+            //    console.log('после: ' + item.position);
+            //    console.log('---------------');
+            //});
         };
 
 
@@ -1797,13 +1809,13 @@ var app = angular.module('app', ['angular-sortable-view'])
                         localStorage.setItem( 'errors', data.errors );
 
                         // переходим на страницу редактирования
-                         location.href = data.route;
+                        location.href = data.route;
 
                     }else{
                         // непонятный ответ сервера
 
                         // идем на главную страницу
-                         location.href = '/';
+                        location.href = '/';
                     }
 
                 })
