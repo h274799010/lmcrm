@@ -50,6 +50,16 @@ class Sphere extends Model
 
 
     /**
+     * Транзиты по сфере
+     *
+     */
+    public function SphereStatusTransitions(){
+        return $this->hasMany('App\Models\SphereStatusTransitions', 'sphere_id', 'id')->orderBy('position');
+    }
+
+
+
+    /**
      * Получение дополнительных данных по сфере
      *
      *

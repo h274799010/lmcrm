@@ -44,5 +44,27 @@ Route::get('transitionTest/{status}', function($status){
 
 });
 
+Route::get('stat', function(){
 
+
+    $aaaa = \App\Helper\Statistics::openLeads( 6, 1 );
+
+
+    dd($aaaa);
+
+    $agent = \App\Models\Agent::find(6);
+//    $agent = \App\Models\Agent::find(3);
+
+
+    $agent->statistics();
+
+//    dd($agent->sphereTransitions);
+//    dd($agent->history);
+    dd($agent->statistics);
+
+    dd($agent);
+
+    return 'ok';
+
+});
 
