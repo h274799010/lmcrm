@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Models\Agent;
 use App\Models\AgentBitmask;
 use App\Models\AgentSphere;
+use App\Models\Bitmask;
 use App\Models\FormFiltersOptions;
 use App\Models\AdditionFormsOptions;
 
@@ -1068,6 +1069,10 @@ class SphereController extends AdminController {
         }
 
         $sphere->save();
+
+        if(!$id) {
+            Bitmask::createTables($sphere->id);
+        }
 
 
 

@@ -3,9 +3,32 @@
 @section('content')
 <!-- Page Content -->
 <div class="row">
+    <div class="col-md-12" id="openedLeadsFilters">
+        <label class="obtain-label-period">
+            Sphere:
+            <select data-name="sphere" class="selectbox dataTables_filter" id="spheresFilter">
+                <option></option>
+            </select>
+        </label>
+        <label class="obtain-label-period">
+            Status:
+            <select data-name="status" class="selectbox dataTables_filter" id="statusesFilter" disabled="disabled">
+                <option></option>
+            </select>
+        </label>
+        <label>
+            Show
+            <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
+                <option></option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select> entries
+        </label>
+    </div>
     <div id="main_table" class="col-md-12">
 
-        <table class="table table-bordered table-striped table-hover openLeadsTable">
+        <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
             <thead>
                 <tr>
                     <th>{{ trans("site/lead.opened.icon") }}</th>
@@ -18,81 +41,6 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach ($openLeads as $openLead)
-                <tr lead_id="{{ $openLead['lead']['id'] }}"  opened_Lead_Id="{{ $openLead['id'] }}">
-                    <td><div></div></td>
-                    <td class="select_cell">
-
-                        {{-- Проверка на наличие статусов у сферы --}}
-
-                        {{--Если у сферы нет статусов, значить сфера удаленна--}}
-                        @if($openLead['lead']['sphereStatuses'])
-                            {{-- если статусы есть --}}
-
-                            {{-- Если лид был отмечен как плохой --}}
-                            @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
-                                {{--@lang('agent/openLeads.bad_lead')--}}
-                                @if(isset($openLead->statusInfo->stepname))
-                                    {{ $openLead->statusInfo->stepname }}
-                                @else
-                                    @lang('agent/openLeads.bad_lead')
-                                @endif
-                            {{-- впротивном случае вывод select со статусами --}}
-                            @elseif( $openLead->state == 2 )
-                                @lang('site/lead.deal_closed')
-                            @else
-
-                                <select name="status" class="form">
-                                    @if( $openLead->status == 0 )
-                                        <option selected="selected" class="emptyOption"></option>
-                                    @endif
-                                    {{--@if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
-                                        <option value="bad" class="badOption">bad lead</option>
-                                    @endif--}}
-                                    @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
-                                        @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                                            <option value="{{ $status->id }}" @if($status->type == 4) class="badOption" @endif @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                                        @endforeach
-                                    @else
-                                        @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                                            @if($status->type != 4)
-                                                <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                        <option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>
-                                </select>
-                            @endif
-                        @else
-                            {{-- если статусов нет --}}
-
-                            <div class="sphere_deleted">@lang('agent/openLeads.sphere_deleted')</div>
-
-                        @endif
-                        {{-- Конец проверки на наличие статусов у сферы --}}
-
-                    </td>
-                    <td><div>{{ $openLead['lead']['name'] }}</div></td>
-                    <td><div>{{ $openLead['lead']['phone']->phone }}</div></td>
-                    <td><div>{{ $openLead['lead']['email'] }}</div></td>
-                    <td>
-                        @if($openLead['mask_id']==0)
-                            <div class="from_agent">from agent</div>
-                        @elseif($openLead->maskName2)
-                            <div> {{ $openLead->maskName2->name }}</div>
-                        @else
-                            <div class="mask_deleted">@lang('agent/openLeads.mask_deleted')</div>
-                        @endif
-                    </td>
-                    <td class="edit">
-                        <div>
-                            <a href="#">
-                                <img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip">
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
             </tbody>
         </table>
 
@@ -230,7 +178,7 @@
             cursor: help;
         }
 
-        table.table.openLeadsTable > tbody > tr > td.select_cell{
+        table.table.openLeadsTable > tbody > tr > div.select_cell{
             padding: 0 !important;
             margin: 0;
             vertical-align: middle;
@@ -239,7 +187,7 @@
 
 
 
-        td.select_cell .form{
+        div.select_cell .form{
             width: 100% !important;
             height: 100% !important;
             border-radius: 0 !important;
@@ -249,42 +197,42 @@
 
 
         /*длина контейнера*/
-        td.select_cell .selectboxit-container.selectboxit-container{
+        div.select_cell .selectboxit-container.selectboxit-container{
             width: 100%;
             /*height: 100% !important;*/
             border: solid 1px #ED5056;
 
         }
 
-        td.select_cell .selectboxit-container.selectboxit-container .selectboxit-text{
+        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-text{
             color: #ED5056;
             margin: 4px;
         }
 
 
-        td.select_cell .selectboxit-container.selectboxit-container .selectboxit-arrow-container{
+        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-arrow-container{
             width: 16px;
             height: 100%;
             background: #ED5056;
         }
 
-        td.select_cell .selectboxit-container.selectboxit-container .selectboxit-arrow-container i{
+        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-arrow-container i{
             font-size: 11px !important;
         }
 
 
-        td.select_cell .selectboxit-container.selectboxit-container .selectboxit-option-icon-container{
+        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-option-icon-container{
             margin: 0;
         }
 
 
-        td.select_cell .selectboxit-container.selectboxit-container .selectboxit-option-icon-container i{
+        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-option-icon-container i{
             border: none;
             background: none;
         }
 
 
-        td.select_cell .selectboxit-container.selectboxit-container ul{
+        div.select_cell .selectboxit-container.selectboxit-container ul{
             min-width: 150px !important;
         }
 
@@ -293,16 +241,16 @@
         }
 
 
-        td.select_cell ul li.disabled{
+        div.select_cell ul li.disabled{
             background: lightgray;
             cursor: default;
         }
 
-        td.select_cell ul li.disabled a{
+        div.select_cell ul li.disabled a{
             color: grey;
         }
 
-        td.select_cell ul li.selectboxit-focus a {
+        div.select_cell ul li.selectboxit-focus a {
             background: #ED5056 !important;
         }
 
@@ -443,13 +391,147 @@
 @section('scripts')
     <script>
 
-        $.extend( true, $.fn.dataTable.defaults, {
-            "language": {
-                "url": '{{ asset('components/datatables-plugins/i18n/'.LaravelLocalization::getCurrentLocaleName().'.lang') }}'
-            }
+        var jsonSpheres = $.parseJSON('{!! $jsonSpheres !!}');
 
+        /**
+         * Делает опции выпадающего меню на странице openLeads недоступными (отрабатывает только на фронтенде)
+         *
+         * перебирает все опции в селекте и останавливается только дойдя до активной опции
+         *
+         */
+
+        function disabledSelectOption() {
+
+            // выбираем все ячейки с селектом в таблице
+            $.each($(document).find('.select_cell'), function (k, cell) {
+
+                // перебираем все опции в ячейке
+                $.each($(cell).find('li'), function (k, li) {
+
+                    // если доходим до активного класса - останавливаемся
+                    if ($(li).hasClass('selectboxit-selected')) {
+                        return false;
+
+                        // если опция находится до активного класса - делаем ее недоступной
+                    } else {
+                        $(li).attr('data-disabled', 'true').addClass('disabled');
+                    }
+                });
+            });
+        }
+
+        function prependSphereFilter(spheres) {
+            var html = '<option selected="selected" value=""></option>';
+            $.each(spheres, function (i, sphere) {
+                html += '<option value="'+sphere.id+'">'+sphere.name+'</option>';
+            });
+
+            return html;
+        }
+
+        function prependStatusesFilter(spheres, sphere_id) {
+            var html = '<option selected="selected" value=""></option>';
+
+            $.each(spheres, function (i, sphere) {
+                if(sphere.id == sphere_id) {
+                    var statuses = sphere.statuses;
+
+                    $.each(statuses, function (i, status) {
+                        html += '<option value="'+status.id+'">'+status.stepname+'</option>';
+                    });
+                }
+            });
+
+            return html;
+        }
+
+        $(window).on('load', function () {
+            var $table = $('#openLeadsTable');
+            var $container = $('#openedLeadsFilters');
+
+            var dTable = $table.DataTable({
+                "destroy": true,
+                "searching": false,
+                "lengthChange": false,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url" : '{{ route('agent.lead.openedData') }}',
+                    "data": function (d) {
+
+                        // переменная с данными по фильтру
+                        var filter = {};
+
+                        // перебираем фильтры и выбираем данные по ним
+                        $container.find('select.dataTables_filter').each(function () {
+
+                            // если есть name и нет js
+                            if ($(this).data('name') && $(this).data('js') != 1) {
+
+                                // заносим в фильтр данные с именем name и значением опции
+                                filter[$(this).data('name')] = $(this).val();
+                            }
+                        });
+
+                        // данные фильтра
+                        d['filter'] = filter;
+                    },
+                    "complete": function () {
+                        $(document).find('#openLeadsTable select').selectBoxIt();
+                        // делаем опции, которые находятся до активной опции - недоступными
+                        disabledSelectOption();
+                    }
+                },
+
+                "responsive": true
+            });
+
+
+            // обработка фильтров таблицы при изменении селекта
+            $container.find('select.dataTables_filter').change(function () {
+
+                // проверяем параметр data-js
+                if ($(this).data('js') == '1') {
+                    // если js равен 1
+
+                    // перечисляем имена
+                    switch ($(this).data('name')) {
+
+                        // если у селекта имя pageLength
+                        case 'pageLength':
+                            // перерисовываем таблицу с нужным количеством строк
+                            if ($(this).val()) dTable.page.len($(this).val()).draw();
+                            break;
+                        default:
+                            ;
+                    }
+                } else {
+                    // если js НЕ равен 1
+
+                    if($(this).data('name') == 'sphere') {
+                        $('#statusesFilter').val('');
+                    }
+                    // просто перезагружаем таблицу
+                    dTable.ajax.reload();
+                }
+            });
+
+            var $spheresFilter = $('#spheresFilter'),
+                $statusesFilter = $('#statusesFilter');
+            $spheresFilter.html(prependSphereFilter(jsonSpheres));
+            $spheresFilter.data("selectBox-selectBoxIt").refresh();
+
+            $(document).on('change', '#spheresFilter', function () {
+                $statusesFilter.html('<option selected="selected" value=""></option>');
+                if($(this).val() != '') {
+                    $statusesFilter.html( prependStatusesFilter(jsonSpheres, $(this).val()) );
+                    $statusesFilter.prop('disabled', false);
+                } else {
+                    $statusesFilter.prop('disabled', true).trigger('change');
+                }
+                $statusesFilter.data("selectBox-selectBoxIt").refresh();
+            });
         });
-
 
         // путь к методу получения итема органайзера
         var getOrganizerRoute = '{{ route('agent.lead.OrganizerItem')  }}';
@@ -816,10 +898,10 @@
         var openLeadsTable = $('table.openLeadsTable tbody tr td').not( ".select_cell,.edit " );
 
         // привязываем функцию на клик, которая будет прорисовывать таблицу
-        openLeadsTable.bind( 'click', function(){
+        $(document).on( 'click', 'table#openLeadsTable tbody tr td:not(:eq(1)):not(:last-child())', function(){
 
             // id лида, данные которого нужно ввести в таблицу
-            var id = $(this).parent().attr('lead_id');
+            var id = $(this).closest('tr').attr('lead_id');
 
             // отрисовываем таблицу
             reloadTable(id);
@@ -838,7 +920,7 @@
 
             function disabledOptionFromServer() {
 
-                $.each($('.select_cell'), function (k, cell) {
+                $.each($(document).find('.select_cell'), function (k, cell) {
 
                     // номера опций которые нужно заблокировать
                     var disabled_data = $(cell).find('select').attr('disabled_opt').split(',');
@@ -853,39 +935,6 @@
                 });
             }
 
-
-            /**
-             * Делает опции выпадающего меню на странице openLeads недоступными (отрабатывает только на фронтенде)
-             *
-             * перебирает все опции в селекте и останавливается только дойдя до активной опции
-             *
-             */
-
-            function disabledSelectOption() {
-
-                // выбираем все ячейки с селектом в таблице
-                $.each($('.select_cell'), function (k, cell) {
-
-                    // перебираем все опции в ячейке
-                    $.each($(cell).find('li'), function (k, li) {
-
-                        // если доходим до активного класса - останавливаемся
-                        if ($(li).hasClass('selectboxit-selected')) {
-                            return false;
-
-                            // если опция находится до активного класса - делаем ее недоступной
-                        } else {
-                            $(li).attr('data-disabled', 'true').addClass('disabled');
-                        }
-                    });
-                });
-            }
-
-
-            // делаем опции, которые находятся до активной опции - недоступными
-            disabledSelectOption();
-
-
             /**
              * Сохранение состояние модального окна при закрытии сделки
              *
@@ -896,17 +945,17 @@
             var closeDealModalTrigger = false;
 
             /** реакция на изменение выпадающего списка на openLeads */
-            $('.select_cell').change(function(){
+            $(document).on('change', '.select_cell', function(){
 
 
                 // получаем выбранное значение из списка
                 var selectData = $(this).find('.selectboxit-text').attr('data-val');
 
                 // получение id лида
-                var lead_id = $(this).parent().attr('lead_id');
+                var lead_id = $(this).closest('tr').attr('lead_id');
 
                 // получение id лида
-                var openedLeadId = $(this).parent().attr('opened_Lead_Id');
+                var openedLeadId = $(this).closest('tr').attr('opened_Lead_Id');
 
                 // получение токена
                 var token = $('meta[name=csrf-token]').attr('content');
