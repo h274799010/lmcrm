@@ -37,20 +37,20 @@ class Statistics extends Model
     public static function openLeads( $userId, $sphereId, $dateFrom=false, $dateTo=false )
     {
 
-        $d = OpenLeadsStatusDetails::all();
-
-        $d->each(function( $item ){
-
-            $openLead = OpenLeads::with('lead')->find( $item->open_lead_id );
-
-            $item->sphere_id = $openLead->lead->sphere_id;
-            $item->save();
-        });
+//        $d = OpenLeadsStatusDetails::all();
+//
+//        $d->each(function( $item ){
+//
+//            $openLead = OpenLeads::with('lead')->find( $item->open_lead_id );
+//
+//            $item->sphere_id = $openLead->lead->sphere_id;
+//            $item->save();
+//        });
 
 
 //        dd($d);
 
-        dd('все заполнил');
+        dd('ок');
 
         // все транзиты пользователя по сфере
         $allTransitions = 0;
