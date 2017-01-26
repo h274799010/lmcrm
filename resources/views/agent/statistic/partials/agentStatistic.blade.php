@@ -6,13 +6,13 @@
             <table class="table table-bordered table-striped table-hover process-statuses">
                 <thead>
                 <tr>
-                    <th colspan="4">Процессные статусы</th>
+                    <th colspan="4">@lang('statistic.process_statuses')</th>
                 </tr>
                 <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
+                    <th>@lang('statistic.status')</th>
+                    <th>@lang('statistic.count_leads')</th>
+                    <th>@lang('statistic.percentage_total')</th>
+                    <th>@lang('statistic.percentage_period')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -33,13 +33,13 @@
             <table class="table table-bordered table-striped table-hover undefined-statuses">
                 <thead>
                 <tr>
-                    <th colspan="4">Не определенные</th>
+                    <th colspan="4">@lang('statistic.uncertain ')</th>
                 </tr>
                 <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
+                    <th>@lang('statistic.status')</th>
+                    <th>@lang('statistic.count_leads')</th>
+                    <th>@lang('statistic.percentage_total')</th>
+                    <th>@lang('statistic.percentage_period')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -60,13 +60,13 @@
             <table class="table table-bordered table-striped table-hover fail-statuses">
                 <thead>
                 <tr>
-                    <th colspan="4">Отказники</th>
+                    <th colspan="4">@lang('statistic.refuseniks')</th>
                 </tr>
                 <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
+                    <th>@lang('statistic.status')</th>
+                    <th>@lang('statistic.count_leads')</th>
+                    <th>@lang('statistic.percentage_total')</th>
+                    <th>@lang('statistic.percentage_period')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -88,13 +88,13 @@
             <table class="table table-bordered table-striped table-hover bad-statuses">
                 <thead>
                 <tr>
-                    <th colspan="4">Плохие</th>
+                    <th colspan="4">@lang('statistic.bad')</th>
                 </tr>
                 <tr>
-                    <th>Статус</th>
-                    <th>Кол-во лидов</th>
-                    <th>Процент от общего числа</th>
-                    <th>Процент за выбранный период</th>
+                    <th>@lang('statistic.status')</th>
+                    <th>@lang('statistic.count_leads')</th>
+                    <th>@lang('statistic.percentage_total')</th>
+                    <th>@lang('statistic.percentage_period')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -116,14 +116,14 @@
                 <table class="table table-bordered table-striped table-hover performance-table">
                     <thead>
                     <tr>
-                        <th colspan="5">уровень производительности</th>
+                        <th colspan="5">@lang('statistic.level_performance')</th>
                     </tr>
                     <tr>
-                        <th>Статус 1</th>
-                        <th>Статус 2</th>
-                        <th>Процент от общего числа</th>
-                        <th>Процент за выбранный период</th>
-                        <th>Оценка</th>
+                        <th>@lang('statistic.status_1')</th>
+                        <th>@lang('statistic.status_2')</th>
+                        <th>@lang('statistic.percentage_total')</th>
+                        <th>@lang('statistic.percentage_period')</th>
+                        <th>@lang('statistic.rating')</th>
                     </tr>
                     </thead>
                     <tbody>
