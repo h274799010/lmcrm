@@ -1431,7 +1431,7 @@ class SphereController extends AdminController {
 
 
         // массив соответствий внешнего статуса статусу по БД
-        $statusOuterId = [ 0=>0 ];
+        $statusOuterId = [ 0=>0, -2=>-2 ];
 
 
         /**

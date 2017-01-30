@@ -1248,6 +1248,8 @@
                                         <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                         <option ng-if="statusSeparator(4)" disabled>----------</option>
                                         <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        <option ng-if="statusSeparator(4)" disabled>----------</option>
+                                        <option value="-2">Close Deal</option>
                                     </select>
                                 </td>
                                 <td class="transition_direction" ng-click="changeTransitionDirection( transition )">
@@ -1264,8 +1266,9 @@
 
                                 {{-- Оценка Col --}}
                                 <td ng-class="transitionInspection(transition, 'col') ? '':'error_col_content' " class="input_cell">
-                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 1" class="more_less_item">less than</span>
-                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 2" class="more_less_item">more than</span>
+                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 1" class="more_less_item">0</span>
+                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 2" class="more_less_item">100</span>
+                                    <i class="glyphicon glyphicon-resize-horizontal transition_sign"></i>
                                     <input ng-model="transition.rating_1" type="text" class="status_percent">
                                 </td>
 
@@ -1292,9 +1295,10 @@
 
                                 {{-- Оценка Good --}}
                                 <td ng-class="transitionInspection(transition, 'good') ? '':'error_col_content' " class="input_cell">
-                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 1" class="more_less_item">more than</span>
-                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 2" class="more_less_item">less than</span>
                                     <input ng-model="transition.rating_4" type="text" class="status_percent">
+                                    <i class="glyphicon glyphicon-resize-horizontal transition_sign"></i>
+                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 1" class="more_less_item">100</span>
+                                    <span ng-class="transitionInspection(transition, 'good') ? '':'more_less_item_error' " ng-if="transition.transition_direction == 2" class="more_less_item">0</span>
                                 </td>
 
                                 <td>
@@ -2009,10 +2013,10 @@
         }
 
         .more_less_item{
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            color: grey;
+            /*display: block;*/
+            /*font-size: 12px;*/
+            /*font-weight: 700;*/
+            /*color: grey;*/
         }
 
         .percent_sign{

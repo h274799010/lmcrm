@@ -367,6 +367,55 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before
 	text-align: center;
 }
 
+.center{
+	text-align: center !important;
+}
+
+.middle{
+	vertical-align: middle !important;
+}
+
+.statistics_process_statuses th{
+    color: #ffffff !important;
+    background: #00B050;
+}
+
+.statistics_uncertain_statuses th{
+    color: #ffffff !important;
+    background: #5A8230;
+}
+
+.statistics_refuseniks_statuses th{
+    color: #ffffff !important;
+    background: #D9A502;
+}
+
+.statistics_bad_statuses th{
+    color: #ffffff !important;
+    background: #CD0000;
+}
+
+.statistics_transitions_statuses th{
+    color: #ffffff !important;
+    background: #478295;
+}
+
+.statistics_no_data{
+    color: grey;
+}
+
+span.badge.statistics_head_badge{
+    color: #3F51B5;
+    background: white;
+}
+
+
+.statistics_input{
+	background: white;
+	border: none;
+	cursor: pointer;
+}
+
 .status_Good {
 	background-color: rgb(0, 176, 80);
 	color: #000000;
@@ -411,6 +460,11 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before
 	padding: 0 15px;
 	margin-left: -4px;
 }
+
+.table-statuses th{
+    color: grey;
+}
+
 .table-statuses.table-statuses-small {
 	width: 33.33333%;
 }

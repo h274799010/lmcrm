@@ -44,10 +44,12 @@ Route::get('transitionTest/{status}', function($status){
 
 });
 
-Route::get('stat', function(){
+Route::get('stat/{user}/{sphere}', function( $user, $sphere ){
 
 
-    $aaaa = \App\Helper\Statistics::openLeads( 6, 1 );
+    $aaaa = \App\Helper\Statistics::openLeads( $user, $sphere );
+
+//    $aaaa = \App\Helper\Statistics::openLeads( 6, 1, '2017-01-10', '2017-01-24' );
 
 
     dd($aaaa);

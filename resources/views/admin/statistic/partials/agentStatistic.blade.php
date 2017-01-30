@@ -2,6 +2,9 @@
     <h4>{{ $sphere->name }}</h4>
 
     <div class="row table-statuses-row">
+
+
+        {{-- Процессные статусы --}}
         <div class="table-statuses table-statuses-small">
             <table class="table table-striped table-hover process-statuses">
                 <thead>
@@ -29,6 +32,9 @@
                 </tbody>
             </table>
         </div>
+
+
+        {{-- Не определенные статусы --}}
         <div class="table-statuses table-statuses-small">
             <table class="table table-striped table-hover undefined-statuses">
                 <thead>
@@ -56,6 +62,9 @@
                 </tbody>
             </table>
         </div>
+
+
+        {{-- Отказники --}}
         <div class="table-statuses table-statuses-small">
             <table class="table table-striped table-hover fail-statuses">
                 <thead>
@@ -84,6 +93,8 @@
             </table>
         </div>
 
+
+        {{-- Плохие --}}
         <div class="table-statuses table-statuses-small">
             <table class="table table-striped table-hover bad-statuses">
                 <thead>
@@ -111,6 +122,9 @@
                 </tbody>
             </table>
         </div>
+
+
+        {{-- уровень производительности --}}
         @if(isset($sphere->statusTransitions) && count($sphere->statusTransitions) > 0)
             <div class="table-statuses table-statuses-large">
                 <table class="table table-striped table-hover performance-table">
