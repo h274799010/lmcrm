@@ -475,6 +475,16 @@ span.badge.statistics_head_badge{
 	padding-left: 4px;
 }
 
+.selectboxit-container {
+	vertical-align: middle;
+}
+.selectboxit-container .selectboxit {
+	padding-right: 30px;
+}
+.selectboxit-container .selectboxit-options a {
+	padding-right: 30px;
+}
+
 @media only screen and (max-width: 1614px) {
 	.table-statuses.table-statuses-small {
 		width: 50%;
