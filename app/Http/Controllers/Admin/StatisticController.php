@@ -202,12 +202,7 @@ class StatisticController extends Controller
 
     public function agentStatisticData(Request $request)
     {
-//        dd($request->all());
 
-//        return $request->all();
-//        return $request->agent_id;
-//        return $request->timeFrom;
-//        return $request->timeTo;
 
         $user_id = $request->agent_id;
         $timeFrom = $request->timeFrom;

@@ -481,24 +481,6 @@
         }
 
 
-//        $(document).ready(function () {
-
-//            // подулючение select2 к селекту
-//            $('select').select2({
-//                allowClear: true
-//            });
-//
-//            // отправка запроса на обновление данных при изменении периода
-//            $(document).on('change', '#reportrange', function () {
-//                loadStatistic();
-//            })
-//        });
-//        $(window).on('load', function () {
-//            loadStatistic();
-//        });
-
-
-
         $(function() {
 
             // подулючение select2 к селекту
