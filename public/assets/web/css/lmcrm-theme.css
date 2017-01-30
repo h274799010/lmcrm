@@ -465,6 +465,17 @@ span.badge.statistics_head_badge{
     color: grey;
 }
 
+.statistic-sphere-name{
+    padding: 18px 15px 10px 15px;
+    border-radius: 0 30px 0 0;
+    color: white;
+    background: #3F51B5;
+}
+
+.sphere_no_data{
+    color: grey;
+}
+
 .table-statuses.table-statuses-small {
 	width: 33.33333%;
 }

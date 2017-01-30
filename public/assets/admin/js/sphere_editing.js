@@ -1736,6 +1736,10 @@ var app = angular.module('app', ['angular-sortable-view'])
                 data.opt.variables.range_show_lead_interval_hours.values = String( data.opt.variables.range_show_lead_interval_hours.values );
                 data.opt.variables.range_show_lead_interval_minutes.values = String( data.opt.variables.range_show_lead_interval_minutes.values );
 
+                // преобразовываем статус в строку (иначе выпадающее меню на него не реагирует
+                data.opt.variables.status.values = String( data.opt.variables.status.values );
+
+
                 // отдаем модель
                 $scope.data = data;
 
@@ -1833,7 +1837,7 @@ var app = angular.module('app', ['angular-sortable-view'])
          */
         var validateErrors = localStorage.getItem('errors');
 
-        if( validateErrors ){
+        if( validateErrors != 'false' && validateErrors != null ){
             //console.log( JSON.parse( validateErrors ) );
 
             $scope.errorContent = JSON.parse( validateErrors);
