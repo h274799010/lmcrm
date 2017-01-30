@@ -183,6 +183,7 @@ class Statistics extends Model
         $allOpenLeadsWithNoStatus_All = OpenLeads::
                                           where('agent_id', $userId)
                                         ->where( 'status', 0 )
+                                        ->where('state', '<>', 2)
                                         ->lists('lead_id');
         $allOpenLeadsWithNoStatus = Lead::
                                           whereIn( 'id', $allOpenLeadsWithNoStatus_All )
