@@ -15,7 +15,7 @@ var sphereStatusesCount = 0;
  * Показывает какой id статуса соответствует
  * внешнему статусу outerId
  */
-var statusToOuterId = { 0:0 };
+var statusToOuterId = { 0:0, '-2':'-2' };
 
 var outerIdToStatus = { 0:0 };
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Yajra\Datatables\Facades\Datatables;
 use App\Models\Agent;
 use App\Models\AccountManager;
+use App\Helper\Statistics;
 
 class StatisticController extends Controller
 {
@@ -158,21 +159,104 @@ class StatisticController extends Controller
      */
     public function agentStatistic($agent_id)
     {
-        $agent = Agent::find($agent_id);
+
+        // выбираем агента со сферами
+        $agent = Agent::with('spheres')->find($agent_id);
+
+        // переменная со статистикой по сферам
+        $statistics = collect();
+
+        // получаем статистику агента по каждой сфере
+        $agent->spheres->each(function( $sphere ) use ( &$statistics, $agent_id ){
+
+            $statistic = Statistics::openLeads( $agent_id, $sphere['id'] );
+
+            if( $sphere['openLead'] >= $sphere['minLead'] ){
+
+                $statistics->push( collect([
+                    'status' => true,
+                    'sphereId' => $sphere['id'],
+                    'sphereName' => $sphere['name'],
+                    'data' => $statistic
+                ]) );
+
+            }else{
+
+                $statistics->push( collect([
+                    'status' => false,
+                    'sphereId' => $sphere['id'],
+                    'sphereName' => $sphere['name'],
+                    'minLead' => $sphere['minLead'],
+                    'openLead' => $sphere['openLead'],
+                    'data' => $statistic
+                ]) );
+            }
+        });
 
         return view('admin.statistic.agent', [
-            'agent' => $agent
+            'agent' => $agent,
+            'statistics' => $statistics,
         ]);
     }
 
+
     public function agentStatisticData(Request $request)
     {
-        $agent = Agent::find($request->input('agent_id'));
-        $spheres = $agent->openLeadsStatistic2($request->period);
+//        dd($request->all());
 
-        return view('admin.statistic.partials.agentStatistic', [
-            'spheres' => $spheres
-        ]);
+//        return $request->all();
+//        return $request->agent_id;
+//        return $request->timeFrom;
+//        return $request->timeTo;
+
+        $user_id = $request->agent_id;
+        $timeFrom = $request->timeFrom;
+        $timeTo =$request->timeTo;
+
+
+        // выбираем агента со сферами
+        $agent = Agent::with('spheres')->find($user_id);
+
+        // переменная со статистикой по сферам
+        $statistics = collect();
+
+        // получаем статистику агента по каждой сфере
+        $agent->spheres->each(function( $sphere ) use ( &$statistics, $user_id, $timeFrom, $timeTo ){
+
+            // получаем полную статистику агента по сфере
+            $statistic = Statistics::openLeads( $user_id, $sphere['id'], $timeFrom, $timeTo );
+
+            /**
+             * Проверяем достаточное ли количество открытых лидов для ститистики
+             *
+             */
+            if( $sphere['openLead'] >= $sphere['minLead'] ){
+                // если открытых лидов достаточно для статистики
+
+                // добавляем данные в коллекцию по статистики
+                $statistics->push( collect([
+                    'status' => true,
+                    'sphereId' => $sphere['id'],
+                    'sphereName' => $sphere['name'],
+                    'data' => $statistic
+                ]) );
+
+            }else{
+                // если открытых лидов меньше чем нужно для статистики
+
+                // добавляем данные в коллекцию по статистики
+                $statistics->push( collect([
+                    'status' => false,
+                    'sphereId' => $sphere['id'],
+                    'sphereName' => $sphere['name'],
+                    'minLead' => $sphere['minLead'],
+                    'openLead' => $sphere['openLead'],
+                    'data' => $statistic
+                ]) );
+            }
+        });
+
+        return $statistics;
     }
 
     /**

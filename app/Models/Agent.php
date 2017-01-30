@@ -199,12 +199,14 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
 
         return $mask->where('user_id', '=', $this->id)->first();
     }
+
     public function bitmaskAll($sphere_id)
     {
         $mask = new AgentBitmask($sphere_id);
 
         return $mask->where('user_id', '=', $this->id)->get();
     }
+
     public function bitmaskAllWithNames($sphere_id)
     {
         $masks = new AgentBitmask($sphere_id);
