@@ -182,6 +182,7 @@ return [
 
         App\Providers\LeadServiceProvider::class,
         App\Providers\NoticeServiceProvider::class,
+        App\Providers\UserServiceProvider::class,
 
     ],
 

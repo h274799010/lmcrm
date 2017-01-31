@@ -111,14 +111,14 @@ class Bitmask extends Model
     public static function createTables($id)
     {
         $agentBitmaskTable = 'agent_bitmask_'.$id;
-        $agentBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
+        $agentBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, `deleted_at` TIMESTAMP NULL DEFAULT NULL, PRIMARY KEY (`id`))';
 
         if ( $id && !DB::getSchemaBuilder()->hasTable( $agentBitmaskTable ) ) {
             DB::statement('CREATE TABLE IF NOT EXISTS `' . $agentBitmaskTable .'`' .$agentBitmaskFields , []);
         }
 
         $leadBitmaskTable = 'lead_bitmask_'.$id;
-        $leadBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`id`))';
+        $leadBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, `deleted_at` TIMESTAMP NULL DEFAULT NULL, PRIMARY KEY (`id`))';
 
         if ( $id && !DB::getSchemaBuilder()->hasTable( $leadBitmaskTable ) ) {
             DB::statement('CREATE TABLE IF NOT EXISTS `' . $leadBitmaskTable .'`' .$leadBitmaskFields , []);
