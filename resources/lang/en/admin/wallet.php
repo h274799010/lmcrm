@@ -38,4 +38,5 @@ return [
     'wallet_empty' => 'Wallet empty',
     'transactions_empty' => 'Transactions empty',
     'leads_empty' => 'Leads empty',
+    'undefined_initiator' => 'Initiator user deleted',
 ];
