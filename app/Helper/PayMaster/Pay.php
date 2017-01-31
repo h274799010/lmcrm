@@ -357,6 +357,8 @@ class Pay
     public static function OperatorRepayment( $lead_id )
     {
 
+        $lead = Lead::find($lead_id);
+
         // получаем роли пользователя
         $roles = $lead->leadDepositorData->roles();
 
