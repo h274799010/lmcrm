@@ -356,8 +356,8 @@ class Pay
      */
     public static function OperatorRepayment( $lead_id )
     {
-
-        $lead = Lead::find($lead_id);
+        // выбираем лид
+        $lead = Lead::find( $lead_id );
 
         // получаем роли пользователя
         $roles = $lead->leadDepositorData->roles();
@@ -370,15 +370,12 @@ class Pay
         // сумма, которая была затрачена на обработку лида оператором
         $amount = PayInfo::OperatorPayment( $lead_id ) * (-1);
 
-        // выбираем лид
-        $lead = Lead::find( $lead_id );
-
         // снимаем платеж за оператора с депозитора лида, с кошелька wasted
         $paymentStatus =
         Payment::toSystem(
             [
                 'initiator_id'  => config('payment.system_id'),  // id инициатора платежа
-                'user_id'       => $author_id,          // id депозитора которому будет зачислен wasted
+                'user_id'       => $lead->agent_id,          // id депозитора которому будет зачислен wasted
                 'wallet_type'   => 'wasted',            // тип кошелька c которого будет снята сумма
                 'type'          => 'operatorRepayment', // тип транзакции
                 'amount'        => $amount,             // снимаемая с депозитора сумма
