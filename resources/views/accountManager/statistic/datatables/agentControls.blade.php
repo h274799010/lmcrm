@@ -1,1 +1,1 @@
-<a href="{{ route('accountManager.statistic.agent',[$user->id]) }}" class="btn btn-sm btn-success" title="Statistic">Statistic</a>
+<a href="{{ route('accountManager.statistic.agent',[$user->id]) }}" class="btn btn-sm btn-success" title="@lang('statistic.statistic')">@lang('statistic.statistic')</a>

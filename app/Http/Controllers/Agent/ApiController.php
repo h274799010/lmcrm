@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Input;
 //use App\Http\Requests\Admin\ArticleRequest;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
-use App\Http\Controllers\Notice;
+use App\Facades\Notice;
 use App\Models\Auction;
 use Tymon\JWTAuth\Facades\JWTAuth;
 

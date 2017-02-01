@@ -4,7 +4,7 @@
 @section('content')
     <div class="page-header">
         <h3>
-            Statistic: {{ $agent->email }}
+            @lang('statistic.page_title') {{ $agent->email }}
         </h3>
     </div>
     <div class="row">

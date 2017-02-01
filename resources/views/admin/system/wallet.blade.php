@@ -122,7 +122,6 @@
 
                     @if( count($system->details) )
                         @foreach( $system->details as $detail )
-
                             <tr class="@if( $detail->amount > 0 ) wallet_add @else wallet_decrease @endif">
                                 <td>{{ $detail->transaction->created_at }}</td>
                                 <td> {{ $detail->amount }}</td>
@@ -130,7 +129,11 @@
                                 <td>{{ $detail->wallet_type }}</td>
                                 <td>{{ $detail->type }}</td>
                                 <td>{{ $detail->transaction->id }}</td>
-                                <td>{{ $detail->transaction->initiator->first_name }} {{ $detail->transaction->initiator->last_name }}</td>
+                                @if(!isset($detail->transaction->initiator))
+                                    <td class="undefined-initiator">@lang('admin/wallet.undefined_initiator')</td>
+                                @else
+                                    <td>{{ $detail->transaction->initiator->first_name }} {{ $detail->transaction->initiator->last_name }}</td>
+                                @endif
                                 <td>{{ $detail->transaction->status }}</td>
                             </tr>
                         @endforeach
@@ -222,6 +225,10 @@
         .wallet_decrease{
             background: #E6B9C8;
             color: #833B53;
+        }
+
+        .undefined-initiator {
+            color: #9f191f;
         }
 
 

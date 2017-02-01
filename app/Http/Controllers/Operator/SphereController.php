@@ -24,7 +24,7 @@ use App\Models\Agent;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\Sphere;
-use App\Helper\Notice;
+use App\Facades\Notice;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Helper\PayMaster\Pay;
 use App\Models\OpenLeads;

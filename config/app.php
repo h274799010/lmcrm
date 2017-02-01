@@ -180,7 +180,9 @@ return [
          */
         Jenky\LaravelPlupload\PluploadServiceProvider::class,
 
-        \App\Providers\LeadServiceProvider::class,
+        App\Providers\LeadServiceProvider::class,
+        App\Providers\NoticeServiceProvider::class,
+        App\Providers\UserServiceProvider::class,
 
     ],
 
@@ -245,6 +247,7 @@ return [
 
         'Lead' => App\Facades\Lead::class,
         'CreateLead' => App\Facades\CreateLead::class,
+        'Notice' => App\Facades\Notice::class,
 
     ],
 

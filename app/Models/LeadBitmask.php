@@ -3,13 +3,21 @@
 namespace App\Models;
 
 use App\Models\Bitmask;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeadBitmask extends Bitmask
 {
-
+    use SoftDeletes;
 
     // имя таблицы
     protected $table = NULL;
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 
     /**
      * Конструктор LeadBitmask

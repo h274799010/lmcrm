@@ -157,6 +157,9 @@ class UserController extends AdminController
     {
         if($id != Sentinel::getUser()->id) {
             $user = Sentinel::findById($id);
+            if($user->inRole('agent')) {
+                $user = Agent::find($user->id);
+            }
             $user->delete();
         }
         return redirect()->route('admin.user.index');

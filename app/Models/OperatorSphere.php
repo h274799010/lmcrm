@@ -8,10 +8,11 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 
 class OperatorSphere extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
-    use Authenticatable, CanResetPassword;
+    use Authenticatable, CanResetPassword, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -40,6 +41,13 @@ class OperatorSphere extends EloquentUser implements AuthenticatableContract, Ca
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 
     public function spheres() {
         return $this->belongsToMany('\App\Models\Sphere','operator_sphere','operator_id','sphere_id')->where('status', '=', 1);

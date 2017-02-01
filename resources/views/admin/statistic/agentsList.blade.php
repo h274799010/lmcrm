@@ -15,7 +15,7 @@
         <div class="col-md-6 col-xs-12" id="agentsListFilter">
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="control-label _col-sm-3">Spheres</label>
+                    <label class="control-label _col-sm-3">@lang('statistic.spheres')</label>
                     <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($spheres as $sphere)
@@ -26,7 +26,7 @@
             </div>
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="control-label _col-sm-3">Account manager</label>
+                    <label class="control-label _col-sm-3">@lang('statistic.account_manager')</label>
                     <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($accountManagers as $accountManager)
@@ -37,7 +37,7 @@
             </div>
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="control-label _col-sm-2">Roles</label>
+                    <label class="control-label _col-sm-2">@lang('statistic.roles')</label>
                     <select data-name="role" class="selectbox dataTables_filter form-control" data-placeholder="-">
                         <option value=""></option>
                         <option value="dealmaker">Dealmaker</option>
@@ -51,11 +51,9 @@
         <thead>
         <tr>
             <th>{!! trans("admin/users.name") !!}</th>
-            {{--<th>{!! trans("admin/users.email") !!}</th>--}}
-            {{--<th>{!! trans("admin/admin.created_at") !!}</th>--}}
             <th>{!! trans("admin/admin.role") !!}</th>
-            <th>Sphere</th>
-            <th>Account manager</th>
+            <th>@lang('statistic.sphere')</th>
+            <th>@lang('statistic.account_manager')</th>
             <th>{!! trans("admin/admin.action") !!}</th>
         </tr>
         </thead>
