@@ -2,6 +2,7 @@
 
 namespace App\Helper;
 
+use App\Models\Auction;
 use App\Models\Lead;
 use App\Models\UserMasks;
 use Carbon\Carbon;
@@ -89,38 +90,38 @@ class Statistics extends Model
 
         // todo находит это все дело относительно масок
         // находим количество открытых лидов
-//        $openLeadsAllTransitions = OpenLeads::
-//              where('agent_id', $userId)
-//            ->lists('lead_id');
-//        $allOpenLeads = Lead::
-//              whereIn( 'id', $openLeadsAllTransitions )
-//            ->where( 'sphere_id', $sphereId )
-//            ->count();
-
-        $allOpenLeads = OpenLeads::
-              whereIn( 'mask_id', $sphereMasks )
-            ->where('agent_id', $userId)
+        $openLeadsAllTransitions = OpenLeads::
+              where('agent_id', $userId)
+            ->lists('lead_id');
+        $allOpenLeads = Lead::
+              whereIn( 'id', $openLeadsAllTransitions )
+            ->where( 'sphere_id', $sphereId )
             ->count();
+
+//        $allOpenLeads = OpenLeads::
+//              whereIn( 'mask_id', $sphereMasks )
+//            ->where('agent_id', $userId)
+//            ->count();
 
 
         // todo находит это все дело относительно масок
         // находим количество откртых лидов за заданный период
-//        $openLeadsPeriodTransitions = OpenLeads::
-//              where('agent_id', $userId)
-//            ->where( 'created_at', '>=', $dateFrom )
-//            ->where( 'created_at', '<=', $dateTo )
-//            ->lists('lead_id');
-//        $periodOpenLeads = Lead::
-//              whereIn( 'id', $openLeadsPeriodTransitions )
-//            ->where( 'sphere_id', $sphereId )
-//            ->count();
-
-        $periodOpenLeads = OpenLeads::
-              whereIn( 'mask_id', $sphereMasks )
-            ->where('agent_id', $userId)
+        $openLeadsPeriodTransitions = OpenLeads::
+              where('agent_id', $userId)
             ->where( 'created_at', '>=', $dateFrom )
             ->where( 'created_at', '<=', $dateTo )
+            ->lists('lead_id');
+        $periodOpenLeads = Lead::
+              whereIn( 'id', $openLeadsPeriodTransitions )
+            ->where( 'sphere_id', $sphereId )
             ->count();
+
+//        $periodOpenLeads = OpenLeads::
+//              whereIn( 'mask_id', $sphereMasks )
+//            ->where('agent_id', $userId)
+//            ->where( 'created_at', '>=', $dateFrom )
+//            ->where( 'created_at', '<=', $dateTo )
+//            ->count();
 
 
          $statistics['allOpenLeads'] = $allOpenLeads;
@@ -326,6 +327,36 @@ class Statistics extends Model
             ]) );
         });
 
+
+        // лиды за все время на аукционе
+        $allAuctionWithTrash = Auction::
+                                          where('user_id', $userId)
+                                        ->withTrashed()
+                                        ->where('sphere_id', $sphereId)
+                                        ->groupBy('lead_id')
+                                        ->get();
+
+
+        $statistics['allAuctionWithTrash'] = $allAuctionWithTrash->count();
+
+//        dd($statistics['allAuctionWithTrash']);
+
+
+        $statistics['allAuction'] = Auction::
+                                          where('user_id', $userId)
+                                        ->where('sphere_id', $sphereId)
+                                        ->count();
+
+        $statistics['PeriodAuction'] = Auction::
+                                          where('user_id', $userId)
+                                        ->where('sphere_id', $sphereId)
+                                        ->where( 'created_at', '>=', $dateFrom )
+                                        ->where( 'created_at', '<=', $dateTo )
+                                        ->count();
+
+//        dd($statistics);
+
+//        dd( Auction::where('user_id', $userId)->where('sphere_id', $sphereId)->get() );
 
 
         return $statistics;

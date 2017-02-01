@@ -33,7 +33,7 @@
 
             <div class="row sphere_status_block sphere_{{ $statistic['sphereId'] }}">
 
-                <h4 class="statistic-sphere-name">{{ $statistic['sphereName'] }} <span class="badge statistics_head_badge"> {{ $statistic['data']['periodOpenLeads'] }} / {{ $statistic['data']['allOpenLeads'] }} </span></h4>
+                <h4 class="statistic-sphere-name">{{ $statistic['sphereName'] }} <span class="badge statistics_head_badge"> {{ $statistic['data']['periodOpenLeads'] }} / {{ $statistic['data']['allOpenLeads'] }} </span> <span class="badge statistics_head_badge_auction"> auction {{ $statistic['data']['PeriodAuction'] }}/{{ $statistic['data']['allAuction'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}  </span></h4>
 
                 {{-- Проверяем достаточно ли у агента открытых лидов по сфере для статистики --}}
                 @if( $statistic['status'] )
@@ -290,7 +290,10 @@
                 var sphere = $('.sphere_' + data['sphereId']);
 
                 // обновляем данные по количеству открытых лидов
-                sphere.find('.badge').text( data['data']['periodOpenLeads'] + '/' + data['data']['allOpenLeads'] );
+                sphere.find('.badge.statistics_head_badge').text( data['data']['periodOpenLeads'] + '/' + data['data']['allOpenLeads'] );
+
+                sphere.find('.badge.statistics_head_badge_auction').text( 'auction ' + data['data']['PeriodAuction'] + '/' + data['data']['allAuction'] + '/' + data['data']['allAuctionWithTrash'] );
+                {{--{{ $statistic['data']['PeriodAuction'] }}/{{ $statistic['data']['allAuction'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}--}}
 
                 // обновление данных по открытым лидам с отсутствующим статусом
                 sphere.find('.status_no_status .countAll').text( data['data']['statuses']['nostatus']['countAll'] );

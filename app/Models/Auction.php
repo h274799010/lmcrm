@@ -36,7 +36,7 @@ class Auction extends Model
      *
      * @var boolean
      */
-    public $timestamps = false;
+//    public $timestamps = false;
 
 
 
