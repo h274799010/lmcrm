@@ -77,7 +77,12 @@ class Pay
         );
 
         // получение кошелька пользователя
-        $wallet = $agent->wallet;
+        if($agent->inRole('salesman')) {
+            $salesmanAgent = $agent->agent()->first();
+            $wallet = $salesmanAgent->wallet()->first();
+        } else {
+            $wallet = $agent->wallet;
+        }
 
         // получение кошелька агента
         self::log(
