@@ -13,6 +13,7 @@ use App\Models\OpenLeads;
 use App\Models\Organizer;
 use App\Models\Salesman;
 use App\Models\Sphere;
+use App\Transformers\OpenedLeadsTransformer;
 use Illuminate\Http\Request;
 use App\Models\LeadDepositorData;
 
@@ -510,18 +511,76 @@ class AgentSalesmanLeadController extends LeadController
 
         $user = $this->salesman;
 
-        // Выбираем все открытые лиды агента с дополнительными данными
-        $openLeads = OpenLeads::
-        where( 'agent_id', $user->id )->with('maskName2')
-            ->with( ['lead' => function( $query ){
+        $agent = $user->agent()->first();
+        $spheres = $agent->spheres()
+            ->select('spheres.id', 'spheres.name')
+            ->with('statuses')
+            ->get()->toJson();
+
+        return view('agent.salesman.login.opened', [ 'user' => $user, 'jsonSpheres' => $spheres ]);
+    }
+
+    public function openedLeadsData(Request $request)
+    {
+        $user = $this->salesman;
+
+        $openLeads = OpenLeads::select([
+            'open_leads.id', 'open_leads.lead_id',
+            'open_leads.agent_id','open_leads.mask_id',
+            'open_leads.mask_name_id', 'open_leads.status',
+            'open_leads.state',
+            'open_leads.expiration_time'
+        ])->where('open_leads.agent_id', '=', $user->id);
+
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
+
+                    // проверяем ключ
+                    switch($eFKey) {
+
+                        // если фильтр по дате
+                        case 'sphere':
+
+                            if($eFVal != '') {
+                                $openLeads = $openLeads->join('leads', function ($join) use ($eFVal) {
+                                    $join->on('open_leads.lead_id', '=', 'leads.id')
+                                        ->where('leads.sphere_id', '=', $eFVal);
+                                });
+                            }
+
+                            break;
+                        case 'status':
+
+                            if($eFVal != '') {
+                                $openLeads->where('open_leads.status', '=', $eFVal);
+                            }
+
+                            break;
+                        default: ;
+                    }
+                }
+            }
+        }
+
+        $openLeads = $openLeads->with([
+            'lead' => function ($query) {
                 $query->with('sphereStatuses');
-            }])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            }
+        ])
+            ->with('maskName2')
+            ->with('statusInfo')
+            ->orderBy('open_leads.created_at', 'desc');
 
-        $view = 'agent.salesman.login.opened';
-
-        return view($view, [ 'openLeads'=>$openLeads ]);
+        return Datatables::of( $openLeads )
+            ->setTransformer(new OpenedLeadsTransformer())
+            ->make();
     }
 
     /**

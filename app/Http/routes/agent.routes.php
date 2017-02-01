@@ -159,6 +159,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
             Route::get('salesman/obtain/data/{salesman_id}', ['as' => 'agent.salesman.obtain.data', 'uses' => 'Agent\AgentSalesmanLeadController@obtainData']);
 
             Route::get('salesman/openedLeads/{salesman_id}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\AgentSalesmanLeadController@openedLeads']);
+            Route::get('salesman/openedLeadsData/{salesman_id}', ['as'=>'agent.salesman.openedData', 'uses'=>'Agent\AgentSalesmanLeadController@openedLeadsData']);
             Route::post('salesman/openedLeadAjax', ['as' => 'agent.salesman.openedLeadAjax', 'uses' => 'Agent\LeadController@openedLeadsAjax']);
         });
         Route::get('salesman/{id}/block', ['as'=>'agent.salesman.block', 'uses' => 'Agent\SalesmanController@ban']);
