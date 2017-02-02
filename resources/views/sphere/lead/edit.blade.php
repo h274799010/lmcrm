@@ -8,12 +8,12 @@
 
             <div class="depositor_info">
                 <strong>{{ trans('operator/edit.depositor_company') }}</strong>
-            @if(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::findById($lead->user->id)->inRole('agent'))
-                    {{ $lead->user->agentInfo()->first()->company }}<br>
+                @if($lead->leadDepositorData->depositor_company == 'system_company_name')
+                    LM CRM
                 @else
-                    {{ \App\Models\Salesman::find($lead->user->id)->agent()->first()->agentInfo()->first()->company }}<br>
-                @endif
-                <strong>{{ trans('operator/edit.depositor_name') }}</strong> {{ $lead->user->first_name }}
+                    {{ $lead->leadDepositorData->depositor_company }}
+                @endif <br>
+                <strong>{{ trans('operator/edit.depositor_name') }}</strong> {{ $lead->leadDepositorData->depositor_name }}
             </div>
 
 
