@@ -181,7 +181,8 @@ class SphereController extends AgentController {
 
         // Сохраняем имя маски
         // Если имя маски уже есть - находим ее
-        $maskName = UserMasks::where('mask_id', '=', $mask_id)->first();
+        $maskName = UserMasks::where('mask_id', '=', $mask_id)
+            ->where('sphere_id', '=', $sphere_id)->first();
 
         // Если имени этой маски нет - создаем новое
         if(!isset($maskName->id)) {
