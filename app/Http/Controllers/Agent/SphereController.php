@@ -260,7 +260,7 @@ class SphereController extends AgentController {
                 Auction::removeBySphereMask( $sphereId, $maskId );
 
                 // удаление имени маски
-                $maskName = UserMasks::where('mask_id', '=', $mask->id)->first();
+                $maskName = UserMasks::where('mask_id', '=', $maskId)->where('sphere_id', '=', $sphereId)->first();
                 if($maskName->id) {
                     $maskName->delete();
                 }
