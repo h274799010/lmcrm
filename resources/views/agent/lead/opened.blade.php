@@ -391,7 +391,13 @@
 @section('scripts')
     <script>
 
-        var jsonSpheres = $.parseJSON('{!! $jsonSpheres !!}');
+        var jsonSpheres = {};
+
+        @if($jsonSpheres != '')
+            jsonSpheres = {!! $jsonSpheres !!};
+        @else
+            jsonSpheres = {};
+        @endif
 
         /**
          * Делает опции выпадающего меню на странице openLeads недоступными (отрабатывает только на фронтенде)

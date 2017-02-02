@@ -512,9 +512,14 @@ class AgentSalesmanLeadController extends LeadController
         $user = $this->salesman;
 
         $agent = $user->agent()->first();
-        $spheres = $agent->spheres()
+        // Получаем сферы вместе со статусами для фильтра
+        $spheres = $agent->onlySpheres()
             ->select('spheres.id', 'spheres.name')
-            ->with('statuses')
+            ->with([
+                'statuses' => function($query) {
+                    $query->select('id', 'sphere_id', 'stepname');
+                }
+            ])
             ->get()->toJson();
 
         return view('agent.salesman.login.opened', [ 'user' => $user, 'jsonSpheres' => $spheres ]);

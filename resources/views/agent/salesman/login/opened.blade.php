@@ -380,7 +380,13 @@
 @section('scripts')
     <script>
 
-        var jsonSpheres = $.parseJSON('{!! $jsonSpheres !!}');
+        var jsonSpheres = {};
+
+        @if($jsonSpheres != '')
+            jsonSpheres = {!! $jsonSpheres !!};
+        @else
+            jsonSpheres = {};
+        @endif
 
 
         /**

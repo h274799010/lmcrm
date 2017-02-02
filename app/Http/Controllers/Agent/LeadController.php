@@ -649,9 +649,14 @@ class LeadController extends AgentController {
         $user = $this->user;
 
         $agent = Agent::find($user->id);
-        $spheres = $agent->spheres()
+        // Получаем сферы вместе со статусами для фильтра
+        $spheres = $agent->onlySpheres()
             ->select('spheres.id', 'spheres.name')
-            ->with('statuses')
+            ->with([
+                'statuses' => function($query) {
+                    $query->select('id', 'sphere_id', 'stepname');
+                }
+            ])
             ->get()->toJson();
 
         // задаем вьюшку
