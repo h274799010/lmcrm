@@ -87,13 +87,19 @@ class SphereController extends Controller {
         // получаем все сферы оператора
         $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
 
-        // лиды помеченные к перезвону
-        $leadsMarkedToAlert = Lead::
-              whereIn('status', [0,1])
-            ->whereIn('sphere_id', $spheres)
-            ->where( 'operator_processing_time', '<', date("Y-m-d H:i:s") )
+
+        // Новые лиды и лиды помеченные к перезвону
+        $leadsTop = Lead::whereIn('sphere_id', $spheres)
+            ->where(function ($query) {
+                $query->where('status', '=', 1)
+                    ->where('operator_processing_time', '<', date("Y-m-d H:i:s"));
+            })
+            ->orWhere(function ($query) {
+                $query->where('status', '=', 0)
+                    ->where('operator_processing_time', '=', NULL);
+            })
             ->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
-            ->orderBy('operator_processing_time', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->get();
 
         // лиды уже обработанные оператором
@@ -102,24 +108,11 @@ class SphereController extends Controller {
             ->whereIn('sphere_id', $spheres)
             ->where('operator_processing_time', '=', NULL)
             ->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
-            ->orderBy('operator_processing_time')
+            ->orderBy('updated_at', 'desc')
             ->get();
 
-        // новые лиды
-        $newLeads = Lead::
-              where('status', 0)
-            ->whereIn('sphere_id', $spheres)
-            ->where('operator_processing_time', '=', NULL)
-            ->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
-            ->orderBy('created_at', 'desc')
-//            ->take(20)
-            ->get();
-
-        // соединяем лиды к редатктированию с новыми лидами (лиды уже редактированные оператором и новые лиды)
-        $leadsToEdit = $operagorLeads->merge( $newLeads );
-
-        // соединяем лиды к перезвону с лидами к редактированию
-        $leads = $leadsMarkedToAlert->merge( $leadsToEdit );
+        // соединяем новые лиды и лиды к перезвону с отредактированными лидами
+        $leads = $leadsTop->merge( $operagorLeads );
 
         return view('sphere.lead.list')->with( 'leads', $leads );
     }
