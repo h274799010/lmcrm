@@ -13,6 +13,7 @@ use App\Models\OpenLeads;
 use App\Models\Organizer;
 use App\Models\Salesman;
 use App\Models\Sphere;
+use App\Models\User;
 use App\Transformers\OpenedLeadsTransformer;
 use Illuminate\Http\Request;
 use App\Models\LeadDepositorData;
@@ -115,11 +116,25 @@ class AgentSalesmanLeadController extends LeadController
                 'allSpheres' => $cookieSpheres
             ];
 
+        $role = $this->salesman->roles()
+            ->where('slug', '!=', 'agent')
+            ->where('slug', '!=', 'salesman')
+            ->first();
+        $userData = array(
+            'name' => $this->salesman->first_name.' '.$this->salesman->last_name,
+            'role' => false,
+            'status' => User::isBanned($this->salesman->id)
+        );
+        if($role->name) {
+            $userData['role'] = $role->name;
+        }
+
 
         // добавляем данные по балансу на страницу
         view()->share([
             'balance' => $balance,
-            'salesman_id' => $this->salesman->id
+            'salesman_id' => $this->salesman->id,
+            'userData' => $userData
         ]);
 
         // переводим данные по балансу в json

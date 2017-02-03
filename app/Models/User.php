@@ -94,4 +94,15 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
 
         return AgentInfo::where('agent_id', '=', $agent_id);
     }
+
+    public static function isBanned($id)
+    {
+        $user = User::find($id);
+
+        if($user->banned_at) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

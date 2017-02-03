@@ -516,3 +516,12 @@ span.badge.statistics_head_badge{
 		width: 100%;
 	}
 }
+
+.agent-info-block {}
+.agent-info-block li {
+	min-height: 50px;
+	padding: 15px;
+}
+.agent-info-block li.text-danger {
+	color: #a94442;
+}

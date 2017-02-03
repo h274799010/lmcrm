@@ -13,6 +13,21 @@
 
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            @if(isset($userData))
+                <ul class="nav navbar-top-links navbar-left flip agent-info-block">
+                    @if($userData['name'])
+                        <li><i class="fa fa-user" aria-hidden="true"></i> {{ $userData['name'] }}</li>
+                    @endif
+                    @if($userData['role'])
+                        <li><i class="fa fa-users" aria-hidden="true"></i> {{ $userData['role'] }}</li>
+                    @endif
+                    @if($userData['status'] == true)
+                        <li class="text-danger"><i class="fa fa-ban" aria-hidden="true"></i> Banned</li>
+                    @else
+                        <li class="text-success"><i class="fa fa-check" aria-hidden="true"></i> Active</li>
+                    @endif
+                </ul>
+            @endif
             @if( isset($balance) && !isset($salesman_id) )
             {{--@if(isset($balance))--}}
                 <ul class="nav navbar-top-links navbar-left flip">
