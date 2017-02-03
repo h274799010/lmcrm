@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Agent;
 use App\Models\Agent;
 use App\Models\Auction;
 use App\Models\Sphere;
+use App\Models\User;
 use App\Models\UserMasks;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Http\Request;
@@ -111,11 +112,25 @@ class AgentSalesmanSphereController extends SphereController
                 'allSpheres' => $cookieSpheres
             ];
 
+        $role = $this->salesman->roles()
+            ->where('slug', '!=', 'agent')
+            ->where('slug', '!=', 'salesman')
+            ->first();
+        $userData = array(
+            'name' => $this->salesman->first_name.' '.$this->salesman->last_name,
+            'role' => false,
+            'status' => User::isBanned($this->salesman->id)
+        );
+        if($role->name) {
+            $userData['role'] = $role->name;
+        }
+
 
         // добавляем данные по балансу на страницу
         view()->share([
             'balance' => $balance,
-            'salesman_id' => $this->salesman->id
+            'salesman_id' => $this->salesman->id,
+            'userData' => $userData
         ]);
 
         // переводим данные по балансу в json

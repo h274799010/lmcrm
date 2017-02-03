@@ -24,6 +24,7 @@ use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Helper\PayMaster;
 
 use Datatables;
+use Cookie;
 
 
 class AgentController extends AdminController
@@ -42,15 +43,50 @@ class AgentController extends AdminController
     */
     public function index()
     {
-        $spheres = Sphere::active()->get();
+        $filter = Cookie::get('adminAgentsFilter');
+        $filter = json_decode($filter, true);
 
-        $role = Sentinel::findRoleBySlug('account_manager');
-        $accountManagers = $role->users()->get();
+        $selectedFilters = array(
+            'sphere' => false,
+            'accountManager' => false,
+            'role' => false
+        );
+        if (count($filter) > 0) {
+            $sphere_id = $filter['sphere'];
+            $accountManager_id = $filter['accountManager'];
+
+            if($filter['role'] != '') {
+                $selectedFilters['role'] = $filter['role'];
+            }
+
+            if(!$sphere_id) {
+                $role = Sentinel::findRoleBySlug('account_manager');
+                $accountManagers = $role->users()->get();
+            } else {
+                $selectedFilters['sphere'] = $sphere_id;
+                $sphere = Sphere::find($sphere_id);
+                $accountManagers = $sphere->accountManagers()->select('users.id', 'users.email')->get();
+            }
+
+            if(!$accountManager_id) {
+                $spheres = Sphere::active()->get();
+            } else {
+                $selectedFilters['accountManager'] = $accountManager_id;
+                $accountManager = AccountManager::find($accountManager_id);
+                $spheres = $accountManager->spheres()->select('spheres.id', 'spheres.name')->get();
+            }
+        } else {
+            $spheres = Sphere::active()->get();
+
+            $role = Sentinel::findRoleBySlug('account_manager');
+            $accountManagers = $role->users()->get();
+        }
 
         // Show the page
         return view('admin.agent.index', [
             'spheres' => $spheres,
-            'accountManagers' => $accountManagers
+            'accountManagers' => $accountManagers,
+            'selectedFilters' => $selectedFilters
         ]);
     }
 
@@ -304,6 +340,8 @@ class AgentController extends AdminController
 
         // Если есть параметры фильтра
         if (count($request->only('filter'))) {
+            // добавляем на страницу куки с данными по фильтру
+            Cookie::queue('adminAgentsFilter', json_encode($request->only('filter')['filter']), null, null, null, false, false);
             // Получаем параметры
             $eFilter = $request->only('filter')['filter'];
 

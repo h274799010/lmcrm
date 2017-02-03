@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\AgentBitmask;
+use App\Models\User;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -177,8 +178,24 @@ class AgentController extends BaseController
             'allSpheres' => $cookieSpheres
         ];
 
+        $role = $this->user->roles()
+            ->where('slug', '!=', 'agent')
+            ->where('slug', '!=', 'salesman')
+            ->first();
+        $userData = array(
+            'name' => $this->user->first_name.' '.$this->user->last_name,
+            'role' => false,
+            'status' => User::isBanned($this->user->id)
+        );
+        if($role->name) {
+            $userData['role'] = $role->name;
+        }
+
         // добавляем данные по балансу на страницу
-        view()->share('balance', $balance);
+        view()->share([
+            'balance' => $balance,
+            'userData' => $userData
+        ]);
 
         // переводим данные по балансу в json
         $balanceJSON = json_encode($balance);

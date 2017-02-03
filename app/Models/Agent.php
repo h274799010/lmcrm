@@ -231,7 +231,12 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         $masks = $masks->where('user_id', '=', $this->id)->get();
 
         foreach ($masks as $key => $mask) {
-            $masks[$key]->name = UserMasks::where('user_id', '=', $mask->user_id)->where('mask_id', '=', $mask->id)->first()->name;
+            $maskName = UserMasks::where('sphere_id', '=', $sphere_id)->where('mask_id', '=', $mask->id)->first();
+            if(!$maskName) {
+                unset($masks[$key]);
+            } else {
+                $masks[$key]->name = $maskName->name;
+            }
         }
 
         return $masks;

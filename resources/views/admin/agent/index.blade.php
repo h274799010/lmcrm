@@ -25,7 +25,7 @@
                     <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($spheres as $sphere)
-                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                            <option value="{{ $sphere->id }}" @if($selectedFilters['sphere'] && $selectedFilters['sphere'] == $sphere->id) selected="selected" @endif >{{ $sphere->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -36,7 +36,7 @@
                     <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($accountManagers as $accountManager)
-                            <option value="{{ $accountManager->id }}">{{ $accountManager->email }}</option>
+                            <option value="{{ $accountManager->id }}" @if($selectedFilters['accountManager'] && $selectedFilters['accountManager'] == $accountManager->id) selected="selected" @endif >{{ $accountManager->email }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -46,8 +46,8 @@
                     <label class="control-label _col-sm-2">Roles</label>
                     <select data-name="role" class="selectbox dataTables_filter form-control" data-placeholder="-">
                         <option value=""></option>
-                        <option value="dealmaker">Dealmaker</option>
-                        <option value="leadbayer">Leadbayer</option>
+                        <option value="dealmaker" @if($selectedFilters['role'] && $selectedFilters['role'] == 'dealmaker') selected="selected" @endif >Dealmaker</option>
+                        <option value="leadbayer" @if($selectedFilters['role'] && $selectedFilters['role'] == 'leadbayer') selected="selected" @endif >Leadbayer</option>
                     </select>
                 </div>
             </div>
