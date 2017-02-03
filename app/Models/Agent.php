@@ -74,6 +74,16 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')->with('SphereStatusTransitions')->where('status', 1);
     }
 
+    /**
+     * Сферы к которым прикреплен агент
+     * не учитывая "status transitions"
+     *
+     * @return mixed
+     */
+    public function onlySpheres(){
+        return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')->where('status', 1);
+    }
+
 
     /**
      * Записи в по смене статусов открытых лидов агента

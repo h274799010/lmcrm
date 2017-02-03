@@ -55,6 +55,9 @@ class AgentSalesmanSphereController extends SphereController
                 // получение данных фильтра маски
                 $agentMask = new AgentBitmask($sphere_id);
                 $maskItem = $agentMask->find( $item->mask_id );
+                if(!$maskItem) {
+                    return false;
+                }
 
                 if( $maskItem->status == 0){
                     return false;

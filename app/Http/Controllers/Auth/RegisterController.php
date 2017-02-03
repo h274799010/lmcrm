@@ -100,7 +100,7 @@ class RegisterController extends Controller
         $roles = array(
             'dealmaker' => 'Deal maker',
             'leadbayer' => 'Lead bayer',
-            'partner' => 'Partner'
+            //'partner' => 'Partner'
         );
 
         return view('auth.registerStepTwo')->with([ 'spheres'=>$spheres, 'roles'=>$roles ]);

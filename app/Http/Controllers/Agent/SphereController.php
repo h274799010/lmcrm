@@ -181,7 +181,8 @@ class SphereController extends AgentController {
 
         // Сохраняем имя маски
         // Если имя маски уже есть - находим ее
-        $maskName = UserMasks::where('mask_id', '=', $mask_id)->first();
+        $maskName = UserMasks::where('mask_id', '=', $mask_id)
+            ->where('sphere_id', '=', $sphere_id)->first();
 
         // Если имени этой маски нет - создаем новое
         if(!isset($maskName->id)) {
@@ -259,7 +260,7 @@ class SphereController extends AgentController {
                 Auction::removeBySphereMask( $sphereId, $maskId );
 
                 // удаление имени маски
-                $maskName = UserMasks::where('mask_id', '=', $mask->id)->first();
+                $maskName = UserMasks::where('mask_id', '=', $maskId)->where('sphere_id', '=', $sphereId)->first();
                 if($maskName->id) {
                     $maskName->delete();
                 }
