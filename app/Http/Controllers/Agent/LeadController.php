@@ -118,9 +118,6 @@ class LeadController extends AgentController {
         ;
 
 
-        dd( $auctionData );
-
-
         if( $this->spheres ){
 //                $attr['lead_attr'] = $this->sphere->leadAttr;
 //                $attr['agent_attr'] = $this->sphere->attributes;
