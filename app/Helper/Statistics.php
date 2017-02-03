@@ -98,6 +98,8 @@ class Statistics extends Model
             ->where( 'sphere_id', $sphereId )
             ->count();
 
+//        dd( $allOpenLeads );
+
 //        $allOpenLeads = OpenLeads::
 //              whereIn( 'mask_id', $sphereMasks )
 //            ->where('agent_id', $userId)
@@ -335,7 +337,6 @@ class Statistics extends Model
                                         ->where('sphere_id', $sphereId)
                                         ->groupBy('lead_id')
                                         ->get();
-
 
         $statistics['allAuctionWithTrash'] = $allAuctionWithTrash->count();
 

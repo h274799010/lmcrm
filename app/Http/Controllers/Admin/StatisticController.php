@@ -154,8 +154,10 @@ class StatisticController extends Controller
     /**
      * Страница со статистикой агента
      *
-     * @param $agent_id
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     *
+     * @param  integer  $agent_id
+     *
+     * @return View
      */
     public function agentStatistic($agent_id)
     {
@@ -163,96 +165,133 @@ class StatisticController extends Controller
         // выбираем агента со сферами
         $agent = Agent::with('spheres')->find($agent_id);
 
-        // переменная со статистикой по сферам
-        $statistics = collect();
-
-        // получаем статистику агента по каждой сфере
-        $agent->spheres->each(function( $sphere ) use ( &$statistics, $agent_id ){
-
-            $statistic = Statistics::openLeads( $agent_id, $sphere['id'] );
-
-            if( $sphere['openLead'] >= $sphere['minLead'] ){
-
-                $statistics->push( collect([
-                    'status' => true,
-                    'sphereId' => $sphere['id'],
-                    'sphereName' => $sphere['name'],
-                    'data' => $statistic
-                ]) );
-
-            }else{
-
-                $statistics->push( collect([
-                    'status' => false,
-                    'sphereId' => $sphere['id'],
-                    'sphereName' => $sphere['name'],
-                    'minLead' => $sphere['minLead'],
-                    'openLead' => $sphere['openLead'],
-                    'data' => $statistic
-                ]) );
-            }
+        // переменная со сферами
+        $spheres = collect();
+        // перебираем все сферы пользователя и выбираем данные по сфере в отдельную коллекцию
+        $agent->spheres->each(function( $sphere ) use( &$spheres ){
+            // добавляем данные по сфере в $spheres
+            $spheres->push(
+                collect(
+                    [
+                        'id' => $sphere->id,
+                        'name' => $sphere->name,
+                        'openLead' => $sphere->openLead,
+                        'minLead' => $sphere->minLead,
+                    ]
+                )
+            );
         });
+
+        // проверка на количество сфер
+        if( $spheres->count() == 0){
+            // если у агента нет сфер
+
+            // указываем что статистики нет
+            $statistic = false;
+
+        }else {
+            // если у агента есть сферы
+
+            // выбираем первую сферу из списка
+            $sphere = $spheres->first();
+
+            // выбираем статистику
+            $statisticData = Statistics::openLeads($agent_id, $sphere['id']);
+
+            // записываем статистику
+            $statistic = collect([
+                'status' => $statisticData['allOpenLeads'] >= $sphere['minLead'],
+                'sphereId' => $sphere['id'],
+                'sphereName' => $sphere['name'],
+                'minLead' => $sphere['minLead'],
+                'data' => $statisticData
+            ]);
+        }
+
 
         return view('admin.statistic.agent', [
             'agent' => $agent,
-            'statistics' => $statistics,
+            'spheres' => $spheres,
+            'statistic' => $statistic,
         ]);
     }
 
 
+    /**
+     * Получение данных по статистике агента
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
     public function agentStatisticData(Request $request)
     {
 
-
+        // данные из реквеста
         $user_id = $request->agent_id;
+        $sphere_id = $request->sphere_id;
         $timeFrom = $request->timeFrom;
         $timeTo =$request->timeTo;
-
 
         // выбираем агента со сферами
         $agent = Agent::with('spheres')->find($user_id);
 
-        // переменная со статистикой по сферам
-        $statistics = collect();
+        // переменная с текущей сферой
+        $currentSphere = false;
 
-        // получаем статистику агента по каждой сфере
-        $agent->spheres->each(function( $sphere ) use ( &$statistics, $user_id, $timeFrom, $timeTo ){
+        // переменная со сферами
+        $spheres = collect();
+        // перебираем все сферы пользователя и выбираем данные по сфере в отдельную коллекцию
+        $agent->spheres->each(function( $sphere ) use( &$spheres, &$currentSphere, $sphere_id ){
 
-            // получаем полную статистику агента по сфере
-            $statistic = Statistics::openLeads( $user_id, $sphere['id'], $timeFrom, $timeTo );
+            // ищем среди сфер заданную сферу
+            if( $sphere->id == $sphere_id ){
+                // если id сферы такое же как id заданной сферы
 
-            /**
-             * Проверяем достаточное ли количество открытых лидов для ститистики
-             *
-             */
-            if( $sphere['openLead'] >= $sphere['minLead'] ){
-                // если открытых лидов достаточно для статистики
-
-                // добавляем данные в коллекцию по статистики
-                $statistics->push( collect([
-                    'status' => true,
-                    'sphereId' => $sphere['id'],
-                    'sphereName' => $sphere['name'],
-                    'data' => $statistic
-                ]) );
-
-            }else{
-                // если открытых лидов меньше чем нужно для статистики
-
-                // добавляем данные в коллекцию по статистики
-                $statistics->push( collect([
-                    'status' => false,
-                    'sphereId' => $sphere['id'],
-                    'sphereName' => $sphere['name'],
-                    'minLead' => $sphere['minLead'],
-                    'openLead' => $sphere['openLead'],
-                    'data' => $statistic
-                ]) );
+                // добавляем в текущую сферу коллекцию
+                $currentSphere = collect(
+                    [
+                        'id' => $sphere->id,
+                        'name' => $sphere->name,
+                        'openLead' => $sphere->openLead,
+                        'minLead' => $sphere->minLead,
+                    ]
+                );
             }
+
+            // добавляем данные по сфере в $spheres
+            $spheres->push(
+                collect(
+                    [
+                        'id' => $sphere->id,
+                        'name' => $sphere->name,
+                        'openLead' => $sphere->openLead,
+                        'minLead' => $sphere->minLead,
+                    ]
+                )
+            );
         });
 
-        return $statistics;
+        // если заданной сферы нет в списке пользователя - возвращаем на фронтенд что сфера отсутствует
+        if( !$currentSphere ){ return 'false'; }
+
+        // выбираем статистику
+        $statisticData = Statistics::openLeads( $user_id, $currentSphere['id'], $timeFrom, $timeTo );
+
+        // записываем статистику
+        $statistic = collect([
+            'status' => $statisticData['allOpenLeads'] >= $currentSphere['minLead'],
+            'sphereId' => $currentSphere['id'],
+            'sphereName' => $currentSphere['name'],
+            'minLead' => $currentSphere['minLead'],
+            'openLead' => $currentSphere['openLead'],
+            'data' => $statisticData
+        ]);
+
+        return response()->json([ 'spheres'=>$spheres, 'statistic'=>$statistic ]);
     }
+
 
     /**
      * Подгрузка данных для фильтра в списке агентов
