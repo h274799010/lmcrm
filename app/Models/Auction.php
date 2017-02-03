@@ -50,6 +50,7 @@ class Auction extends Model
         return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
     }
 
+
     /**
      * Связь с таблицей имени маски
      *
@@ -59,6 +60,14 @@ class Auction extends Model
         return $this->hasOne('App\Models\UserMasks', 'id', 'mask_name_id');
     }
 
+
+    /**
+     * Получение сферы
+     *
+     */
+    public function sphere(){
+        return $this->hasOne('App\Models\Sphere', 'id', 'sphere_id');
+    }
 
 
 

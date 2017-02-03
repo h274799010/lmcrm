@@ -14,11 +14,21 @@
     <div class="row">
         <div class="col-md-12 col-xs-12" id="leadsListFilter">
             <div class="row">
-                <div class="col-xs-2">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.period') }}</label><br>
                         <input type="text" name="reportrange" data-name="period"
                                class="mdl-textfield__input dataTables_filter statistics_input" value="" id="reportrange"/>
+                    </div>
+                </div>
+                <div class="col-md-2 col-md-offset-7">
+                    <div class="form-group">
+                        <label class="control-label _col-sm-2">Sphere</label><br>
+                        <select name="sphere name" id="111">
+                            <option value="1">Sphere1</option>
+                            <option value="2">Sphere2</option>
+                            <option value="3">Sphere3</option>
+                        </select>
                     </div>
                 </div>
             </div>

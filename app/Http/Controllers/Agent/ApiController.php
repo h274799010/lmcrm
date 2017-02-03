@@ -77,7 +77,40 @@ class ApiController extends Controller
     public function obtain()
     {
 
-        $auctionData = Auction::where('status', 0)->where( 'user_id', $this->user->id )->with('lead') /*->with('maskName') */ ->get();
+//        $auctionData = Auction::
+//                              where('status', 0)
+//                            ->where( 'user_id', $this->user->id )
+//                            ->with('lead')
+//                            /*->with('maskName') */
+//                            ->get();
+
+
+        $auctionData = Auction::
+            where('status', 0)
+                ->where( 'user_id', 6 )
+                ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id')
+                ->with(
+                    [
+                        'lead' => function($query)
+                        {
+                            $query
+                                ->select('id', 'opened', 'email', 'name', 'created_at')
+                            ;
+                        },
+                        'sphere' => function($query){
+                            $query
+                                ->select('id', 'name')
+                            ;
+                        },
+                        'maskName' => function($query){
+                            $query
+                                ->select('id', 'name')
+                            ;
+                        }
+                    ])
+                ->get()
+                ->toArray()
+            ;
 
 
         $data =

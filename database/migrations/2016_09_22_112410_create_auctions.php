@@ -17,10 +17,11 @@ class CreateAuctions extends Migration
             $table->integer('lead_id');             // id лида
             $table->integer('user_id');             // id пользователя
             $table->integer('sphere_id');           // id сферы
-            $table->integer('mask_id');             // id маски по которой был выбран лид todo удалить
+            $table->integer('mask_id');             // id маски по которой был выбран лид
             $table->integer('mask_name_id');        // имя маски
             $table->integer('status');              // статус
             $table->index('status');
+            $table->timestamps();
             $table->softDeletes();
         });
     }

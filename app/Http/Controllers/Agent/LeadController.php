@@ -87,6 +87,40 @@ class LeadController extends AgentController {
      */
     public function obtain(){
 
+
+        $auctionData = Auction::
+                              where('status', 0)
+                            ->where( 'user_id', 6 )
+                            ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id')
+                            ->with(
+                                [
+                                    'lead' => function($query)
+                                    {
+                                        $query
+                                            ->select('id', 'opened', 'customer_id', 'name', 'comment')
+
+                                        ;
+                                    },
+                                    'sphere' => function($query){
+                                        $query
+                                            ->select('id', 'name')
+                                        ;
+                                    },
+                                    'maskName' => function($query){
+                                        $query
+                                            ->select('id', 'name')
+                                        ;
+                                    }
+                                ])
+                            ->get()
+//                            ->toJson()
+                            ->toArray()
+        ;
+
+
+        dd( $auctionData );
+
+
         if( $this->spheres ){
 //                $attr['lead_attr'] = $this->sphere->leadAttr;
 //                $attr['agent_attr'] = $this->sphere->attributes;
