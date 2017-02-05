@@ -1346,6 +1346,19 @@ span.badge.statistics_head_badge{
     cursor: pointer;
 }
 
+.sphere_select{
+    width: 250px;
+}
+
+.select2-search__field{
+    background: white;
+    color: black;
+}
+
+.leads_needed{
+    font-weight: 600;
+}
+
 .table-statuses.table-statuses-small {
     width: 33.33333%;
 }

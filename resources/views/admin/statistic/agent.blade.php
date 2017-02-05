@@ -11,48 +11,60 @@
             @lang('statistic.page_title') {{ $agent->email }}
         </h3>
     </div>
-    <div class="row">
-        <div class="col-md-12 col-xs-12" id="leadsListFilter">
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.period') }}</label><br>
-                        <input type="text" name="reportrange" data-name="period"
-                               class="mdl-textfield__input dataTables_filter statistics_input" value="" id="reportrange"/>
-                    </div>
-                </div>
-                <div class="col-md-2 col-md-offset-7">
-                    <div class="form-group">
-                        <label class="control-label _col-sm-2">Sphere</label><br>
-                        <select name="sphere name" id="111">
-                            <option value="1">Sphere1</option>
-                            <option value="2">Sphere2</option>
-                            <option value="3">Sphere3</option>
-                        </select>
-                    </div>
+
+    {{-- Проверка есть ли у пользователя сферы --}}
+    @if($spheres->count() == 0)
+        {{-- Если сфер нету --}}
+
+        {{--todo дооформить, поставить по средине, цвет сделать серый--}}
+        No spheres
+    @else
+        {{-- Если сферы есть --}}
+
+        {{-- строка с селектами --}}
+        <div class="row">
+
+            {{-- селект с периодом --}}
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.period') }}</label><br>
+                    <input type="text" name="reportrange" data-name="period"
+                           class="mdl-textfield__input dataTables_filter statistics_input" value="" id="reportrange"/>
                 </div>
             </div>
+
+            {{-- селект с названием сферы --}}
+            <div class="col-md-2 col-md-offset-7">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">Sphere</label><br>
+                    <select name="sphere name" id="sphere_select" class="sphere_select">
+
+                        @foreach( $spheres as $sphere)
+                            <option value="{{ $sphere['id'] }}">{{ $sphere['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
         </div>
-    </div>
 
-    <div id="statisticWrapper">
+        <div id="statisticWrapper">
 
+            <div class="row sphere_status_block">
 
-        {{-- Перебираем все статусы по сферам --}}
-        @foreach($statistics as $statistic  )
-
-            <div class="row sphere_status_block sphere_{{ $statistic['sphereId'] }}">
-
-                <h4 class="statistic-sphere-name">{{ $statistic['sphereName'] }} <span class="badge statistics_head_badge"> {{ $statistic['data']['periodOpenLeads'] }} / {{ $statistic['data']['allOpenLeads'] }} </span> <span class="badge statistics_head_badge_auction"> auction {{ $statistic['data']['PeriodAuction'] }}/{{ $statistic['data']['allAuction'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}  </span></h4>
+                <h4 class="statistic-sphere-name"> <span class="sphere-name">{{ $statistic['sphereName'] }}</span> <span class="badge statistics_head_badge"> {{ $statistic['data']['periodOpenLeads'] }} / {{ $statistic['data']['allOpenLeads'] }} </span> <span class="badge statistics_head_badge_auction"> auction {{ $statistic['data']['PeriodAuction'] }}/{{ $statistic['data']['allAuction'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}  </span></h4>
 
                 {{-- Проверяем достаточно ли у агента открытых лидов по сфере для статистики --}}
                 @if( $statistic['status'] )
                     {{-- по сфере достаточно открытых лидов для статистики --}}
 
+                    <div class="col-md-12 table_status_block sphere_no_data center  hidden ">
+                        Not enough open leads for statistics. <span class="leads_needed"></span> open leads needed
+                    </div>
 
                     {{-- Общие данные - no status и close Deal --}}
                     <div class="table-statuses table-statuses-large table_status_block">
-                        <table class="table ">
+                        <table class="table topStatusTable">
 
                             <thead>
                                 <tr>
@@ -240,6 +252,7 @@
                         </table>
                     </div>
 
+
                 @else
                     {{-- по сфере недостаточно откртых лидов для статистики --}}
 
@@ -250,10 +263,10 @@
 
             </div>
 
-        @endforeach
+        </div>
 
-       {{-- @include('admin.statistic.partials.agentStatistic')--}}
-    </div>
+    @endif
+
 @stop
 
 @section('styles')
@@ -293,140 +306,194 @@
          */
         function statisticUpdate( statistic ){
 
-            // перебираем все сферы по статистике
-            $.each( statistic, function( index, data ){
+            // обновление данных в селекте сферы
+            var sphereSelect = $('#sphere_select');
 
-                // выбираем блок со сферой
-                var sphere = $('.sphere_' + data['sphereId']);
+            // сохраняем значения селекта в переменную
+            var selectVal = sphereSelect.val();
 
-                // обновляем данные по количеству открытых лидов
-                sphere.find('.badge.statistics_head_badge').text( data['data']['periodOpenLeads'] + '/' + data['data']['allOpenLeads'] );
+            // очищаем данные по селекта по сфере
+            sphereSelect.empty();
 
-                sphere.find('.badge.statistics_head_badge_auction').text( 'auction ' + data['data']['PeriodAuction'] + '/' + data['data']['allAuction'] + '/' + data['data']['allAuctionWithTrash'] );
-                {{--{{ $statistic['data']['PeriodAuction'] }}/{{ $statistic['data']['allAuction'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}--}}
+            // перебираем все сферы и заносим их в селект
+            $.each( statistic['spheres'], function( key, sphere ){
 
-                // обновление данных по открытым лидам с отсутствующим статусом
-                sphere.find('.status_no_status .countAll').text( data['data']['statuses']['nostatus']['countAll'] );
-                sphere.find('.status_no_status .allPercent').text( data['data']['statuses']['nostatus']['allPercent']+'%' );
-                sphere.find('.status_no_status .periodPercent').text( data['data']['statuses']['nostatus']['periodPercent']+'%' );
+                // создаем новую опцию селекта
+                var option = $('<option/>');
 
-                // обновление данных по открытым лидам с закрытыми сделками
-                sphere.find('.status_close_deal .countAll').text( data['data']['statuses']['close_deal']['countAll'] );
-                sphere.find('.status_close_deal .allPercent').text( data['data']['statuses']['close_deal']['allPercent']+'%' );
-                sphere.find('.status_close_deal .periodPercent').text( data['data']['statuses']['close_deal']['periodPercent']+'%' );
+                // записываем в опцию id
+                option.val( sphere.id );
+                // записываем в опцию имя
+                option.text( sphere.name );
 
-                // массив с типами статусов, по которым составляются таблицы
-                var statusesType = [ 'process-statuses', 'undefined-statuses', 'fail-statuses', 'bad-statuses' ];
+                // добавление в опции в селект
+                sphereSelect.append(option);
+            });
 
-                // перебираем все типы статусов
-                $.each( statusesType, function( key, type){
+            // восстанавливаем значение селекта
+            sphereSelect.val(selectVal);
 
-                    // выбираем индекс типа
-                    var typeIndex = key + 1;
+            // выбираем блок со сферой
+            var sphere = $('.sphere_status_block');
 
-                    // выбираем нужную таблицу
-                    var table = sphere.find('.' + type + ' tbody');
+            // обновление имени сферы
+            sphere.find('.sphere-name').text( statistic['statistic']['sphereName'] );
 
-                    // очищаем таблицу
-                    table.empty();
+            // проверка на статус статистики
+            if( !statistic['statistic']['status'] ){
+                // если статистики по какой то причине нет
 
-                    // если нет статуса конкретного типа
-                    if( data['data']['statuses'][typeIndex].length == 0){
-                        // выводим что статусов нет
+                sphere.find('.topStatusTable').addClass('hidden');
+                sphere.find('.process-statuses').addClass('hidden');
+                sphere.find('.undefined-statuses').addClass('hidden');
+                sphere.find('.fail-statuses').addClass('hidden');
+                sphere.find('.bad-statuses').addClass('hidden');
+                sphere.find('.performance-table').addClass('hidden');
 
-                        // создание строки таблицы
-                        var tr = $('<tr />');
+                sphere.find('.sphere_no_data').removeClass('hidden');
 
-                        // создание ячейки таблицы
-                        var noStatusRow = $('<td />');
+            }else {
 
-                        // добавление классов
-                        noStatusRow.addClass('center statistics_no_data');
+                sphere.find('.topStatusTable').removeClass('hidden');
+                sphere.find('.process-statuses').removeClass('hidden');
+                sphere.find('.undefined-statuses').removeClass('hidden');
+                sphere.find('.fail-statuses').removeClass('hidden');
+                sphere.find('.bad-statuses').removeClass('hidden');
+                sphere.find('.performance-table').removeClass('hidden');
 
-                        // добавляем атрибут объединения ячеек
-                        noStatusRow.attr('colspan', 5);
+                sphere.find('.sphere_no_data').addClass('hidden');
+            }
 
-                        // добавление данных в ячейки
-                        noStatusRow.text( 'No statuses' );
+            sphere.find('.leads_needed').text( statistic['statistic']['minLead'] );
 
-                        // добавление ячеек в строку
-                        tr.append(noStatusRow);
 
-                        // добавление строки в таблицу
-                        table.append( tr );
-                    }
 
-                    // перебираем все статусы и наполняем таблицу
-                    $.each( data['data']['statuses'][typeIndex], function( statusKey, statusData ){
+            // обновляем данные по количеству открытых лидов
+            sphere.find('.badge.statistics_head_badge').text( statistic['statistic']['data']['periodOpenLeads'] + '/' + statistic['statistic']['data']['allOpenLeads'] );
 
-                        // создание строки таблицы
-                        var tr = $('<tr />');
+            // данные по количеству увиденных лидов
+            sphere.find('.badge.statistics_head_badge_auction').text( 'auction ' + statistic['statistic']['data']['PeriodAuction'] + '/' + statistic['statistic']['data']['allAuction'] + '/' + statistic['statistic']['data']['allAuctionWithTrash'] );
 
-                        // создание ячеек таблицы
-                        var name = $('<td />');
-                        var countAll = $('<td />');
-                        var allPercent = $('<td />');
-                        var periodPercent = $('<td />');
+            // обновление данных по открытым лидам с отсутствующим статусом
+            sphere.find('.status_no_status .countAll').text( statistic['statistic']['data']['statuses']['nostatus']['countAll'] );
+            sphere.find('.status_no_status .allPercent').text( statistic['statistic']['data']['statuses']['nostatus']['allPercent']+'%' );
+            sphere.find('.status_no_status .periodPercent').text( statistic['statistic']['data']['statuses']['nostatus']['periodPercent']+'%' );
 
-                        // добавление классов
-                        name.addClass('center middle name');
-                        countAll.addClass('percent-col center middle countAll');
-                        allPercent.addClass('percent-col center middle allPercent');
-                        periodPercent.addClass('percent-col center middle periodPercent');
+            // обновление данных по открытым лидам с закрытыми сделками
+            sphere.find('.status_close_deal .countAll').text( statistic['statistic']['data']['statuses']['close_deal']['countAll'] );
+            sphere.find('.status_close_deal .allPercent').text( statistic['statistic']['data']['statuses']['close_deal']['allPercent']+'%' );
+            sphere.find('.status_close_deal .periodPercent').text( statistic['statistic']['data']['statuses']['close_deal']['periodPercent']+'%' );
 
-                        // добавление данных в ячейки
-                        name.text( statusData['name'] );
-                        countAll.text( statusData['countAll'] );
-                        allPercent.text( statusData['allPercent'] + '%' );
-                        periodPercent.text( statusData['periodPercent'] + '%' );
+            // массив с типами статусов, по которым составляются таблицы
+            var statusesType = [ 'process-statuses', 'undefined-statuses', 'fail-statuses', 'bad-statuses' ];
 
-                        // добавление ячеек в строку
-                        tr.append(name);
-                        tr.append(countAll);
-                        tr.append(allPercent);
-                        tr.append(periodPercent);
+            // перебираем все типы статусов
+            $.each( statusesType, function( key, type){
 
-                        // добавление строки в таблицу
-                        table.append( tr );
+                // выбираем индекс типа
+                var typeIndex = key + 1;
 
-//                        console.log(statusData);
-                    });
-                } );
-
-                // выбираем таблицу транзитов
-                var transitionTable = sphere.find('.performance-table tbody');
+                // выбираем нужную таблицу
+                var table = sphere.find('.' + type + ' tbody');
 
                 // очищаем таблицу
-                transitionTable.empty();
+                table.empty();
 
-                // если нет транзитов
-                if( data['data']['transitions'].length == 0){
+                // если нет статуса конкретного типа
+                if( statistic['statistic']['data']['statuses'][typeIndex].length == 0){
                     // выводим что статусов нет
 
                     // создание строки таблицы
                     var tr = $('<tr />');
 
                     // создание ячейки таблицы
-                    var noTransitionRow = $('<td />');
+                    var noStatusRow = $('<td />');
 
                     // добавление классов
-                    noTransitionRow.addClass('center statistics_no_data');
+                    noStatusRow.addClass('center statistics_no_data');
 
                     // добавляем атрибут объединения ячеек
-                    noTransitionRow.attr('colspan', 5);
+                    noStatusRow.attr('colspan', 5);
 
                     // добавление данных в ячейки
-                    noTransitionRow.text( 'No transitions' );
+                    noStatusRow.text( 'No statuses' );
 
                     // добавление ячеек в строку
-                    tr.append(noTransitionRow);
+                    tr.append(noStatusRow);
 
                     // добавление строки в таблицу
-                    transitionTable.append( tr );
+                    table.append( tr );
                 }
 
-                // перебираем все транзиты и наполняем таблицу
-                $.each( data['data']['transitions'], function( transitionKey, transitionData ){
+                // перебираем все статусы и наполняем таблицу
+                $.each( statistic['statistic']['data']['statuses'][typeIndex], function( statusKey, statusData ){
+
+                    // создание строки таблицы
+                    var tr = $('<tr />');
+
+                    // создание ячеек таблицы
+                    var name = $('<td />');
+                    var countAll = $('<td />');
+                    var allPercent = $('<td />');
+                    var periodPercent = $('<td />');
+
+                    // добавление классов
+                    name.addClass('center middle name');
+                    countAll.addClass('percent-col center middle countAll');
+                    allPercent.addClass('percent-col center middle allPercent');
+                    periodPercent.addClass('percent-col center middle periodPercent');
+
+                    // добавление данных в ячейки
+                    name.text( statusData['name'] );
+                    countAll.text( statusData['countAll'] );
+                    allPercent.text( statusData['allPercent'] + '%' );
+                    periodPercent.text( statusData['periodPercent'] + '%' );
+
+                    // добавление ячеек в строку
+                    tr.append(name);
+                    tr.append(countAll);
+                    tr.append(allPercent);
+                    tr.append(periodPercent);
+
+                    // добавление строки в таблицу
+                    table.append( tr );
+                });
+            } );
+
+            // выбираем таблицу транзитов
+            var transitionTable = sphere.find('.performance-table tbody');
+
+            // очищаем таблицу
+            transitionTable.empty();
+
+            // если нет транзитов
+            if( statistic['statistic']['data']['transitions'].length == 0){
+                // выводим что статусов нет
+
+                // создание строки таблицы
+                var tr = $('<tr />');
+
+                // создание ячейки таблицы
+                var noTransitionRow = $('<td />');
+
+                // добавление классов
+                noTransitionRow.addClass('center statistics_no_data');
+
+                // добавляем атрибут объединения ячеек
+                noTransitionRow.attr('colspan', 5);
+
+                // добавление данных в ячейки
+                noTransitionRow.text( 'No transitions' );
+
+                // добавление ячеек в строку
+                tr.append(noTransitionRow);
+
+                // добавление строки в таблицу
+                transitionTable.append( tr );
+            }
+
+            // перебираем все транзиты и наполняем таблицу
+            $.each( statistic['statistic']['data']['transitions'], function( transitionKey, transitionData ){
 
                     // создание строки таблицы
                     var tr = $('<tr />');
@@ -462,35 +529,41 @@
                     // добавление строки в таблицу
                     transitionTable.append( tr );
                 });
-
-//                performance-table
-
-
-//                console.log( data );
-//                console.log( sphere );
-
-            } );
-
         }
 
         // функция отправки данных на сервер для обновления периода и прочего
         function loadStatistic() {
 
+            // выбираем данные селекта сфер (id сферы)
+            var sphereSelect = $('#sphere_select').val();
+
             // заносим параметры
-            var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $agent->id }}', timeFrom: dataStart, timeTo: dataEnd } ;
+            var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $agent->id }}', timeFrom: dataStart, timeTo: dataEnd, sphere_id: sphereSelect } ;
 
             // отправка запроса на сервер
             $.post(
-                    '{{ route('admin.statistic.agentData') }}',
-                    params,
-                    function (data)
-                    {
+                '{{ route('admin.statistic.agentData') }}',
+                params,
+                function (data)
+                {
+                    // обработка данных полученных с фронтенда
+                    if(data == 'false'){
+                        // у агента нет сфер
 
+                        // просто обновляем страницу
+                        document.location.reload();
+
+                    }else{
+                        // все данные в порядке
+
+                        // обновляем статистику на странице
                         statisticUpdate( data );
-//                        $('#statisticWrapper').html(data);
 
-//                        console.log(data);
-                    });
+                        // todo удалить
+//                        console.log( data );
+                    }
+                }
+            );
         }
 
 
@@ -503,6 +576,11 @@
 
             // отправка запроса на обновление данных при изменении периода
             $(document).on('change', '#reportrange', function () {
+                loadStatistic();
+            });
+
+            // отправка запроса на обновление данных при изменении сферы
+            $(document).on('change', '#sphere_select', function () {
                 loadStatistic();
             });
 
@@ -537,6 +615,7 @@
 
             cb(start, end);
 
+            // todo дефолтное значение календаря, при кнопке отмена
             $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('').trigger('change');
             });
