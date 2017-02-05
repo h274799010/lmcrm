@@ -21,5 +21,6 @@ return [
     'unblock' => 'Unblock',
     'masks' => 'Masks',
     'activate' => 'Activate',
-    'accountManagers' => 'Account Managers'
+    'accountManagers' => 'Account Managers',
+    'ranks' => 'Rank in the sphere'
 ];

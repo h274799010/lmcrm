@@ -60,6 +60,11 @@
                     <a href="#statistic" data-toggle="tab">Statistic</a>
                 </li>
             @endif
+            @if(isset($agentSpheres))
+                <li><a href="#ranks" data-toggle="tab">
+                        {{ trans('admin/modal.ranks') }} </a>
+                </li>
+            @endif
 
 
 
@@ -605,6 +610,65 @@
                 @endforeach
             </div>
             @endif
+
+            @if(isset($agentSpheres))
+                <div class="tab-pane" id="ranks">
+                    <div class="row">
+                        @foreach($agentSpheres as $key => $agentSphere)
+                            <div class="col-md-6">
+                                {{ Form::open(array('route' => ['admin.agent.rank'], 'method' => 'post', 'class' => 'validate agent-sphere-form agentRankForm', 'files'=> true)) }}
+                                <div class="alert alert-success alert-dismissible fade in" role="alert" style="display: none;">
+                                    <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="alertContent"></div>
+                                </div>
+                                <input type="hidden" name="agentSphere_id" value="{{ $agentSphere->id }}">
+                                <h3>{{ trans('admin/sphere.name') }}: "{{ $agentSphere->sphere->name }}"</h3>
+                                <div class="form-group-wrap">
+                                    <div class="form-group {{ $errors->has('rank') ? 'has-error' : '' }}">
+                                        {{ Form::label('rank', trans("admin/users.rank"), array('class' => 'control-label')) }}
+                                        <div class="controls">
+                                            <select name="rank" id="rank" class="form-control">
+                                                @for($i = 1; $i <= $agentSphere->sphere->max_range; $i++)
+                                                    @if($agentSphere->agent_range == $i)
+                                                        <option value="{{ $i }}" selected="selected">{{ $i }}</option>
+                                                    @else
+                                                        <option value="{{ $i }}">{{ $i }}</option>
+                                                    @endif
+                                                @endfor
+                                            </select>
+                                            <span class="help-block">{{ $errors->first('rank', ':message') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group clearfix">
+                                    <div class="col-md-12">
+                                        <a class="btn btn-sm btn-warning close_popup" href="{{ URL::previous() }}">
+                                            <span class="glyphicon glyphicon-ban-circle"></span> {{	trans("admin/modal.cancel") }}
+                                        </a>
+                                        <button type="reset" class="btn btn-sm btn-default">
+                                            <span class="glyphicon glyphicon-remove-circle"></span> {{
+                            trans("admin/modal.reset") }}
+                                        </button>
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <span class="glyphicon glyphicon-ok-circle"></span>
+                                            @if	(isset($agent))
+                                                {{ trans("admin/modal.update") }}
+                                            @else
+                                                {{trans("admin/modal.create") }}
+                                            @endif
+                                        </button>
+                                    </div>
+                                </div>
+                                {{ Form::close() }}
+                            </div>
+                        @if( ($key + 1) % 2 == 0 )
+                            <div class="clearfix"></div>
+                        @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 @stop
@@ -840,6 +904,29 @@
             });
 
             $.post('{{ route('admin.agent.revenue') }}', param, function (data) {
+                if(data['error'] == true) {
+                    $alert.removeClass('alert-success').addClass('alert-warning');
+                } else {
+                    $alert.removeClass('alert-warning').addClass('alert-success');
+                }
+                $alert.find('.alertContent').html(data['message']);
+                $alert.slideDown();
+            });
+        });
+
+        $('.agentRankForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var param = $(this).serialize();
+
+            var $alert = $(this).find('.alert');
+
+            $alert.find('.close').on('click', function (e) {
+                e.preventDefault();
+                $alert.slideUp();
+            });
+
+            $.post('{{ route('admin.agent.rank') }}', param, function (data) {
                 if(data['error'] == true) {
                     $alert.removeClass('alert-success').addClass('alert-warning');
                 } else {

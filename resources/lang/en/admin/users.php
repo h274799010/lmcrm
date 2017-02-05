@@ -27,6 +27,7 @@ return [
     'create_agent' => 'Agent create',
     'create_operator' => 'Operator create',
     'create_account_manager' => 'Account manager create',
-    'role' => 'User type'
+    'role' => 'User type',
+    'rank' => 'Rank'
 
 ];
