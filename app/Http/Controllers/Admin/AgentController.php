@@ -314,7 +314,7 @@ class AgentController extends AdminController
     }
 
     /**
-     * Метод обновляет revenue_share агента в табл. agent_sphere
+     * Метод обновляет agent_range агента в табл. agent_sphere
      *
      * @param Request $request
      * @return mixed
