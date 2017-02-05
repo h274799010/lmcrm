@@ -166,6 +166,7 @@ class LeadController extends AgentController {
         $auctionData = Auction::where('status', 0)
             ->where( 'user_id', $user_id )
             ->where( 'sphere_id', $sphere->id )
+            ->where('accessibility_at', '<=', Carbon::now())
             ->whereNotIn('lead_id', $salesmansOpenedLeads)
             ->with('lead')->with('maskName')->get();
 

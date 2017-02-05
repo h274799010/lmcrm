@@ -3,6 +3,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -91,8 +92,28 @@ class Auction extends Model
         $agentsBitmask->each( function( $agent ) use( &$query, $sphere_id, $lead_id ){
             $maskName = UserMasks::where('user_id', '=', $agent['user_id'])->where('mask_id', '=', $agent['id'])->first();
 
-            // формируем запрос
-            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$agent['user_id'], 'mask_id'=>$agent['id'], 'mask_name_id'=>$maskName->id ];
+            if(isset($maskName->id)) {
+                // accessibility_at
+                $user = Sentinel::findById($agent['user_id']);
+                if($user->inRole('salesman')) {
+                    $salesman = Salesman::find($user->id);
+                    $agent2 = $salesman->agent()->first();
+                } else {
+                    $agent2 = Agent::find($user->id);
+                }
+
+                $accessibility_at = $agent2->getAccessibilityAt($sphere_id);
+
+                // формируем запрос
+                $query[] = [
+                    'sphere_id' => $sphere_id,
+                    'lead_id' => $lead_id,
+                    'user_id' => $agent['user_id'],
+                    'mask_id' => $agent['id'],
+                    'mask_name_id' => $maskName->id,
+                    'accessibility_at' => $accessibility_at
+                ];
+            }
 
         });
 
@@ -117,8 +138,19 @@ class Auction extends Model
         // получаем id имени маски пользователя
         $maskName = UserMasks::where('user_id', '=', $user_id)->where('mask_id', '=', $mask_id)->first();
 
+        // accessibility_at
+        $user = Sentinel::findById($user_id);
+        if($user->inRole('salesman')) {
+            $salesman = Salesman::find($user->id);
+            $agent2 = $salesman->agent()->first();
+        } else {
+            $agent2 = Agent::find($user->id);
+        }
+
+        $accessibility_at = $agent2->getAccessibilityAt($sphere_id);
+
         // переменная запроса
-        $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$user_id, 'mask_id'=>$mask_id, 'mask_name_id'=>$maskName->id ];
+        $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$user_id, 'mask_id'=>$mask_id, 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
 
         // делаем запрос (записываем данные в таблицу аукциона)
         return Auction::insert( $query );
@@ -173,8 +205,19 @@ class Auction extends Model
         $leadsByFilter->each( function( $lead ) use( &$query, $sphere_id, $agentBitmask ){
             $maskName = UserMasks::where('user_id', '=', $agentBitmask['user_id'])->where('mask_id', '=', $agentBitmask['id'])->first();
 
+            // accessibility_at
+            $user = Sentinel::findById($agentBitmask['user_id']);
+            if($user->inRole('salesman')) {
+                $salesman = Salesman::find($user->id);
+                $agent2 = $salesman->agent()->first();
+            } else {
+                $agent2 = Agent::find($user->id);
+            }
+
+            $accessibility_at = $agent2->getAccessibilityAt($sphere_id);
+
             // формируем запрос
-            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'], 'mask_name_id'=>$maskName->id ];
+            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'], 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
 
         });
 
@@ -289,8 +332,19 @@ class Auction extends Model
                 $leads->each( function( $lead ) use( &$query, $sphere_id, $mask ){
                     $maskName = UserMasks::where('user_id', '=', $mask['user_id'])->where('mask_id', '=', $mask['id'])->first();
 
+                    // accessibility_at
+                    $user = Sentinel::findById($mask['user_id']);
+                    if($user->inRole('salesman')) {
+                        $salesman = Salesman::find($user->id);
+                        $agent2 = $salesman->agent()->first();
+                    } else {
+                        $agent2 = Agent::find($user->id);
+                    }
+
+                    $accessibility_at = $agent2->getAccessibilityAt($sphere_id);
+
                     // формируем запрос
-                    $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$mask['user_id'], 'mask_id'=>$mask['id'], 'mask_name_id'=>$maskName->id ];
+                    $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$mask['user_id'], 'mask_id'=>$mask['id'], 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
 
                 });
 
