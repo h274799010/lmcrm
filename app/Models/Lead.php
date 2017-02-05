@@ -570,6 +570,13 @@ class Lead extends EloquentUser {
                         'auction' => 2,  // closed by max open
                     ]
                 );
+            } elseif ($agent->inRole('dealmaker')) {
+                // Если тип пользователя Deal maker
+                // Ищим все его аукционы по текущему лиду
+                // и удаляем их
+                Auction::where('lead_id', '=', $lead->id)
+                    ->where('user_id', '=', $agent->id)
+                    ->delete();
             }
 
             // сообщаем что лид открыт нормально

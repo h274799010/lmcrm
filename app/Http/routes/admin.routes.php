@@ -124,4 +124,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('statistic/agent/{id}', ['as' => 'admin.statistic.agent', 'uses' => 'Admin\StatisticController@agentStatistic']);
     Route::post('statistic/agentData/', ['as' => 'admin.statistic.agentData', 'uses' => 'Admin\StatisticController@agentStatisticData']);
     Route::post('statistic/getFilterAgent',['as'=>'admin.statistic.getFilterAgent', 'uses' => 'Admin\StatisticController@getFilterAgent']);
+
+    // Настройки
+    Route::get('settings/roles', ['as' => 'admin.settings.roles', 'uses' => 'Admin\SettingsController@roles']);
+    Route::match(['put','post'], 'settings/role/update', ['as' => 'admin.settings.roleUpdate', 'uses' => 'Admin\SettingsController@roleUpdate']);
+
 });

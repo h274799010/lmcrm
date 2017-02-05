@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5bac98c2dfbcdb742de49a5a4264c37d",
-    "content-hash": "63305bf12ed68ea63c20bfb4405f6f82",
+    "hash": "6c171246e447ba48cd3811ebe17e3bd1",
+    "content-hash": "75bf8dbbbdc761eec6fcacf43d374f53",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -253,6 +253,57 @@
                 "preload"
             ],
             "time": "2015-11-09 22:51:51"
+        },
+        {
+            "name": "dimsav/laravel-translatable",
+            "version": "v6.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dimsav/laravel-translatable.git",
+                "reference": "24a2d1be97bd311cd2634b5d23d928f28e217041"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dimsav/laravel-translatable/zipball/24a2d1be97bd311cd2634b5d23d928f28e217041",
+                "reference": "24a2d1be97bd311cd2634b5d23d928f28e217041",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "~5.1",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "~3.0",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Dimsav\\Translatable\\": "src/Translatable/"
+                },
+                "classmap": [
+                    "tests"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dimitrios Savvopoulos",
+                    "email": "ds@dimsav.com",
+                    "homepage": "http://dimsav.com"
+                }
+            ],
+            "description": "A Laravel package for multilingual models",
+            "keywords": [
+                "database",
+                "language",
+                "laravel",
+                "translation"
+            ],
+            "time": "2017-01-25 09:53:13"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",

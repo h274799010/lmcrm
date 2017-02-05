@@ -17,7 +17,8 @@
         "spescina/mediabrowser": "^4.0",
         "guzzlehttp/guzzle": "^6.2",
         "tymon/jwt-auth": "^0.5.9",
-        "jenky/laravel-plupload": "^1.2"
+        "jenky/laravel-plupload": "^1.2",
+        "dimsav/laravel-translatable": "6.*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

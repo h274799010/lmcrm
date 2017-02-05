@@ -136,7 +136,7 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
             ->join('leads', function ($join) use ($sphere_id) {
                 $join->on('open_leads.lead_id', '=', 'leads.id')
                     ->where('leads.sphere_id', '=', $sphere_id);
-            });
+            })->select('open_leads.*');
     }
 
 
