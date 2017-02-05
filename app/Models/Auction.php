@@ -224,8 +224,15 @@ class Auction extends Model
                 whereIn('id', $leads)                     // все лиды полученыые по маске агента
                 ->where('status', 3)                       // котрые помеченны к аукциону
                 //->where('agent_id', '<>', $agentBitmask['user_id'])      // без лидов, которые занес агент
-                ->whereNotIn('agent_id', $excludedUsers)  // без лидов, которые занес агени и его продавцы
-                ->get();
+                ->whereNotIn('agent_id', $excludedUsers);  // без лидов, которые занес агени и его продавцы
+
+            if($agent->inRole('dealmaker')) {
+                $excludedLeads = $agent->openLeadsInSphere($sphere_id)->get()->lists('lead_id')->toArray();
+                if(count($excludedUsers) > 0) {
+                    $leadsByFilter = $leadsByFilter->whereNotIn('id', $excludedLeads);
+                }
+            }
+             $leadsByFilter = $leadsByFilter->get();
             // массив id лидов подходящих по текущей маске
             $leadsIds = $leadsByFilter->lists('id')->toArray();
 
@@ -270,7 +277,7 @@ class Auction extends Model
         foreach ($masks as $mask) {
             if(isset($leadsInMasks[$mask->id]) && count($leadsInMasks[$mask->id]) > 0) {
                 // Удаляем текушие аукционы по данной маске
-                Auction::where('user_id', '=', $agent_id)->whereIn('lead_id', $leadsInMasks[$mask->id])->delete();
+                Auction::where('user_id', '=', $agent_id)->where('mask_id', '=', $mask->id)->delete();
 
                 // Список лидов по данной маске
                 $leads = Lead::whereIn('id', $leadsInMasks[$mask->id])->get();
