@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterSpheresTable extends Migration
+class AlterUserMasksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class AlterSpheresTable extends Migration
      */
     public function up()
     {
-        Schema::table('spheres', function (Blueprint $table) {
+        Schema::table('user_masks', function (Blueprint $table) {
             $table->boolean('active')->default(true)->after('user_id');
         });
     }
@@ -24,7 +24,7 @@ class AlterSpheresTable extends Migration
      */
     public function down()
     {
-        Schema::table('spheres', function (Blueprint $table) {
+        Schema::table('user_masks', function (Blueprint $table) {
             $table->dropColumn('active');
         });
     }

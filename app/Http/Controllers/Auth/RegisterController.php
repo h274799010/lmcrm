@@ -6,12 +6,15 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\AgentInfo;
+use App\Models\Country;
+use App\Models\Role;
 use App\Models\Sphere;
 use App\Models\User;
 use App\Models\Wallet;
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginFormRequest;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use Mail;
 use Sentinel;
@@ -96,12 +99,7 @@ class RegisterController extends Controller
         // список сфер для выбора
         $spheres = Sphere::active()->lists('name','id');
 
-        // список доступных ролей
-        $roles = array(
-            'dealmaker' => 'Deal maker',
-            'leadbayer' => 'Lead bayer',
-            //'partner' => 'Partner'
-        );
+        $roles = Role::whereIn('slug', ['dealmaker', 'leadbayer'])->get();
 
         return view('auth.registerStepTwo')->with([ 'spheres'=>$spheres, 'roles'=>$roles ]);
     }

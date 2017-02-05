@@ -35,7 +35,23 @@
                 <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
                     {!! Form::label('role', trans('admin/users.role'), array('class' => 'control-label')) !!}
                     <div class="controls">
-                        {!! Form::select('role', $roles, null, array('class' => 'form-control','required'=>'required')) !!}
+                        <div class="row">
+                            @foreach($roles as $key => $role)
+                                <div class="col-md-6">
+                                    <div class="form-group roles-inputs">
+                                        <div class="controls">
+                                            {{ Form::radio('role', $role->slug, ($key == 0) ? true : false, array('class' => 'form-control','required'=>'required', 'id' => $role->slug)) }}
+                                        </div>
+                                        {{ Form::label($role->slug, $role->name, array('class' => 'control-label')) }}
+                                    </div>
+                                </div>
+                            @endforeach
+                            <div class="col-md-12">
+                                @foreach($roles as $key => $role)
+                                    <div class="alert alert-info role-info" id="desc_{{ $role->slug }}" @if($key > 0) style="display: none;" @endif>{{ $role->description }}</div>
+                                @endforeach
+                            </div>
+                        </div>
                         <span class="help-block">{{ $errors->first('role', ':message') }}</span>
                     </div>
                 </div>
@@ -77,8 +93,40 @@
     </div>
 @endsection
 
+@section('styles')
+    <style type="text/css">
+        .roles-inputs .controls {
+            display: inline-block;
+            vertical-align: middle;
+            width: 20px;
+        }
+        .roles-inputs label {
+            display: inline-block;
+            vertical-align: middle;
+            margin-bottom: 0;
+        }
+        .roles-inputs input {
+            width: 20px;
+            height: 20px;
+            margin-top: 0;
+        }
+        .roles-inputs label:hover,
+        .roles-inputs input:hover {
+            cursor: pointer;
+        }
+    </style>
+@endsection
+
 @section('scripts')
 <script type="text/javascript">
     $('.select2').select2();
+
+    $(document).ready(function () {
+        $(document).on('change', '.roles-inputs input[type=radio]', function () {
+            $('.role-info').hide();
+
+            $('#desc_'+$(this).attr('id')).show();
+        });
+    });
 </script>
 @endsection

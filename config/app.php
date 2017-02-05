@@ -180,6 +180,12 @@ return [
          */
         Jenky\LaravelPlupload\PluploadServiceProvider::class,
 
+        /*
+         * Laravel Translatable
+         * https://github.com/dimsav/laravel-translatable
+         */
+        Dimsav\Translatable\TranslatableServiceProvider::class,
+
         App\Providers\LeadServiceProvider::class,
         App\Providers\NoticeServiceProvider::class,
         App\Providers\UserServiceProvider::class,

@@ -70,11 +70,11 @@
                     </li>
                 </ul>
             </li>
-                <li>
-                    <a href="{{ route('admin.lead.index') }}">
-                        <i class="fa fa-list"></i> {{ trans('admin/sidebar.openLeads') }}
-                    </a>
-                </li>
+            <li>
+                <a href="{{ route('admin.lead.index') }}">
+                    <i class="fa fa-list"></i> {{ trans('admin/sidebar.openLeads') }}
+                </a>
+            </li>
 
             <li>
                 <a href="{{ route('admin.user.index') }}">
@@ -109,6 +109,22 @@
                     </li>
                 </ul>
             </li>
+
+
+            <li>
+                <a href="#">
+                    <i class="glyphicon glyphicon-cog"></i> Settings
+                    <span class="fa arrow"></span>
+                </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('admin.settings.roles') }}">
+                            <i class="fa fa-users"></i> Roles
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li>
                 <a href="{{ route('logout') }}"><i class="fa fa-sign-out"></i> {{ trans('admin/sidebar.logout') }}</a>
             </li>
