@@ -52,7 +52,38 @@
 
             <div class="row sphere_status_block">
 
-                <h4 class="statistic-sphere-name"> <span class="sphere-name">{{ $statistic['sphereName'] }}</span> <span class="badge statistics_head_badge"> {{ $statistic['data']['periodOpenLeads'] }} / {{ $statistic['data']['allOpenLeads'] }} </span> <span class="badge statistics_head_badge_auction"> auction {{ $statistic['data']['PeriodAuction'] }}/{{ $statistic['data']['allAuction'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}  </span></h4>
+                <h4 class="statistic-sphere-name"> <span class="sphere-name">{{ $statistic['sphereName'] }}</span>
+                    {{--<span class="badge statistics_head_badge"> {{ $statistic['data']['periodOpenLeads'] }} / {{ $statistic['data']['allOpenLeads'] }} </span> --}}
+                    {{--<span class="badge statistics_head_badge_auction"> auction {{ $statistic['data']['PeriodAuction'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}  </span>--}}
+                </h4>
+
+                <table class="summary_table">
+                    <tr>
+                        <td>Seen</td>
+                        <td>
+                            <span class="summary_table_addition">all: </span>
+                            <span class="summary_table_seen_all">{{ $statistic['data']['allAuctionWithTrash'] }}</span>
+                        </td>
+                        <td>
+                            <span class="summary_table_addition">period: </span>
+                            <span class="summary_table_seen_period">{{ $statistic['data']['allAuctionWithTrash'] }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Open</td>
+                        <td>
+                            <span class="summary_table_addition">all: </span>
+                            <span class="summary_table_open_all">{{ $statistic['data']['allOpenLeads'] }}</span>
+                        </td>
+                        <td>
+                            <span class="summary_table_addition">period: </span>
+                            <span class="summary_table_open_period">{{ $statistic['data']['periodOpenLeads'] }}</span>
+                        </td>
+                    </tr>
+                </table>
+
+
+
 
                 {{-- Проверяем достаточно ли у агента открытых лидов по сфере для статистики --}}
                 @if( $statistic['status'] )
@@ -68,10 +99,11 @@
 
                             <thead>
                                 <tr>
-                                    <th class="center middle"> </th>
-                                    <th class="center middle">amount</th>
-                                    <th class="center middle">all</th>
-                                    <th class="center middle">period</th>
+                                    <th class="center middle">status</th>
+                                    <th class="center middle">amount all</th>
+                                    <th class="center middle">percent all</th>
+                                    <th class="center middle">amount period</th>
+                                    <th class="center middle">percent period</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -79,12 +111,14 @@
                                     <td class="center middle"> No status </td>
                                     <td class="percent-col center middle countAll">{{ $statistic['data']['statuses']['nostatus']['countAll'] }}</td>
                                     <td class="percent-col center middle allPercent">{{ $statistic['data']['statuses']['nostatus']['allPercent'] }}%</td>
+                                    <td class="percent-col center middle countPeriod">{{ $statistic['data']['statuses']['nostatus']['countPeriod'] }}</td>
                                     <td class="percent-col center middle periodPercent">{{ $statistic['data']['statuses']['nostatus']['periodPercent'] }}%</td>
                                 </tr>
                                 <tr class="status_close_deal">
                                     <td class="center middle"> Close deal </td>
                                     <td class="percent-col center middle countAll">{{ $statistic['data']['statuses']['close_deal']['countAll'] }}</td>
                                     <td class="percent-col center middle allPercent">{{ $statistic['data']['statuses']['close_deal']['allPercent'] }}%</td>
+                                    <td class="percent-col center middle countPeriod">{{ $statistic['data']['statuses']['close_deal']['countPeriod'] }}</td>
                                     <td class="percent-col center middle periodPercent">{{ $statistic['data']['statuses']['close_deal']['periodPercent'] }}%</td>
                                 </tr>
                             </tbody>
@@ -93,16 +127,17 @@
 
                     {{-- Процессные статусы --}}
                     <div class="table-statuses table-statuses-small table_status_block">
-                        <table class="table table-striped table-hover process-statuses">
+                        <table class="table process-statuses">
                             <thead>
                                 <tr class="statistics_process_statuses">
-                                    <th colspan="4">Process</th>
+                                    <th colspan="5">Process</th>
                                 </tr>
                                 <tr>
                                     <th class="center middle">status</th>
-                                    <th class="center middle">amount</th>
-                                    <th class="center middle">all</th>
-                                    <th class="center middle">period</th>
+                                    <th class="center middle">amount all</th>
+                                    <th class="center middle">percent all</th>
+                                    <th class="center middle">amount period</th>
+                                    <th class="center middle">percent period</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -112,6 +147,7 @@
                                     <td class="center middle name">{{ $status['name'] }}</td>
                                     <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
                                     <td class="percent-col center middle allPercent">{{ $status['allPercent'] }}%</td>
+                                    <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
                                     <td class="percent-col center middle periodPercent">{{ $status['periodPercent'] }}%</td>
                                 </tr>
                             @empty
@@ -125,26 +161,28 @@
 
                     {{-- Неопределенные статусы --}}
                     <div class="table-statuses table-statuses-small table_status_block">
-                        <table class="table table-striped table-hover undefined-statuses">
+                        <table class="table undefined-statuses">
                             <thead>
                             <tr class="statistics_uncertain_statuses">
-                                <th colspan="4">Uncertain</th>
+                                <th colspan="5">Uncertain</th>
                             </tr>
                             <tr>
                                 <th class="center middle">status</th>
-                                <th class="center middle">amount</th>
-                                <th class="center middle">all</th>
-                                <th class="center middle">period</th>
+                                <th class="center middle">amount all</th>
+                                <th class="center middle">percent all</th>
+                                <th class="center middle">amount period</th>
+                                <th class="center middle">percent period</th>
                             </tr>
                             </thead>
                             <tbody>
 
                             @forelse( $statistic['data']['statuses'][2] as $status)
                                 <tr>
-                                    <td class="center middle">{{ $status['name'] }}</td>
-                                    <td class="percent-col center middle">{{ $status['countAll'] }}</td>
-                                    <td class="percent-col center middle">{{ $status['allPercent'] }}%</td>
-                                    <td class="percent-col center middle">{{ $status['periodPercent'] }}%</td>
+                                    <td class="center middle name">{{ $status['name'] }}</td>
+                                    <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
+                                    <td class="percent-col center middle allPercent">{{ $status['allPercent'] }}%</td>
+                                    <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
+                                    <td class="percent-col center middle periodPercent">{{ $status['periodPercent'] }}%</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -157,26 +195,28 @@
 
                     {{-- Отказные статусы --}}
                     <div class="table-statuses table-statuses-small table_status_block">
-                        <table class="table table-striped table-hover fail-statuses">
+                        <table class="table fail-statuses">
                             <thead>
                             <tr class="statistics_refuseniks_statuses">
-                                <th colspan="4">Refuseniks</th>
+                                <th colspan="5">Refuseniks</th>
                             </tr>
                             <tr>
                                 <th class="center middle">status</th>
-                                <th class="center middle">amount</th>
-                                <th class="center middle">all</th>
-                                <th class="center middle">period</th>
+                                <th class="center middle">amount all</th>
+                                <th class="center middle">percent all</th>
+                                <th class="center middle">amount period</th>
+                                <th class="center middle">percent period</th>
                             </tr>
                             </thead>
                             <tbody>
 
                             @forelse( $statistic['data']['statuses'][3] as $status)
                                 <tr>
-                                    <td class="center middle">{{ $status['name'] }}</td>
-                                    <td class="percent-col center middle">{{ $status['countAll'] }}</td>
-                                    <td class="percent-col center middle">{{ $status['allPercent'] }}%</td>
-                                    <td class="percent-col center middle">{{ $status['periodPercent'] }}%</td>
+                                    <td class="center middle name">{{ $status['name'] }}</td>
+                                    <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
+                                    <td class="percent-col center middle allPercent">{{ $status['allPercent'] }}%</td>
+                                    <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
+                                    <td class="percent-col center middle periodPercent">{{ $status['periodPercent'] }}%</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -189,26 +229,28 @@
 
                     {{-- Плохие статусы --}}
                     <div class="table-statuses table-statuses-small table_status_block">
-                        <table class="table table-striped table-hover bad-statuses">
+                        <table class="table bad-statuses">
                             <thead>
                             <tr class="statistics_bad_statuses">
-                                <th colspan="4">Bad</th>
+                                <th colspan="5">Bad</th>
                             </tr>
                             <tr>
                                 <th class="center middle">status</th>
-                                <th class="center middle">amount</th>
-                                <th class="center middle">all</th>
-                                <th class="center middle">period</th>
+                                <th class="center middle">amount all</th>
+                                <th class="center middle">percent all</th>
+                                <th class="center middle">amount period</th>
+                                <th class="center middle">percent period</th>
                             </tr>
                             </thead>
                             <tbody>
 
                                 @forelse( $statistic['data']['statuses'][4] as $status)
                                     <tr>
-                                        <td class="center middle">{{ $status['name'] }}</td>
-                                        <td class="percent-col center middle">{{ $status['countAll'] }}</td>
-                                        <td class="percent-col center middle">{{ $status['allPercent'] }}%</td>
-                                        <td class="percent-col center middle">{{ $status['periodPercent'] }}%</td>
+                                        <td class="center middle name">{{ $status['name'] }}</td>
+                                        <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
+                                        <td class="percent-col center middle allPercent">{{ $status['allPercent'] }}%</td>
+                                        <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
+                                        <td class="percent-col center middle periodPercent">{{ $status['periodPercent'] }}%</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -221,31 +263,37 @@
 
                     {{-- Статистика по транзитам --}}
                     <div class="table-statuses table-statuses-large table_status_block">
-                        <table class="table table-striped table-hover performance-table">
+                        <table class="table performance-table">
                             <thead>
                             <tr class="statistics_transitions_statuses">
-                                <th colspan="5">Transitions</th>
+                                <th colspan="8">Transitions</th>
                             </tr>
                             <tr>
                                 <th class="center middle">from</th>
+                                <th class="center middle"></th>
                                 <th class="center middle">to</th>
                                 <th class="center middle">all</th>
+                                <th class="center middle">all rating</th>
+                                <th class="center middle"></th>
                                 <th class="center middle">period</th>
-                                <th class="center middle">rating</th>
+                                <th class="center middle">period rating</th>
                             </tr>
                             </thead>
                             <tbody>
                             @forelse($statistic['data']['transitions'] as $transit)
                                 <tr>
                                     <td class="center middle fromStatus"> {{ $transit['fromStatus'] }} </td>
+                                    <td class="center middle statistics_transitions_statuses_arrow"> <i class="glyphicon glyphicon-arrow-right"></i> </td>
                                     <td class="center middle toStatus"> {{ $transit['toStatus'] }} </td>
                                     <td class="percent-col center middle allPercent">{{ $transit['allPercent'] }}%</td>
+                                    <td class="center middle status_{{ $transit['allRating'] }} rating">{{ $transit['allRating'] }}</td>
+                                    <td class="center middle"></td>
                                     <td class="percent-col center middle periodPercent">{{ $transit['periodPercent'] }}%</td>
-                                    <td class="center middle status_{{ $transit['rating'] }} rating">{{ $transit['rating'] }}</td>
+                                    <td class="center middle status_{{ $transit['periodRating'] }} rating">{{ $transit['periodRating'] }}</td>
                                 </tr>
                             @empty
                                 <tr >
-                                    <td class="center statistics_no_data" colspan="5">No data</td>
+                                    <td class="center statistics_no_data" colspan="8">No data</td>
                                 </tr>
                             @endforelse
                             </tbody>
@@ -364,24 +412,30 @@
                 sphere.find('.sphere_no_data').addClass('hidden');
             }
 
+            // минимальное количество лидов которое нужно для вывода статистики
             sphere.find('.leads_needed').text( statistic['statistic']['minLead'] );
 
 
-
             // обновляем данные по количеству открытых лидов
-            sphere.find('.badge.statistics_head_badge').text( statistic['statistic']['data']['periodOpenLeads'] + '/' + statistic['statistic']['data']['allOpenLeads'] );
+//            sphere.find('.badge.statistics_head_badge').text( statistic['statistic']['data']['periodOpenLeads'] + '/' + statistic['statistic']['data']['allOpenLeads'] );
+            sphere.find('.summary_table_open_all').text( statistic['statistic']['data']['allOpenLeads'] );
+            sphere.find('.summary_table_open_period').text( statistic['statistic']['data']['periodOpenLeads'] );
 
             // данные по количеству увиденных лидов
-            sphere.find('.badge.statistics_head_badge_auction').text( 'auction ' + statistic['statistic']['data']['PeriodAuction'] + '/' + statistic['statistic']['data']['allAuction'] + '/' + statistic['statistic']['data']['allAuctionWithTrash'] );
+//            sphere.find('.badge.statistics_head_badge_auction').text( 'auction ' + statistic['statistic']['data']['PeriodAuction'] + '/' + statistic['statistic']['data']['allAuction'] + '/' + statistic['statistic']['data']['allAuctionWithTrash'] );
+            sphere.find('.summary_table_seen_all').text( statistic['statistic']['data']['allAuctionWithTrash'] );
+            sphere.find('.summary_table_seen_period').text( statistic['statistic']['data']['allAuction'] );
 
             // обновление данных по открытым лидам с отсутствующим статусом
             sphere.find('.status_no_status .countAll').text( statistic['statistic']['data']['statuses']['nostatus']['countAll'] );
             sphere.find('.status_no_status .allPercent').text( statistic['statistic']['data']['statuses']['nostatus']['allPercent']+'%' );
+            sphere.find('.status_no_status .countPeriod').text( statistic['statistic']['data']['statuses']['nostatus']['countPeriod'] );
             sphere.find('.status_no_status .periodPercent').text( statistic['statistic']['data']['statuses']['nostatus']['periodPercent']+'%' );
 
             // обновление данных по открытым лидам с закрытыми сделками
             sphere.find('.status_close_deal .countAll').text( statistic['statistic']['data']['statuses']['close_deal']['countAll'] );
             sphere.find('.status_close_deal .allPercent').text( statistic['statistic']['data']['statuses']['close_deal']['allPercent']+'%' );
+            sphere.find('.status_close_deal .countPeriod').text( statistic['statistic']['data']['statuses']['close_deal']['countPeriod'] );
             sphere.find('.status_close_deal .periodPercent').text( statistic['statistic']['data']['statuses']['close_deal']['periodPercent']+'%' );
 
             // массив с типами статусов, по которым составляются таблицы
@@ -413,7 +467,7 @@
                     noStatusRow.addClass('center statistics_no_data');
 
                     // добавляем атрибут объединения ячеек
-                    noStatusRow.attr('colspan', 5);
+                    noStatusRow.attr('colspan', 6);
 
                     // добавление данных в ячейки
                     noStatusRow.text( 'No statuses' );
@@ -435,24 +489,28 @@
                     var name = $('<td />');
                     var countAll = $('<td />');
                     var allPercent = $('<td />');
+                    var countPeriod = $('<td />');
                     var periodPercent = $('<td />');
 
                     // добавление классов
                     name.addClass('center middle name');
                     countAll.addClass('percent-col center middle countAll');
                     allPercent.addClass('percent-col center middle allPercent');
+                    countPeriod.addClass('percent-col center middle countPeriod');
                     periodPercent.addClass('percent-col center middle periodPercent');
 
                     // добавление данных в ячейки
                     name.text( statusData['name'] );
                     countAll.text( statusData['countAll'] );
                     allPercent.text( statusData['allPercent'] + '%' );
+                    countPeriod.text( statusData['countPeriod'] );
                     periodPercent.text( statusData['periodPercent'] + '%' );
 
                     // добавление ячеек в строку
                     tr.append(name);
                     tr.append(countAll);
                     tr.append(allPercent);
+                    tr.append(countPeriod);
                     tr.append(periodPercent);
 
                     // добавление строки в таблицу
@@ -495,40 +553,51 @@
             // перебираем все транзиты и наполняем таблицу
             $.each( statistic['statistic']['data']['transitions'], function( transitionKey, transitionData ){
 
-                    // создание строки таблицы
-                    var tr = $('<tr />');
+                // создание строки таблицы
+                var tr = $('<tr />');
 
-                    // создание ячеек таблицы
-                    var fromStatus = $('<td />');
-                    var toStatus = $('<td />');
-                    var allPercent = $('<td />');
-                    var periodPercent = $('<td />');
-                    var rating = $('<td />');
+                // создание ячеек таблицы
+                var fromStatus = $('<td />');
+                var arrow = $('<td />');
+                var toStatus = $('<td />');
+                var allPercent = $('<td />');
+                var allRating = $('<td />');
+                var emptyCol = $('<td />');
+                var periodPercent = $('<td />');
+                var periodRating = $('<td />');
 
-                    // добавление классов
-                    fromStatus.addClass('center middle fromStatus');
-                    toStatus.addClass('center middle toStatus');
-                    allPercent.addClass('percent-col center middle allPercent');
-                    periodPercent.addClass('percent-col center middle periodPercent');
-                    rating.addClass('center middle rating status_' + transitionData['rating']);
+                // добавление классов
+                fromStatus.addClass('center middle fromStatus');
+                arrow.addClass('center middle statistics_transitions_statuses_arrow');
+                toStatus.addClass('center middle toStatus');
+                allPercent.addClass('percent-col center middle allPercent');
+                allRating.addClass('center middle rating status_' + transitionData['allRating']);
+                periodPercent.addClass('percent-col center middle periodPercent');
+                periodRating.addClass('center middle rating status_' + transitionData['periodRating']);
 
-                    // добавление данных в ячейки
-                    fromStatus.text( transitionData['fromStatus'] );
-                    toStatus.text( transitionData['toStatus'] );
-                    allPercent.text( transitionData['allPercent'] );
-                    periodPercent.text( transitionData['periodPercent'] + '%' );
-                    rating.text( transitionData['rating'] );
+                // добавление данных в ячейки
+                fromStatus.text( transitionData['fromStatus'] );
+                arrow.html('<i class="glyphicon glyphicon-arrow-right"></i>');
+                toStatus.text( transitionData['toStatus'] );
+                allPercent.text( transitionData['allPercent'] );
+                allRating.text( transitionData['allRating'] );
+                emptyCol.text( '' );
+                periodPercent.text( transitionData['periodPercent'] + '%' );
+                periodRating.text( transitionData['periodRating'] );
 
-                    // добавление ячеек в строку
-                    tr.append(fromStatus);
-                    tr.append(toStatus);
-                    tr.append(allPercent);
-                    tr.append(periodPercent);
-                    tr.append(rating);
+                // добавление ячеек в строку
+                tr.append(fromStatus);
+                tr.append(arrow);
+                tr.append(toStatus);
+                tr.append(allPercent);
+                tr.append(allRating);
+                tr.append(emptyCol);
+                tr.append(periodPercent);
+                tr.append(periodRating);
 
-                    // добавление строки в таблицу
-                    transitionTable.append( tr );
-                });
+                // добавление строки в таблицу
+                transitionTable.append( tr );
+            });
         }
 
         // функция отправки данных на сервер для обновления периода и прочего

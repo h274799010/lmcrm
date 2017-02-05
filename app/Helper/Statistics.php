@@ -324,8 +324,9 @@ class Statistics extends Model
                 'fromStatus' => $statusesNames[ $transit->previous_status_id ]['name'],
                 'toStatus' => $statusesNames[ $transit->status_id ]['name'],
                 'allPercent' => $allPercent,
+                'allRating' => SphereStatusTransitions::getRating($transit->previous_status_id, $transit->status_id, $allPercent),
                 'periodPercent' => $periodPercent,
-                'rating' => SphereStatusTransitions::getRating($transit->previous_status_id, $transit->status_id, $allPercent)
+                'periodRating' => SphereStatusTransitions::getRating($transit->previous_status_id, $transit->status_id, $periodPercent)
             ]) );
         });
 
