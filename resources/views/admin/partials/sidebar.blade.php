@@ -40,6 +40,11 @@
                 </a>
                 <ul class="nav collapse">
                     <li>
+                        <a href="{{ route('admin.statistic.spheres') }}">
+                            <i class="fa fa-list"></i> {{ trans('admin/sidebar.spheres_item') }}
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('admin.statistic.agents') }}">
                             <i class="fa fa-list"></i> {{ trans('admin/sidebar.agents') }}
                         </a>

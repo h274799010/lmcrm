@@ -21,6 +21,7 @@ class StatisticController extends Controller
         view()->share('type', 'agent');
     }
 
+
     /**
      * Страница со списком всех агентов
      *
@@ -38,6 +39,7 @@ class StatisticController extends Controller
             'accountManagers' => $accountManagers
         ]);
     }
+
 
     /**
      * Получение списка агентов
@@ -151,8 +153,30 @@ class StatisticController extends Controller
             ->make();
     }
 
+
     /**
-     * Страница со статистикой агента
+     * Страница со списком всех агентов
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function spheresList(){
+
+        $spheres = Sphere::
+                      where('status', 1)
+                    ->select('id', 'name', 'created_at')
+                    ->get();
+
+//        dd($spheres);
+
+        return view('admin.statistic.sphereList', [
+            'spheres' => $spheres,
+        ]);
+
+    }
+
+
+    /**
+     * Страница со списком сфер для статистики
      *
      *
      * @param  integer  $agent_id
@@ -212,6 +236,36 @@ class StatisticController extends Controller
         return view('admin.statistic.agent', [
             'agent' => $agent,
             'spheres' => $spheres,
+            'statistic' => $statistic,
+        ]);
+    }
+
+
+    /**
+     * Страница со статистикой сферы
+     *
+     *
+     * @param  integer  $sphere_id
+     *
+     * @return View
+     */
+    public function sphereStatistic( $sphere_id )
+    {
+
+//        dd($sphere_id);
+
+        $sphere = Sphere::find( $sphere_id );
+
+        $statistic = [
+            'sphereName' => $sphere['name'],
+            'data' => Statistics::sphere( $sphere_id ),
+            'status' => true,
+        ];
+
+//        dd($statistic['data']);
+
+        return view('admin.statistic.sphere', [
+            'sphere' => $sphere,
             'statistic' => $statistic,
         ]);
     }
@@ -290,6 +344,40 @@ class StatisticController extends Controller
         ]);
 
         return response()->json([ 'spheres'=>$spheres, 'statistic'=>$statistic ]);
+    }
+
+
+    /**
+     * Получение данных по статистике сферы
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function sphereStatisticData(Request $request)
+    {
+
+        // данные из реквеста
+        $sphere_id = $request->sphere_id;
+        $timeFrom = $request->timeFrom;
+        $timeTo =$request->timeTo;
+
+        $sphere = Sphere::find( $sphere_id );
+
+        // выбираем статистику
+        $statisticData = Statistics::sphere( $sphere_id, $timeFrom, $timeTo );
+
+        // записываем статистику
+        $statistic = collect([
+            'sphereId' => $sphere['id'],
+            'sphereName' => $sphere['name'],
+            'minLead' => $sphere['minLead'],
+            'openLead' => $sphere['openLead'],
+            'data' => $statisticData
+        ]);
+
+        return response()->json([ 'statistic'=>$statistic ]);
     }
 
 

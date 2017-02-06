@@ -6,20 +6,11 @@
 
 {{-- Content --}}
 @section('main')
-    <div class="page-header">
-        <h3>
-            @lang('statistic.page_title') {{ $agent->email }}
-        </h3>
-    </div>
-
-    {{-- Проверка есть ли у пользователя сферы --}}
-    @if($spheres->count() == 0)
-        {{-- Если сфер нету --}}
-
-        {{--todo дооформить, поставить по средине, цвет сделать серый--}}
-        No spheres
-    @else
-        {{-- Если сферы есть --}}
+    {{--<div class="page-header">--}}
+        {{--<h3>--}}
+            {{--@lang('statistic.page_title') {{ $sphere->name }}--}}
+        {{--</h3>--}}
+    {{--</div>--}}
 
         {{-- строка с селектами --}}
         <div class="row">
@@ -32,20 +23,6 @@
                            class="mdl-textfield__input dataTables_filter statistics_input" value="" id="reportrange"/>
                 </div>
             </div>
-
-            {{-- селект с названием сферы --}}
-            <div class="col-md-2 col-md-offset-7">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Sphere</label><br>
-                    <select name="sphere name" id="sphere_select" class="sphere_select">
-
-                        @foreach( $spheres as $sphere)
-                            <option value="{{ $sphere['id'] }}">{{ $sphere['name'] }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
         </div>
 
         <div id="statisticWrapper">
@@ -59,6 +36,16 @@
 
                 <table class="summary_table">
                     <tr>
+                        <td>Added</td>
+                        <td>
+                            <span class="summary_table_addition">all: </span>
+                            <span class="summary_table_added_all">{{ $statistic['data']['allLeads'] }}</span>
+                        </td>
+                        <td>
+                            <span class="summary_table_addition">period: </span>
+                            <span class="summary_table_added_period">{{ $statistic['data']['periodLeads'] }}</span>
+                        </td>
+                    </tr>                    <tr>
                         <td>Seen</td>
                         <td>
                             <span class="summary_table_addition">all: </span>
@@ -98,29 +85,29 @@
                         <table class="table topStatusTable">
 
                             <thead>
-                                <tr>
-                                    <th class="center middle">status</th>
-                                    <th class="center middle">amount all</th>
-                                    <th class="center middle">percent all</th>
-                                    <th class="center middle">amount period</th>
-                                    <th class="center middle">percent period</th>
-                                </tr>
+                            <tr>
+                                <th class="center middle">status</th>
+                                <th class="center middle">amount all</th>
+                                <th class="center middle">percent all</th>
+                                <th class="center middle">amount period</th>
+                                <th class="center middle">percent period</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr class="status_no_status">
-                                    <td class="center middle"> No status </td>
-                                    <td class="percent-col center middle countAll">{{ $statistic['data']['statuses']['nostatus']['countAll'] }}</td>
-                                    <td class="percent-col center middle allPercent">{{ $statistic['data']['statuses']['nostatus']['allPercent'] }}%</td>
-                                    <td class="percent-col center middle countPeriod">{{ $statistic['data']['statuses']['nostatus']['countPeriod'] }}</td>
-                                    <td class="percent-col center middle periodPercent">{{ $statistic['data']['statuses']['nostatus']['periodPercent'] }}%</td>
-                                </tr>
-                                <tr class="status_close_deal">
-                                    <td class="center middle"> Close deal </td>
-                                    <td class="percent-col center middle countAll">{{ $statistic['data']['statuses']['close_deal']['countAll'] }}</td>
-                                    <td class="percent-col center middle allPercent">{{ $statistic['data']['statuses']['close_deal']['allPercent'] }}%</td>
-                                    <td class="percent-col center middle countPeriod">{{ $statistic['data']['statuses']['close_deal']['countPeriod'] }}</td>
-                                    <td class="percent-col center middle periodPercent">{{ $statistic['data']['statuses']['close_deal']['periodPercent'] }}%</td>
-                                </tr>
+                            <tr class="status_no_status">
+                                <td class="center middle"> No status </td>
+                                <td class="percent-col center middle countAll">{{ $statistic['data']['statuses']['nostatus']['countAll'] }}</td>
+                                <td class="percent-col center middle allPercent">{{ $statistic['data']['statuses']['nostatus']['allPercent'] }}%</td>
+                                <td class="percent-col center middle countPeriod">{{ $statistic['data']['statuses']['nostatus']['countPeriod'] }}</td>
+                                <td class="percent-col center middle periodPercent">{{ $statistic['data']['statuses']['nostatus']['periodPercent'] }}%</td>
+                            </tr>
+                            <tr class="status_close_deal">
+                                <td class="center middle"> Close deal </td>
+                                <td class="percent-col center middle countAll">{{ $statistic['data']['statuses']['close_deal']['countAll'] }}</td>
+                                <td class="percent-col center middle allPercent">{{ $statistic['data']['statuses']['close_deal']['allPercent'] }}%</td>
+                                <td class="percent-col center middle countPeriod">{{ $statistic['data']['statuses']['close_deal']['countPeriod'] }}</td>
+                                <td class="percent-col center middle periodPercent">{{ $statistic['data']['statuses']['close_deal']['periodPercent'] }}%</td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -129,16 +116,16 @@
                     <div class="table-statuses table-statuses-small table_status_block">
                         <table class="table process-statuses">
                             <thead>
-                                <tr class="statistics_process_statuses">
-                                    <th colspan="5">Process</th>
-                                </tr>
-                                <tr>
-                                    <th class="center middle">status</th>
-                                    <th class="center middle">amount all</th>
-                                    <th class="center middle">percent all</th>
-                                    <th class="center middle">amount period</th>
-                                    <th class="center middle">percent period</th>
-                                </tr>
+                            <tr class="statistics_process_statuses">
+                                <th colspan="5">Process</th>
+                            </tr>
+                            <tr>
+                                <th class="center middle">status</th>
+                                <th class="center middle">amount all</th>
+                                <th class="center middle">percent all</th>
+                                <th class="center middle">amount period</th>
+                                <th class="center middle">percent period</th>
+                            </tr>
                             </thead>
                             <tbody>
 
@@ -244,19 +231,19 @@
                             </thead>
                             <tbody>
 
-                                @forelse( $statistic['data']['statuses'][4] as $status)
-                                    <tr>
-                                        <td class="center middle name">{{ $status['name'] }}</td>
-                                        <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
-                                        <td class="percent-col center middle allPercent">{{ $status['allPercent'] }}%</td>
-                                        <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
-                                        <td class="percent-col center middle periodPercent">{{ $status['periodPercent'] }}%</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td class="center statistics_no_data" colspan="5">No data</td>
-                                    </tr>
-                                @endforelse
+                            @forelse( $statistic['data']['statuses'][4] as $status)
+                                <tr>
+                                    <td class="center middle name">{{ $status['name'] }}</td>
+                                    <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
+                                    <td class="percent-col center middle allPercent">{{ $status['allPercent'] }}%</td>
+                                    <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
+                                    <td class="percent-col center middle periodPercent">{{ $status['periodPercent'] }}%</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="center statistics_no_data" colspan="5">No data</td>
+                                </tr>
+                            @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -304,16 +291,14 @@
                 @else
                     {{-- по сфере недостаточно откртых лидов для статистики --}}
 
-                        <div class="col-md-12 table_status_block sphere_no_data center">
-                            Not enough open leads for statistics
-                        </div>
+                    <div class="col-md-12 table_status_block sphere_no_data center">
+                        Not enough open leads for statistics
+                    </div>
                 @endif
 
             </div>
 
         </div>
-
-    @endif
 
 @stop
 
@@ -354,33 +339,6 @@
          */
         function statisticUpdate( statistic ){
 
-            // обновление данных в селекте сферы
-            var sphereSelect = $('#sphere_select');
-
-            // сохраняем значения селекта в переменную
-            var selectVal = sphereSelect.val();
-
-            // очищаем данные по селекта по сфере
-            sphereSelect.empty();
-
-            // перебираем все сферы и заносим их в селект
-            $.each( statistic['spheres'], function( key, sphere ){
-
-                // создаем новую опцию селекта
-                var option = $('<option/>');
-
-                // записываем в опцию id
-                option.val( sphere.id );
-                // записываем в опцию имя
-                option.text( sphere.name );
-
-                // добавление в опции в селект
-                sphereSelect.append(option);
-            });
-
-            // восстанавливаем значение селекта
-            sphereSelect.val(selectVal);
-
             // выбираем блок со сферой
             var sphere = $('.sphere_status_block');
 
@@ -388,43 +346,46 @@
             sphere.find('.sphere-name').text( statistic['statistic']['sphereName'] );
 
             // проверка на статус статистики
-            if( !statistic['statistic']['status'] ){
-                // если статистики по какой то причине нет
-
-                sphere.find('.topStatusTable').addClass('hidden');
-                sphere.find('.process-statuses').addClass('hidden');
-                sphere.find('.undefined-statuses').addClass('hidden');
-                sphere.find('.fail-statuses').addClass('hidden');
-                sphere.find('.bad-statuses').addClass('hidden');
-                sphere.find('.performance-table').addClass('hidden');
-
-                sphere.find('.sphere_no_data').removeClass('hidden');
-
-            }else {
-
-                sphere.find('.topStatusTable').removeClass('hidden');
-                sphere.find('.process-statuses').removeClass('hidden');
-                sphere.find('.undefined-statuses').removeClass('hidden');
-                sphere.find('.fail-statuses').removeClass('hidden');
-                sphere.find('.bad-statuses').removeClass('hidden');
-                sphere.find('.performance-table').removeClass('hidden');
-
-                sphere.find('.sphere_no_data').addClass('hidden');
-            }
+//            if( !statistic['statistic']['status'] ){
+//                // если статистики по какой то причине нет
+//
+//                sphere.find('.topStatusTable').addClass('hidden');
+//                sphere.find('.process-statuses').addClass('hidden');
+//                sphere.find('.undefined-statuses').addClass('hidden');
+//                sphere.find('.fail-statuses').addClass('hidden');
+//                sphere.find('.bad-statuses').addClass('hidden');
+//                sphere.find('.performance-table').addClass('hidden');
+//
+//                sphere.find('.sphere_no_data').removeClass('hidden');
+//
+//            }else {
+//
+//                sphere.find('.topStatusTable').removeClass('hidden');
+//                sphere.find('.process-statuses').removeClass('hidden');
+//                sphere.find('.undefined-statuses').removeClass('hidden');
+//                sphere.find('.fail-statuses').removeClass('hidden');
+//                sphere.find('.bad-statuses').removeClass('hidden');
+//                sphere.find('.performance-table').removeClass('hidden');
+//
+//                sphere.find('.sphere_no_data').addClass('hidden');
+//            }
 
             // минимальное количество лидов которое нужно для вывода статистики
             sphere.find('.leads_needed').text( statistic['statistic']['minLead'] );
 
 
             // обновляем данные по количеству открытых лидов
-//            sphere.find('.badge.statistics_head_badge').text( statistic['statistic']['data']['periodOpenLeads'] + '/' + statistic['statistic']['data']['allOpenLeads'] );
             sphere.find('.summary_table_open_all').text( statistic['statistic']['data']['allOpenLeads'] );
             sphere.find('.summary_table_open_period').text( statistic['statistic']['data']['periodOpenLeads'] );
 
             // данные по количеству увиденных лидов
-//            sphere.find('.badge.statistics_head_badge_auction').text( 'auction ' + statistic['statistic']['data']['PeriodAuction'] + '/' + statistic['statistic']['data']['allAuction'] + '/' + statistic['statistic']['data']['allAuctionWithTrash'] );
             sphere.find('.summary_table_seen_all').text( statistic['statistic']['data']['allAuctionWithTrash'] );
             sphere.find('.summary_table_seen_period').text( statistic['statistic']['data']['allAuction'] );
+
+            // данные по количеству добавленных лидов
+            sphere.find('.summary_table_added_all').text( statistic['statistic']['data']['allLeads'] );
+            sphere.find('.summary_table_added_period').text( statistic['statistic']['data']['periodLeads'] );
+
 
             // обновление данных по открытым лидам с отсутствующим статусом
             sphere.find('.status_no_status .countAll').text( statistic['statistic']['data']['statuses']['nostatus']['countAll'] );
@@ -608,30 +569,17 @@
             var sphereSelect = $('#sphere_select').val();
 
             // заносим параметры
-            var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $agent->id }}', timeFrom: dataStart, timeTo: dataEnd, sphere_id: sphereSelect } ;
+            var params ={ _token: '{{ csrf_token() }}', timeFrom: dataStart, timeTo: dataEnd, sphere_id: '{{ $sphere['id'] }}' } ;
 
             // отправка запроса на сервер
             $.post(
-                '{{ route('admin.statistic.agentData') }}',
+                '{{ route('admin.statistic.sphereData') }}',
                 params,
                 function (data)
                 {
-                    // обработка данных полученных с фронтенда
-                    if(data == 'false'){
-                        // у агента нет сфер
 
-                        // просто обновляем страницу
-                        document.location.reload();
-
-                    }else{
-                        // все данные в порядке
-
-                        // обновляем статистику на странице
-                        statisticUpdate( data );
-
-                        // todo удалить
-//                        console.log( data );
-                    }
+                    // обновляем статистику на странице
+                    statisticUpdate( data );
                 }
             );
         }
@@ -649,10 +597,6 @@
                 loadStatistic();
             });
 
-            // отправка запроса на обновление данных при изменении сферы
-            $(document).on('change', '#sphere_select', function () {
-                loadStatistic();
-            });
 
             var start = moment().startOf('month');
             var end = moment().endOf('month');

@@ -1403,6 +1403,11 @@ span.badge.statistics_head_badge{
     padding: 0;
 }
 
+
+.table-statuses tr td.statistics_transitions_emptyCall{
+    border-bottom: solid 1px lightgrey !important;
+}
+
 .table-statuses tr td.toStatus{
     border-bottom: solid 1px lightgrey !important;
     /*border-left: solid 1px lightgrey !important;*/
