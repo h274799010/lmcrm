@@ -58,6 +58,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     Route::post('agent/revenue',['as'=>'admin.agent.revenue', 'uses' => 'Admin\AgentController@revenueUpdate']);
     Route::post('agent/attachAccountManagers',['as'=>'admin.agent.attachAccountManagers', 'uses' => 'Admin\AgentController@attachAccountManagers']);
+    Route::post('agent/rank',['as'=>'admin.agent.rank', 'uses' => 'Admin\AgentController@rankUpdate']);
 
     // страница редактирования данных агента
     Route::get('agent/{id}/edit',['as'=>'admin.agent.edit', 'uses' => 'Admin\AgentController@edit']);

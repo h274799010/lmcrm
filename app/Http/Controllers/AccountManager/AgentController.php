@@ -303,6 +303,36 @@ class AgentController extends AccountManagerController {
     }
 
     /**
+     * Метод обновляет agent_range агента в табл. agent_sphere
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function rankUpdate(Request $request)
+    {
+        $agentSphere = AgentSphere::with('sphere')->find($request->input('agentSphere_id'));
+
+        if(isset($agentSphere->id) && isset($agentSphere->sphere->max_range)) {
+            $max_rank = $agentSphere->sphere->max_range;
+            $rank = (int)$request->input('rank');
+
+            if($rank <= 0) {
+                $rank = 1;
+            }
+            if($rank > $max_rank) {
+                $rank = $max_rank;
+            }
+
+            $agentSphere->agent_range = $rank;
+
+            $agentSphere->save();
+            return response()->json([ 'error'=>false, 'message'=>trans('admin/agent.rank_update') ]);
+        }
+
+        return response()->json([ 'error'=>true, 'message'=>trans('admin/agent.rank_not_update') ]);
+    }
+
+    /**
      * Обновление аккаунта агента
      *
      * @param Request $request

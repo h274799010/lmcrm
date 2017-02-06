@@ -573,5 +573,35 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return true;
     }
 
+    /**
+     * Возвращает время через которое лид будет доступен агенту для открытия
+     * (в зависимости от ранга агента)
+     *
+     * @param $sphere_id
+     * @return \Carbon\Carbon
+     */
+    public function getAccessibilityAt($sphere_id)
+    {
+        $sphere = Sphere::find($sphere_id);
+
+        $agentSphere = AgentSphere::where('agent_id', '=', $this->id)
+            ->where('sphere_id', '=', $sphere->id)
+            ->first();
+
+        $rank = 1;
+        if(isset($agentSphere->agent_range)) {
+            $rank = $agentSphere->agent_range;
+        }
+
+        $interval = 0;
+        if(isset($sphere->range_show_lead_interval) && $rank > 1) {
+            $interval = $sphere->range_show_lead_interval * $rank;
+        }
+
+        $accessibility_at = Carbon::now();
+        $accessibility_at = $accessibility_at->addSeconds($interval);
+
+        return $accessibility_at;
+    }
 
 }
