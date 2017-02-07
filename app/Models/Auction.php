@@ -3,12 +3,14 @@
 
 namespace App\Models;
 
+use App\Console\Commands\SendLeadsToAuction;
 use Carbon\Carbon;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\AgentBitmask;
 use App\Models\LeadBitmask;
+use Illuminate\Support\Facades\Queue;
 use MongoDB\Driver\Query;
 
 class Auction extends Model
@@ -104,8 +106,9 @@ class Auction extends Model
 
                 $accessibility_at = $agent2->getAccessibilityAt($sphere_id);
 
+
                 // формируем запрос
-                $query[] = [
+                $query = [
                     'sphere_id' => $sphere_id,
                     'lead_id' => $lead_id,
                     'user_id' => $agent['user_id'],
@@ -113,12 +116,14 @@ class Auction extends Model
                     'mask_name_id' => $maskName->id,
                     'accessibility_at' => $accessibility_at
                 ];
+                Queue::later($accessibility_at, new SendLeadsToAuction($query));
             }
 
         });
 
         // делаем запрос (записываем данные в таблицу аукциона)
-        return Auction::insert( $query );
+        //return Auction::insert( $query );
+        return true;
     }
 
 
@@ -150,10 +155,13 @@ class Auction extends Model
         $accessibility_at = $agent2->getAccessibilityAt($sphere_id);
 
         // переменная запроса
-        $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$user_id, 'mask_id'=>$mask_id, 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+        //$query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$user_id, 'mask_id'=>$mask_id, 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+        $query = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead_id, 'user_id'=>$user_id, 'mask_id'=>$mask_id, 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+        Queue::later($accessibility_at, new SendLeadsToAuction($query));
 
         // делаем запрос (записываем данные в таблицу аукциона)
-        return Auction::insert( $query );
+        //return Auction::insert( $query );
+        return true;
     }
 
 
@@ -217,13 +225,16 @@ class Auction extends Model
             $accessibility_at = $agent2->getAccessibilityAt($sphere_id);
 
             // формируем запрос
-            $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'], 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+            //$query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'], 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+            $query = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$agentBitmask['user_id'], 'mask_id'=>$agentBitmask['id'], 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+            Queue::later($accessibility_at, new SendLeadsToAuction($query));
 
         });
 
         if( count($query)>0 ){
             // делаем запрос (записываем данные в таблицу аукциона)
-            return Auction::insert( $query );
+            //return Auction::insert( $query );
+            return true;
         }
 
         return false;
@@ -344,13 +355,16 @@ class Auction extends Model
                     $accessibility_at = $agent2->getAccessibilityAt($sphere_id);
 
                     // формируем запрос
-                    $query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$mask['user_id'], 'mask_id'=>$mask['id'], 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+                    //$query[] = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$mask['user_id'], 'mask_id'=>$mask['id'], 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+                    $query = [ 'sphere_id'=>$sphere_id, 'lead_id'=>$lead['id'], 'user_id'=>$mask['user_id'], 'mask_id'=>$mask['id'], 'mask_name_id'=>$maskName->id, 'accessibility_at' => $accessibility_at ];
+                    Queue::later($accessibility_at, new SendLeadsToAuction($query));
 
                 });
 
                 if( count($query)>0 ){
                     // делаем запрос (записываем данные в таблицу аукциона)
-                    Auction::insert( $query );
+                    //Auction::insert( $query );
+                    return true;
                 }
 
             }
