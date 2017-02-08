@@ -91,16 +91,19 @@ class SphereController extends Controller {
         // Новые лиды и лиды помеченные к перезвону
         $leadsTop = Lead::whereIn('sphere_id', $spheres)
             ->where(function ($query) {
-                $query->where('status', '=', 1)
-                    ->where('operator_processing_time', '<', date("Y-m-d H:i:s"));
-            })
-            ->orWhere(function ($query) {
-                $query->where('status', '=', 0)
-                    ->where('operator_processing_time', '=', NULL);
+                $query->where(function ($query) {
+                    $query->where('status', '=', 1)
+                        ->where('operator_processing_time', '<', date("Y-m-d H:i:s"));
+                })
+                ->orWhere(function ($query) {
+                    $query->where('status', '=', 0)
+                        ->where('operator_processing_time', '=', NULL);
+                });
             })
             ->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
             ->orderBy('updated_at', 'desc')
             ->get();
+        //dd($leadsTop);
 
         // лиды уже обработанные оператором
         $operagorLeads = Lead::
