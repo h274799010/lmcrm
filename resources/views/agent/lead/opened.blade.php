@@ -948,7 +948,7 @@
              * и опять выскакивает окно подтверждения смены статуса
              * чтобы такого небыло, используется эта переменная
              */
-            var closeDealModalTrigger = false;
+            //var closeDealModalTrigger = false;
 
             /** реакция на изменение выпадающего списка на openLeads */
             $(document).on('change', '.select_cell', function(){
@@ -974,6 +974,8 @@
                 var status = $(this).find('option:selected').val();
 
                 if(status == 'closing_deal') {
+                    $('#checkModal form').find('input').val('');
+                    $('#uploadProgress').empty();
                     $('#checkModal').find('input[name=open_lead_id]').val(openedLeadId);
 
                     // событие на нажатие кнопки Cancel на модальном окне
@@ -1005,19 +1007,19 @@
 
                         $('#uploadProgress').empty();
                         // отключаем события клика по кнопкам отмены и сабмита
-                        $('#statusModalChange').unbind('click');
+                        $('#checkModalChange').unbind('click');
                         $('#checkModalCancel').unbind('click');
 
                     });
 
 
                     // помечаем что открыто модальное окно по сделке
-                    closeDealModalTrigger = true;
+                    //closeDealModalTrigger = true;
 
                     $( '#checkModalChange' ).bind( 'click', function(){
 
                         // помечаем что модальное окно по сделке закрыто
-                        closeDealModalTrigger = false;
+                        //closeDealModalTrigger = false;
 
                         var price = $('#checkModal').find('input[name=price]').val();
 
@@ -1076,11 +1078,11 @@
                 else if(status != '') {
 
                     // если открыто модальное окно по сделкам
-                    if(closeDealModalTrigger){
+                    //if(closeDealModalTrigger){
                         // помечаем что модальное окно по сделке закрыто
-                        closeDealModalTrigger = false;
-                        return true
-                    }
+                        //closeDealModalTrigger = false;
+                        //return true
+                    //}
 
                     // событие на клик, по кнопке "Change status" (изменение статуса)
                     $( '#statusModalChange' ).bind( 'click', function(){
