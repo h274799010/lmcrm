@@ -224,6 +224,7 @@
                                                     <th>@lang('operator/edit.agent_table_head_name')</th>
                                                     <th>@lang('operator/edit.agent_table_head_email')</th>
                                                     <th>@lang('operator/edit.agent_table_head_roles')</th>
+                                                    <th> </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -234,7 +235,7 @@
                                         <div class="agent_button_block">
                                             <button type="button" class="btn btn-xs btn-primary btn-send_to_auction">@lang('operator/edit.button_send_to_auction')</button>
                                             <button type="button" class="btn btn-xs btn-primary btn-open_lead">@lang('operator/edit.button_buy')</button>
-                                            <button type="button" class="btn btn-xs btn-primary btn-close_deal">@lang('operator/edit.button_close_the_deal')</button>
+                                            {{--<button type="button" class="btn btn-xs btn-primary btn-close_deal">@lang('operator/edit.button_close_the_deal')</button>--}}
                                             {{-- кнопка закрытия таблицы --}}
                                             <button type="button" class="btn btn-default hidden operator_agents_selection_close bottom">@lang('operator/edit.button_clear_the_results')</button>
                                         </div>
@@ -1082,10 +1083,16 @@
          * Кнопка закрытия сделки для пользователя
          *
          */
-        $('.btn-close_deal').bind('click', function(){
+        $(document).on('click', '.btn-close_deal', function(){
 
             // получаем всех отмеченных пользователей к закрытию сделки
-            var users = getMarkedUsers();
+            var user_id = $(this).data('id');
+            var user = $.grep(selectedUsers, function (userData) {
+                return userData.id == user_id;
+            });
+
+            // добавляем данные в массив с данными всех пользователей
+            var users = user;
 
             // проверка наличия пользователей
             if( users ){
@@ -1246,12 +1253,18 @@
                                     tdName.html( item.firstName + ' ' + item.lastName );
                                     tdEmail.html( item.email );
                                     tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
+                                    if(item.roles[1] == 'Deal maker') {
+                                        tdActions.html('<button data-id="'+item.id+'" type="button" class="btn btn-xs btn-primary btn-close_deal">@lang('operator/edit.button_close_the_deal')</button>');
+                                    } else {
+                                        tdActions.html('');
+                                    }
 
                                     // подключение ячеек к строке
                                     tr.append(tdChecked);
                                     tr.append(tdName);
                                     tr.append(tdEmail);
                                     tr.append(tdRoles);
+                                    tr.append(tdActions);
 
                                     // подключение строки к таблице
                                     selectedAgentsTable.append(tr);

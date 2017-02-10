@@ -46,5 +46,9 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // сохранение нового лида
     Route::post('lead/store', ['as' => 'operator.lead.store', 'uses' => 'Operator\SphereController@store']);
 
+    // Получения данных атрибутов лида для сферы
+    // нужно для формы создания лида
+    Route::post('lead/getLeadForm', ['as' => 'operator.lead.getLeadForm', 'uses' => 'Operator\SphereController@getLeadForm']);
+
 
 });

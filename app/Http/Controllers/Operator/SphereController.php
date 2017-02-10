@@ -688,6 +688,10 @@ class SphereController extends Controller {
         // выбираем таблицу с масками по id сферы лида
         $agentBitmasks = new AgentBitmask( $request->sphereId );
 
+        if(count($request->options) <= 0) {
+            return response()->json([ 'status'=>'Ok', 'users'=>[] ]);
+        }
+
         // меняем местами ключи и значения массива с данными по опциям лида
         $fields = array_flip($request->options);
 
@@ -837,6 +841,27 @@ class SphereController extends Controller {
         $sphere_id = $request->data['sphereId'];
         $lead_id = $request->data['leadId'];
 
+        if($lead_id == 'new') {
+            $validator = Validator::make($request->data, [
+                'name' => 'required',
+                'phone' => 'required',
+                'email' => 'required',
+                'sphereId' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(array(
+                    'error' => $validator->errors()
+                ));
+            }
+
+            $lead = CreateLead::storeOperator(Sentinel::getUser()->id, $request->data['name'], $request->data['phone'], $request->data['comments'], $request->data['email'], $sphere_id);
+            if(is_array($lead) && isset($lead['error'])) {
+                return response()->json($lead);
+            }
+            $lead_id = $lead->id;
+        }
+
         // находим лид
         $lead = Lead::find( $lead_id );
 
@@ -882,7 +907,8 @@ class SphereController extends Controller {
                 return response()->json([ 'status'=>4, 'data'=>$notBuyUsers ]);
             }
 
-        }if( $typeRequest == 'closeDeal' ){
+        }
+        if( $typeRequest == 'closeDeal' ){
             // если пометка на закрытие сделки
 
             // парсим данные пользователей полученные с фронтенда и преобразовываем в коллекцию
@@ -1098,7 +1124,8 @@ class SphereController extends Controller {
             // отправляем сообщение об успешном добавлении лида на общий аукцион
             return response()->json([ 'status'=>1 ]);
 
-        }elseif( $typeRequest == 'onSelectiveAuction' ){
+        }
+        elseif( $typeRequest == 'onSelectiveAuction' ){
             // если есть метка 'onSelectiveAuction'
 
             // помечаем что лид уже был на аукционе
@@ -1123,7 +1150,8 @@ class SphereController extends Controller {
             // отправляем сообщение об успешном добавлении лида на общий аукцион
             return response()->json([ 'status'=>2, 'data'=>'added' ]);
 
-        }elseif( $typeRequest == 'openLead' ){
+        }
+        elseif( $typeRequest == 'openLead' ){
             // если есть метка 'openLead'
 
             /** Открываем лид для выбранных пользователей */
@@ -1154,7 +1182,8 @@ class SphereController extends Controller {
             // отправляем сообщение об успешном добавлении лида на общий аукцион
             return response()->json([ 'status'=>3, 'data'=>'Ok' ]);
 
-        }elseif( $typeRequest == 'closeDeal' ){
+        }
+        elseif( $typeRequest == 'closeDeal' ){
             // если есть метка 'closeDeal'
 
             /** todo Закрываем сделку за агента */
@@ -1203,11 +1232,21 @@ class SphereController extends Controller {
      *
      * @return View
      */
-    public function create()
+    /*public function create()
     {
         $data = CreateLead::create($this->operator->id);
 
         return view('sphere.lead.create', $data);
+    }*/
+    public function create()
+    {
+        $user = Sentinel::getUser();
+        $user = OperatorSphere::find($user->id);
+        $spheres = $user->spheres()->get()->pluck('name', 'id');
+
+        return view('sphere.lead.create2', [
+            'spheres' => $spheres
+        ]);
     }
 
 
@@ -1225,6 +1264,23 @@ class SphereController extends Controller {
         $result = CreateLead::store($request, $this->operator->id);
 
         return $result;
+    }
+
+    public function getLeadForm(Request $request)
+    {
+        $sphere_id = $request->input('sphere_id');
+        $sphere = Sphere::with([
+                'filterAttr' => function($query) {
+                    $query->with('options');
+                },
+                'leadAttr' => function($query) {
+                    $query->with('options', 'validators');
+                }
+            ])
+            ->select('spheres.id')
+            ->find($sphere_id);
+
+        return response()->json($sphere);
     }
 
 

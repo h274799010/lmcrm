@@ -137,7 +137,7 @@
                 @if(Sentinel::inRole('operator'))
                     <ul class="nav navbar-top-links navbar-right flip">
                         {{--ссылки в шапке оператора--}}
-                        <li class="operator_icon_li"><a href="{{ route('operator.lead.create') }}" class="dialog"><i class="operator_icon_add"></i></a></li>
+                        <li class="operator_icon_li"><a href="{{ route('operator.lead.create') }}"><i class="operator_icon_add"></i></a></li>
                     </ul>
                 @endif
 
