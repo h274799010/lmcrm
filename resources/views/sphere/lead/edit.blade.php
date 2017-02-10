@@ -470,6 +470,32 @@
         </div>
 
     </div>
+
+    {{-- Модальное окно оповещени об ошибках --}}
+    <div class="modal fade lead_auction_error" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">
+                        Error
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="lead_auction_error_message">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="timeSetter" class="btn btn-default lead_auction_button_error">
+                        @lang('operator/edit.modal_lead_auction_status_button_ok')
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 @stop
 
 {{-- right content --}}
@@ -1856,6 +1882,19 @@
                                 // открывается алерт
                                 $('.can_not_buy_block').removeClass('hidden');
 
+                            }
+                            else if( data.status == 7 ){
+                                // статус 6, недостаточно средства для закрытия сделки у пользователя
+
+                                // очищаем блок
+                                $('.lead_auction_error_message').html('');
+
+                                // наполняем блок данными
+                                $('.lead_auction_error_message').html('<div>' + data.data + '</div>');
+
+                                // делаем блок видимым
+                                $('.lead_auction_error').modal('show');
+
                             }else{
                                 /**
                                  * редирект на главную со статусами
@@ -1956,6 +1995,11 @@
         $('.lead_auction_status').on('hidden.bs.modal', function (e) {
             // переходим на главную страницу сайта
             location.href = '/';
+        });
+        $(document).on('click', '.lead_auction_button_error', function (e) {
+            e.preventDefault();
+
+            $(this).closest('.modal').modal('hide');
         });
 
 

@@ -1199,6 +1199,9 @@ class SphereController extends Controller {
             }else{
                 $user = Salesman::find($userData->id);
             }
+            if(!$user->inRole('dealmaker')) {
+                return response()->json([ 'status'=>7, 'data'=>trans('operator/edit.this_role_can_not_close_deal') ]);
+            }
 
             // открытие лида
             $lead->open( $user, $userData->maskFilterId, true );

@@ -228,7 +228,7 @@
         </div>
     </div>
 
-    {{-- Модальное окно оповещени о добавлении лида на аукцион --}}
+    {{-- Модальное окно оповещени об ошибках --}}
     <div class="modal fade lead_auction_error" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-sm" role="document">
             <div class="modal-content">
@@ -253,49 +253,6 @@
             </div>
         </div>
     </div>
-@stop
-
-{{-- right content --}}
-@section('right_block')
-    {{--<div class="col-md-3 col-xs-4 operator_edit_right_block">
-
-        --}}{{-- блок с текстом --}}{{--
-        <div class="row">
-
-            <div class="col-md-11 operator_reminder_block">
-                @if( $lead['operatorOrganizer'] )
-                    @if( $lead['operatorOrganizer']['time_reminder']  )
-                        <b>@lang('operator/edit.call_reminder_title')</b>  {{ $lead['operatorOrganizer']['time_reminder']->format('H:m d.m.Y')  }}
-                        <icon class="glyphicon glyphicon-remove-circle remove_reminder"></icon>
-                        <hr>
-                    @endif
-                @endif
-            </div>
-
-            <div class="col-md-11 operator_comments_block">
-
-                <div id="all_comment" class="operator_comments_text">
-                    @if( $lead['operatorOrganizer'] )
-                        {!!   $lead['operatorOrganizer']['message'] !!}
-                    @endif
-                </div>
-
-            </div>
-        </div>
-
-        --}}{{-- блок ввода комментария --}}{{--
-        <div class="row operator_comment_add_block">
-            --}}{{-- поля ввода комментария --}}{{--
-            <div class="col-md-12 operator_textarea_block">
-                <textarea id="new_comment" class="form-control" rows="3"></textarea>
-            </div>
-            --}}{{-- кнопка добавления комментария --}}{{--
-            <div class="col-md-12">
-                <button id="add_comment" type="button" class="btn btn-xs btn-primary add_comment">@lang('operator/edit.comments_button_add_comment')</button>
-            </div>
-        </div>
-
-    </div>--}}
 @stop
 
 @section('styles')
@@ -1436,6 +1393,19 @@
                                 $('.can_not_buy_block').removeClass('hidden');
 
                             }
+                            else if( data.status == 7 ){
+                                // статус 6, недостаточно средства для закрытия сделки у пользователя
+
+                                // очищаем блок
+                                $('.lead_auction_error_message').html('');
+
+                                // наполняем блок данными
+                                $('.lead_auction_error_message').html('<div>' + data.data + '</div>');
+
+                                // делаем блок видимым
+                                $('.lead_auction_error').modal('show');
+
+                            }
                             else if(data.error != undefined && data.error != null) {
                                 if(typeof data.error == 'string') {
                                     $('.apply_lead_mask_modal').modal('hide');
@@ -1631,6 +1601,7 @@
                     $('.apply_lead_mask_modal').modal('show');
                 }
             });
+
             /**
              * Кнопка закрытия сделки для пользователя
              *
@@ -1688,6 +1659,7 @@
                     }
                 }
             });
+
             /**
              * Действия по закрытию модального окна подтверждения отправки лида на обработку на сервер
              *
