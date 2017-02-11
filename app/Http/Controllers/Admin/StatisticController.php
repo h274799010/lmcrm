@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Salesman;
 use App\Models\Sphere;
+use App\Models\User;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Http\Request;
 
@@ -11,7 +13,9 @@ use App\Http\Controllers\Controller;
 use Yajra\Datatables\Facades\Datatables;
 use App\Models\Agent;
 use App\Models\AccountManager;
-use App\Helper\Statistics;
+//use App\Helper\Statistics;
+use Statistic;
+
 
 class StatisticController extends Controller
 {
@@ -179,20 +183,63 @@ class StatisticController extends Controller
      * Страница со списком сфер для статистики
      *
      *
-     * @param  integer  $agent_id
+     * @param  integer  $user_id
      *
      * @return View
      */
-    public function agentStatistic($agent_id)
+    public function agentStatistic( $user_id )
     {
 
-        // выбираем агента со сферами
-        $agent = Agent::with('spheres')->find($agent_id);
+        // проверка id пользователя
+        $userId = (int)$user_id;
+
+        // если id пользователя равен нулю - выходим
+        if( !$userId ){ abort(403, 'Wrong user id'); }
+
+        // выбираем пользователя с ролями
+        $userSystemData = User::with('roles')->find( $userId );
+
+        // определяем роль, agent или salesman
+        $userRole = false;
+        // перебираем все роли пользователя и выбираем нужную роль
+        $userSystemData->roles->each(function( $role ) use ( &$userRole ){
+            // выбираем нужную роль
+            if( $role->slug == 'agent' ){
+                // если роль пользователя "agent"
+
+                // выставляем роль пользователя как 'agent'
+                $userRole = 'agent';
+
+            }elseif( $role->slug == 'salesman' ){
+                // если роль пользователя "salesman"
+
+                // выставляем роль пользователя как 'salesman'
+                $userRole = 'salesman';
+            }
+        });
+
+        // выбор пользователя в зависимости от его роли
+        if( $userRole == 'agent' ){
+            // если агент
+            // выбираем модель агента
+            $user = Agent::with('spheres')->find( $userId );
+
+        }elseif( $userRole == 'salesman' ){
+            // если салесман
+            // выбираем модель salesman
+            $user = Salesman::with('spheres')->find( $userId );
+
+        }else{
+            // если нет совпадений по роли
+            // выходим c ошибкой
+            abort( 403, 'Wrong user slug' );
+        }
+
 
         // переменная со сферами
         $spheres = collect();
         // перебираем все сферы пользователя и выбираем данные по сфере в отдельную коллекцию
-        $agent->spheres->each(function( $sphere ) use( &$spheres ){
+        $user->spheres->each(function( $sphere ) use( &$spheres ){
             // добавляем данные по сфере в $spheres
             $spheres->push(
                 collect(
@@ -220,7 +267,9 @@ class StatisticController extends Controller
             $sphere = $spheres->first();
 
             // выбираем статистику
-            $statisticData = Statistics::openLeads($agent_id, $sphere['id']);
+//            $statisticData = Statistic::openLeads( $user['id'], $sphere['id'] );
+
+            $statisticData = Statistic::agentBySphere( $user['id'], $sphere['id'], true );
 
             // записываем статистику
             $statistic = collect([
@@ -232,9 +281,11 @@ class StatisticController extends Controller
             ]);
         }
 
+        dd( $statistic );
+
 
         return view('admin.statistic.agent', [
-            'agent' => $agent,
+            'user' => $user,
             'spheres' => $spheres,
             'statistic' => $statistic,
         ]);

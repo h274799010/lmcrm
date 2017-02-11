@@ -190,6 +190,11 @@ return [
         App\Providers\NoticeServiceProvider::class,
         App\Providers\UserServiceProvider::class,
 
+        /*
+         * Статистика
+         */
+        App\Providers\StatisticProvider::class,
+
     ],
 
     /*
@@ -254,7 +259,7 @@ return [
         'Lead' => App\Facades\Lead::class,
         'CreateLead' => App\Facades\CreateLead::class,
         'Notice' => App\Facades\Notice::class,
-
+        'Statistic' => App\Facades\Statistic::class,
     ],
 
 ];

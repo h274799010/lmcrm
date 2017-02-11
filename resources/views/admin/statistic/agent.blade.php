@@ -8,7 +8,7 @@
 @section('main')
     <div class="page-header">
         <h3>
-            @lang('statistic.page_title') {{ $agent->email }}
+            @lang('statistic.page_title') {{ $user->email }}
         </h3>
     </div>
 
@@ -53,33 +53,45 @@
             <div class="row sphere_status_block">
 
                 <h4 class="statistic-sphere-name"> <span class="sphere-name">{{ $statistic['sphereName'] }}</span>
-                    {{--<span class="badge statistics_head_badge"> {{ $statistic['data']['periodOpenLeads'] }} / {{ $statistic['data']['allOpenLeads'] }} </span> --}}
-                    {{--<span class="badge statistics_head_badge_auction"> auction {{ $statistic['data']['PeriodAuction'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}/{{ $statistic['data']['allAuctionWithTrash'] }}  </span>--}}
                 </h4>
 
                 <table class="summary_table">
-                    <tr>
-                        <td>Seen</td>
-                        <td>
-                            <span class="summary_table_addition">all: </span>
-                            <span class="summary_table_seen_all">{{ $statistic['data']['allAuctionWithTrash'] }}</span>
-                        </td>
-                        <td>
-                            <span class="summary_table_addition">period: </span>
-                            <span class="summary_table_seen_period">{{ $statistic['data']['allAuctionWithTrash'] }}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Open</td>
-                        <td>
-                            <span class="summary_table_addition">all: </span>
-                            <span class="summary_table_open_all">{{ $statistic['data']['allOpenLeads'] }}</span>
-                        </td>
-                        <td>
-                            <span class="summary_table_addition">period: </span>
-                            <span class="summary_table_open_period">{{ $statistic['data']['periodOpenLeads'] }}</span>
-                        </td>
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="summary_table_addition center">all</th>
+                            <th class="summary_table_addition center">period</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Seen</td>
+                            <td class="summary_table_seen_all center">
+                                {{--<span class="summary_table_addition">all: </span>--}}
+                                {{--<span class="summary_table_seen_all center">{{ $statistic['data']['allAuctionWithTrash'] }}</span>--}}
+                                {{ $statistic['data']['allAuctionWithTrash'] }}
+                            </td>
+                            <td class="summary_table_seen_period center">
+                                {{--<span class="summary_table_addition">period: </span>--}}
+                                {{--<span class="summary_table_seen_period center">{{ $statistic['data']['allAuctionWithTrash'] }}</span>--}}
+                                {{ $statistic['data']['allAuctionWithTrash'] }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Open</td>
+                            <td class="summary_table_open_all center">
+                                {{--<span class="summary_table_addition">all: </span>--}}
+                                {{--<span class="summary_table_open_all center">{{ $statistic['data']['allOpenLeads'] }}</span>--}}
+                                {{ $statistic['data']['allOpenLeads'] }}
+                            </td>
+                            <td class="summary_table_open_period center">
+                                {{--<span class="summary_table_addition">period: </span>--}}
+                                {{--<span class="summary_table_open_period center">{{ $statistic['data']['periodOpenLeads'] }}</span>--}}
+                                {{ $statistic['data']['periodOpenLeads'] }}
+                            </td>
+                        </tr>
+                    </tbody>
+
                 </table>
 
 
@@ -580,7 +592,7 @@
                 fromStatus.text( transitionData['fromStatus'] );
                 arrow.html('<i class="glyphicon glyphicon-arrow-right"></i>');
                 toStatus.text( transitionData['toStatus'] );
-                allPercent.text( transitionData['allPercent'] );
+                allPercent.text( transitionData['allPercent'] + '%' );
                 allRating.text( transitionData['allRating'] );
                 emptyCol.text( '' );
                 periodPercent.text( transitionData['periodPercent'] + '%' );
@@ -608,7 +620,7 @@
             var sphereSelect = $('#sphere_select').val();
 
             // заносим параметры
-            var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $agent->id }}', timeFrom: dataStart, timeTo: dataEnd, sphere_id: sphereSelect } ;
+            var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $user->id }}', timeFrom: dataStart, timeTo: dataEnd, sphere_id: sphereSelect } ;
 
             // отправка запроса на сервер
             $.post(

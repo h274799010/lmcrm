@@ -1425,7 +1425,7 @@ span.badge.statistics_head_badge{
 }
 
 .summary_table tr td{
-    padding: 3px 7px 3px 5px;
+    padding: 3px 10px 3px 10px;
     border-bottom: 1px solid #3F51B5;
     font-size: 11px;
     color: #3F51B5;
@@ -1440,11 +1440,18 @@ span.badge.statistics_head_badge{
 
 .summary_table tr > td:last-child{
     /*border-right: 1px solid #717DC2;*/
-    padding-left: 0px;
+    /*padding-left: 0px;*/
 }
 
 h4.statistic-sphere-name{
     margin-bottom: 0;
+}
+
+.summary_table tr th{
+    padding: 3px 10px 3px 10px;
+    background: #3F51B5;
+    font-size: 10px;
+    color: #C5C9E2;
 }
 
 .summary_table_addition{
