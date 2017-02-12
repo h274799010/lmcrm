@@ -18,5 +18,6 @@ return [
     'accountManagers' => 'Account managers',
     'newAgents' => 'New Agents',
     'openLeads' => 'Open leads',
-    'statistic' => 'Statistic'
+    'statistic' => 'Statistic',
+    'spheres_item' => 'Spheres'
 ];

@@ -122,9 +122,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // Статистика
     Route::get('statistic/agents', ['as' => 'admin.statistic.agents', 'uses' => 'Admin\StatisticController@agentsList']);
     Route::get('statistic/agentsData', ['as' => 'admin.statistic.agentsData', 'uses' => 'Admin\StatisticController@agentsData']);
+
+    Route::get('statistic/spheres', ['as' => 'admin.statistic.spheres', 'uses' => 'Admin\StatisticController@spheresList']);
+//    Route::get('statistic/agentsData', ['as' => 'admin.statistic.agentsData', 'uses' => 'Admin\StatisticController@agentsData']);
+
     Route::get('statistic/agent/{id}', ['as' => 'admin.statistic.agent', 'uses' => 'Admin\StatisticController@agentStatistic']);
     Route::post('statistic/agentData/', ['as' => 'admin.statistic.agentData', 'uses' => 'Admin\StatisticController@agentStatisticData']);
     Route::post('statistic/getFilterAgent',['as'=>'admin.statistic.getFilterAgent', 'uses' => 'Admin\StatisticController@getFilterAgent']);
+
+    Route::get('statistic/sphere/{id}', ['as' => 'admin.statistic.sphere', 'uses' => 'Admin\StatisticController@sphereStatistic']);
+    Route::post('statistic/sphereData/', ['as' => 'admin.statistic.sphereData', 'uses' => 'Admin\StatisticController@sphereStatisticData']);
 
     // Настройки
     Route::get('settings/roles', ['as' => 'admin.settings.roles', 'uses' => 'Admin\SettingsController@roles']);
