@@ -20,7 +20,7 @@
                         <select data-name="lead_status" class="selectbox dataTables_filter form-control">
                             <option value="empty"></option>
                             @foreach($statuses as $status => $name)
-                                <option value="{{ $status }}">{{ $name }}</option>
+                                <option value="{{ $status }}" @if($selectedFilters['lead_status'] !== false && $selectedFilters['lead_status'] == $status) selected="selected" @endif>{{ $name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -33,7 +33,7 @@
                         <select data-name="auction_status" class="selectbox dataTables_filter form-control">
                             <option value="empty"></option>
                             @foreach($auctionStatuses as $status => $name)
-                                <option value="{{ $status }}">{{ $name }}</option>
+                                <option value="{{ $status }}" @if($selectedFilters['auction_status'] !== false && $selectedFilters['auction_status'] == $status) selected="selected" @endif>{{ $name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -46,7 +46,7 @@
                         <select data-name="payment_status" class="selectbox dataTables_filter form-control">
                             <option value="empty"></option>
                             @foreach($paymentStatuses as $status => $name)
-                                <option value="{{ $status }}">{{ $name }}</option>
+                                <option value="{{ $status }}" @if($selectedFilters['payment_status'] !== false && $selectedFilters['payment_status'] == $status) selected="selected" @endif>{{ $name }}</option>
                             @endforeach
                         </select>
                     </div>
