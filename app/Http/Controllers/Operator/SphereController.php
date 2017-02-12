@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Console\Commands\SendLeadsToAuction;
 use App\Facades\CreateLead;
 use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
@@ -15,6 +16,7 @@ use App\Models\OperatorOrganizer;
 use App\Models\SphereFormFilters;
 use App\Models\User;
 use App\Models\Salesman;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -34,6 +36,7 @@ use App\Models\LeadDepositorData;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Queue;
 
 use Log;
 
@@ -1098,7 +1101,7 @@ class SphereController extends Controller {
             // исключаем агента добавившего лид
             // + и его продавцов
             $agents = $agentBitmasks
-                ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id )
+                ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id, $sphere_id, null, 1 )
                 ->orderBy('lead_price', 'desc')
                 ->groupBy('user_id')
                 ->get();
@@ -1108,6 +1111,7 @@ class SphereController extends Controller {
 
                 // помечаем что лид уже был на аукционе
                 $lead->auction_status = 1;
+                $lead->current_range = 1;
                 $lead->save();
 
                 // Удаляем ранее отредактированного лида с аукциона
@@ -1119,6 +1123,14 @@ class SphereController extends Controller {
                 // подобрать название к этому уведомлению
                 // рассылаем уведомления всем агентам которым подходит этот лид
                 Notice::toMany( $senderId, $agents, 'note');
+            }
+
+            for($i = 2; $i <= $sphere->max_range; $i++) {
+                $interval = $sphere->range_show_lead_interval * $i;
+                $accessibility_at = Carbon::now();
+                $accessibility_at = $accessibility_at->addSeconds($interval);
+
+                Queue::later($accessibility_at, new SendLeadsToAuction($lead_id, $senderId, 'toAuction'));
             }
 
             // отправляем сообщение об успешном добавлении лида на общий аукцион
