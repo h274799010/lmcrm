@@ -666,7 +666,7 @@ class Statistics
 
             // билдер по лидам на аукционе за заданный период
             $periodAuctionLeads = Auction::
-            withTrashed()
+                  withTrashed()
                 ->where( 'created_at', '>=', $this->openLeads['dateFrom'] )
                 ->where( 'created_at', '<=', $this->openLeads['dateTo'] )
             ;
@@ -678,9 +678,12 @@ class Statistics
             }
 
             // если заданны пользователи
-            if( $this->openLeads['usersForStatistic'] ){
+            if( $this->openLeads['usersForStatistic'] || $this->openLeads['usersForStatistic'] === [] ){
                 // добавляем в билдер выборку по пользователям
-                $periodAuctionLeads->whereIn('user_id', $this->openLeads['usersForStatistic']);
+
+                $users = $this->openLeads['usersForStatistic'] === [] ? false : $this->openLeads['usersForStatistic'];
+
+                $periodAuctionLeads->whereIn('user_id', $users);
             }
 
             // выбираем лиды с аукциона по заданным в билдере параметрам за период
