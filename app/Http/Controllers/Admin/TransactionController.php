@@ -7,6 +7,7 @@ use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use App\Helper\PayMaster;
 use App\Models\Lead;
 use Datatables;
+use Illuminate\Support\Facades\Cookie;
 
 class TransactionController extends AdminController {
 
@@ -89,11 +90,32 @@ class TransactionController extends AdminController {
     {
         /*$leads =
             Lead::where( 'status', '>', 1 );*/
+        $filter = Cookie::get('adminSystemLeadsFilter');
+        $filter = json_decode($filter, true);
+
+        $selectedFilters = array(
+            'auction_status' => false,
+            'lead_status' => false,
+            'payment_status' => false
+        );
+
+        if($filter['auction_status'] != 'empty') {
+            $selectedFilters['auction_status'] = $filter['auction_status'];
+        }
+
+        if($filter['lead_status'] != 'empty') {
+            $selectedFilters['lead_status'] = $filter['lead_status'];
+        }
+
+        if($filter['payment_status'] != 'empty') {
+            $selectedFilters['payment_status'] = $filter['payment_status'];
+        }
 
         return view('admin.system.leadsInfo', [
             'statuses' => \App\Facades\Lead::getStatuses('status'),
             'auctionStatuses' => \App\Facades\Lead::getStatuses('auctionStatus'),
-            'paymentStatuses' => \App\Facades\Lead::getStatuses('paymentStatus')
+            'paymentStatuses' => \App\Facades\Lead::getStatuses('paymentStatus'),
+            'selectedFilters' => $selectedFilters
         ]);
     }
 
@@ -104,6 +126,8 @@ class TransactionController extends AdminController {
 
         // Если есть параметры фильтра
         if (count($request->only('filter'))) {
+            // добавляем на страницу куки с данными по фильтру
+            Cookie::queue('adminSystemLeadsFilter', json_encode($request->only('filter')['filter']), null, null, null, false, false);
             // Получаем параметры
             $eFilter = $request->only('filter')['filter'];
 

@@ -224,6 +224,7 @@
                                                     <th>@lang('operator/edit.agent_table_head_name')</th>
                                                     <th>@lang('operator/edit.agent_table_head_email')</th>
                                                     <th>@lang('operator/edit.agent_table_head_roles')</th>
+                                                    <th> </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -234,7 +235,7 @@
                                         <div class="agent_button_block">
                                             <button type="button" class="btn btn-xs btn-primary btn-send_to_auction">@lang('operator/edit.button_send_to_auction')</button>
                                             <button type="button" class="btn btn-xs btn-primary btn-open_lead">@lang('operator/edit.button_buy')</button>
-                                            <button type="button" class="btn btn-xs btn-primary btn-close_deal">@lang('operator/edit.button_close_the_deal')</button>
+                                            {{--<button type="button" class="btn btn-xs btn-primary btn-close_deal">@lang('operator/edit.button_close_the_deal')</button>--}}
                                             {{-- кнопка закрытия таблицы --}}
                                             <button type="button" class="btn btn-default hidden operator_agents_selection_close bottom">@lang('operator/edit.button_clear_the_results')</button>
                                         </div>
@@ -468,6 +469,32 @@
             </div>
         </div>
 
+    </div>
+
+    {{-- Модальное окно оповещени об ошибках --}}
+    <div class="modal fade lead_auction_error" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">
+                        Error
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="lead_auction_error_message">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="timeSetter" class="btn btn-default lead_auction_button_error">
+                        @lang('operator/edit.modal_lead_auction_status_button_ok')
+                    </button>
+                </div>
+
+            </div>
+        </div>
     </div>
 @stop
 
@@ -1082,10 +1109,16 @@
          * Кнопка закрытия сделки для пользователя
          *
          */
-        $('.btn-close_deal').bind('click', function(){
+        $(document).on('click', '.btn-close_deal', function(){
 
             // получаем всех отмеченных пользователей к закрытию сделки
-            var users = getMarkedUsers();
+            var user_id = $(this).data('id');
+            var user = $.grep(selectedUsers, function (userData) {
+                return userData.id == user_id;
+            });
+
+            // добавляем данные в массив с данными всех пользователей
+            var users = user;
 
             // проверка наличия пользователей
             if( users ){
@@ -1246,12 +1279,18 @@
                                     tdName.html( item.firstName + ' ' + item.lastName );
                                     tdEmail.html( item.email );
                                     tdRoles.html( item.roles[0] + ',<br>' + item.roles[1] );
+                                    if(item.roles[1] == 'Deal maker') {
+                                        tdActions.html('<button data-id="'+item.id+'" type="button" class="btn btn-xs btn-primary btn-close_deal">@lang('operator/edit.button_close_the_deal')</button>');
+                                    } else {
+                                        tdActions.html('');
+                                    }
 
                                     // подключение ячеек к строке
                                     tr.append(tdChecked);
                                     tr.append(tdName);
                                     tr.append(tdEmail);
                                     tr.append(tdRoles);
+                                    tr.append(tdActions);
 
                                     // подключение строки к таблице
                                     selectedAgentsTable.append(tr);
@@ -1843,6 +1882,19 @@
                                 // открывается алерт
                                 $('.can_not_buy_block').removeClass('hidden');
 
+                            }
+                            else if( data.status == 7 ){
+                                // статус 6, недостаточно средства для закрытия сделки у пользователя
+
+                                // очищаем блок
+                                $('.lead_auction_error_message').html('');
+
+                                // наполняем блок данными
+                                $('.lead_auction_error_message').html('<div>' + data.data + '</div>');
+
+                                // делаем блок видимым
+                                $('.lead_auction_error').modal('show');
+
                             }else{
                                 /**
                                  * редирект на главную со статусами
@@ -1943,6 +1995,11 @@
         $('.lead_auction_status').on('hidden.bs.modal', function (e) {
             // переходим на главную страницу сайта
             location.href = '/';
+        });
+        $(document).on('click', '.lead_auction_button_error', function (e) {
+            e.preventDefault();
+
+            $(this).closest('.modal').modal('hide');
         });
 
 

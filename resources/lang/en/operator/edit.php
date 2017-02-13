@@ -77,4 +77,7 @@ return [
     /* Формат времени */
     'date_format' => 'm/d/Y H:i',
 
+    /* Сообщения об ошибках */
+    'this_role_can_not_close_deal' => 'For this type of user can not close the deal',
+
 ];

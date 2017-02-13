@@ -532,16 +532,31 @@ class Bitmask extends Model
      *
      * todo это фильтр лида, чтобы найти агентов
      */
-    public function filterAgentsByMask( $filter, $author=NULL ){
+    public function filterAgentsByMask( $filter, $author=NULL, $sphere_id = NULL, $lead_id = NULL, $range = 1 ){
 
         // выборка полей по маске
-        $list = $this->where(function( $query ) use ( $filter, $author ){
+        $list = $this->where(function( $query ) use ( $filter, $author, $sphere_id, $range, $lead_id ){
 
             // todo доработать
             if($author){
 
                 // массив id пользователей, по которым нужно исключить выбор лидов
                 $excludedUsers = User::excludedUsers($author);
+
+                if($sphere_id) {
+                    $excludedAgents = AgentSphere::where('sphere_id', '=' , $sphere_id)
+                        ->where('agent_range', '>', $range)->get()->lists('agent_id')->toArray();
+
+                    $excludedUsers = array_merge($excludedUsers, $excludedAgents);
+                }
+                if($lead_id) {
+                    $excludedAgents = Auction::where('lead_id', '=', $lead_id)
+                        ->get()
+                        ->lists('user_id')
+                        ->toArray();
+
+                    $excludedUsers = array_merge($excludedUsers, $excludedAgents);
+                }
 
                 //$query->where( 'user_id', '<>', $author );
                 $query->whereNotIn( 'user_id', $excludedUsers ); // без лидов, которых занес агент и его продавцы

@@ -33,7 +33,7 @@
                 <td>{{ $lead->updated_at }}</td>
 
                 <td>{{ $lead->sphere->name }}</td>
-                <td>{{ $lead->user2->agentInfo()->first()->company }}</td>
+                <td>@if($lead->leadDepositorData->depositor_company == 'system_company_name') LM CRM @else {{ $lead->leadDepositorData->depositor_company }} @endif</td>
                 {{--<td></td>--}}
                 <td>
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>

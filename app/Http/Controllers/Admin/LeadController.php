@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Datatables;
+use Illuminate\Support\Facades\Cookie;
 
 class LeadController extends Controller
 {
@@ -34,23 +35,195 @@ class LeadController extends Controller
    */
     public function index()
     {
-        $role = Sentinel::findRoleBySlug('account_manager');
-        $accountManagers = $role->users()->select('id', 'email')->get();
+        $filter = Cookie::get('adminOpenLeadsFilter');
+        $filter = json_decode($filter, true);
 
-        $role = Sentinel::findRoleBySlug('agent');
-        $agents = $role->users()->select('id', 'email')->get();
+        $selectedFilters = array(
+            'account_manager' => false,
+            'agent' => false,
+            'operator' => false,
+            'period' => false,
+            'role' => false,
+            'sphere' => false
+        );
 
-        $role = Sentinel::findRoleBySlug('operator');
-        $operators = $role->users()->select('id', 'email')->get();
+        if(count($filter) > 0) {
+            foreach ($filter as $type => $id) {
+                $sphere_id = $filter['sphere'];
+                $accountManager_id = $filter['account_manager'];
+                $operator_id = $filter['operator'];
+                $agent_id = $filter['agent'];
 
-        $spheres = Sphere::active()->get();
+                if($type != '') {
+                    $selectedFilters[$type] = $id;
+                }
+
+                if($id) {
+                    // Ищем данные в зависимости от выбранного фильтра
+                    switch ($type) {
+                        case 'sphere':
+
+                            $sphere = Sphere::find($id);
+
+                            $agents = $sphere->agentsAll()->select('users.id', \DB::raw('users.email AS name'))->get();
+                            $accountManagers = $sphere->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
+                            $operators = $sphere->operators()->select('users.id', \DB::raw('users.email AS name'))->get();
+
+                            break;
+                        case 'account_manager':
+
+                            $accountManager = AccountManager::find($id);
+
+                            $spheres = $accountManager->spheres()->where('status', '=', 1)->select('spheres.id', 'spheres.name')->get();
+                            $agents = $accountManager->agentsAll()->select('users.id', \DB::raw('users.email AS name'))->get();
+                            $operators = $accountManager->operators()->select('users.id', \DB::raw('users.email AS name'))->get();
+
+                            break;
+                        case 'operator':
+
+                            $operator = OperatorSphere::find($id);
+
+                            $accountManagers = $operator->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
+                            $spheres = $operator->spheres()->where('status', '=', 1)->select('spheres.id', 'spheres.name')->get();
+
+                            $agents = Agent::select('users.id', \DB::raw('users.email AS name'));
+                            if(count($spheres)) {
+                                $agents = $agents->join('agent_sphere', function ($join) use ($spheres) {
+                                    $join->on('agent_sphere.agent_id', '=', 'users.id')
+                                        ->whereIn('agent_sphere.sphere_id', $spheres->lists('id')->toArray());
+                                });
+                            }
+                            if(count($accountManagers)) {
+                                $agents = $agents->join('account_managers_agents', function ($join) use ($accountManagers) {
+                                    $join->on('account_managers_agents.agent_id', '=', 'users.id')
+                                        ->whereIn('account_managers_agents.account_manager_id', $accountManagers->lists('id')->toArray());
+                                });
+                            }
+
+                            $agents = $agents->groupBy('users.id')->get();
+
+                            break;
+                        case 'agent':
+
+                            $agent = Agent::find($id);
+
+                            $accountManagers = $agent->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
+                            $spheres = $agent->spheres()->where('status', '=', 1)->select('spheres.id', 'spheres.name')->get();
+
+                            $operators = OperatorSphere::select('users.id', \DB::raw('users.email AS name'));
+                            if(count($spheres)) {
+                                $operators = $operators->join('operator_sphere', function ($join) use ($spheres) {
+                                    $join->on('operator_sphere.operator_id', '=', 'users.id')
+                                        ->whereIn('operator_sphere.sphere_id', $spheres->lists('id')->toArray());
+                                });
+                            }
+                            if(count($accountManagers)) {
+                                $operators = $operators->join('account_managers_operators', function ($join) use ($accountManagers) {
+                                    $join->on('account_managers_operators.operator_id', '=', 'users.id')
+                                        ->whereIn('account_managers_operators.account_manager_id', $accountManagers->lists('id')->toArray());
+                                });
+                            }
+
+                            $operators = $operators->groupBy('users.id')->get();
+
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else {
+                    // Если фильтр сбрасывается (выбирается пустое значение)
+                    // подгружаем все данные
+
+                    $role = Sentinel::findRoleBySlug('account_manager');
+                    $accountManagers = $role->users();
+
+                    $role = Sentinel::findRoleBySlug('agent');
+                    $agents = $role->users();
+
+                    $role = Sentinel::findRoleBySlug('operator');
+                    $operators = $role->users();
+
+                    $spheres = Sphere::active();
+
+                    if($sphere_id) {
+                        $accountManagers = $accountManagers->join('account_manager_sphere', function ($join) use ($sphere_id) {
+                            $join->on('account_manager_sphere.account_manager_id', '=', 'users.id')
+                                ->where('account_manager_sphere.sphere_id', '=', $sphere_id);
+                        });
+                        $agents = $agents->join('agent_sphere', function ($join) use ($sphere_id) {
+                            $join->on('agent_sphere.agent_id', '=', 'users.id')
+                                ->where('agent_sphere.sphere_id', '=', $sphere_id);
+                        });
+                        $operators = $operators->join('operator_sphere', function ($join) use ($sphere_id) {
+                            $join->on('operator_sphere.operator_id', '=', 'users.id')
+                                ->where('operator_sphere.sphere_id', '=', $sphere_id);
+                        });
+                    }
+
+                    if($accountManager_id) {
+                        $spheres = $spheres->join('account_manager_sphere', function ($join) use ($accountManager_id) {
+                            $join->on('account_manager_sphere.sphere_id', '=', 'spheres.id')
+                                ->where('account_manager_sphere.account_manager_id', '=', $accountManager_id);
+                        });
+                        $agents = $agents->join('account_managers_agents', function ($join) use ($accountManager_id) {
+                            $join->on('account_managers_agents.agent_id', '=', 'users.id')
+                                ->where('account_managers_agents.account_manager_id', '=', $accountManager_id);
+                        });
+                        $operators = $operators->join('account_managers_operators', function ($join) use ($accountManager_id) {
+                            $join->on('account_managers_operators.operator_id', '=', 'users.id')
+                                ->where('account_managers_operators.account_manager_id', '=', $accountManager_id);
+                        });
+                    }
+
+                    if($operator_id) {
+                        $spheres = $spheres->join('operator_sphere', function ($join) use ($operator_id) {
+                            $join->on('operator_sphere.sphere_id', '=', 'spheres.id')
+                                ->where('operator_sphere.operator_id', '=', $operator_id);
+                        });
+                        $accountManagers = $accountManagers->join('account_managers_operators', function ($join) use ($operator_id) {
+                            $join->on('account_managers_operators.account_manager_id', '=', 'users.id')
+                                ->where('account_managers_operators.operator_id', '=', $operator_id);
+                        });
+                    }
+
+                    if($agent_id) {
+                        $spheres = $spheres->join('agent_sphere', function ($join) use ($agent_id) {
+                            $join->on('agent_sphere.sphere_id', '=', 'spheres.id')
+                                ->where('agent_sphere.agent_id', '=', $agent_id);
+                        });
+                        $accountManagers = $accountManagers->join('account_managers_agents', function ($join) use ($agent_id) {
+                            $join->on('account_managers_agents.account_manager_id', '=', 'users.id')
+                                ->where('account_managers_agents.agent_id', '=', $agent_id);
+                        });
+                    }
+
+                    $accountManagers = $accountManagers->select('users.id', \DB::raw('users.email AS name'))->get();
+                    $agents = $agents->select('users.id', \DB::raw('users.email AS name'))->get();
+                    $operators = $operators->select('users.id', \DB::raw('users.email AS name'))->get();
+                    $spheres = $spheres->select('spheres.id', 'spheres.name')->get();
+                }
+            }
+        } else {
+            $role = Sentinel::findRoleBySlug('account_manager');
+            $accountManagers = $role->users()->select('id', 'email')->get();
+
+            $role = Sentinel::findRoleBySlug('agent');
+            $agents = $role->users()->select('id', 'email')->get();
+
+            $role = Sentinel::findRoleBySlug('operator');
+            $operators = $role->users()->select('id', 'email')->get();
+
+            $spheres = Sphere::active()->get();
+        }
 
         // Show the page
         return view('admin.lead.index', [
             'accountManagers' => $accountManagers,
             'agents' => $agents,
             'operators' => $operators,
-            'spheres' => $spheres
+            'spheres' => $spheres,
+            'selectedFilters' => $selectedFilters
         ]);
     }
 
@@ -61,6 +234,8 @@ class LeadController extends Controller
 
         // Если есть параметры фильтра
         if (count($request->only('filter'))) {
+            // добавляем на страницу куки с данными по фильтру
+            Cookie::queue('adminOpenLeadsFilter', json_encode($request->only('filter')['filter']), null, null, null, false, false);
             // Получаем параметры
             $eFilter = $request->only('filter')['filter'];
 

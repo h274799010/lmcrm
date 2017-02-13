@@ -166,7 +166,6 @@ class LeadController extends AgentController {
         $auctionData = Auction::where('status', 0)
             ->where( 'user_id', $user_id )
             ->where( 'sphere_id', $sphere->id )
-            ->where('accessibility_at', '<=', Carbon::now())
             ->whereNotIn('lead_id', $salesmansOpenedLeads)
             ->with('lead')->with('maskName')->get();
 
@@ -234,6 +233,15 @@ class LeadController extends AgentController {
 
         $auctionData = $auctionData->filter(function ($auction) {
             return $auction['maskName']['active'] == 1;
+        });
+
+        $auctionData = $auctionData->filter(function ($auction) use ($agent) {
+            $openLead = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', $agent->id )->first();
+            $openLeadOther = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
+
+            if(!$openLead || !$openLeadOther) {
+                return $auction;
+            }
         });
 
         return Datatables::of( $auctionData )
