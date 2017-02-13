@@ -918,9 +918,9 @@ class Statistics
                     'email' => $this->openLeads['userModel']['email'],
                     'first_name' => $this->openLeads['userModel']['first_name'],
                     'last_name' => $this->openLeads['userModel']['last_name'],
-                    'created_at' => $this->openLeads['userCreated']->format('d/m/Y'),
+                    'created_at' => $this->openLeads['userCreated'] ? $this->openLeads['userCreated']->format('d/m/Y') : '-',
 
-                    'addToSphere' => $this->openLeads['addUserToSphere']->format('d/m/Y'),
+                    'addToSphere' => $this->openLeads['addUserToSphere'] ? $this->openLeads['addUserToSphere']->format('d/m/Y') : '-',
 
                     'withSalesman' => $this->openLeads['salesman'],
                     'salesmanCount' => $this->openLeads['salesmanCount'],
@@ -1068,7 +1068,7 @@ class Statistics
                         'name' => $this->openLeads['sphereName'],
                         'minOpen' => $this->openLeads['sphereMinOpen'],
                         'status' => $this->openLeads['sphereStatus'],
-                        'created_at' => $this->openLeads['sphere']['created_at']->format('d/m/Y'),
+                        'created_at' => $this->openLeads['sphere']['created_at'] ? $this->openLeads['sphere']['created_at']->format('d/m/Y') : '-',
                         'leads' =>
                         [
                             'all' => $this->openLeads['allLeadsInSphere'],
@@ -1083,7 +1083,7 @@ class Statistics
                         'email' => $this->openLeads['userModel']['email'],
                         'first_name' => $this->openLeads['userModel']['first_name'],
                         'last_name' => $this->openLeads['userModel']['last_name'],
-                        'created_at' => $this->openLeads['userCreated']->format('d/m/Y'),
+                        'created_at' => $this->openLeads['userCreated'] ? $this->openLeads['userCreated']->format('d/m/Y') : '-',
 
                         'addToSphere' => $this->openLeads['addUserToSphere'] ? $this->openLeads['addUserToSphere']->format('d/m/Y') : '-',
 
@@ -1225,7 +1225,7 @@ class Statistics
                         'name' => $this->openLeads['sphereName'],
                         'minOpen' => $this->openLeads['sphereMinOpen'],
                         'status' => $this->openLeads['sphereStatus'],
-                        'created_at' => $this->openLeads['sphere']['created_at']->format('d/m/Y'),
+                        'created_at' => $this->openLeads['sphere']['created_at'] ? $this->openLeads['sphere']['created_at']->format('d/m/Y') : '-',
                         'leads' =>
                         [
                             'all' => $this->openLeads['allLeadsInSphere'],
