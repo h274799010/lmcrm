@@ -19,7 +19,7 @@
                     <select data-name="sphere" class="dataTables_filter form-control connectedFilter" id="spheresFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($spheres as $sphere)
-                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                            <option value="{{ $sphere->id }}" @if($selectedFilters['sphere'] && $selectedFilters['sphere'] == $sphere->id) selected="selected" @endif>{{ $sphere->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -30,7 +30,7 @@
                     <select data-name="account_manager" class="dataTables_filter form-control connectedFilter" id="accountManagersFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($accountManagers as $accountManager)
-                            <option value="{{ $accountManager->id }}">{{ $accountManager->email }}</option>
+                            <option value="{{ $accountManager->id }}" @if($selectedFilters['account_manager'] && $selectedFilters['account_manager'] == $accountManager->id) selected="selected" @endif>{{ $accountManager->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -41,7 +41,7 @@
                     <select data-name="operator" class="dataTables_filter form-control connectedFilter" id="operatorsFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($operators as $operator)
-                            <option value="{{ $operator->id }}">{{ $operator->email }}</option>
+                            <option value="{{ $operator->id }}" @if($selectedFilters['operator'] && $selectedFilters['operator'] == $operator->id) selected="selected" @endif>{{ $operator->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -52,7 +52,7 @@
                     <select data-name="agent" class="dataTables_filter form-control connectedFilter" id="agentsFilter" data-placeholder="-">
                         <option value=""></option>
                         @foreach($agents as $agent)
-                            <option value="{{ $agent->id }}">{{ $agent->email }}</option>
+                            <option value="{{ $agent->id }}" @if($selectedFilters['agent'] && $selectedFilters['agent'] == $agent->id) selected="selected" @endif>{{ $agent->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -62,8 +62,8 @@
                     <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.agentType') }}</label>
                     <select data-name="role" class="dataTables_filter form-control" id="rolesFilter" data-placeholder="-">
                         <option value=""></option>
-                        <option value="leadbayer">Lead bayer</option>
-                        <option value="dealmaker">Deal maker</option>
+                        <option value="dealmaker" @if($selectedFilters['role'] && $selectedFilters['role'] == 'dealmaker') selected="selected" @endif >Dealmaker</option>
+                        <option value="leadbayer" @if($selectedFilters['role'] && $selectedFilters['role'] == 'leadbayer') selected="selected" @endif >Leadbayer</option>
                     </select>
                 </div>
             </div>
