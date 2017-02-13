@@ -87,8 +87,11 @@ class RegisterController extends Controller
     public function registerStepTwo()
     {
 
-        // todo вернуть все обратно
         $agent = Sentinel::getUser();
+
+        if( !$agent ){
+            return redirect()->route('home');
+        }
 
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
 
