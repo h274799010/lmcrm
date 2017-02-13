@@ -235,6 +235,15 @@ class LeadController extends AgentController {
             return $auction['maskName']['active'] == 1;
         });
 
+        $auctionData = $auctionData->filter(function ($auction) use ($agent) {
+            $openLead = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', $agent->id )->first();
+            $openLeadOther = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
+
+            if(!$openLead || !$openLeadOther) {
+                return $auction;
+            }
+        });
+
         return Datatables::of( $auctionData )
             ->setTransformer(new ObtainedLeadsTransformer($sphere))
             ->make();

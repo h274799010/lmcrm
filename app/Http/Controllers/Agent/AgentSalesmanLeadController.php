@@ -255,6 +255,15 @@ class AgentSalesmanLeadController extends LeadController
             }
         }
 
+        $auctionData = $auctionData->filter(function ($auction) use ($agent) {
+            $openLead = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', $agent->id )->first();
+            $openLeadOther = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
+
+            if(!$openLead || !$openLeadOther) {
+                return $auction;
+            }
+        });
+
 
         $datatable = Datatables::of( $auctionData )
             ->add_column('count', function( $data ) {
