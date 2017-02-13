@@ -126,12 +126,20 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('statistic/spheres', ['as' => 'admin.statistic.spheres', 'uses' => 'Admin\StatisticController@spheresList']);
 //    Route::get('statistic/agentsData', ['as' => 'admin.statistic.agentsData', 'uses' => 'Admin\StatisticController@agentsData']);
 
+    // статистика агента
     Route::get('statistic/agent/{id}', ['as' => 'admin.statistic.agent', 'uses' => 'Admin\StatisticController@agentStatistic']);
     Route::post('statistic/agentData/', ['as' => 'admin.statistic.agentData', 'uses' => 'Admin\StatisticController@agentStatisticData']);
     Route::post('statistic/getFilterAgent',['as'=>'admin.statistic.getFilterAgent', 'uses' => 'Admin\StatisticController@getFilterAgent']);
 
+    // статистика по сфере
     Route::get('statistic/sphere/{id}', ['as' => 'admin.statistic.sphere', 'uses' => 'Admin\StatisticController@sphereStatistic']);
     Route::post('statistic/sphereData/', ['as' => 'admin.statistic.sphereData', 'uses' => 'Admin\StatisticController@sphereStatisticData']);
+
+    // статистика аккаунт менеджера
+    Route::get('statistic/accManagers', ['as' => 'admin.statistic.accManagers', 'uses' => 'Admin\StatisticController@accManagerList']);
+    Route::get('statistic/accManager/{id}', ['as' => 'admin.statistic.accManager', 'uses' => 'Admin\StatisticController@accManagerStatistic']);
+    Route::post('statistic/accManagerData/', ['as' => 'admin.statistic.accManagerData', 'uses' => 'Admin\StatisticController@accManagerStatisticData']);
+
 
     // Настройки
     Route::get('settings/roles', ['as' => 'admin.settings.roles', 'uses' => 'Admin\SettingsController@roles']);

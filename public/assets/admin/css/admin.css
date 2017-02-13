@@ -1301,8 +1301,9 @@ textarea.tab_notes{
     background: #478295;
 }
 
-.statistics_no_data{
-    color: grey;
+tr td.statistics_no_data{
+    color: grey !important;
+    background: white !important;
 }
 
 .sphere_no_data{
@@ -1459,7 +1460,15 @@ h4.statistic-sphere-name{
     font-weight: 600;
 }
 
+.acc_manager_block{
+    margin-top: 25px;
+    margin-bottom: 20px;
+}
 
+.acc_manager_block table th{
+    color: grey;
+    font-size: 13px;
+}
 
 @media only screen and (max-width: 1614px) {
     .table-statuses.table-statuses-small {
