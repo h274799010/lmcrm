@@ -86,6 +86,8 @@ class RegisterController extends Controller
      */
     public function registerStepTwo()
     {
+
+        // todo вернуть все обратно
         $agent = Sentinel::getUser();
 
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
@@ -99,7 +101,7 @@ class RegisterController extends Controller
         // список сфер для выбора
         $spheres = Sphere::active()->lists('name','id');
 
-        $roles = Role::whereIn('slug', ['dealmaker', 'leadbayer'])->get();
+        $roles = Role::whereIn('slug', ['dealmaker', 'leadbayer', 'partner'])->get();
 
         return view('auth.registerStepTwo')->with([ 'spheres'=>$spheres, 'roles'=>$roles ]);
     }
@@ -114,8 +116,21 @@ class RegisterController extends Controller
     {
         $user = Sentinel::getUser();
 
-        // устанавливаем дополнительную роль агенту (leadbayer or dealmaker or partner)
-        $role = Sentinel::findRoleBySlug($request->input('role'));
+        // устанавливаем дополнительную роль агенту (leadbayer, dealmaker or partner)
+
+        if( $request->input('role') == 'partner' ){
+
+            $slug = 'leadbayer';
+
+        }else{
+
+            $slug = $request->input('role');
+        }
+
+
+        $role = Sentinel::findRoleBySlug( $slug );
+
+//        $role = Sentinel::findRoleBySlug($request->input('role'));
         $user->roles()->attach($role);
 
         $user->first_name = $request->input('first_name');
