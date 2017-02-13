@@ -72,6 +72,8 @@ class AgentController extends BaseController
         // получение данных по кошельку
         $wallet = $this->user->wallet()->first();
 
+//        dd($wallet);
+
         // получение данных по сфере
         $this->spheres = $this->user->spheres;
 
@@ -149,6 +151,8 @@ class AgentController extends BaseController
             //$minLeadsToBuy = 0;
 
         }
+
+//        dd($wallet);
 
         // данные по забракованным лидам
         $wasted = $wallet->wasted;

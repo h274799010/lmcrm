@@ -5,6 +5,10 @@ $(function(){
 	    $("select:not(.notSelectBoxIt)").selectBoxIt();
 	}
 
+    //$('select').select2({
+    //    allowClear: true
+    //});
+
 	if ($.isFunction($.fn.datepicker)) {
 		$(".datepicker").each(function (i, el) {
 			var $this = $(el),

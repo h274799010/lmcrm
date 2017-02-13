@@ -335,10 +335,13 @@ class Statistics
 
                 }else{
                     // добавляем в общий массив дату когда пользователь был добавлен в сферу
-                    $this->openLeads['addUserToSphere'] = AgentSphere::
+
+                    $addedDate = AgentSphere::
                           where( 'sphere_id', $set['sphere_id'] )
                         ->where( 'agent_id', $set['user_id'] )
-                        ->first()->created_at;
+                        ->first();
+
+                    $this->openLeads['addUserToSphere'] = $addedDate ? $addedDate->created_at : false;
                 }
             }
 

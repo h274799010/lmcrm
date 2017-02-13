@@ -1470,6 +1470,14 @@ h4.statistic-sphere-name{
     font-size: 13px;
 }
 
+.sphere_no_data{
+    margin: 30px 10px;
+}
+
+.topStatusTable{
+    margin-top: 30px;
+}
+
 @media only screen and (max-width: 1614px) {
     .table-statuses.table-statuses-small {
         width: 50%;

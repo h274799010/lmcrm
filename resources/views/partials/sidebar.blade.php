@@ -22,6 +22,9 @@
                         <a href="{{ route('salesman.lead.opened')  }}"><i class="icon icon-document"></i>@lang('site/sidebar.lead_opened')</a>
                     </li>
                 @endif
+                    <li class="sidebar-link">
+                        <a href="{{ route('agent.statistic.index')  }}"><i class="fa fa-line-chart"></i>Statistic</a>
+                    </li>
             @else
                 @if( Sentinel::hasAccess(['agent.lead.obtain']) )
                     <li>
