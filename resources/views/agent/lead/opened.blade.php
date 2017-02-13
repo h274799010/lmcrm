@@ -451,9 +451,18 @@
             return html;
         }
 
+        function setLocation(curLoc){
+            try {
+                history.pushState(null, null, curLoc);
+                return;
+            } catch(e) {}
+            /*location.hash = '#' + curLoc;*/
+        }
+
         $(window).on('load', function () {
             var $table = $('#openLeadsTable');
             var $container = $('#openedLeadsFilters');
+            var flag = true;
 
             var dTable = $table.DataTable({
                 "destroy": true,
@@ -486,6 +495,13 @@
                         $(document).find('#openLeadsTable select').selectBoxIt();
                         // делаем опции, которые находятся до активной опции - недоступными
                         disabledSelectOption();
+                        @if(isset($lead_id))
+                            if(flag == true) {
+                                flag = false;
+                                $('tr[lead_id={{ $lead_id }}] td:eq(0)').trigger('click');
+                                setLocation('{{ route('agent.lead.opened') }}');
+                            }
+                        @endif
                     }
                 },
 

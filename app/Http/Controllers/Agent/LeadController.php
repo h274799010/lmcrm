@@ -595,7 +595,17 @@ class LeadController extends AgentController {
         // пробуем открыть лид, статус записываем в переменную
         $openResult = $lead->open( $user, $mask_id );
 
-        return response()->json( $openResult );
+        //return response()->json( $openResult );
+        if($salesman_id) {
+            return redirect()->route('agent.salesman.openedLeads', [
+                'salesman_id' => $salesman_id,
+                'lead_id' => $lead->id
+            ]);
+        } else {
+            return redirect()->route('agent.lead.opened', [
+                'lead_id' => $lead->id
+            ]);
+        }
     }
 
 
@@ -630,7 +640,17 @@ class LeadController extends AgentController {
         // пробуем открыть лид, статус записываем в переменную
         $openResult = $lead->openAll( $user, $mask_id );
 
-        return response()->json( $openResult );
+        //return response()->json( $openResult );
+        if($salesman_id) {
+            return redirect()->route('agent.salesman.openedLeads', [
+                'salesman_id' => $salesman_id,
+                'lead_id' => $lead->id
+            ]);
+        } else {
+            return redirect()->route('agent.lead.opened', [
+                'lead_id' => $lead->id
+            ]);
+        }
 
     }
 
@@ -683,7 +703,7 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function openedLeads(){
+    public function openedLeads($lead_id = false){
 
         // получаем данные агента
         $user = $this->user;
@@ -702,7 +722,11 @@ class LeadController extends AgentController {
         // задаем вьюшку
         $view = 'agent.lead.opened';
 
-        return view($view, [ 'jsonSpheres' => $spheres ]);
+        if($lead_id) {
+            return view($view, [ 'jsonSpheres' => $spheres, 'lead_id' => $lead_id ]);
+        } else {
+            return view($view, [ 'jsonSpheres' => $spheres ]);
+        }
     }
 
     public function openedLeadsData(Request $request)
