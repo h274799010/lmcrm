@@ -12,9 +12,9 @@
         </h3>
     </div>
     <div class="row">
-        <div class="col-md-4 col-xs-12" id="leadsListFilter">
+        <div class="col-md-8 col-xs-12" id="leadsListFilter">
             @if($statuses)
-                <div class="col-xs-4">
+                <div class="col-xs-3">
                     <div class="form-group">
                         <label class="control-label _col-sm-2">Lead status</label>
                         <select data-name="lead_status" class="selectbox dataTables_filter form-control">
@@ -27,7 +27,7 @@
                 </div>
             @endif
             @if($auctionStatuses)
-                <div class="col-xs-4">
+                <div class="col-xs-3">
                     <div class="form-group">
                         <label class="control-label _col-sm-2">Auction status</label>
                         <select data-name="auction_status" class="selectbox dataTables_filter form-control">
@@ -40,7 +40,7 @@
                 </div>
             @endif
             @if($paymentStatuses)
-                <div class="col-xs-4">
+                <div class="col-xs-3">
                     <div class="form-group">
                         <label class="control-label _col-sm-2">Payment status</label>
                         <select data-name="payment_status" class="selectbox dataTables_filter form-control">
@@ -52,6 +52,11 @@
                     </div>
                 </div>
             @endif
+            <div class="col-xs-3">
+                <div class="form-group" style="padding-top: 23px;">
+                    <button class="btn btn-sm btn-danger" id="resetFilters" style="margin-bottom: 0;">{{ trans('admin/admin.button.filter_reset') }}</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -226,6 +231,10 @@
 @section('scripts_after')
     <script type="text/javascript">
         $(document).ready(function () {
+            $('select').select2({
+                allowClear: true
+            });
+
             var allLeadsInfo;
             var $container = $('#leadsListFilter');
 
@@ -312,6 +321,19 @@
                     allLeadsInfo.ajax.reload();
                 }
             });
+
+            $(document).on('click', '#resetFilters', function (e) {
+                e.preventDefault();
+
+                $('#leadsListFilter select').each(function (i, el) {
+                    $(el).prop('selectedIndex', 0);
+                    $(el).select2("destroy");
+
+                    $(el).select2();
+                });
+
+                $('#leadsListFilter select:eq(0)').trigger('change');
+            })
         });
     </script>
 @stop

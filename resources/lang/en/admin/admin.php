@@ -19,5 +19,6 @@ return [
     'users' => 'Users',
     'updated_at' => 'Updated at',
     'sphere' => 'Sphere',
-    'role' => 'Role'
+    'role' => 'Role',
+    'button.filter_reset' => 'Reset filters'
 	];

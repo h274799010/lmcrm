@@ -75,6 +75,13 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-xs-3 pull-right">
+            <div class="form-group" style="text-align: right;margin-top: 0">
+                <button class="btn btn-sm btn-danger" id="resetFilters" style="margin-bottom: 0;">{{ trans('admin/admin.button.filter_reset') }}</button>
+            </div>
+        </div>
+    </div>
     <table id="leadsTable" class="table table-striped table-hover table-filter">
         <thead>
         <tr>
@@ -245,6 +252,20 @@
             $container.find(':input.dataTables_filter').change(function () {
                 leadsTable.ajax.reload();
             });
+
+            $(document).on('click', '#resetFilters', function (e) {
+                e.preventDefault();
+
+                $('#leadsListFilter select').each(function (i, el) {
+                    $(el).prop('selectedIndex', 0);
+                    $(el).select2("destroy");
+
+                    $(el).select2();
+                });
+
+                //$('#leadsListFilter select:eq(0)').trigger('change');
+                $('#leadsListFilter input').val('').trigger('change');
+            })
         });
 
 
