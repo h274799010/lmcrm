@@ -465,23 +465,10 @@ span.badge.statistics_head_badge{
     color: grey;
 }
 
-.statistic-sphere-name{
-    padding: 18px 15px 10px 15px;
-    border-radius: 0 30px 0 0;
-    color: white;
-    background: #3F51B5;
-}
-
 .sphere_no_data{
     color: grey;
 }
 
-.table-statuses.table-statuses-small {
-	width: 33.33333%;
-}
-.table-statuses.table-statuses-large {
-	width: 66.66666%;
-}
 .table-statuses-row {
 	padding-left: 4px;
 }
@@ -525,3 +512,292 @@ span.badge.statistics_head_badge{
 .agent-info-block li.text-danger {
 	color: #a94442;
 }
+
+.delete_note{
+	color: red;
+	cursor: pointer;
+}
+
+
+.status_Good {
+	background-color: rgb(0, 176, 80);
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
+}
+.status_Satisfactorily {
+	background-color: rgb(146, 208, 80);
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
+}
+.status_Secondary {
+	background-color: rgb(191, 143, 0);
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
+}
+.status_Badly {
+	background-color: rgb(237, 125, 49);
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
+}
+.status_Col {
+	background-color: red;
+	color: #000000;
+	font-weight: bold;
+	text-align: center;
+}
+
+.percent-col {
+	font-weight: bold;
+	text-align: center;
+}
+
+.center{
+	text-align: center !important;
+}
+
+.middle{
+	vertical-align: middle !important;
+}
+
+.statistic-sphere-name{
+	padding: 18px 15px 10px 15px;
+	border-radius: 0 30px 0 0;
+	color: white;
+	background: #3F51B5;
+}
+
+.statistics_process_statuses th{
+	color: #ffffff !important;
+	background: #00B050;
+}
+
+.statistics_uncertain_statuses th{
+	color: #ffffff !important;
+	background: #5A8230;
+}
+
+.statistics_refuseniks_statuses th{
+	color: #ffffff !important;
+	background: #D9A502;
+}
+
+.statistics_bad_statuses th{
+	color: #ffffff !important;
+	background: #CD0000;
+}
+
+.statistics_transitions_statuses th{
+	color: #ffffff !important;
+	background: #478295;
+}
+
+tr td.statistics_no_data{
+	color: grey !important;
+	background: white !important;
+}
+
+.sphere_no_data{
+	color: grey;
+}
+
+span.badge.statistics_head_badge{
+	color: #3F51B5;
+	background: white;
+}
+
+.table-statuses {
+	display: inline-block;
+	vertical-align: top;
+	padding: 0 15px;
+	margin-left: -4px;
+}
+
+.statistics_input{
+	background: white;
+	border: none;
+	cursor: pointer;
+}
+
+.sphere_select{
+	width: 250px !important;
+}
+
+.select2-search__field{
+	background: white;
+	color: black;
+}
+
+.leads_needed{
+	font-weight: 600;
+}
+
+.table-statuses.table-statuses-small {
+	width: 33.33333%;
+}
+.table-statuses.table-statuses-large {
+	width: 66.66666%;
+}
+.table-statuses-row {
+	padding-left: 4px;
+}
+
+
+
+.process-statuses thead tr:first-child th {
+	text-align: center;
+	font-size: 15px;
+}
+
+.undefined-statuses  thead tr:first-child th {
+	text-align: center;
+	font-size: 15px;
+}
+
+.fail-statuses  thead tr:first-child th {
+	text-align: center;
+	font-size: 15px;
+}
+
+.bad-statuses  thead tr:first-child th {
+	text-align: center;
+	font-size: 15px;
+}
+
+.performance-table  thead tr:first-child th {
+	text-align: center;
+	font-size: 15px;
+}
+
+.table-statuses th{
+	color: grey;
+	font-size: 13px;
+}
+
+.table-statuses tbody tr td {
+	border-bottom: solid 1px grey !important;
+}
+
+.table-statuses tr td:first-child{
+	border-bottom: solid 1px lightgrey !important;
+	background: grey;
+	color: white;
+}
+
+.table-statuses tr td.fromStatus{
+	/*text-align: left !important;*/
+}
+
+.table-statuses tr td.statistics_transitions_statuses_arrow{
+	border-bottom: solid 1px lightgrey !important;
+	background: grey;
+	color: white;
+	padding: 0;
+}
+
+
+.table-statuses tr td.statistics_transitions_emptyCall{
+	border-bottom: solid 1px lightgrey !important;
+}
+
+.table-statuses tr td.toStatus{
+	border-bottom: solid 1px lightgrey !important;
+	/*border-left: solid 1px lightgrey !important;*/
+	background: grey;
+	color: white;
+	/*text-align: right !important;*/
+}
+
+.table-statuses tr td.countPeriod{
+	background: lightgrey;
+}
+
+.table-statuses tr td.periodPercent{
+	background: lightgrey;
+}
+
+.summary_table tr td{
+	padding: 3px 10px 3px 10px;
+	border-bottom: 1px solid #3F51B5;
+	font-size: 11px;
+	color: #3F51B5;
+}
+
+.summary_table tr > td:first-child{
+	background: #3F51B5;
+	color: white;
+	font-weight: 600;
+	border-bottom: 1px solid #717DC2;
+}
+
+.summary_table tr > td:last-child{
+	/*border-right: 1px solid #717DC2;*/
+	/*padding-left: 0px;*/
+}
+
+h4.statistic-sphere-name{
+	margin-bottom: 0;
+}
+
+.summary_table tr th{
+	padding: 3px 10px 3px 10px;
+	background: #3F51B5;
+	font-size: 10px;
+	color: #C5C9E2;
+}
+
+.summary_table_addition{
+	color: gray;
+	font-weight: 600;
+}
+
+.acc_manager_block{
+	margin-top: 25px;
+	margin-bottom: 20px;
+}
+
+.acc_manager_block table th{
+	color: grey;
+	font-size: 13px;
+}
+
+.sphere_no_data{
+	margin: 30px 10px;
+}
+
+.topStatusTable{
+	margin-top: 30px;
+}
+
+@media only screen and (max-width: 1614px) {
+	.table-statuses.table-statuses-small {
+		width: 50%;
+	}
+	.table-statuses.table-statuses-large {
+		width: 100%;
+	}
+}
+
+@media only screen and (max-width: 1122px) {
+	.table-statuses {
+		margin-left: 0;
+	}
+	.table-statuses-row {
+		padding-left: 0;
+	}
+	.table-statuses.table-statuses-small {
+		width: 100%;
+	}
+}
+
+.role_description{
+	margin-left: 25px;
+	font-size: 13px;
+}
+
+
+
+

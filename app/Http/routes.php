@@ -46,6 +46,29 @@ Route::get('transitionTest/{status}', function($status){
 
 Route::get('stat/{user}/{sphere}', function( $user, $sphere ){
 
+//    $masks = \App\Models\UserMasks::all();
+
+    $openLeadsId = \App\Models\OpenLeads::
+                          where('agent_id', 3)
+                        ->lists('lead_id');
+
+    $leadsId = \App\Models\Lead::
+                          whereIn( 'id', $openLeadsId )
+                        ->where( 'sphere_id', 1 )
+                        ->lists('id');
+
+//    $openLeads = \App\Models\OpenLeads::
+//                      whereIn( 'lead_id', $leadsId )
+//                    ->where('agent_id', 6 )
+//                    ->update( [ 'mask_name_id'=>33 ] );
+
+    $openLeads = \App\Models\OpenLeads::
+                          whereIn( 'lead_id', $leadsId )
+                        ->where('agent_id', 3 )
+                        ->get();
+
+    dd( $openLeads );
+
 
     $aaaa = \App\Helper\Statistics::openLeads( $user, $sphere );
 

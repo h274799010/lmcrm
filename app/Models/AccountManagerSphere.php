@@ -17,7 +17,27 @@ class AccountManagerSphere extends Model {
         'account_manager_id','sphere_id'
     ];
 
+
     public function spheres() {
         return $this->belongsToMany('\App\Models\Sphere','account_manager_sphere','account_manager_id','sphere_id');
     }
+
+
+    /**
+     * Сферы аккаунт менеджера
+     *
+     */
+    public function sphere() {
+        return $this->hasOne('\App\Models\Sphere','id', 'sphere_id');
+    }
+
+
+    /**
+     * Данные аккаунт менеджера
+     *
+     */
+    public function accManager(){
+        return $this->hasOne('\App\Models\User', 'id', 'account_manager_id');
+    }
+
 }

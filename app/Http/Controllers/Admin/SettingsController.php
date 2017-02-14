@@ -20,7 +20,7 @@ class SettingsController extends AdminController
 
     public function roles()
     {
-        $roles = Role::whereIn('slug', ['dealmaker', 'leadbayer'])->get();
+        $roles = Role::whereIn('slug', ['dealmaker', 'leadbayer', 'partner'])->get();
 
         return view('admin.settings.roles')->with([
             'roles' => $roles

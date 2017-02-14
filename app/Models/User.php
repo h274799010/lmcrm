@@ -111,4 +111,11 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
             return false;
         }
     }
+
+
+    // todo создать отдельно модель акк Менеджера и вынести это все дело туда
+    public function accManagerSpheres(){
+        return $this->hasMany('\App\Models\AccountManagerSphere', 'account_manager_id', 'id');
+    }
+
 }

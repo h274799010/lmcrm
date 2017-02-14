@@ -14,16 +14,22 @@
     <table id="statisticSphereTable" class="table table-striped table-hover">
         <thead>
         <tr>
-            <th>Name</th>
-            <th>Date</th>
-            <th>{!! trans("admin/admin.action") !!}</th>
+            <th class="center">Name</th>
+            <th class="center">Leads</th>
+            <th class="center">Agents</th>
+            <th class="center">Active agents</th>
+            <th class="center">Date</th>
+            <th class="center">{!! trans("admin/admin.action") !!}</th>
         </tr>
         </thead>
         <tbody>
             @forelse($spheres as $sphere)
                 <tr>
                     <td>{{ $sphere['name'] }}</td>
-                    <td>{{ $sphere['created_at'] }}</td>
+                    <td class="center">{{ $sphere['leads'] }}</td>
+                    <td class="center">{{ $sphere['agents'] }}</td>
+                    <td class="center">{{ $sphere['activeAgents'] }}</td>
+                    <td class="center">{{ $sphere['created_at'] }}</td>
                     <td>
                         <a class="btn btn-sm btn-success" title="Statistic" href="{{ route('admin.statistic.sphere', ['id'=>$sphere['id']]) }}">
                             Statistic
