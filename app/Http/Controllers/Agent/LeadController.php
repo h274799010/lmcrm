@@ -595,6 +595,10 @@ class LeadController extends AgentController {
         // пробуем открыть лид, статус записываем в переменную
         $openResult = $lead->open( $user, $mask_id );
 
+        if(isset($openResult['error'])) {
+            return redirect()->back()->withErrors($openResult['error']);
+        }
+
         //return response()->json( $openResult );
         if($salesman_id) {
             return redirect()->route('agent.salesman.openedLeads', [
@@ -639,6 +643,10 @@ class LeadController extends AgentController {
 
         // пробуем открыть лид, статус записываем в переменную
         $openResult = $lead->openAll( $user, $mask_id );
+
+        if(isset($openResult['error'])) {
+            return redirect()->back()->withErrors($openResult['error']);
+        }
 
         //return response()->json( $openResult );
         if($salesman_id) {
@@ -911,7 +919,12 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function setOpenLeadStatus( Request $request ){
+    public function setOpenLeadStatus( Request $request )
+    {
+        $user = Sentinel::getUser();
+        if( ($user->banned_at != null || $user->banned_at != '0000-00-00 00:00:00') && !$user->hasAccess('working_leads') ) {
+            return response()->json('userBanned');
+        }
 
         $openedLeadId  = $request->openedLeadId;
 

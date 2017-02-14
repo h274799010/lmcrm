@@ -17,6 +17,7 @@ use App\Models\Sphere;
 use App\Http\Requests\AdminUsersEditFormRequest;
 use Carbon\Carbon;
 use Cartalyst\Sentinel\Roles\EloquentRole;
+use Validator;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 //use App\Repositories\UserRepositoryInterface;
@@ -81,12 +82,14 @@ class AgentController extends AdminController
             $role = Sentinel::findRoleBySlug('account_manager');
             $accountManagers = $role->users()->get();
         }
+        $permissions = User::$bannedPermissions;
 
         // Show the page
         return view('admin.agent.index', [
             'spheres' => $spheres,
             'accountManagers' => $accountManagers,
-            'selectedFilters' => $selectedFilters
+            'selectedFilters' => $selectedFilters,
+            'permissions' => $permissions
         ]);
     }
 
@@ -471,13 +474,30 @@ class AgentController extends AdminController
             ->make();
     }
 
-    public function ban($user_id)
+    public function ban(Request $request)
     {
-        $user = Sentinel::findById($user_id);
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+            'permissions' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(array(
+                'errors' => $validator->errors()
+            ));
+        }
+
+        $user = Sentinel::findById($request->input('user_id'));
+        $permissions = User::$bannedPermissions;
+
+        foreach ($request->input('permissions') as $permission) {
+            $permissions[$permission] = false;
+        }
 
         if($user->inRole('agent')) {
             $agent = Agent::findOrFail($user->id);
             $agent->banned_at = Carbon::now();
+            $agent->permissions = $permissions;
             $agent->save();
 
             $salesmans = $agent->salesmen()->get();
@@ -485,24 +505,31 @@ class AgentController extends AdminController
             if(count($salesmans)) {
                 foreach ($salesmans as $salesman) {
                     $salesman->banned_at = Carbon::now();
+                    $salesman->permissions = $permissions;
                     $salesman->save();
                 }
             }
         } else {
             $user->banned_at = Carbon::now();
+            $user->permissions = $permissions;
             $user->save();
         }
 
-        return redirect()->back();
+        return response()->json(array(
+            'errors' => array(),
+            'status'=>'success'
+        ));
     }
 
     public function unban($user_id)
     {
         $user = Sentinel::findById($user_id);
+        $permissions = User::$bannedPermissions;
 
         if($user->inRole('agent')) {
             $agent = Agent::findOrFail($user->id);
             $agent->banned_at = null;
+            $agent->permissions = $permissions;
             $agent->save();
 
             $salesmans = $agent->salesmen()->get();
@@ -510,6 +537,7 @@ class AgentController extends AdminController
             if(count($salesmans)) {
                 foreach ($salesmans as $salesman) {
                     $salesman->banned_at = null;
+                    $salesman->permissions = $permissions;
                     $salesman->save();
                 }
             }
@@ -520,9 +548,11 @@ class AgentController extends AdminController
                 return redirect()->back()->withErrors(['success'=>false, 'message' => 'The seller can not be unlocked, as his agent blocked.']);
             }
             $salesman->banned_at = null;
+            $salesman->permissions = $permissions;
             $salesman->save();
         } else {
             $user->banned_at = null;
+            $user->permissions = $permissions;
             $user->save();
         }
 

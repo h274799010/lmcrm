@@ -28,6 +28,12 @@ return [
     'create_operator' => 'Operator create',
     'create_account_manager' => 'Account manager create',
     'role' => 'User type',
-    'rank' => 'Rank'
+    'rank' => 'Rank',
+
+    'permissions' => array(
+        'create_leads' => 'Create leads',
+        'opening_leads' => 'Opening leads',
+        'working_leads' => 'Working with open leads'
+    ),
 
 ];

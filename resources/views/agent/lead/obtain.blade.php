@@ -4,10 +4,15 @@
 @section('content')
     <div class="_page-header" xmlns="http://www.w3.org/1999/html"></div>
 
+    @if($errors->any())
+        <div class="alert alert-warning alert-dismissible fade in" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <div>{{$errors->first()}}</div>
+        </div>
+    @endif
     @forelse($spheres as $sphere)
 
         <h3> {{ $sphere->name }} </h3>
-
         <div class="alert alert-warning alert-dismissible fade in hidden" role="alert" id="open_result_{{ $sphere->id }}">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
             <div id="open_result_content_{{ $sphere->id }}"></div>
