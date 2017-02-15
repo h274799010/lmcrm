@@ -31,13 +31,13 @@
         <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
             <thead>
                 <tr>
+                    <th></th>
                     <th>{{ trans("site/lead.opened.icon") }}</th>
                     <th>{{ trans('site/lead.opened.status') }}</th>
                     <th>{{ trans('site/lead.opened.name') }}</th>
                     <th>{{ trans('site/lead.opened.phone') }}</th>
                     <th>{{ trans('site/lead.opened.email') }}</th>
                     <th>{{ trans('site/lead.opened.maskname') }}</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
