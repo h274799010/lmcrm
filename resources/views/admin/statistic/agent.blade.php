@@ -166,13 +166,6 @@
                                     <td class="percent-col center middle countPeriod">{{ $statistic['statuses']['noStatus']['countPeriod'] }}</td>
                                     <td class="percent-col center middle periodPercent">{{ $statistic['statuses']['noStatus']['percentPeriod'] }}%</td>
                                 </tr>
-                                <tr class="status_close_deal">
-                                    <td class="center middle"> Close deal </td>
-                                    <td class="percent-col center middle countAll">{{ $statistic['statuses']['closeDeal']['countAll'] }}</td>
-                                    <td class="percent-col center middle allPercent">{{ $statistic['statuses']['closeDeal']['percentAll'] }}%</td>
-                                    <td class="percent-col center middle countPeriod">{{ $statistic['statuses']['closeDeal']['countPeriod'] }}</td>
-                                    <td class="percent-col center middle periodPercent">{{ $statistic['statuses']['closeDeal']['percentPeriod'] }}%</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -313,6 +306,40 @@
                         </table>
                     </div>
 
+                    {{-- Статусы по закрытым сделкам --}}
+                    <div class="table-statuses table-statuses-large table_status_block">
+                        <table class="table closeDeal-statuses">
+                            <thead>
+                            <tr class="statistics_closeDeal_statuses">
+                                <th colspan="5" class="middle center">Close Deal</th>
+                            </tr>
+                            <tr>
+                                <th class="center middle">status</th>
+                                <th class="center middle">amount all</th>
+                                <th class="center middle">percent all</th>
+                                <th class="center middle">amount period</th>
+                                <th class="center middle">percent period</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            @forelse( $statistic['statuses']['type'][5] as $status)
+                                <tr>
+                                    <td class="center middle name">{{ $status['name'] }}</td>
+                                    <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
+                                    <td class="percent-col center middle allPercent">{{ $status['percentAll'] }}%</td>
+                                    <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
+                                    <td class="percent-col center middle periodPercent">{{ $status['percentPeriod'] }}%</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="center statistics_no_data" colspan="5">No data</td>
+                                </tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
                     {{-- Статистика по транзитам --}}
                     <div class="table-statuses table-statuses-large table_status_block">
                         <table class="table performance-table">
@@ -448,10 +475,12 @@
                 sphere.find('.fail-statuses').addClass('hidden');
                 sphere.find('.bad-statuses').addClass('hidden');
                 sphere.find('.performance-table').addClass('hidden');
+                sphere.find('.closeDeal-statuses').addClass('hidden');
 
                 sphere.find('.sphere_no_data').removeClass('hidden');
 
             }else {
+                // если статистика есть
 
                 sphere.find('.topStatusTable').removeClass('hidden');
                 sphere.find('.process-statuses').removeClass('hidden');
@@ -459,6 +488,7 @@
                 sphere.find('.fail-statuses').removeClass('hidden');
                 sphere.find('.bad-statuses').removeClass('hidden');
                 sphere.find('.performance-table').removeClass('hidden');
+                sphere.find('.closeDeal-statuses').removeClass('hidden');
 
                 sphere.find('.sphere_no_data').addClass('hidden');
             }
@@ -485,14 +515,8 @@
             sphere.find('.status_no_status .countPeriod').text( statistic['statistic']['statuses']['noStatus']['countPeriod'] );
             sphere.find('.status_no_status .periodPercent').text( statistic['statistic']['statuses']['noStatus']['percentAll']+'%' );
 
-            // обновление данных по открытым лидам с закрытыми сделками
-            sphere.find('.status_close_deal .countAll').text( statistic['statistic']['statuses']['closeDeal']['countAll'] );
-            sphere.find('.status_close_deal .allPercent').text( statistic['statistic']['statuses']['closeDeal']['percentAll']+'%' );
-            sphere.find('.status_close_deal .countPeriod').text( statistic['statistic']['statuses']['closeDeal']['countPeriod'] );
-            sphere.find('.status_close_deal .periodPercent').text( statistic['statistic']['statuses']['closeDeal']['percentAll']+'%' );
-
             // массив с типами статусов, по которым составляются таблицы
-            var statusesType = [ 'process-statuses', 'undefined-statuses', 'fail-statuses', 'bad-statuses' ];
+            var statusesType = [ 'process-statuses', 'undefined-statuses', 'fail-statuses', 'bad-statuses', 'closeDeal-statuses' ];
 
             // перебираем все типы статусов
             $.each( statusesType, function( key, type){

@@ -87,6 +87,7 @@ class Statistics
                     '2' => false,
                     '3' => false,
                     '4' => false,
+                    '5' => false,
                 ],
 
                 'noStatus' => false,
@@ -212,7 +213,7 @@ class Statistics
 
 
     /**
-     * Создание билдеров по открытым лидам
+     * Получение id открытых лидов
      *
      *
      * @param array $set
@@ -960,6 +961,7 @@ class Statistics
                         '2' => $this->openLeads['statuses']['type']['2'] ? $this->openLeads['statuses']['type']['2'] : [],
                         '3' => $this->openLeads['statuses']['type']['3'] ? $this->openLeads['statuses']['type']['3'] : [],
                         '4' => $this->openLeads['statuses']['type']['4'] ? $this->openLeads['statuses']['type']['4'] : [],
+                        '5' => $this->openLeads['statuses']['type']['5'] ? $this->openLeads['statuses']['type']['5'] : [],
                     ],
 
                 'noStatus' => $this->openLeads['statuses']['noStatus'] ? $this->openLeads['statuses']['noStatus'] : [],
@@ -1122,6 +1124,7 @@ class Statistics
                                 '2' => $this->openLeads['statuses']['type']['2'] ? $this->openLeads['statuses']['type']['2'] : [],
                                 '3' => $this->openLeads['statuses']['type']['3'] ? $this->openLeads['statuses']['type']['3'] : [],
                                 '4' => $this->openLeads['statuses']['type']['4'] ? $this->openLeads['statuses']['type']['4'] : [],
+                                '5' => $this->openLeads['statuses']['type']['5'] ? $this->openLeads['statuses']['type']['5'] : [],
                             ],
 
                         'noStatus' => $this->openLeads['statuses']['noStatus'] ? $this->openLeads['statuses']['noStatus'] : [],
@@ -1271,6 +1274,7 @@ class Statistics
                                 '2' => $this->openLeads['statuses']['type']['2'] ? $this->openLeads['statuses']['type']['2'] : [],
                                 '3' => $this->openLeads['statuses']['type']['3'] ? $this->openLeads['statuses']['type']['3'] : [],
                                 '4' => $this->openLeads['statuses']['type']['4'] ? $this->openLeads['statuses']['type']['4'] : [],
+                                '5' => $this->openLeads['statuses']['type']['5'] ? $this->openLeads['statuses']['type']['5'] : [],
                             ],
 
                         'noStatus' => $this->openLeads['statuses']['noStatus'] ? $this->openLeads['statuses']['noStatus'] : [],

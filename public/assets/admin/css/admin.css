@@ -1296,6 +1296,11 @@ textarea.tab_notes{
     background: #CD0000;
 }
 
+.statistics_closeDeal_statuses th{
+    color: #ffffff !important;
+    background: #1C6C6D;
+}
+
 .statistics_transitions_statuses th{
     color: #ffffff !important;
     background: #478295;

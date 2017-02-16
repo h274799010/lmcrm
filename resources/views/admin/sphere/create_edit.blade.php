@@ -1177,11 +1177,63 @@
                                         </div>
                                     </div>
 
+                                    {{-- Статусы закрытия сделок --}}
+                                    <div class="panel panel-defoult">
+                                        <div class="panel-heading closeDeal-statuses-heading">Close Deal</div>
+                                        <div class="panel-body">
+                                            {{-- Статусы --}}
+
+                                            <div class="row">
+
+                                                <div sv-root sv-part="data.threshold.values[5]" sv-on-sort="positioning($partFrom)" class="col-xs-12">
+
+                                                    {{-- шаблон итема статуса --}}
+                                                    <div ng-repeat="status in data.threshold.values[5]" sv-element class="row duplicate duplicated status_row" ng-class="status.delete ? 'hidden' : ''">
+
+                                                        {{-- название статуса --}}
+                                                        <div class="col-xs-5">
+                                                            <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
+                                                        </div>
+
+                                                        {{-- смена позиции статуса --}}
+                                                        <div sv-handle class="col-xs-1">
+                                                            <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
+                                                                <i class="glyphicon glyphicon-move"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- кнопка удаления статуса --}}
+                                                        <div class="col-xs-1">
+                                                            <button class="btn btn-danger btn-duplicate-remove pull-right flip" ng-click="deleteStatus(status)" type="button">
+                                                                <i class="glyphicon glyphicon-remove-circle"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- поле комментария к статусу --}}
+                                                        <div class="col-xs-12">
+                                                            <textarea ng-model="status.comment" class="form-control extend" placeholder="Comment">
+                                                            </textarea>
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- кнопка добавления нового статуса --}}
+                                                    <div class="col-xs-12">
+                                                        <button class="btn btn-primary btn-duplicate-add btn-raised pull-right flip" ng-click="addStatus(5)" type="button">
+                                                            <i class="entypo-plus"></i>
+                                                        </button>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {{-- Со скольки лидов вести статистику --}}
                                     <div class="row">
                                         <div class="col-xs-6">
                                             <div class="form-group _label-floating">
-                                                <label class="control-label" for="recLead">Minimum lead to close 1 deal</label>
+                                                <label class="control-label" for="recLead">minimum open leads to statistic</label>
                                                 <div class="input-group">
                                                     <input ng-model="data.threshold.settings.stat.minLead" class="form-control" type="text" value="44">
                                                     <span class="input-group-btn">
@@ -1249,7 +1301,8 @@
                                         <option ng-if="statusSeparator(4)" disabled>----------</option>
                                         <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                         <option ng-if="statusSeparator(4)" disabled>----------</option>
-                                        <option value="-2">Close Deal</option>
+                                        <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[5]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
+                                        {{--<option value="-2">Close Deal</option>--}}
                                     </select>
                                 </td>
                                 <td class="transition_direction" ng-click="changeTransitionDirection( transition )">
@@ -1912,6 +1965,12 @@
         .bad-statuses-heading{
             background: #EED4D4 !important;
             color: #A94442 !important;
+        }
+
+        /* шапка статусов закрытия сделок */
+        .closeDeal-statuses-heading{
+            background: #80CBC4 !important;
+            color: #00695C !important;
         }
 
         div.row div.col-xs-12.status_separator hr{

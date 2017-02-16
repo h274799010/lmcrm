@@ -31,12 +31,17 @@
                 @endforeach
             @else
                 @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                    @if($status->type != 4)
+                    @if($status->type != 4 && $status->type != 5 )
+                        <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
+                    @endif
+                @endforeach
+                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
+                    @if($status->type == 5 )
                         <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
                     @endif
                 @endforeach
             @endif
-            <option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>
+            {{--<option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>--}}
         </select>
     @endif
 @else
