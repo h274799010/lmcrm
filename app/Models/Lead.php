@@ -509,12 +509,10 @@ class Lead extends EloquentUser {
      *
      * Метод делает лид открытым для агента
      *
-     *
-     * @param  Agent  $agent
-     * @param  integer  $mask_id
-     * @param  integer|boolean  $operator
-     *
-     * @return OpenLeads
+     * @param $agent
+     * @param $mask_id
+     * @param bool $operator
+     * @return array|string|\Symfony\Component\Translation\TranslatorInterface
      */
     public function open( $agent, $mask_id, $operator=false )
     {
@@ -522,25 +520,33 @@ class Lead extends EloquentUser {
         // лид
         $lead = $this;
 
-        if($agent->banned_at != NULL && $agent->banned_at != '0000-00-00 00:00:00') {
-            return trans('lead/lead.open.error.banned');
+        if(($agent->banned_at != NULL && $agent->banned_at != '0000-00-00 00:00:00') && !$agent->hasAccess('opening_leads')) {
+            return array(
+                'error' => trans('lead/lead.open.error.banned')
+            );
         }
 
         // если сфера лида удалена
         if( !$lead->sphere ){
-            return trans('lead/lead.lead.sphere_deleted');
+            return array(
+                'error' => trans('lead/lead.lead.sphere_deleted')
+            );
         }
 
 
         // если сфера лида отключена
         if( $lead->sphere->status == 0 ){
-            return trans('lead/lead.lead.sphere_off');
+            return array(
+                'error' => trans('lead/lead.lead.sphere_off')
+            );
         }
 
 
         // если лид уже снят с аукциона, сообщаем об этом и выходим
         if( $lead->status != 3 && $lead->status != 7 && $operator ){
-            return trans('lead/lead.Lead.not_at_auction');
+            return array(
+                'error' => trans('lead/lead.Lead.not_at_auction')
+            );
         }
 
 
@@ -550,7 +556,9 @@ class Lead extends EloquentUser {
 
         // выход если платеж не произведен
         if (!$payment['status']) {
-            return trans('lead/lead.openlead.low_balance');
+            return array(
+                'error' => trans('lead/lead.openlead.low_balance')
+            );
         }
 
         // заносим лид в таблицу открытых лидов
@@ -580,12 +588,16 @@ class Lead extends EloquentUser {
             }
 
             // сообщаем что лид открыт нормально
-            return trans('lead/lead.openlead.successfully_opened');
+            return array(
+                'message' => trans('lead/lead.openlead.successfully_opened')
+            );
 
         }else{
 
             // сообщаем что лид уже открыт (нельзя открыть больше одного раза)
-            return trans('lead/lead.openlead.already_open');
+            return array(
+                'error' => trans('lead/lead.openlead.already_open')
+            );
         }
     }
 
@@ -612,11 +624,9 @@ class Lead extends EloquentUser {
     /**
      * Открыть лид максимальное количество раз
      *
-     *
-     * @param  Agent  $agent
-     * @param  integer  $mask_id
-     *
-     * @return OpenLeads
+     * @param $agent
+     * @param $mask_id
+     * @return array|string|\Symfony\Component\Translation\TranslatorInterface
      */
     public function openAll( $agent, $mask_id )
     {
@@ -624,26 +634,34 @@ class Lead extends EloquentUser {
         // лид
         $lead = $this;
 
-        if($agent->banned_at != NULL && $agent->banned_at != '0000-00-00 00:00:00') {
-            return trans('lead/lead.open.error.banned');
+        if($agent->banned_at != NULL && $agent->banned_at != '0000-00-00 00:00:00' && !$agent->hasAccess('opening_leads')) {
+            return array(
+                'error' => trans('lead/lead.open.error.banned')
+            );
         }
 
 
         // если сфера лида удалена
         if( !$lead->sphere ){
-            return trans('lead/lead.lead.sphere_deleted');
+            return array(
+                'error' => trans('lead/lead.lead.sphere_deleted')
+            );
         }
 
 
         // если сфера лида отключена
         if( $lead->sphere->status == 0 ){
-            return trans('lead/lead.lead.sphere_off');
+            return array(
+                'error' => trans('lead/lead.lead.sphere_off')
+            );
         }
 
 
         // если лид уже снят с аукциона, сообщаем об этом и выходим
         if( $lead->status != 3 ){
-            return trans('lead/lead.Lead.not_at_auction');
+            return array(
+                'error' => trans('lead/lead.Lead.not_at_auction')
+            );
         }
 
         // Ищем этот лид у других агентов
@@ -655,7 +673,9 @@ class Lead extends EloquentUser {
 
         // если другие агенты уже открывали этот лид - сообщаем об этом и выходим
         if( $openLead ){
-            return trans('lead/lead.openAllLead.already_open_other_agents');
+            return array(
+                'error' => trans('lead/lead.openAllLead.already_open_other_agents')
+            );
         }
 
         // проверяем, открывал ли агент этот лид
@@ -689,13 +709,17 @@ class Lead extends EloquentUser {
             );
 
             // сообщаем что лид открыт нормально
-            return trans('lead/lead.openlead.AllLead_successfully_opened');
+            return array(
+                'message' => trans('lead/lead.openlead.AllLead_successfully_opened')
+            );
 
         }else{
             // если платеж не прошел
 
             // возвращаем причину по которой платеж не прошел
-            return $payment['description'];
+            return array(
+                'error' => $payment['description']
+            );
         }
 
     }
