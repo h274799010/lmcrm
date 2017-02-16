@@ -6,11 +6,20 @@
 
 {{-- Content --}}
 @section('main')
-    {{--<div class="page-header">--}}
-        {{--<h3>--}}
-            {{--@lang('statistic.page_title') {{ $sphere->name }}--}}
-        {{--</h3>--}}
-    {{--</div>--}}
+    <div class="page-header">
+        <h3>
+            @lang('statistic.page_title') {{ $statistic['user']['email'] }}
+        </h3>
+    </div>
+
+    {{-- Проверка есть ли у пользователя сферы --}}
+    @if($spheres->count() == 0)
+        {{-- Если сфер нету --}}
+
+        {{--todo дооформить, поставить по средине, цвет сделать серый--}}
+        No spheres
+    @else
+        {{-- Если сферы есть --}}
 
         {{-- строка с селектами --}}
         <div class="row">
@@ -23,14 +32,28 @@
                            class="mdl-textfield__input dataTables_filter statistics_input" value="" id="reportrange"/>
                 </div>
             </div>
+
+            {{-- селект с названием сферы --}}
+            <div class="col-md-2 col-md-offset-7">
+                <div class="form-group">
+                    <label class="control-label _col-sm-2">Sphere</label><br>
+                    <select name="sphere name" id="sphere_select" class="sphere_select">
+
+                        @foreach( $spheres as $sphere)
+                            <option value="{{ $sphere['id'] }}">{{ $sphere['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
         </div>
 
         <div id="statisticWrapper">
 
             <div class="row sphere_status_block">
 
-                <h4 class="statistic-sphere-name"> <span class="sphere-name">{{ $statistic['sphere']['name'] }}</span> </h4>
-
+                <h4 class="statistic-sphere-name"> <span class="sphere-name">{{ $statistic['sphere']['name'] }}</span>
+                </h4>
 
                 <div class="row">
                     <div class="col-md-3">
@@ -44,21 +67,12 @@
                             </thead>
                             <tbody>
                             <tr>
-                                <td>Leads added</td>
-                                <td class="summary_table_added_all center">
-                                    {{ $statistic['sphere']['leads']['all'] }}
-                                </td>
-                                <td class="summary_table_added_period center">
-                                    {{ $statistic['sphere']['leads']['period'] }}
-                                </td>
-                            </tr>
-                            <tr>
                                 <td>Leads seen</td>
                                 <td class="summary_table_seen_all center">
                                     {{ $statistic['auction']['all'] }}
                                 </td>
                                 <td class="summary_table_seen_period center">
-                                    {{ $statistic['auction']['all'] }}
+                                    {{ $statistic['auction']['period'] }}
                                 </td>
                             </tr>
                             <tr>
@@ -67,10 +81,11 @@
                                     {{ $statistic['openLeads']['all'] }}
                                 </td>
                                 <td class="summary_table_open_period center">
-                                    {{ $statistic['openLeads']['all'] }}
+                                    {{ $statistic['openLeads']['period'] }}
                                 </td>
                             </tr>
                             </tbody>
+
                         </table>
                     </div>
                     <div class="col-md-2">
@@ -78,14 +93,15 @@
                             <thead>
                             <tr>
                                 <th></th>
-                                <th class="summary_table_addition">amount</th>
+                                <th class="summary_table_addition">agents</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
-                                <td>Agents</td>
-                                <td class="center sphere_agents_count">{{ $statistic['sphere']['users']['all'] }}</td>
+                                <td>Active</td>
+                                <td class="center agents_count">{{ $statistic['user']['agentsCount'] }}</td>
                             </tr>
+
                             </tbody>
                         </table>
 
@@ -100,12 +116,17 @@
                             </thead>
                             <tbody>
                             <tr>
-                                <td>created</td>
+                                <td>registration</td>
                                 <td class="user_created_at center">
-                                    {{ $statistic['sphere']['created_at'] }}
+                                    {{ $statistic['user']['created_at'] }}
                                 </td>
                             </tr>
-
+                            <tr>
+                                <td>add to sphere</td>
+                                <td class="user_addToSphere center">
+                                    {{ $statistic['user']['addToSphere'] }}
+                                </td>
+                            </tr>
                             </tbody>
 
                         </table>
@@ -114,33 +135,8 @@
                 </div>
 
 
-                {{-- Таблица аккаунт менеджеров --}}
-                <div class="row acc_manager_block">
-                    <div class="col-md-8 col-md-offset-2">
-                        <table class="table table-striped account_managers_table">
-
-                            <thead>
-                            <tr>
-                                <th class="center middle">account manager</th>
-                                <th class="center middle">agents added</th>
-                                <th class="center middle">agents added during the period</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @forelse( $statistic['sphere']['accManagers'] as $accManager )
-                                <tr class="">
-                                    <td class="center middle"> {{ $accManager['email'] }} </td>
-                                    <td class="center middle">{{ $accManager['allAgents'] }}</td>
-                                    <td class="center middle">{{ $accManager['periodAgents'] }}</td>
-                                </tr>
-                            @empty
-                                <tr class="status_no_status">
-                                    <td colspan="3" class="center middle statistics_no_data"> No account managers </td>
-                                </tr>
-                            @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="col-md-12 table_status_block sphere_no_data center  hidden ">
+                    Not enough open leads for statistics. <span class="leads_needed"></span> open leads needed
                 </div>
 
                 {{-- Общие данные - no status и close Deal --}}
@@ -337,6 +333,7 @@
                         </tbody>
                     </table>
                 </div>
+
                 {{-- Статистика по транзитам --}}
                 <div class="table-statuses table-statuses-large table_status_block">
                     <table class="table performance-table">
@@ -380,6 +377,8 @@
 
         </div>
 
+    @endif
+
 @stop
 
 @section('styles')
@@ -419,101 +418,62 @@
          */
         function statisticUpdate( statistic ){
 
+            // обновление данных в селекте сферы
+            var sphereSelect = $('#sphere_select');
+
+            // сохраняем значения селекта в переменную
+            var selectVal = sphereSelect.val();
+
+            // очищаем данные по селекта по сфере
+            sphereSelect.empty();
+
+            // перебираем все сферы и заносим их в селект
+            $.each( statistic['spheres'], function( key, sphere ){
+
+                // создаем новую опцию селекта
+                var option = $('<option/>');
+
+                // записываем в опцию id
+                option.val( sphere.id );
+                // записываем в опцию имя
+                option.text( sphere.name );
+
+                // добавление в опции в селект
+                sphereSelect.append(option);
+            });
+
+            // восстанавливаем значение селекта
+            sphereSelect.val(selectVal);
+
             // выбираем блок со сферой
             var sphere = $('.sphere_status_block');
 
             // обновление имени сферы
-            sphere.find('.sphere-name').text( statistic['sphere']['name'] );
+            sphere.find('.sphere-name').text( statistic['statistic']['sphere']['name'] );
 
             // минимальное количество лидов которое нужно для вывода статистики
-            sphere.find('.leads_needed').text( statistic['sphere']['minOpen'] );
+            sphere.find('.leads_needed').text( statistic['statistic']['sphere']['minOpen'] );
 
+            // количество агентов акк. менеджера в сфере
+            sphere.find('.agents_count').text( statistic['statistic']['user']['agentsCount'] );
 
             // обновляем данные по количеству открытых лидов
-            sphere.find('.summary_table_open_all').text( statistic['openLeads']['all'] );
-            sphere.find('.summary_table_open_period').text( statistic['openLeads']['period'] );
+            sphere.find('.summary_table_open_all').text( statistic['statistic']['openLeads']['all'] );
+            sphere.find('.summary_table_open_period').text( statistic['statistic']['openLeads']['period'] );
 
             // данные по количеству увиденных лидов
-            sphere.find('.summary_table_seen_all').text( statistic['auction']['all'] );
-            sphere.find('.summary_table_seen_period').text( statistic['auction']['period'] );
+            sphere.find('.summary_table_seen_all').text( statistic['statistic']['auction']['all'] );
+            sphere.find('.summary_table_seen_period').text( statistic['statistic']['auction']['period'] );
 
-            // данные по количеству добавленных лидов
-            sphere.find('.summary_table_added_all').text( statistic['sphere']['leads']['all'] );
-            sphere.find('.summary_table_added_period').text( statistic['sphere']['leads']['period'] );
-
-            // обновление количества агентов по сфере
-            sphere.find('.sphere_agents_count').text( statistic['sphere']['users']['all'] );
+            // обновление даты регистрации и добавления агента в сферу
+            sphere.find('.user_created_at').text( statistic['statistic']['user']['created_at'] );
+            sphere.find('.user_addToSphere').text( statistic['statistic']['user']['addToSphere'] );
 
             // обновление данных по открытым лидам с отсутствующим статусом
-            sphere.find('.status_no_status .countAll').text( statistic['statuses']['noStatus']['countAll'] );
-            sphere.find('.status_no_status .allPercent').text( statistic['statuses']['noStatus']['percentAll']+'%' );
-            sphere.find('.status_no_status .countPeriod').text( statistic['statuses']['noStatus']['countPeriod'] );
-            sphere.find('.status_no_status .periodPercent').text( statistic['statuses']['noStatus']['percentPeriod']+'%' );
-
-
-            // выбираем таблицу аккаунт менеджеров
-            var accManagersTable = sphere.find('.account_managers_table tbody');
-
-            // очищаем таблицу
-            accManagersTable.empty();
-
-            // если нет транзитов
-            if( statistic['sphere']['accManagers'].length == 0){
-                // выводим что статусов нет
-
-                // создание строки таблицы
-                var accManagerTr = $('<tr />');
-
-                // создание ячейки таблицы
-                var noAccManagersRow = $('<td />');
-
-                // добавление классов
-                noAccManagersRow.addClass('center middle statistics_no_data');
-
-                // добавляем атрибут объединения ячеек
-                noAccManagersRow.attr('colspan', 3);
-
-                // добавление данных в ячейки
-                noAccManagersRow.text( 'No account managers' );
-
-                // добавление ячеек в строку
-                accManagerTr.append(noAccManagersRow);
-
-                // добавление строки в таблицу
-                accManagersTable.append( accManagerTr );
-            }
-
-            // перебираем все транзиты и наполняем таблицу
-            $.each( statistic['sphere']['accManagers'], function( index, accManager ){
-
-                // создание строки таблицы
-                var tr = $('<tr />');
-
-                // создание ячеек таблицы
-                var email = $('<td />');
-                var allAgents = $('<td />');
-                var periodAgents = $('<td />');
-
-                // добавление классов
-                email.addClass('center middle');
-                allAgents.addClass('center middle');
-                periodAgents.addClass('center middle');
-
-                // добавление данных в ячейки
-                email.text( accManager['email'] );
-                allAgents.html(accManager['allAgents'] );
-                periodAgents.text( accManager['periodAgents'] );
-
-                // добавление ячеек в строку
-                tr.append( email );
-                tr.append( allAgents );
-                tr.append( periodAgents );
-
-                // добавление строки в таблицу
-                accManagersTable.append( tr );
-            });
-
-
+            sphere.find('.status_no_status .countAll').text( statistic['statistic']['statuses']['noStatus']['countAll'] );
+            sphere.find('.status_no_status .allPercent').text( statistic['statistic']['statuses']['noStatus']['percentAll']+'%' );
+            sphere.find('.status_no_status .countPeriod').text( statistic['statistic']['statuses']['noStatus']['countPeriod'] );
+            sphere.find('.status_no_status .periodPercent').text( statistic['statistic']['statuses']['noStatus']['percentAll']+'%' );
 
             // массив с типами статусов, по которым составляются таблицы
             var statusesType = [ 'process-statuses', 'undefined-statuses', 'fail-statuses', 'bad-statuses', 'closeDeal-statuses' ];
@@ -531,7 +491,7 @@
                 table.empty();
 
                 // если нет статуса конкретного типа
-                if( statistic['statuses']['type'][typeIndex].length == 0){
+                if( statistic['statistic']['statuses']['type'][typeIndex].length == 0){
                     // выводим что статусов нет
 
                     // создание строки таблицы
@@ -557,7 +517,7 @@
                 }
 
                 // перебираем все статусы и наполняем таблицу
-                $.each( statistic['statuses']['type'][typeIndex], function( statusKey, statusData ){
+                $.each( statistic['statistic']['statuses']['type'][typeIndex], function( statusKey, statusData ){
 
                     // создание строки таблицы
                     var tr = $('<tr />');
@@ -602,7 +562,7 @@
             transitionTable.empty();
 
             // если нет транзитов
-            if( statistic['transitions'].length == 0){
+            if( statistic['statistic']['transitions'].length == 0){
                 // выводим что статусов нет
 
                 // создание строки таблицы
@@ -628,7 +588,7 @@
             }
 
             // перебираем все транзиты и наполняем таблицу
-            $.each( statistic['transitions'], function( transitionKey, transitionData ){
+            $.each( statistic['statistic']['transitions'], function( transitionKey, transitionData ){
 
                 // создание строки таблицы
                 var tr = $('<tr />');
@@ -657,7 +617,7 @@
                 fromStatus.text( transitionData['fromStatus'] );
                 arrow.html('<i class="glyphicon glyphicon-arrow-right"></i>');
                 toStatus.text( transitionData['toStatus'] );
-                allPercent.text( transitionData['percentAll'] );
+                allPercent.text( transitionData['percentAll'] + '%' );
                 allRating.text( transitionData['ratingAll'] );
                 emptyCol.text( '' );
                 periodPercent.text( transitionData['percentPeriod'] + '%' );
@@ -681,19 +641,32 @@
         // функция отправки данных на сервер для обновления периода и прочего
         function loadStatistic() {
 
+            // выбираем данные селекта сфер (id сферы)
+            var sphereSelect = $('#sphere_select').val();
+
             // заносим параметры
-            var params ={ _token: '{{ csrf_token() }}', timeFrom: dataStart, timeTo: dataEnd, sphere_id: '{{ $statistic['sphere']['id'] }}' } ;
+            var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $user->id }}', timeFrom: dataStart, timeTo: dataEnd, sphere_id: sphereSelect } ;
 
             // отправка запроса на сервер
             $.post(
-                '{{ route('admin.statistic.sphereData') }}',
-                params,
-                function (data)
-                {
+                    '{{ route('admin.statistic.accManagerData') }}',
+                    params,
+                    function (data)
+                    {
+                        // обработка данных полученных с фронтенда
+                        if(data == 'false'){
+                            // у агента нет сфер
 
-                    // обновляем статистику на странице
-                    statisticUpdate( data );
-                }
+                            // просто обновляем страницу
+                            document.location.reload();
+
+                        }else{
+                            // все данные в порядке
+
+                            // обновляем статистику на странице
+                            statisticUpdate( data );
+                        }
+                    }
             );
         }
 
@@ -710,6 +683,10 @@
                 loadStatistic();
             });
 
+            // отправка запроса на обновление данных при изменении сферы
+            $(document).on('change', '#sphere_select', function () {
+                loadStatistic();
+            });
 
             var start = moment().startOf('month');
             var end = moment().endOf('month');

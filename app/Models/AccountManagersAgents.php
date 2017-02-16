@@ -21,4 +21,11 @@ class AccountManagersAgents extends Model
     public function agents() {
         return $this->belongsToMany('\App\Models\User','account_managers_agents','account_manager_id','agent_id');
     }
+
+    /**
+     * Агенты аккаунт менеджера
+     */
+    public function agent(){
+        return $this->hasOne('\App\Models\Agent', 'id', 'agent_id');
+    }
 }

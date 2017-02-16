@@ -50,7 +50,7 @@
                                         <div class="form-group  {{ $errors->has('description') ? 'has-error' : '' }}">
                                             {{ Form::label('description', trans('admin/settings.description'), array('class' => 'control-label')) }}
                                             <div class="controls">
-                                                {{ Form::text('description', NULL, array('class' => 'form-control')) }}
+                                                {{ Form::textarea('description', NULL, array('class' => 'form-control')) }}
                                                 <span class="help-block">{{ $errors->first('description', ':message') }}</span>
                                             </div>
                                         </div>

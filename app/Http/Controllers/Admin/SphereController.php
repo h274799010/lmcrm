@@ -480,7 +480,7 @@ class SphereController extends AdminController {
                 2 => [],
                 3 => [],
                 4 => [],
-
+                5 => [],
             ],
 
             "settings"=>

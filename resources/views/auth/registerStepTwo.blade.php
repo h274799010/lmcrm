@@ -32,29 +32,57 @@
                         <span class="help-block">{{ $errors->first('spheres', ':message') }}</span>
                     </div>
                 </div>
+
+
                 <div class="form-group  {{ $errors->has('role') ? 'has-error' : '' }}">
                     {!! Form::label('role', trans('admin/users.role'), array('class' => 'control-label')) !!}
                     <div class="controls">
                         <div class="row">
                             @foreach($roles as $key => $role)
-                                <div class="col-md-6">
-                                    <div class="form-group roles-inputs">
-                                        <div class="controls">
-                                            {{ Form::radio('role', $role->slug, ($key == 0) ? true : false, array('class' => 'form-control','required'=>'required', 'id' => $role->slug)) }}
+
+                                    <div class="col-md-12 user-role">
+                                        <div class="form-group roles-inputs">
+                                            <div class="controls">
+                                                {{ Form::radio('role', $role->slug, ($key == 0) ? true : false, array('class' => 'form-control','required'=>'required', 'id' => $role->slug)) }}
+                                            </div>
+                                            {{ Form::label($role->slug, $role->name, array('class' => 'control-label')) }}
+
+                                            <div class="role_alert alert @if($key == 0) alert-success @else alert-warning @endif role_description {{ $role->slug }}" role="alert">
+                                                {!! $role->description !!}
+                                            </div>
                                         </div>
-                                        {{ Form::label($role->slug, $role->name, array('class' => 'control-label')) }}
                                     </div>
-                                </div>
+
+                                    {{--<div class="col-md-12">--}}
+                                        {{--{{ $role->description }}--}}
+                                    {{--</div>--}}
+
+
+                                {{--<div class="col-md-6">--}}
+                                    {{--<div class="form-group roles-inputs">--}}
+                                        {{--<div class="controls">--}}
+                                            {{--{{ Form::radio('role', $role->slug, ($key == 0) ? true : false, array('class' => 'form-control','required'=>'required', 'id' => $role->slug)) }}--}}
+                                        {{--</div>--}}
+                                        {{--{{ Form::label($role->slug, $role->name, array('class' => 'control-label')) }}--}}
+                                    {{--</div>--}}
+                                    {{--{{ $role->description }}--}}
+                                {{--</div>--}}
                             @endforeach
-                            <div class="col-md-12">
-                                @foreach($roles as $key => $role)
-                                    <div class="alert alert-info role-info" id="desc_{{ $role->slug }}" @if($key > 0) style="display: none;" @endif>{{ $role->description }}</div>
-                                @endforeach
-                            </div>
+                            {{--<div class="col-md-12">--}}
+                                {{--@foreach($roles as $key => $role)--}}
+                                    {{--<div class="alert alert-info role-info" id="desc_{{ $role->slug }}" @if($key > 0) style="display: none;" @endif>{{ $role->description }}</div>--}}
+                                {{--@endforeach--}}
+                            {{--</div>--}}
                         </div>
                         <span class="help-block">{{ $errors->first('role', ':message') }}</span>
                     </div>
                 </div>
+
+
+
+
+
+
 
                 <div class="form-group  {{ $errors->has('first_name') ? 'has-error' : '' }}">
                     {!! Form::label('first_name', trans('admin/users.first_name'), array('class' => 'control-label')) !!}
@@ -114,6 +142,21 @@
         .roles-inputs input:hover {
             cursor: pointer;
         }
+
+        .user-role{
+            margin-bottom: 0;
+        }
+
+        .alert div{
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        .alert ol{
+            list-style-type: upper-roman;
+
+        }
+
     </style>
 @endsection
 
@@ -124,6 +167,27 @@
     $(document).ready(function () {
         $(document).on('change', '.roles-inputs input[type=radio]', function () {
             $('.role-info').hide();
+
+//            alert( $(this).attr('id') );
+
+//            alert( $(this).attr('id') );
+
+            var slug = $(this).attr('id' );
+
+            $.each( $('.role_alert'), function( key, alert ){
+//                console.log( $(alert).hasClass( slug ) );
+
+                if( $(alert).hasClass( slug ) ){
+                    $(alert).removeClass('alert-warning');
+                    $(alert).addClass('alert-success');
+                }else{
+                    $(alert).removeClass('alert-success');
+                    $(alert).addClass('alert-warning');
+                }
+
+            });
+
+
 
             $('#desc_'+$(this).attr('id')).show();
         });
