@@ -54,6 +54,7 @@
 
                 <td>
                     <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
+                    <a href="{{ route('operator.lead.duplicate', ['lead_id' => $lead->id]) }}" class="btn btn-sm duplicateLead"><i class="fa fa-files-o" aria-hidden="true"></i></a>
                 </td>
             </tr>
         @empty
@@ -138,6 +139,10 @@
         .user_data_description{
             color: #ABABAB;
             font-weight: 700;
+        }
+        .duplicateLead {
+            color: #000000;
+            font-size: 20px;
         }
 
     </style>

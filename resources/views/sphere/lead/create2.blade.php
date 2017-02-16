@@ -26,19 +26,19 @@
                             </div>
                             <h4 class="page_header">@lang('lead/lead.name')</h4>
                             <div class="form-group">
-                                {{ Form::text('name',null, array('class' => 'form-control','data-rule-minLength'=>'2')) }}
+                                {{ Form::text('name',isset($lead) ? $lead->name : null, array('class' => 'form-control','data-rule-minLength'=>'2')) }}
                             </div>
                             <h4 class="page_header">@lang('lead/lead.phone')</h4>
                             <div class="form-group">
-                                {{ Form::text('phone',null, array('class' => 'form-control', 'data-rule-phone'=>true)) }}
+                                {{ Form::text('phone',isset($lead) && isset($lead->phone) ? $lead->phone->phone : null, array('class' => 'form-control', 'data-rule-phone'=>true)) }}
                             </div>
                             <h4 class="page_header">@lang('lead/lead.email')</h4>
                             <div class="form-group">
-                                {{ Form::text('email',null, array('class' => 'form-control', 'data-rule-email'=>true)) }}
+                                {{ Form::text('email',isset($lead) ? $lead->email : null, array('class' => 'form-control', 'data-rule-email'=>true)) }}
                             </div>
                             <h4 class="page_header">@lang('lead/lead.comments')</h4>
                             <div class="form-group">
-                                {{ Form::textarea('comment',null, array('class' => 'form-control')) }}
+                                {{ Form::textarea('comment',isset($lead) ? $lead->comment : null, array('class' => 'form-control')) }}
                             </div>
                             <hr/>
                             <div id="leadAttrForm"></div>
