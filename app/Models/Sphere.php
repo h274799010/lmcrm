@@ -88,7 +88,7 @@ class Sphere extends Model
 
     public function statuses() {
         return $this->hasMany('App\Models\SphereStatuses','sphere_id','id')
-            ->orderByRaw("case type when '4' then 1 when '1' then 2 when '2' then 3 when '3' then 4 end")->orderBy('position');
+            ->orderByRaw("case type when '4' then 1 when '1' then 2 when '2' then 3 when '3' then 4 when '5' then 5 end")->orderBy('position');
     }
 
     public function agents(){
