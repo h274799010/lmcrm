@@ -92,11 +92,13 @@ class Sphere extends Model
     }
 
     public function agents(){
-        return $this->hasManyThrough('\App\Models\Agent','\App\Models\AgentSphere','sphere_id','agent_id');
+        return $this->hasManyThrough('\App\Models\Agent','\App\Models\AgentSphere','sphere_id','agent_id')
+            ->where('agent_sphere.deleted_at', '=', NULL);
     }
 
     public function agentsAll(){
-        return $this->belongsToMany('\App\Models\Agent','agent_sphere','sphere_id','agent_id');
+        return $this->belongsToMany('\App\Models\Agent','agent_sphere','sphere_id','agent_id')
+            ->where('agent_sphere.deleted_at', '=', NULL);
     }
 
     public function accountManagers(){
