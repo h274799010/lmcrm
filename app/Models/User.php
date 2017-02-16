@@ -39,6 +39,12 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
      */
     protected $dates = ['deleted_at'];
 
+    public static $bannedPermissions = array(
+        'create_leads' => true,
+        'opening_leads' => true,
+        'working_leads' => true
+    );
+
     /**
      * Исключенные пользователи из выборки лидов в Obtained leads
      * (например продавци агента)

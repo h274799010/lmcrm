@@ -41,6 +41,10 @@ return [
     'opened.modal.button.Cancel' => 'Cancel',
     'opened.modal.button.OK' => 'Change status',
 
+    'opened.modal.error.head' => 'Error',
+    'user_banned' => 'Your account banned!',
+    'opened.modal.error.button.OK' => 'Ok',
+
     // add comment
     'opened.modal.comment.add.title' => 'Add comment',
     'opened.modal.comment.edit.title' => 'Edit comment',

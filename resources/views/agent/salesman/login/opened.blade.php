@@ -166,6 +166,30 @@
         </div>
     </div>
 </div>
+        <div id="errorModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">
+                            {{ trans("site/lead.opened.modal.error.head") }}
+                        </h4>
+                    </div>
+
+                    <div class="modal-body"></div>
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-default modal-close" data-dismiss="modal">
+                            {{ trans("site/lead.opened.modal.error.button.OK") }}
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
 @endsection
 
 @section('styles')
@@ -441,9 +465,18 @@
             return html;
         }
 
+        function setLocation(curLoc){
+            try {
+                history.pushState(null, null, curLoc);
+                return;
+            } catch(e) {}
+            /*location.hash = '#' + curLoc;*/
+        }
+
         $(window).on('load', function () {
             var $table = $('#openLeadsTable');
             var $container = $('#openedLeadsFilters');
+            var flag = true;
 
             var dTable = $table.DataTable({
                 "destroy": true,
@@ -476,6 +509,13 @@
                         $(document).find('#openLeadsTable select').selectBoxIt();
                         // делаем опции, которые находятся до активной опции - недоступными
                         disabledSelectOption();
+                        @if(isset($lead_id))
+                        if(flag == true) {
+                            flag = false;
+                            $('tr[lead_id={{ $lead_id }}] td:eq(0)').trigger('click');
+                            setLocation('{{ route('agent.salesman.openedLeads', ['salesman_id'=>$salesman_id]) }}');
+                        }
+                        @endif
                     }
                 },
 
@@ -1012,7 +1052,21 @@
 
                                 if(data == 'setClosingDealStatus') {
                                     self.closest('td').html('{{ trans('site/lead.deal_closed') }}');
-                                }else{
+                                }
+                                else if(data == 'userBanned') {
+                                    var emptyOption = self.find('option.emptyOption');
+                                    // если путое поле найдено
+                                    if(emptyOption.length > 0) {
+                                        // удаляем его
+                                        emptyOption.prop('selected', true);
+
+                                        // обновляем select
+                                        selectBox.refresh();
+                                    }
+                                    $('#errorModal').find('.modal-body').html('{{ trans('site/lead.user_banned') }}');
+                                    $('#errorModal').modal('show');
+                                }
+                                else{
 
                                     // todo вывести какое то сообщение об ошибке на сервере
                                     alert( 'ошибки на сервере' );
@@ -1093,7 +1147,21 @@
                                 }
                             } else if(data == 'setClosingDealStatus') {
                                 self.closest('td').html('{{ trans('site/lead.deal_closed') }}');
-                            }else{
+                            }
+                            else if(data == 'userBanned') {
+                                var emptyOption = self.find('option.emptyOption');
+                                // если путое поле найдено
+                                if(emptyOption.length > 0) {
+                                    // удаляем его
+                                    emptyOption.prop('selected', true);
+
+                                    // обновляем select
+                                    selectBox.refresh();
+                                }
+                                $('#errorModal').find('.modal-body').html('{{ trans('site/lead.user_banned') }}');
+                                $('#errorModal').modal('show');
+                            }
+                            else{
 
                                 // todo вывести какое то сообщение об ошибке на сервере
                                 alert( 'ошибки на сервере' );
@@ -1147,6 +1215,12 @@
 
             });
 
+        });
+
+        $(document).on('clisk', '.modal-close', function (e) {
+            e.preventDefault();
+
+            $(this).closest('.modal').modal('hide');
         });
 
         var uploaderImages = new plupload.Uploader({

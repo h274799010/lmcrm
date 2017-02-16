@@ -42,7 +42,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         // страница с отфильтрованными лидами
         Route::get('lead/obtain', ['as' => 'agent.lead.obtain', 'uses' => 'Agent\LeadController@obtain']);
         // страница с открытыми лидами
-        Route::get('openedLeads', ['as'=>'agent.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
+        Route::get('openedLeads/{lead_id?}', ['as'=>'agent.lead.opened', 'uses'=>'Agent\LeadController@openedLeads']);
         Route::get('openedLeadsData', ['as'=>'agent.lead.openedData', 'uses'=>'Agent\LeadController@openedLeadsData']);
         // открытие лида
         Route::get('lead/open/{lead_id}/{mask_id}', ['as' => 'agent.lead.open', 'middleware' => ['redirectIfNotActive'], 'uses' => 'Agent\LeadController@openLead']);
@@ -158,7 +158,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
             Route::get('salesman/obtainedLead/{salesman_id}', ['as' => 'agent.salesman.obtainedLead', 'uses' => 'Agent\AgentSalesmanLeadController@obtain']);
             Route::get('salesman/obtain/data/{salesman_id}', ['as' => 'agent.salesman.obtain.data', 'uses' => 'Agent\AgentSalesmanLeadController@obtainData']);
 
-            Route::get('salesman/openedLeads/{salesman_id}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\AgentSalesmanLeadController@openedLeads']);
+            Route::get('salesman/openedLeads/{salesman_id}/{lead_id?}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\AgentSalesmanLeadController@openedLeads']);
             Route::get('salesman/openedLeadsData/{salesman_id}', ['as'=>'agent.salesman.openedData', 'uses'=>'Agent\AgentSalesmanLeadController@openedLeadsData']);
             Route::post('salesman/openedLeadAjax', ['as' => 'agent.salesman.openedLeadAjax', 'uses' => 'Agent\LeadController@openedLeadsAjax']);
         });

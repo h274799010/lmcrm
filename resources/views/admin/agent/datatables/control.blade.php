@@ -3,5 +3,5 @@
 @if($user->banned_at)
     <a href="{{ route('admin.agent.unblock',[$user->id]) }}" class="btn btn-sm btn-success" title="{{ trans("admin/modal.unblock") }}"><span class="glyphicon glyphicon-off"></span> </a>
 @else
-    <a href="{{ route('admin.agent.block',[$user->id]) }}" class="btn btn-sm btn-danger confirmBan" title="{{ trans("admin/modal.block") }}"><span class="glyphicon glyphicon-off"></span> </a>
+    <a href="#{{--{{ route('admin.agent.block',[$user->id]) }}--}}" class="btn btn-sm btn-danger{{-- confirmBan--}} btnBanUser" data-user="{{ $user->id }}" title="{{ trans("admin/modal.block") }}"><span class="glyphicon glyphicon-off"></span> </a>
 @endif

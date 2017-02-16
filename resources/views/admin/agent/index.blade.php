@@ -67,7 +67,64 @@
         </thead>
         <tbody></tbody>
     </table>
+
+    {{-- Модальное окно для выбора типа бана пользователя --}}
+    <div class="modal fade" id="modalBanUser" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <form id="banForm" method="post">
+                    <input type="hidden" name="user_id" value="">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">
+                            Block:
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group banned-form-group col-xs-12">
+                            @foreach($permissions as $permission => $status)
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="permissions[]" value="{{ $permission }}">
+                                        <span class="checkbox-material">
+                                            <span class="check"></span>
+                                        </span>
+                                        {{ trans('admin/users.permissions.'.$permission) }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default modal-cancel">
+                            Cancel
+                        </button>
+                        <button class="btn btn-danger" type="submit">
+                            Ban
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
 @stop
+
+@section('styles')
+    <style type="text/css">
+        .form-group.banned-form-group {
+            margin: 0;
+        }
+        .form-group.banned-form-group .checkbox {
+            margin: 0 0 10px;
+        }
+        .form-group.banned-form-group .checkbox:last-child {
+            margin: 0;
+        }
+    </style>
+@endsection
 
 {{-- Scripts --}}
 @section('scripts')
@@ -115,6 +172,33 @@
                         tmpObj.html(options);
                     });
                 })
+            });
+
+            $(document).on('click', '.modal-cancel', function (e) {
+                e.preventDefault();
+
+                $(this).closest('.modal').modal('hide');
+            });
+
+            $(document).on('click', '.btnBanUser', function (e) {
+                e.preventDefault();
+
+                $('#banForm').find('input[name=user_id]').val( $(this).data('user') );
+                $('#modalBanUser').modal('show');
+            });
+
+            $(document).on('submit', '#banForm', function (e) {
+                e.preventDefault();
+
+                var params = $(this).serialize();
+
+                $.post('{{ route('admin.agent.block') }}', params, function (data) {
+                    if(Object.keys(data.errors).length > 0) {
+                        console.log(data.errors);
+                    } else if(data.status == 'success') {
+                        window.location.reload();
+                    }
+                });
             });
         });
     </script>

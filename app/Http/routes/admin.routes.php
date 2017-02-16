@@ -50,8 +50,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('agent/data', 'Admin\AgentController@data');
     Route::get('agent/create',['as'=>'admin.agent.create', 'uses' => 'Admin\AgentController@create']);
     Route::post('agent/store',['as'=>'admin.agent.store', 'uses' => 'Admin\AgentController@store']);
-    Route::get('agent/{id}/block', ['as'=>'admin.agent.block', 'uses' => 'Admin\AgentController@ban']);
+    //Route::get('agent/{id}/block', ['as'=>'admin.agent.block', 'uses' => 'Admin\AgentController@ban']);
     Route::get('agent/{id}/unblock', ['as'=>'admin.agent.unblock', 'uses' => 'Admin\AgentController@unban']);
+
+    // баны пользователю
+    Route::post('agent/block',['as'=>'admin.agent.block', 'uses' => 'Admin\AgentController@ban']);
+
     Route::get('newAgents', ['as'=>'admin.agent.newAgents', 'uses' => 'Admin\AgentController@newAgents']);
     Route::get('agent/activated/{id}', ['as'=>'admin.agent.activatedPage', 'uses' => 'Admin\AgentController@agentActivatedPage']);
     Route::match(['put','post'],'agent/{id}/activate', ['as'=>'admin.agent.activate', 'uses' => 'Admin\AgentController@agentActivate']);

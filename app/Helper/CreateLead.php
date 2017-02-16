@@ -56,7 +56,7 @@ class CreateLead
             $agent = OperatorSphere::find($user_id);
             $user = $agent;
         }
-        if($user->banned_at) {
+        if($user->banned_at && !$user->hasAccess('create_leads')) {
             if($request->ajax()){
                 return response()->json([
                     'status' => 'LeadCreateError',
@@ -200,12 +200,6 @@ class CreateLead
     {
         $agent = OperatorSphere::find($user_id);
         $user = $agent;
-
-        if($user->banned_at) {
-            return array(
-                'error' => trans('lead/form.user_banned')
-            );
-        }
 
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $phone)] );
 
