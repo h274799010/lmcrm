@@ -13,5 +13,5 @@ class ClosedDeals extends Model
      *
      * @var boolean
      */
-    public $timestamps = false;
+    public $timestamps = true;
 }

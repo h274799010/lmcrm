@@ -154,13 +154,17 @@
 
                 {{--{{ trans("site/lead.opened.modal.body") }}--}}
 
-                {{ Form::open(array('route' => ['agent.lead.setOpenLeadStatus'], 'method' => 'post', 'class'=>'ajax-form validate pick-check-form', 'files'=> true)) }}
-                <input type="hidden" name="open_lead_id" value="">
+                {{ Form::open(array('route' => ['agent.lead.setOpenLeadStatus'], 'method' => 'post', 'class'=>'ajax-form validate pick-check-form', 'id' => 'closeDealForm', 'files'=> true)) }}
+                <input type="hidden" name="openedLeadId" value="">
                 <input type="hidden" name="status" value="">
-                <input type="hidden" name="lead_id" value="">
                 <div class="form-group  {{ $errors->has('price') ? 'has-error' : '' }}">
                     <div class="controls">
-                        {{ Form::text('price', null, array('class' => 'form-control','placeholder'=>'price','required'=>'required','data-rule-minLength'=>'2')) }}
+                        {{ Form::number('price', null, array('class' => 'form-control','placeholder'=>'price','required'=>'required','data-rule-minLength'=>'2')) }}
+                    </div>
+                </div>
+                <div class="form-group  {{ $errors->has('comments') ? 'has-error' : '' }}">
+                    <div class="controls">
+                        {{ Form::textarea('comments', null, array('class' => 'form-control','placeholder'=>'comments','required'=>'required')) }}
                     </div>
                 </div>
 
@@ -193,6 +197,21 @@
     </div>
 </div>
 
+<div class="modal fade" id="setStatusModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Open lead statuses</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans("site/lead.opened.modal.button.Cancel") }}</button>
+                <button type="button" class="btn btn-primary disabled" id="btnSetStatus">{{ trans("site/lead.opened.modal.button.OK") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('styles')
@@ -202,80 +221,8 @@
             cursor: help;
         }
 
-        table.table.openLeadsTable > tbody > tr > div.select_cell{
-            padding: 0 !important;
-            margin: 0;
-            vertical-align: middle;
-            text-align: center;
-        }
-
-
-
-        div.select_cell .form{
-            width: 100% !important;
-            height: 100% !important;
-            border-radius: 0 !important;
-            border: none;
-        }
-
-
-
-        /*длина контейнера*/
-        div.select_cell .selectboxit-container.selectboxit-container{
-            width: 100%;
-            /*height: 100% !important;*/
-            border: solid 1px #ED5056;
-
-        }
-
-        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-text{
-            color: #ED5056;
-            margin: 4px;
-        }
-
-
-        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-arrow-container{
-            width: 16px;
-            height: 100%;
-            background: #ED5056;
-        }
-
-        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-arrow-container i{
-            font-size: 11px !important;
-        }
-
-
-        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-option-icon-container{
-            margin: 0;
-        }
-
-
-        div.select_cell .selectboxit-container.selectboxit-container .selectboxit-option-icon-container i{
-            border: none;
-            background: none;
-        }
-
-
-        div.select_cell .selectboxit-container.selectboxit-container ul{
-            min-width: 150px !important;
-        }
-
         table tbody tr.selected_row{
             background: lightblue !important;
-        }
-
-
-        div.select_cell ul li.disabled{
-            background: lightgray;
-            cursor: default;
-        }
-
-        div.select_cell ul li.disabled a{
-            color: grey;
-        }
-
-        div.select_cell ul li.selectboxit-focus a {
-            background: #ED5056 !important;
         }
 
         #info_table{
@@ -407,6 +354,44 @@
         .from_agent{
             color: blue;
         }
+        .statusWrap {
+            text-align: center;
+            position: relative;
+        }
+        .statusLabel {
+            display: block;
+            width: 100%;
+            vertical-align: middle;
+            padding: 6px 40px 6px 0;
+            min-height: 32px;
+        }
+        .btn-status {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            margin-top: -15px;
+            z-index: 9;
+        }
+
+        #main_table table tr td:nth-child(3) {
+            border: solid 1px #ED5056;
+        }
+
+        .item-type-1 {
+            background-color: #acf58c;
+        }
+        .item-type-2 {
+            background-color: #e4f693;
+        }
+        .item-type-3 {
+            background-color: #fffbb2;
+        }
+        .item-type-4 {
+            background-color: #eed4d4;
+        }
+        .item-type-5 {
+            background-color: #80cbc4;
+        }
 
     </style>
 @endsection
@@ -414,6 +399,184 @@
 
 @section('scripts')
     <script>
+        var _token = '{{ csrf_token() }}';
+        function prependOpenLeadsStatuses(currentStatus, statuses, lead_id) {
+            var html = '';
+
+            html += '<div class="list-group">';
+
+            $.each(statuses, function (i, status) {
+                var itemClass = '';
+                if(currentStatus >= status.id) {
+                    itemClass = ' disabled';
+                }
+
+                html += '<a href="#" class="list-group-item btnChangeStatus'+itemClass+' item-type-'+status.type+'" data-lead-id="'+lead_id+'" data-status="'+status.id+'" data-type="'+status.type+'">';
+                html += '<h4 class="list-group-item-heading">'+status.stepname+'</h4>';
+                if(status.comment) {
+                    html += '<p class="list-group-item-text">'+status.comment+'</p>';
+                }
+                html += '</a>';
+            });
+
+            html += '</div>';
+
+            return html;
+        }
+
+        function propBtnSetStatus() {
+            var $button = $('#btnSetStatus');
+
+            if($('#setStatusModal').find('.btnChangeStatus.active').length == 0) {
+                $button.addClass('disabled').prop('disabled', true);
+            } else {
+                $button.removeClass('disabled').prop('disabled', false);
+            }
+        }
+
+        $(document).ready(function () {
+            $(document).on('click', '.changeStatus', function (e) {
+                e.preventDefault();
+
+                var $modal = $('#setStatusModal');
+                var params = 'lead_id='+$(this).data('lead-id')+'&_token='+_token;
+
+                $.post('{{ route('agent.lead.getOpenLeadStatuses') }}', params, function (data) {
+                    var html = prependOpenLeadsStatuses(data.currentStatus, data.statuses, data.lead);
+
+                    $modal.find('.modal-body').html(html);
+                    propBtnSetStatus();
+                    $modal.modal('show');
+                });
+            });
+
+            $(document).on('click', '.btnChangeStatus', function (e) {
+                e.preventDefault();
+
+                if(!$(this).hasClass('disabled')) {
+                    $('.btnChangeStatus').removeClass('active');
+                    $(this).addClass('active');
+                }
+                propBtnSetStatus();
+            });
+
+            $(document).on('click', '#btnSetStatus', function (e) {
+                e.preventDefault();
+
+                if($(this).hasClass('disabled')) {
+                    return false;
+                }
+
+                var $modal = $('#setStatusModal');
+
+                var $status = $modal.find('.btnChangeStatus.active');
+
+                if($status.length > 0) {
+                    var status = $status.data('status'),
+                        type = $status.data('type'),
+                        lead_id = $status.data('lead-id');
+
+                    var $statusLabel = $(document).find('#statusLabel_'+lead_id);
+
+                    if(type == 5) {
+                        var $checkModal = $('#checkModal');
+                        var $uploadProgress = $('#uploadProgress');
+
+                        $checkModal.find('form').find(':input:not([name=_token])').val('');
+                        $uploadProgress.empty();
+                        $checkModal.find('input[name=openedLeadId]').val(lead_id);
+                        $checkModal.find('input[name=status]').val(status);
+
+                        $modal.modal('hide');
+                        $checkModal.modal();
+                    }
+                    else {
+                        var params = {
+                            'status': status,
+                            'openedLeadId': lead_id,
+                            '_token': _token
+                        };
+
+                        $.post('{{  route('agent.lead.setOpenLeadStatus') }}', params, function( data ){
+
+                            $modal.modal('hide');
+                            if(data.status == 'fail') {
+                                bootbox.dialog({
+                                    message: data.message,
+                                    show: true
+                                });
+                            }
+                            else if(data.status == 'success') {
+                                if(data.stepname != '') {
+                                    $statusLabel.html(data.stepname);
+                                    if(type > 1) {
+                                        $statusLabel.siblings().remove();
+                                    }
+                                }
+                            }
+                            else {
+                                // todo вывести какое то сообщение об ошибке на сервере
+                                bootbox.dialog({
+                                    message: 'Server error!',
+                                    show: true
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+
+            $(document).on('click', '#checkModalChange', function (e) {
+                e.preventDefault();
+
+                var $checkModal = $('#checkModal');
+                var price = $checkModal.find('input[name=price]').val();
+
+                var $statusLabel = $(document).find('#statusLabel_'+$checkModal.find('input[name=openedLeadId]').val());
+
+                $checkModal.find('input[name=price]').on('change', function () {
+                    $(this).closest('.form-group').removeClass('has-error');
+                });
+
+                if(price == '' || price == undefined) {
+                    $checkModal.find('input[name=price]').focus().closest('.form-group').addClass('has-error');
+                } else {
+                    // спрятать модальное окно
+                    $checkModal.modal('hide');
+
+                    var params = $('#closeDealForm').serialize();
+
+                    // изменяем статусы на сервере
+                    $.post('{{  route('agent.lead.setOpenLeadStatus') }}', params, function( data ){
+                        if(data.status == 'fail') {
+                            bootbox.dialog({
+                                message: data.message,
+                                show: true
+                            });
+                        }
+                        else if(data.status == 'success') {
+                            if(data.stepname != '') {
+                                var lead_id = $checkModal.find('input[name=openedLeadId]').val();
+                                $statusLabel.html('<i class="fa fa-clock-o text-primary" aria-hidden="true"></i> '+data.stepname);
+                                $statusLabel.siblings().remove();
+                                $statusLabel.after('<a href="{{ url('/') }}/agent/lead/aboutDeal/'+lead_id+'" class="btn btn-default btn-sm btn-status aboutDeal"><i class="fa fa-eye" aria-hidden="true"></i></a>');
+                            }
+                        }
+                        else {
+                            // todo вывести какое то сообщение об ошибке на сервере
+                            bootbox.dialog({
+                                message: 'Server error!',
+                                show: true
+                            });
+                        }
+                    });
+                }
+            });
+
+            $(document).on('click', '.aboutDeal', function () {
+                window.location = $(this).attr('href');
+            });
+        });
 
         var jsonSpheres = {};
 
@@ -522,7 +685,7 @@
                         @if(isset($lead_id))
                             if(flag == true) {
                                 flag = false;
-                                $('tr[lead_id={{ $lead_id }}] td:eq(0)').trigger('click');
+                                $('tr[lead_id={{ $lead_id }}] td:eq(1)').trigger('click');
                                 setLocation('{{ route('agent.lead.opened') }}');
                             }
                         @endif
@@ -578,10 +741,6 @@
                 $statusesFilter.data("selectBox-selectBoxIt").refresh();
             });
         });
-
-        // путь к методу получения итема органайзера
-        var getOrganizerRoute = '{{ route('agent.lead.OrganizerItem')  }}';
-
 
         /** загрузка дополнительной таблицы с подробной информацией лида */
 
@@ -928,8 +1087,6 @@
         });
 
 
-
-
         /**
          * Событие на клик на строку таблицы
          *
@@ -944,8 +1101,10 @@
         var openLeadsTable = $('table.openLeadsTable tbody tr td').not( ".select_cell,.edit " );
 
         // привязываем функцию на клик, которая будет прорисовывать таблицу
-        $(document).on( 'click', 'table#openLeadsTable tbody tr td:not(:eq(1)):not(:last-child())', function(){
-
+        $(document).on( 'click', 'table#openLeadsTable tbody tr td', function(){
+            if($(this).index() == 2 || $(this).index() == 0) {
+                return false;
+            }
             // id лида, данные которого нужно ввести в таблицу
             var id = $(this).closest('tr').attr('lead_id');
 
@@ -953,331 +1112,7 @@
             reloadTable(id);
         });
 
-
-        $(function() {
-
-
-            /**
-             * Отключаем опции в селекте (используется код с сервера)
-             *
-             * данные приходят с сервера, может когда то и понадобятся
-             *
-             */
-
-            function disabledOptionFromServer() {
-
-                $.each($(document).find('.select_cell'), function (k, cell) {
-
-                    // номера опций которые нужно заблокировать
-                    var disabled_data = $(cell).find('select').attr('disabled_opt').split(',');
-
-
-                    $.each(disabled_data, function (k, disabled) {
-
-                        $(cell).find('li[data-val="' + disabled + '"]')
-                            .attr('data-disabled', 'true')
-                            .addClass('disabled');
-                    });
-                });
-            }
-
-            /**
-             * Сохранение состояние модального окна при закрытии сделки
-             *
-             * при отмене закрытия сделки, меняется состояние селектбокса
-             * и опять выскакивает окно подтверждения смены статуса
-             * чтобы такого небыло, используется эта переменная
-             */
-            //var closeDealModalTrigger = false;
-
-            /** реакция на изменение выпадающего списка на openLeads */
-            $(document).on('change', '.select_cell', function(){
-
-
-                // получаем выбранное значение из списка
-                var selectData = $(this).find('.selectboxit-text').attr('data-val');
-
-                // получение id лида
-                var lead_id = $(this).closest('tr').attr('lead_id');
-
-                // получение id лида
-                var openedLeadId = $(this).closest('tr').attr('opened_Lead_Id');
-
-                // получение токена
-                var token = $('meta[name=csrf-token]').attr('content');
-
-                // получение selectboxit
-                var selectBox = $(this).find('select').data("selectBox-selectBoxIt");
-
-                var self = $(this);
-
-                var status = $(this).find('option:selected').val();
-
-                if(status == 'closing_deal') {
-                    $('#checkModal form').find('input').val('');
-                    $('#uploadProgress').empty();
-                    $('#checkModal').find('input[name=open_lead_id]').val(openedLeadId);
-
-                    // событие на нажатие кнопки Cancel на модальном окне
-                    $( '#checkModalCancel').bind( 'click', function(){
-//                        $('#checkModalChange').addClass('disabled').prop('disabled', true);
-
-                        $('#checkModal form').find('input').val('');
-
-                        // выбираем первый активный статус
-                        $.each( self.find('li'), function (k, li) {
-
-                            // если обьект selectboxit не равен NULL
-                            if( selectBox != null ) {
-
-                                // если текущий элемент активный - выбираем его и останавливаемся
-                                if( !$(li).hasClass('disabled') && $(li).attr('data-disabled') == 'false' ) {
-                                    selectBox.selectOption(k);
-                                    selectBox = null;
-                                    return false;
-                                }
-
-                            }
-
-                        });
-
-                        // сбрасываем значения переменных к NULL
-                        // чтоб не подхватились другим селектом
-                        selectData = lead_id = token = selectBox = self = status = null;
-
-                        $('#uploadProgress').empty();
-                        // отключаем события клика по кнопкам отмены и сабмита
-                        $('#checkModalChange').unbind('click');
-                        $('#checkModalCancel').unbind('click');
-
-                    });
-
-
-                    // помечаем что открыто модальное окно по сделке
-                    //closeDealModalTrigger = true;
-
-                    $( '#checkModalChange' ).bind( 'click', function(){
-
-                        // помечаем что модальное окно по сделке закрыто
-                        //closeDealModalTrigger = false;
-
-                        var price = $('#checkModal').find('input[name=price]').val();
-
-                        $('#checkModal').find('input[name=price]').on('change', function () {
-                            $(this).closest('.form-group').removeClass('has-error');
-                        });
-
-                        if(price == '' || price == undefined) {
-                            $('#checkModal').find('input[name=price]').focus().closest('.form-group').addClass('has-error');
-                        } else {
-                            // спрятать модальное окно
-                            $('#checkModal').modal('hide');
-
-                            // изменяем статусы на сервере
-                            $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'openedLeadId': openedLeadId, 'lead_id': lead_id, 'price': price, '_token': token}, function( data ){
-
-                                if(data == 'setClosingDealStatus') {
-                                    self.closest('td').html('{{ trans('site/lead.deal_closed') }}');
-                                }
-                                else if(data == 'userBanned') {
-                                    var emptyOption = self.find('option.emptyOption');
-                                    // если путое поле найдено
-                                    if(emptyOption.length > 0) {
-                                        // удаляем его
-                                        emptyOption.prop('selected', true);
-
-                                        // обновляем select
-                                        selectBox.refresh();
-                                    }
-                                    $('#errorModal').find('.modal-body').html('{{ trans('site/lead.user_banned') }}');
-                                    $('#errorModal').modal('show');
-                                }
-                                else{
-
-                                    // todo вывести какое то сообщение об ошибке на сервере
-//                                    alert( 'ошибки на сервере' );
-
-
-//                                    console.log(data['status']);
-
-                                    if(data['status'] == 'lowBalance'){
-                                        bootbox.dialog({
-//                                            message: data['description'],
-                                            message: 'low balance',
-                                            show: true
-                                        });
-
-                                    }else{
-
-                                        alert( 'ошибки на сервере' );
-                                    }
-
-
-                                }
-
-                                // сбрасываем значения переменных к NULL
-                                // чтоб не подхватились другим селектом
-                                selectData = lead_id = token = selectBox = self = null;
-
-                                // отключаем события клика по кнопкам отмены и сабмита
-                                $('#checkModalChange').unbind('click');
-                                $('#checkModalCancel').unbind('click');
-
-                            });
-                        }
-                    });
-
-                    $('#checkModal').modal();
-                }
-                else if(status != '') {
-
-                    // если открыто модальное окно по сделкам
-                    //if(closeDealModalTrigger){
-                        // помечаем что модальное окно по сделке закрыто
-                        //closeDealModalTrigger = false;
-                        //return true
-                    //}
-
-                    // событие на клик, по кнопке "Change status" (изменение статуса)
-                    $( '#statusModalChange' ).bind( 'click', function(){
-
-                        // спрятать модальное окно
-                        $('#statusModal').modal('hide');
-
-
-                        // изменяем статусы на сервере
-                        $.post('{{  route('agent.lead.setOpenLeadStatus') }}', { 'status': selectData, 'openedLeadId': openedLeadId, 'lead_id': lead_id, '_token': token}, function( data ){
-
-                            var badOption = self.find('option.badOption');
-                            // если статус изменен нормально
-                            if( data == 'statusChanged'){
-
-
-                                // удаление пустого поля
-                                var emptyOption = self.find('option.emptyOption');
-                                // если путое поле найдено
-                                if(emptyOption.length > 0) {
-                                    // удаляем его
-                                    emptyOption.remove();
-
-                                    // обновляем select
-                                    selectBox.refresh();
-                                }
-
-                                // и удаляем статус bad_lead из списка
-                                // если путое поле найдено
-                                if(badOption.length > 0) {
-                                    // удаляем его
-                                    badOption.remove();
-
-                                    // обновляем select
-                                    selectBox.refresh();
-                                }
-
-                                // делаем статусы неактивными до выбранного
-                                $.each( self.find('li'), function( k, li ){
-                                    //console.log(li);
-                                    // если доходим до активного класса - останавливаемся
-                                    if( $(li).hasClass( 'selectboxit-focus' ) || ($(li).hasClass('selectboxit-selected') && emptyOption.length > 0) ){
-                                        return false;
-
-                                        // если опция находится до активного класса - делаем ее недоступной
-                                    }else{
-                                        $(li).attr( 'data-disabled', 'true' ).addClass('disabled');
-                                    }
-                                });
-
-                                // если лид отмечен как плохой, убираем select
-                            } else if(data == 'setBadStatus') {
-                                self.closest('td').html('bad lead');
-                            } else if(data == 'pendingTimeExpire') {
-                                // Если время pending_time истекло - выводим сообщение об ошибке
-                                bootbox.dialog({
-                                    message: '{{ trans('site/lead.opened.pending_time_expired') }}',
-                                    show: true
-                                });
-
-                                // и удаляем статус bad_lead из списка
-                                // если путое поле найдено
-                                if(badOption.length > 0) {
-                                    // удаляем его
-                                    badOption.remove();
-
-                                    // обновляем select
-                                    selectBox.refresh();
-                                }
-                            } else if(data == 'setClosingDealStatus') {
-                                self.closest('td').html('{{ trans('site/lead.deal_closed') }}');
-                            }
-                            else if(data == 'userBanned') {
-                                var emptyOption = self.find('option.emptyOption');
-                                // если путое поле найдено
-                                if(emptyOption.length > 0) {
-                                    // удаляем его
-                                    emptyOption.prop('selected', true);
-
-                                    // обновляем select
-                                    selectBox.refresh();
-                                }
-                                $('#errorModal').find('.modal-body').html('{{ trans('site/lead.user_banned') }}');
-                                $('#errorModal').modal('show');
-                            }
-                            else {
-                                // todo вывести какое то сообщение об ошибке на сервере
-                                alert( 'ошибки на сервере' );
-                            }
-
-                            // сбрасываем значения переменных к NULL
-                            // чтоб не подхватились другим селектом
-                            selectData = lead_id = token = selectBox = self = null;
-
-                            // отключаем события клика по кнопкам отмены и сабмита
-                            $('#statusModalChange').unbind('click');
-                            $('#statusModalCancel').unbind('click');
-
-                        });
-
-
-                    });
-
-                    // событие на нажатие кнопки Cancel на модальном окне
-                    $( '#statusModalCancel').bind( 'click', function(){
-
-                        // выбераем первый активный статус
-                        $.each( self.find('li'), function (k, li) {
-
-                            // если обьект selectboxit не равен NULL
-                            if( selectBox != null ) {
-
-                                // если текущий элемент активный - выбираем его и останавливаемся
-                                if( !$(li).hasClass('disabled') && $(li).attr('data-disabled') == 'false' ) {
-                                    selectBox.selectOption(k);
-                                    selectBox = null;
-                                    return false;
-                                }
-
-                            }
-
-                        });
-
-                        // сбрасываем значения переменных к NULL
-                        // чтоб не подхватились другим селектом
-                        selectData = lead_id = token = selectBox = self = null;
-
-                        // отключаем события клика по кнопкам отмены и сабмита
-                        $('#statusModalChange').unbind('click');
-                        $('#statusModalCancel').unbind('click');
-
-                    });
-                    // появление модального окна
-                    $('#statusModal').modal();
-                }
-
-            });
-
-        });
-
-        $(document).on('clisk', '.modal-close', function (e) {
+        $(document).on('click', '.modal-close', function (e) {
             e.preventDefault();
 
             $(this).closest('.modal').modal('hide');

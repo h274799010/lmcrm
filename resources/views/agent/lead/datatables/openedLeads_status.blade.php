@@ -1,54 +1,22 @@
-<div class="select_cell">
-{{-- Проверка на наличие статусов у сферы --}}
-
-{{--Если у сферы нет статусов, значить сфера удаленна--}}
-@if($openLead->lead->sphereStatuses)
-    {{-- если статусы есть --}}
-
-    {{-- Если лид был отмечен как плохой --}}
-    @if( $openLead->state == 1 || ($openLead['lead']['status'] == 5) )
-        {{--@lang('agent/openLeads.bad_lead')--}}
-        @if(isset($openLead->statusInfo->stepname))
-            {{ $openLead->statusInfo->stepname }}
-        @else
-            @lang('agent/openLeads.bad_lead')
-        @endif
-        {{-- впротивном случае вывод select со статусами --}}
-    @elseif( $openLead->state == 2 )
-        @lang('site/lead.deal_closed')
-    @else
-
-        <select name="status" class="form">
-            @if( $openLead->status == 0 )
-                <option selected="selected" class="emptyOption"></option>
-            @endif
-            {{--@if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
-                <option value="bad" class="badOption">bad lead</option>
-            @endif--}}
-            @if( (time() < strtotime($openLead['expiration_time'])) && ($openLead->status == 0) )
-                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                    <option value="{{ $status->id }}" @if($status->type == 4) class="badOption" @endif @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                @endforeach
+<div class="statusWrap">
+    <span class="statusLabel" id="statusLabel_{{ $openLead->id }}">
+        @if(isset($openLead->statusInfo->type) && $openLead->statusInfo->type == 5)
+            @if(isset($openLead->closeDealInfo) && !empty($openLead->closeDealInfo->purchase_transaction_id))
+                <i class="fa fa-check-square-o text-success" aria-hidden="true"></i>
             @else
-                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                    @if($status->type != 4 && $status->type != 5 )
-                        <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                    @endif
-                @endforeach
-                @foreach($openLead['lead']->sphereStatuses->statuses as $status)
-                    @if($status->type == 5 )
-                        <option value="{{ $status->id }}" @if($openLead->status == $status->id) selected="selected"@endif>{{ $status->stepname }}</option>
-                    @endif
-                @endforeach
+                <i class="fa fa-clock-o text-primary" aria-hidden="true"></i>
             @endif
-            {{--<option value="closing_deal">{{ trans('site/lead.closing_deal') }}</option>--}}
-        </select>
+        @endif
+        @if(isset($openLead->statusInfo->id))
+            {{ $openLead->statusInfo->stepname }}
+        @endif
+    </span>
+    @if($openLead->status == 0 || (isset($openLead->statusInfo->type)  && $openLead->statusInfo->type == 1))
+        <button class="btn btn-default btn-sm btn-status changeStatus" data-lead-id="{{ $openLead->id }}"><i class="fa fa-pencil" aria-hidden="true"></i></button>
     @endif
-@else
-    {{-- если статусов нет --}}
-
-    <div class="sphere_deleted">@lang('agent/openLeads.sphere_deleted')</div>
-
-@endif
-{{-- Конец проверки на наличие статусов у сферы --}}
+    @if( isset($openLead->statusInfo->type)  && $openLead->statusInfo->type == 5 )
+        <a href="{{ route('agent.lead.aboutDeal', ['lead_id' => $openLead->id]) }}" class="btn btn-default btn-sm btn-status aboutDeal">
+            <i class="fa fa-eye" aria-hidden="true"></i>
+        </a>
+    @endif
 </div>

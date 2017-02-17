@@ -98,6 +98,10 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
 
     Route::post('lead/checkUpload',['as'=>'agent.lead.checkUpload', 'uses' => 'Agent\LeadController@checkUpload']);
 
+    Route::post('lead/checkDelete',['as'=>'agent.lead.checkDelete', 'uses' => 'Agent\LeadController@checkDelete']);
+
+    Route::post('lead/paymentDealWallet',['as'=>'agent.lead.paymentDealWallet', 'uses' => 'Agent\LeadController@paymentDealWallet']);
+
     // todo удалить, установка следующего по счету статуса лида
     Route::get('lead/nextStatus/{id}',['as'=>'agent.lead.nextStatus', 'uses' => 'Agent\LeadController@nextStatus']);
 
@@ -117,6 +121,12 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
     Route::post('statistic/agentData/', ['as' => 'agent.statistic.agentData', 'uses' => 'Agent\StatisticController@agentStatisticData']);
 
     Route::post('getAgentPrivateGroup', ['as' => 'agent.privateGroup.getAgentPrivateGroup', 'uses' => 'AgentController@getAgentPrivateGroup']);
+
+    // Получение статусов для открытого лида
+    Route::post('getOpenLeadStatuses', ['as' => 'agent.lead.getOpenLeadStatuses', 'uses' => 'Agent\LeadController@getOpenLeadStatuses']);
+
+    // Подробная информация о сделке
+    Route::get('lead/aboutDeal/{lead_id}',['as'=>'agent.lead.aboutDeal', 'uses' => 'Agent\LeadController@aboutDeal']);
 
     Route::group( ['middleware'=>['agent']],function() {
         // Группа роутов для которых проверяются разрешения
