@@ -1071,6 +1071,10 @@ class LeadController extends AgentController {
             $file_name = md5( microtime() . rand(0, 9999) ) . '.' . $extension;
             $directory = 'uploads/agent/'.$this->uid.'/';
 
+            if(!File::exists($directory)) {
+                File::makeDirectory($directory, $mode = 0777, true, true);
+            }
+
             if(File::exists($directory.$file_name)) {
                 $extension = $extension ? '.' . $extension : '';
                 do {
