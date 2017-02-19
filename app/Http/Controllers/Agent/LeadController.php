@@ -1553,7 +1553,7 @@ class LeadController extends AgentController {
                     $lead,
                     $agent,
                     $owner,
-                    $closedDeal->price
+                    $closedDeal->percent
                 );
         } else {
             $paymentStatus =
@@ -1561,12 +1561,13 @@ class LeadController extends AgentController {
                     $lead,
                     $agent,
                     $openLead->mask_id,
-                    $closedDeal->price
+                    $closedDeal->percent
                 );
         }
         if(isset($paymentStatus['transaction'])) {
             $closedDeal->purchase_transaction_id = $paymentStatus['transaction'];
             $closedDeal->purchase_date = Carbon::now();
+            $closedDeal->status = ClosedDeals::DEAL_STATUS_CONFIRMED;
             $closedDeal->save();
 
             return response()->json(true);

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Helper\PayMaster\Pay;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Lead;
 use App\Models\AgentBitmask;
@@ -345,17 +346,33 @@ class OpenLeads extends Model {
         $this->state = 2;
         $this->save();
 
+        $user = Sentinel::findById($agent->id);
+        if($user->inRole('salesman')) {
+            $user = Salesman::find($user->id);
+            $user = $user->agent()->first();
+        } else {
+            $user = $agent;
+        }
+
+        $agentInfo = $user->agentInfo()->first();
+
+        $percent = 0;
+        if(isset($agentInfo->id)) {
+            $percent = $price * $agentInfo->payment_revenue_share;
+        }
+
+
         $closedDeal = new ClosedDeals();
-        $closedDeal->open_lead_id = $this['id'];       // id открытого лида, по которому закрывается сделка
-        $closedDeal->agent_id = $agent->id;                 // id агента который закрывает сделку
-        $closedDeal->sender = $sender_id;                   // id пользователя который отдал лид агенту (оператор или партнер)
-        $closedDeal->lead_source = $lead_source;            // лид получен с аукциона или передан напрямую по группе (1-auction, 2-group)
-        $closedDeal->comments = $comments;                  // описание
-        $closedDeal->status = 0;                            // закрыта/не закрыта (подтверждает админ или акк. менеджер)
-        $closedDeal->price = $price;                        // цена за сделку. добавляет агент при закрытии сделки
-        //$closedDeal->percent = '';                          // процент от сделки
-        //$closedDeal->purchase_transaction_id = '';          // id транзакции платежа
-        //$closedDeal->purchase_date = '';                    // дата когда был совершен платеж
+        $closedDeal->open_lead_id = $this['id'];                // id открытого лида, по которому закрывается сделка
+        $closedDeal->agent_id = $agent->id;                     // id агента который закрывает сделку
+        $closedDeal->sender = $sender_id;                       // id пользователя который отдал лид агенту (оператор или партнер)
+        $closedDeal->lead_source = $lead_source;                // лид получен с аукциона или передан напрямую по группе (1-auction, 2-group)
+        $closedDeal->comments = $comments;                      // описание
+        $closedDeal->status = ClosedDeals::DEAL_STATUS_WAITING; // закрыта/не закрыта (подтверждает админ или акк. менеджер)
+        $closedDeal->price = $price;                            // цена за сделку. добавляет агент при закрытии сделки
+        $closedDeal->percent = $percent;                        // процент от сделки
+        //$closedDeal->purchase_transaction_id = '';            // id транзакции платежа
+        //$closedDeal->purchase_date = '';                      // дата когда был совершен платеж
         $closedDeal->save();
 
         return true;
