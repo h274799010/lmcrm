@@ -159,7 +159,10 @@ class Pay
             $salesmanInfo = SalesmanInfo::where('salesman_id', '=', $agent->id)->first();
             $agentParent = Agent::find($salesmanInfo->agent_id);
 
-            $amount = Price::closeDeal( $agentParent->id, $lead->sphere_id, $price );
+            // раньше расчитывался процент от сделки
+//            $amount = Price::closeDeal( $agentParent->id, $lead->sphere_id, $price );
+            // теперь он передается на прямую
+            $amount = $price;
             $user_id = $agentParent->id;
 
             // проверка, может ли агент оплатить сделку
@@ -169,7 +172,10 @@ class Pay
                 return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
             }
         } else {
-            $amount = Price::closeDeal( $agent->id, $lead->sphere_id, $price );
+            // раньше расчитывался процент от сделки 
+//            $amount = Price::closeDeal( $agent->id, $lead->sphere_id, $price );
+            // теперь он передается на прямую
+            $amount = $price;
             $user_id = $agent->id;
 
             // проверка, может ли агент оплатить сделку
