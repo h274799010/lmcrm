@@ -1572,7 +1572,7 @@ class LeadController extends AgentController {
 
             return response()->json(true);
         } else {
-            return response()->json(false);
+            return response()->json($paymentStatus);
         }
     }
 }
