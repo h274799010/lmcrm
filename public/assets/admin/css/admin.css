@@ -1306,6 +1306,13 @@ textarea.tab_notes{
     background: #478295;
 }
 
+.account_managers_table_head th{
+    color: #ffffff !important;
+    background: #3F51B5;
+    text-align: center;
+    font-size: 14px !important;
+}
+
 tr td.statistics_no_data{
     color: grey !important;
     background: white !important;
@@ -1503,4 +1510,7 @@ h4.statistic-sphere-name{
         width: 100%;
     }
 }
+
+
+
 

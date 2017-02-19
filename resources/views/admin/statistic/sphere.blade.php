@@ -116,14 +116,18 @@
 
                 {{-- Таблица аккаунт менеджеров --}}
                 <div class="row acc_manager_block">
-                    <div class="col-md-8 col-md-offset-2">
+                    <div class="col-md-12">
                         <table class="table table-striped account_managers_table">
 
                             <thead>
+                            <tr class="account_managers_table_head">
+                                <th colspan="5">Account managers</th>
+                            </tr>
                             <tr>
                                 <th class="center middle">account manager</th>
                                 <th class="center middle">agents added</th>
                                 <th class="center middle">agents added during the period</th>
+                                <th class="center middle">action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -132,10 +136,15 @@
                                     <td class="center middle"> {{ $accManager['email'] }} </td>
                                     <td class="center middle">{{ $accManager['allAgents'] }}</td>
                                     <td class="center middle">{{ $accManager['periodAgents'] }}</td>
+                                    <td class="center middle">
+                                        <a class="btn btn-sm btn-success" href="{{ route('admin.statistic.accManager', ['id'=>$accManager['id']]) }}">
+                                            detail
+                                        </a>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr class="status_no_status">
-                                    <td colspan="3" class="center middle statistics_no_data"> No account managers </td>
+                                    <td colspan="4" class="center middle statistics_no_data"> No account managers </td>
                                 </tr>
                             @endforelse
                             </tbody>
@@ -471,7 +480,7 @@
                 noAccManagersRow.addClass('center middle statistics_no_data');
 
                 // добавляем атрибут объединения ячеек
-                noAccManagersRow.attr('colspan', 3);
+                noAccManagersRow.attr('colspan', 4);
 
                 // добавление данных в ячейки
                 noAccManagersRow.text( 'No account managers' );
@@ -493,21 +502,32 @@
                 var email = $('<td />');
                 var allAgents = $('<td />');
                 var periodAgents = $('<td />');
+                var detail = $('<td />');
+
+                // ссылка на подробности по акк. менеджеру
+                var button = $('<a />');
+                button.addClass('btn btn-sm btn-success');
+                button.attr('href', "{{ route('admin.statistic.accManager', ['id'=>'']) }}/" + accManager['id'] );
+                button.text('detail');
 
                 // добавление классов
                 email.addClass('center middle');
                 allAgents.addClass('center middle');
                 periodAgents.addClass('center middle');
+                detail.addClass('center middle');
 
                 // добавление данных в ячейки
                 email.text( accManager['email'] );
                 allAgents.html(accManager['allAgents'] );
                 periodAgents.text( accManager['periodAgents'] );
 
+                detail.append(button);
+
                 // добавление ячеек в строку
                 tr.append( email );
                 tr.append( allAgents );
                 tr.append( periodAgents );
+                tr.append( detail );
 
                 // добавление строки в таблицу
                 accManagersTable.append( tr );

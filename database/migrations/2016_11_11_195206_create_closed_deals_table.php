@@ -13,19 +13,24 @@ class CreateClosedDealsTable extends Migration
     public function up()
     {
         Schema::create('closed_deals', function (Blueprint $table) {
-            $table->increments('id');           // id
-            $table->integer('open_lead_id');    // id лида, по которому закрывается сделка
-            $table->integer('agent_id');        // id агента который закрывает сделку
-            $table->integer('sender');          // id пользователя который отдал лид агенту (оператор или партнерНовогоТипа)
-            $table->integer('source');          // кто добавил: оператор, партнер...
-            $table->string('comments');         // описание
-            //$table->double('price', 10, 2);   // цена за сделку. добавляет агент при закрытии сделки
-            $table->string('price');            // цена за сделку. добавляет агент при закрытии сделки
-            $table->timestamp('created_at');    // дата создания
-            $table->timestamp('purchase_date'); // дата когда была совершена покупка
+            $table->increments('id');                    // id
+            $table->integer('open_lead_id');             // id открытого лида, по которому закрывается сделка
+            $table->integer('agent_id');                 // id агента который закрывает сделку
+            $table->integer('sender');                   // id пользователя который отдал лид агенту (оператор или партнер)
+            $table->integer('lead_source');              // кто добавил: оператор, партнер...
+            $table->string('comments');                  // описание
+            $table->integer('status');                   // закрыта/не закрыта (подтверждает админ или акк. менеджер), если есть подтверждение происходит транзакция по вознаграждению агента
+            $table->double('price', 20, 2);              // цена за сделку. добавляет агент при закрытии сделки
+            $table->percent('price', 20, 2);             // процент от сделки, расчитывается исходя из данных агента
+            $table->timestamp('purchase_date');          // дата когда была сделана транзакция по сделки (когда сделку оплатили)
+            $table->integer('purchase_transaction_id');  // id транзакции платежа
+            $table->timestamps();                        // дата создания и обновления записи
             $table->engine = 'InnoDB';
         });
     }
+
+
+    // status
 
     /**
      * Reverse the migrations.

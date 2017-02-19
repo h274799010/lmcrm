@@ -33,25 +33,45 @@
                     </li>
                 </ul>
             </li>
+
+            <li>
+                <a href="#">
+                    <i class="fa fa-file-text "></i> Deals
+                    <span class="fa arrow"></span>
+                </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('admin.deals.to.confirmation') }}">
+                            <i class="fa fa-file-o "></i> To confirmation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.deals.all') }}">
+                            <i class="fa fa-file-text-o"></i> All deals
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li>
                 <a href="{{ route('admin.statistic.agents') }}">
-                    <i class="fa fa-line-chart"></i> {{ trans('admin/sidebar.statistic') }}
+                    <i class="fa fa-bar-chart"></i> {{ trans('admin/sidebar.statistic') }}
                     <span class="fa arrow"></span>
                 </a>
                 <ul class="nav collapse">
                     <li>
                         <a href="{{ route('admin.statistic.agents') }}">
-                            <i class="fa fa-list"></i> {{ trans('admin/sidebar.agents') }}
+                            <i class="fa fa-group"></i> {{ trans('admin/sidebar.agents') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.statistic.spheres') }}">
-                            <i class="fa fa-list"></i> {{ trans('admin/sidebar.spheres_item') }}
+                            <i class="fa fa-cloud "></i> {{ trans('admin/sidebar.spheres_item') }}
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.statistic.accManagers') }}">
-                            <i class="fa fa-list"></i> Account managers
+                            <i class="fa fa-user-md"></i> Account managers
                         </a>
                     </li>
                 </ul>

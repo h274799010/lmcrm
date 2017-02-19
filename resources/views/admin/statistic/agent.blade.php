@@ -134,7 +134,66 @@
                 </div>
 
 
+                {{-- Таблица салесманов --}}
+                <div class="row acc_manager_block">
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered account_managers_table">
 
+                            <thead>
+                            <tr class="account_managers_table_head">
+                                <th colspan="9">Salesmen</th>
+                            </tr>
+                            <tr>
+                                <th rowspan="2" class="center middle">name</th>
+                                <th colspan="2" class="center middle">leads added</th>
+                                <th colspan="2" class="center middle">leads seen</th>
+                                <th colspan="2" class="center middle">leads open</th>
+                                <th rowspan="2" class="center middle">presence</th>
+                                <th rowspan="2" class="center middle">action</th>
+                            </tr>
+                            <tr>
+                                <th class="center middle">all</th>
+                                <th class="center middle">period</th>
+                                <th class="center middle">all</th>
+                                <th class="center middle">period</th>
+                                <th class="center middle">all</th>
+                                <th class="center middle">period</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td> name </td>
+                                    <td class="center"> 40 </td>
+                                    <td class="center"> 20 </td>
+                                    <td class="center"> 40 </td>
+                                    <td class="center"> 20 </td>
+                                    <td class="center"> 40 </td>
+                                    <td class="center"> 20 </td>
+                                    <td class="center"> yes </td>
+                                    <td class="center">  </td>
+                                </tr>
+
+
+                            {{--@forelse( $statistic['sphere']['accManagers'] as $accManager )--}}
+                                {{--<tr class="">--}}
+                                    {{--<td class="center middle"> {{ $accManager['email'] }} </td>--}}
+                                    {{--<td class="center middle">{{ $accManager['allAgents'] }}</td>--}}
+                                    {{--<td class="center middle">{{ $accManager['periodAgents'] }}</td>--}}
+                                    {{--<td class="center middle">--}}
+                                        {{--<a class="btn btn-sm btn-success" href="{{ route('admin.statistic.accManager', ['id'=>$accManager['id']]) }}">--}}
+                                            {{--detail--}}
+                                        {{--</a>--}}
+                                    {{--</td>--}}
+                                {{--</tr>--}}
+                            {{--@empty--}}
+                                {{--<tr class="status_no_status">--}}
+                                    {{--<td colspan="4" class="center middle statistics_no_data"> No account managers </td>--}}
+                                {{--</tr>--}}
+                            {{--@endforelse--}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
 
                 {{-- Проверяем достаточно ли у агента открытых лидов по сфере для статистики --}}
