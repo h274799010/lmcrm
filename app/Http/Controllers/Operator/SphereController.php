@@ -1264,6 +1264,26 @@ class SphereController extends Controller {
         ]);
     }
 
+    /**
+     * Дублирование лидов оператором
+     *
+     * @param $lead_id
+     * @return View
+     */
+    public function duplicate($lead_id)
+    {
+        $lead = Lead::with('phone')->find($lead_id);
+
+        $user = Sentinel::getUser();
+        $user = OperatorSphere::find($user->id);
+        $spheres = $user->spheres()->whereNotIn('sphere_id', [$lead->sphere_id])->get()->pluck('name', 'id');
+
+        return view('sphere.lead.create2', [
+            'spheres' => $spheres,
+            'lead' => $lead
+        ]);
+    }
+
 
     /**
      * Метод сохранения нового лида в системе

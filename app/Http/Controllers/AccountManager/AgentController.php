@@ -278,7 +278,7 @@ class AgentController extends AccountManagerController {
 
         $agentSelectedSpheres = $agent->spheres()->get()->lists('id')->toArray();
 
-        return view('accountManager.agent.create_edit', ['agent'=>$agent,'spheres'=>$spheres, 'role'=>$role, 'userInfo'=>$userInfo, 'agentSpheres'=>$agentSpheres, 'agentSelectedSpheres'=>$agentSelectedSpheres ]);
+        return view('accountManager.agent.create_edit', ['agent'=>$agent,'spheres'=>$accountManager->spheres()->get(), 'role'=>$role, 'userInfo'=>$userInfo, 'agentSpheres'=>$agentSpheres, 'agentSelectedSpheres'=>$agentSelectedSpheres ]);
     }
 
     /**
@@ -364,14 +364,35 @@ class AgentController extends AccountManagerController {
         $accountManager = AccountManager::find(Sentinel::getUser()->id);
         $accountManagerSpheres = $accountManager->spheres()->get()->lists('id')->toArray();
 
-        $agentSelectedSpheres = $agent->spheres()->whereNotIn('sphere_id', $accountManagerSpheres)->get()->lists('id')->toArray();
+        //$agentSelectedSpheres = $agent->spheres()->whereNotIn('sphere_id', $accountManagerSpheres)->get()->lists('id')->toArray();
 
-        $spheres = $request->input('spheres');
-        if(count($agentSelectedSpheres)) {
-            $spheres = array_merge($spheres, $agentSelectedSpheres);
+        //$spheres = $request->input('spheres');
+        //if(count($agentSelectedSpheres)) {
+            //$spheres = array_merge($spheres, $agentSelectedSpheres);
+        //}
+
+        //$agent->spheres()->sync($spheres);
+        if( count($request->input('spheres')) > 0 ) {
+            AgentSphere::where('agent_id', '=', $agent->id)
+                ->whereIn('sphere_id', $accountManagerSpheres)
+                ->whereNotIn('sphere_id', $request->input('spheres'))
+                ->delete();
+            foreach ($request->input('spheres') as $sphere_id) {
+                $agentSphere = AgentSphere::withTrashed()
+                    ->where('agent_id', '=', $agent->id)
+                    ->where('sphere_id', '=', $sphere_id)
+                    ->first();
+                if(isset($agentSphere->id) && $agentSphere->trashed()) {
+                    $agentSphere->restore();
+                }
+                elseif(!isset($agentSphere->id)) {
+                    $agentSphere = new AgentSphere();
+                    $agentSphere->agent_id = $agent->id;
+                    $agentSphere->sphere_id = $sphere_id;
+                    $agentSphere->save();
+                }
+            }
         }
-
-        $agent->spheres()->sync($spheres);
 
         // Заполняем таблицу agent_info
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();

@@ -268,7 +268,27 @@ class AgentController extends AdminController
 
         $agent->update($request->except('password','password_confirmation', 'spheres','info'));
 
-        $agent->spheres()->sync($request->input('spheres'));
+        //$agent->spheres()->sync($request->input('spheres'));
+        if( count($request->input('spheres')) > 0 ) {
+            AgentSphere::where('agent_id', '=', $agent->id)
+                ->whereNotIn('sphere_id', $request->input('spheres'))
+                ->delete();
+            foreach ($request->input('spheres') as $sphere_id) {
+                $agentSphere = AgentSphere::withTrashed()
+                    ->where('agent_id', '=', $agent->id)
+                    ->where('sphere_id', '=', $sphere_id)
+                    ->first();
+                if(isset($agentSphere->id) && $agentSphere->trashed()) {
+                    $agentSphere->restore();
+                }
+                elseif(!isset($agentSphere->id)) {
+                    $agentSphere = new AgentSphere();
+                    $agentSphere->agent_id = $agent->id;
+                    $agentSphere->sphere_id = $sphere_id;
+                    $agentSphere->save();
+                }
+            }
+        }
 
         //$agent->accountManagers()->sync($request->input('accountManagers'));
 

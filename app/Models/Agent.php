@@ -71,7 +71,9 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
      *
      */
     public function spheres(){
-        return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')->with('SphereStatusTransitions')->where('status', 1);
+        return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')
+            ->where('agent_sphere.deleted_at', '=', NULL)
+            ->with('SphereStatusTransitions')->where('status', 1);
     }
 
     /**
@@ -81,7 +83,9 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
      * @return mixed
      */
     public function onlySpheres(){
-        return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')->where('status', 1);
+        return $this->belongsToMany('\App\Models\Sphere','agent_sphere','agent_id','sphere_id')
+            ->where('agent_sphere.deleted_at', '=', NULL)
+            ->where('status', 1);
     }
 
 

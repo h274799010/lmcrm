@@ -192,13 +192,14 @@ class Pay
                 ]
             );
 
+        return $paymentStatus;
         // если возникли ошибки при платеже
-        if( !$paymentStatus ){
+        /*if( !$paymentStatus ){
             // Ошибки при попытке сделать платеж
             return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.error')];
         }
 
-        return [ 'status' => true ];
+        return [ 'status' => true ];*/
     }
 
 
@@ -240,13 +241,14 @@ class Pay
                 ]
             );
 
+        return $paymentStatus;
         // если возникли ошибки при платеже
-        if( !$paymentStatus ){
+        /*if( !$paymentStatus ){
             // Ошибки при попытке сделать платеж
             return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.error')];
         }
 
-        return [ 'status' => true ];
+        return [ 'status' => true ];*/
     }
 
 

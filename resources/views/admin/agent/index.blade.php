@@ -18,8 +18,8 @@
         </h3>
     </div>
     <div class="row">
-        <div class="col-md-6 col-xs-12" id="agentsListFilter">
-            <div class="col-xs-4">
+        <div class="col-md-8 col-xs-12" id="agentsListFilter">
+            <div class="col-xs-3">
                 <div class="form-group">
                     <label class="control-label _col-sm-3">Spheres</label>
                     <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
@@ -30,7 +30,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-xs-4">
+            <div class="col-xs-3">
                 <div class="form-group">
                     <label class="control-label _col-sm-3">Account manager</label>
                     <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter" data-placeholder="-">
@@ -41,7 +41,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-xs-4">
+            <div class="col-xs-3">
                 <div class="form-group">
                     <label class="control-label _col-sm-2">Roles</label>
                     <select data-name="role" class="selectbox dataTables_filter form-control" data-placeholder="-">
@@ -49,6 +49,11 @@
                         <option value="dealmaker" @if($selectedFilters['role'] && $selectedFilters['role'] == 'dealmaker') selected="selected" @endif >Dealmaker</option>
                         <option value="leadbayer" @if($selectedFilters['role'] && $selectedFilters['role'] == 'leadbayer') selected="selected" @endif >Leadbayer</option>
                     </select>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="form-group" style="padding-top: 23px;">
+                    <button class="btn btn-sm btn-danger" id="resetFilters" style="margin-bottom: 0;">{{ trans('admin/admin.button.filter_reset') }}</button>
                 </div>
             </div>
         </div>
@@ -200,6 +205,19 @@
                     }
                 });
             });
+
+            $(document).on('click', '#resetFilters', function (e) {
+                e.preventDefault();
+
+                $('#agentsListFilter select').each(function (i, el) {
+                    $(el).prop('selectedIndex', 0);
+                    $(el).select2("destroy");
+
+                    $(el).select2();
+                });
+
+                $('#agentsListFilter select:eq(0)').trigger('change');
+            })
         });
     </script>
 @stop

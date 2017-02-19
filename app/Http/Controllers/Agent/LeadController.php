@@ -9,6 +9,7 @@ use App\Helper\PayMaster\Pay;
 use App\Http\Controllers\AgentController;
 use App\Models\AgentBitmask;
 use App\Models\CheckClosedDeals;
+use App\Models\ClosedDeals;
 use App\Models\LeadBitmask;
 use App\Models\Organizer;
 use App\Models\SphereStatuses;
@@ -794,6 +795,7 @@ class LeadController extends AgentController {
             ])
             ->with('maskName2')
             ->with('statusInfo')
+            ->with('closeDealInfo')
             ->orderBy('open_leads.created_at', 'desc');
 
         return Datatables::of( $openLeads )
@@ -921,23 +923,43 @@ class LeadController extends AgentController {
      */
     public function setOpenLeadStatus( Request $request )
     {
+        $res = array(
+            'status' => '',
+            'message' => '',
+            'stepname' => ''
+        );
         $user = Sentinel::getUser();
         if( ($user->banned_at != null || $user->banned_at != '0000-00-00 00:00:00') && !$user->hasAccess('working_leads') ) {
-            return response()->json('userBanned');
+            $res['status'] = 'fail';
+            $res['message'] = trans('site/lead.user_banned');
+
+            return response()->json($res);
         }
 
         $openedLeadId  = $request->openedLeadId;
 
         // находим данные открытого лида по id лида и id агента
-        $openedLead = OpenLeads::find( $openedLeadId );
+        $openedLead = OpenLeads::with('statusInfo')->find( $openedLeadId );
+        $status = SphereStatuses::find($request->input('status'));
+
+        if(!isset($status->id)) {
+            $res['status'] = 'fail';
+            $res['message'] = 'Status not found';
+
+            return response()->json($res);
+        }
 
         // Если сделка отмечается закрытой
-        if($request->status == 'closing_deal') {
-            if(empty($request->price)) {
-                return response()->json('priceRequired');
+        if($status->type == 5) {
+            if(empty($request->input('price'))) {
+                $res['status'] = 'fail';
+                $res['message'] = 'priceRequired'; // todo доделать вывод ошибки
+
+                return response()->json($res);
             }
+
             // закрываем сделку
-            $closeDealResult = $openedLead->closeDeal($request->price);
+            $closeDealResult = $openedLead->closeDeal($request->input('price'), $request->input('comments'));
 
             /** Проверка статуса закрытия сделки */
             if( $closeDealResult === true ){
@@ -946,17 +968,30 @@ class LeadController extends AgentController {
                 // сохраняем историю статусов
                 OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -2);
 
+                // сохраняем старый статус
+                $previous_status = $openedLead->status;
+
+                $openedLead->status = $status->id;
+                $openedLead->save();
+
+                // сохраняем историю статусов
+                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
+
                 // сообщаем что сделка закрыта нормально
-                return response()->json('setClosingDealStatus');
+                $res['status'] = 'success';
+                $res['message'] = trans('site/lead.deal_closed');
+                $res['stepname'] = $status->stepname;
+
+                return response()->json($res);
 
             }else{
                 // ошибка в закрытии сделки
 
+                // todo доделать вывод ошибки
                 return response()->json($closeDealResult);
             }
-        } else {
-            $status   = SphereStatuses::find($request->status);
-
+        }
+        else {
             // если открытый лид отмечен как плохой
             if(isset($status->type) && $status->type == 4) {
 
@@ -974,14 +1009,20 @@ class LeadController extends AgentController {
 
                     OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
 
+                    $res['status'] = 'success';
+                    $res['message'] = ''; // todo какое-то сообщение об успешной смене статуса
+                    $res['stepname'] = $status->stepname;
 
-                    return response()->json('setBadStatus');
+                    return response()->json($res);
 
                 } else {
                     // если время открытого лида уже вышло
 
                     // отменяем всю ничего не делаем, выходим
-                    return response()->json('pendingTimeExpire');
+                    $res['status'] = 'fail';
+                    $res['message'] = trans('site/lead.opened.pending_time_expired');
+
+                    return response()->json($res);
                 }
             }
 
@@ -989,28 +1030,32 @@ class LeadController extends AgentController {
 
             // если новый статус меньше уже установленного, выходим из метода
             // или лид отмечен как плохой
-//            if( $status->id < $openedLead->status || $openedLead->state == 1 || $openedLead->state == 2 ){
-            if( $openedLead->state == 1 || $openedLead->state == 2 ) {
-                return response()->json(FALSE);
-
-            }elseif( $status->type == 1 && $status->id < $openedLead->status ){
-                return response()->json(FALSE);
-
-            }else{
-                // если статус больше - изменяем статус открытого лида
-
-                // сохраняем старый статус
-                $previous_status = $openedLead->status;
-
-                $openedLead->status = $status->id;
-                $openedLead->save();
-
-                // сохраняем историю статусов
-                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
-
-                // присылаем подтверждение что статус изменен
-                return response()->json('statusChanged');
+            if( isset($openedLead->statusInfo->type) ) {
+                if($openedLead->statusInfo->type == 4) {
+                    return response()->json(FALSE); // todo вывести сообщение о том что лид уже помечен как плохой и изменение статуса не возможно
+                }
+                if($openedLead->statusInfo->type  > $status->type) {
+                    return response()->json(FALSE); // todo вывести какое-то сообщение об ошибке
+                }
             }
+
+            // если статус больше - изменяем статус открытого лида
+
+            // сохраняем старый статус
+            $previous_status = $openedLead->status;
+
+            $openedLead->status = $status->id;
+            $openedLead->save();
+
+            // сохраняем историю статусов
+            OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
+
+            // присылаем подтверждение что статус изменен
+            $res['status'] = 'success';
+            $res['message'] = ''; // todo какое-то сообщение об успешной смене статуса
+            $res['stepname'] = $status->stepname;
+
+            return response()->json($res);
         }
     }
 
@@ -1022,8 +1067,16 @@ class LeadController extends AgentController {
         return \Plupload::file('file', function($file) use ($open_lead_id) {
 
             $original_name = $file->getClientOriginalName();
-            $file_name = md5_file( $file->getRealPath() ) . '.' . File::extension( $original_name );
+            $extension = File::extension( $original_name );
+            $file_name = md5( microtime() . rand(0, 9999) ) . '.' . $extension;
             $directory = 'uploads/agent/'.$this->uid.'/';
+
+            if(File::exists($directory.$file_name)) {
+                $extension = $extension ? '.' . $extension : '';
+                do {
+                    $file_name = md5(microtime() . rand(0, 9999)) . '.' . $extension;
+                } while (File::exists($directory.$file_name));
+            }
 
             if(!File::exists($directory.$file_name)) {
 
@@ -1041,8 +1094,10 @@ class LeadController extends AgentController {
                 return [
                     'success'   => true,
                     'message'   => 'Upload successful.',
-                    'file'      => $original_name,
-                    //'id'        => $photo->id,
+                    'name'      => $check->name,
+                    'file_name' => $check->file_name,
+                    'url'       => $check->url,
+                    'id'        => $check->id,
                     // 'url'       => $photo->getImageUrl($filename, 'medium'),
                     // 'deleteUrl' => action('MediaController@deleteDelete', [$photo->id])
                 ];
@@ -1053,6 +1108,23 @@ class LeadController extends AgentController {
                 ];
             }
         });
+    }
+
+    public function checkDelete(Request $request)
+    {
+        $check = CheckClosedDeals::find($request->input('id'));
+
+        if(isset($check->id)) {
+            $file = $check->url . $check->file_name;
+            if(File::exists($file)) {
+                File::delete($file);
+            }
+            $check->delete();
+            return response()->json(true);
+        }
+        else {
+            return response()->json(false);
+        }
     }
 
 
@@ -1348,5 +1420,158 @@ class LeadController extends AgentController {
         // todo отправить данные по лиду на фронтенд
 
         return $openResult;
+    }
+
+    // Получение статусов для открытого лида
+    public function getOpenLeadStatuses(Request $request)
+    {
+        $res = array(
+            'error' => '',
+            'statuses' => array()
+        );
+        $openLeadId = $request->input('lead_id');
+        $openLead = OpenLeads::with([
+            'lead' => function($query) {
+                $query->with('sphereStatuses');
+            },
+            'statusInfo'
+        ])->find($openLeadId);
+
+        if(!isset($openLead->id)) {
+            $res['error'] = 'Open lead undefined';
+        } elseif (!isset($openLead->lead->id)) {
+            $res['error'] = 'Lead undefined';
+        } elseif (!isset($openLead->lead->sphereStatuses->id)) {
+            $res['error'] = 'Statuses not found';
+        } else {
+            $res['currentStatus'] = $openLead->status;
+            $res['lead'] = $openLead->id;
+            $statuses = $openLead->lead->sphereStatuses->statuses;
+
+            if($openLead->status != 0) {
+                foreach ($statuses as $key => $status) {
+                    if($status->type == 4) {
+                        unset($statuses[$key]);
+                    }
+                }
+            }
+            $res['statuses'] = $statuses;
+        }
+
+
+        return response()->json($res);
+    }
+
+    // Подробная информация о сделке
+    public function aboutDeal($lead_id)
+    {
+        $openLead = OpenLeads::with('statusInfo', 'closeDealInfo', 'uploadedCheques')->find($lead_id);
+        $user = Sentinel::getUser();
+
+        $data = Lead::find( $openLead->lead_id );
+        $leadData[] = [ 'name',$data->name ];
+        $leadData[] = [ 'phone',$data->phone->phone ];
+        $leadData[] = [ 'email',$data->email ];
+
+        // получаем все атрибуты агента
+        foreach ($data->SphereFormFilters as $key=>$sphereAttr){
+
+            $str = '';
+            foreach ($sphereAttr->options as $option){
+                $mask = new LeadBitmask($data->sphere_id,$data->id);
+
+
+                $resp = $mask->where('fb_'.$option->attr_id.'_'.$option->id,1)->where('user_id',$user->id)->first();
+
+                if (count($resp)){
+
+                    if( $str=='' ){
+                        $str = $option->name;
+                    }else{
+                        $str .= ', ' .$option->name;
+                    }
+
+                }
+
+            }
+            $leadData[] = [ $sphereAttr->label, $str ];
+        }
+
+        // получаем все атрибуты лида
+        foreach ($data->SphereAdditionForms as $key=>$attr){
+
+            $str = '';
+
+            $mask = new LeadBitmask($data->sphere_id,$data->id);
+            $AdMask = $mask->findAdMask($data->id);
+
+            // обработка полей с типом 'radio', 'checkbox' и 'select'
+            // у этих атрибутов несколько опций (по идее должно быть)
+            if( $attr->_type=='radio' || $attr->_type=='checkbox' || $attr->_type=='select' ){
+
+                foreach ($attr->options as $option){
+
+                    if($AdMask['ad_'.$option->attr_id.'_'.$option->id]==1){
+                        if( $str=='' ){
+                            $str = $option->name;
+                        }else{
+                            $str .= ', ' .$option->name;
+                        }
+                    }
+                }
+
+
+            }else{
+
+                $str = $AdMask['ad_'.$attr->id.'_0'];
+
+            }
+
+
+            $leadData[] = [ $attr->label, $str ];
+        }
+
+        return view('agent.lead.aboutDeal', [
+            'leadData' => $leadData,
+            'openLead' => $openLead
+        ]);
+    }
+
+    public function paymentDealWallet(Request $request)
+    {
+        $openLead = OpenLeads::find($request->input('id'));
+
+        $lead = Lead::find($openLead->lead_id);
+        $closedDeal = ClosedDeals::where('open_lead_id', '=', $openLead->id)->first();
+        $agent = Agent::find( $openLead->agent_id );
+
+        if($closedDeal->lead_source == 2) {
+            $owner = Agent::find( $lead->agent_id );
+
+            $paymentStatus =
+                Pay::closingDealInGroup(
+                    $lead,
+                    $agent,
+                    $owner,
+                    $closedDeal->price
+                );
+        } else {
+            $paymentStatus =
+                Pay::closingDeal(
+                    $lead,
+                    $agent,
+                    $openLead->mask_id,
+                    $closedDeal->price
+                );
+        }
+        if(isset($paymentStatus['transaction'])) {
+            $closedDeal->purchase_transaction_id = $paymentStatus['transaction'];
+            $closedDeal->purchase_date = Carbon::now();
+            $closedDeal->save();
+
+            return response()->json(true);
+        } else {
+            return response()->json(false);
+        }
     }
 }

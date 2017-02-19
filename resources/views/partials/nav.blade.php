@@ -28,7 +28,7 @@
                     @endif
                 </ul>
             @endif
-            @if( isset($balance) && !isset($salesman_id) )
+            @if( isset($balance) && (!isset($salesman_id) || $salesman_id == false) )
             {{--@if(isset($balance))--}}
                 <ul class="nav navbar-top-links navbar-left flip">
                     <li>

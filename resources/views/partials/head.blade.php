@@ -81,6 +81,7 @@
     <script src="{{ asset('components/plupload/js/plupload.full.min.js') }}"></script>
 
     <script type="text/javascript" src="{{ asset('assets/web/js/bootstrap-filestyle.min.js') }}"> </script>
+    <script type="text/javascript" src="{{ asset('assets/web/js/bootstrap-confirmation.min.js') }}"> </script>
 
     <!-- Custom Theme JavaScript -->
     <script src="{{ asset('assets/web/js/sb-admin.js')}}"></script>

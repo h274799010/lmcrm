@@ -77,6 +77,14 @@ class OpenLeads extends Model {
         return $this->hasOne('App\Models\SphereStatuses', 'id', 'status')->orderBy('position');
     }
 
+    public function closeDealInfo() {
+        return $this->hasOne('App\Models\ClosedDeals', 'open_lead_id', 'id');
+    }
+
+    public function uploadedCheques() {
+        return $this->hasMany('App\Models\CheckClosedDeals', 'open_lead_id', 'id');
+    }
+
 
     /**
      * Получение имени маски по которой был открыт лид
@@ -265,7 +273,7 @@ class OpenLeads extends Model {
      *
      * @return boolean
      */
-    public function closeDeal( $price, $senderId=false )
+    public function closeDeal( $price, $comments, $senderId=false )
     {
 
         // если у агента уже заключена сделка
@@ -283,22 +291,23 @@ class OpenLeads extends Model {
         $lead->checkCloseDeal();
 
         /** Проверка, это сделка по группе, или сделка в системе */
-        if( $this['mask_id']==0 ){
+        if( $this['mask_id']==0 ) {
             // лид закрывается по группе
 
-            $owner = Agent::find( $lead['agent_id'] );
+            //$owner = Agent::find( $lead['agent_id'] );
 
             // todo дописать логику
             // снимаем деньги за сделку по лиду по группе
-            $paymentStatus =
-                Pay::closingDealInGroup(
-                    $lead,
-                    $agent,
-                    $owner,
-                    $price
-                );
-
-        }else{
+            //$paymentStatus =
+            //    Pay::closingDealInGroup(
+            //        $lead,
+            //        $agent,
+            //        $owner,
+            //        $price
+            //    );
+            $lead_source = 2;
+        }
+        else {
             // лид закрывается в системе
 
             // проверяем лид,
@@ -307,43 +316,47 @@ class OpenLeads extends Model {
             $lead->checkCloseDeal();
 
             // снимаем деньги за сделку по лиду в системе
-            $paymentStatus =
-                Pay::closingDeal(
-                    $lead,
-                    $agent,
-                    $this['mask_id'],
-                    $price
-                );
+            //$paymentStatus =
+            //    Pay::closingDeal(
+            //        $lead,
+            //        $agent,
+            //        $this['mask_id'],
+            //        $price
+            //    );
+            $lead_source = 1;
         }
 
 
         // если сделка не проплаченна
-        if(!$paymentStatus){
-            // выходим из метода
-            return false;
-        }
+        //if(!$paymentStatus){
+        //    // выходим из метода
+        //    return false;
+        //}
 
         // получаем id отправителя
         $sender_id = $senderId ? $senderId : $agent->id;
 
         // получаем данные пользователя с ролями
-        $sender = User::with('roles')->find( $sender_id );
+        //$sender = User::with('roles')->find( $sender_id );
 
         // помечаем что по открытому лиду была закрыта сделка
-        if( $paymentStatus ){
-            $this->state = 2;
-            $this->save();
+        //if( $paymentStatus ){
+        //}
+        $this->state = 2;
+        $this->save();
 
-            $closedDeal = new ClosedDeals();
-            $closedDeal->open_lead_id = $this['lead_id'];
-            $closedDeal->agent_id = $agent->id;
-            $closedDeal->sender = $sender_id;
-            $closedDeal->source = $sender->roles[0]->id;
-            $closedDeal->comments = '';
-            $closedDeal->price = $price;
-            $closedDeal->created_at = new \DateTime();
-            $closedDeal->save();
-        }
+        $closedDeal = new ClosedDeals();
+        $closedDeal->open_lead_id = $this['id'];       // id открытого лида, по которому закрывается сделка
+        $closedDeal->agent_id = $agent->id;                 // id агента который закрывает сделку
+        $closedDeal->sender = $sender_id;                   // id пользователя который отдал лид агенту (оператор или партнер)
+        $closedDeal->lead_source = $lead_source;            // лид получен с аукциона или передан напрямую по группе (1-auction, 2-group)
+        $closedDeal->comments = $comments;                  // описание
+        $closedDeal->status = 0;                            // закрыта/не закрыта (подтверждает админ или акк. менеджер)
+        $closedDeal->price = $price;                        // цена за сделку. добавляет агент при закрытии сделки
+        //$closedDeal->percent = '';                          // процент от сделки
+        //$closedDeal->purchase_transaction_id = '';          // id транзакции платежа
+        //$closedDeal->purchase_date = '';                    // дата когда был совершен платеж
+        $closedDeal->save();
 
         return true;
     }

@@ -50,5 +50,8 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // нужно для формы создания лида
     Route::post('lead/getLeadForm', ['as' => 'operator.lead.getLeadForm', 'uses' => 'Operator\SphereController@getLeadForm']);
 
+    // Дублирование лида
+    Route::get('lead/duplicate/{lead_id}', ['as' => 'operator.lead.duplicate', 'uses' => 'Operator\SphereController@duplicate']);
+
 
 });
