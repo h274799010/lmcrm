@@ -478,7 +478,7 @@
 
                     var $statusLabel = $(document).find('#statusLabel_'+lead_id);
 
-                    if(type == 5) {
+                    if(type == '{{ \App\Models\SphereStatuses::STATUS_TYPE_CLOSED_DEAL }}') {
                         var $checkModal = $('#checkModal');
                         var $uploadProgress = $('#uploadProgress');
 
@@ -509,7 +509,7 @@
                             else if(data.status == 'success') {
                                 if(data.stepname != '') {
                                     $statusLabel.html(data.stepname);
-                                    if(type > 1) {
+                                    if(type > '{{ \App\Models\SphereStatuses::STATUS_TYPE_PROCESS }}') {
                                         $statusLabel.siblings().remove();
                                     }
                                 }

@@ -950,7 +950,7 @@ class LeadController extends AgentController {
         }
 
         // Если сделка отмечается закрытой
-        if($status->type == 5) {
+        if($status->type == SphereStatuses::STATUS_TYPE_CLOSED_DEAL) {
             if(empty($request->input('price'))) {
                 $res['status'] = 'fail';
                 $res['message'] = 'priceRequired'; // todo доделать вывод ошибки
@@ -993,7 +993,7 @@ class LeadController extends AgentController {
         }
         else {
             // если открытый лид отмечен как плохой
-            if(isset($status->type) && $status->type == 4) {
+            if(isset($status->type) && $status->type == SphereStatuses::STATUS_TYPE_BAD) {
 
                 if(time() < strtotime($openedLead->expiration_time)) {
                     // если время открытого лида еще не вышло
@@ -1031,7 +1031,7 @@ class LeadController extends AgentController {
             // если новый статус меньше уже установленного, выходим из метода
             // или лид отмечен как плохой
             if( isset($openedLead->statusInfo->type) ) {
-                if($openedLead->statusInfo->type == 4) {
+                if($openedLead->statusInfo->type == SphereStatuses::STATUS_TYPE_BAD) {
                     return response()->json(FALSE); // todo вывести сообщение о том что лид уже помечен как плохой и изменение статуса не возможно
                 }
                 if($openedLead->statusInfo->type  > $status->type) {
