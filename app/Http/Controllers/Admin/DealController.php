@@ -106,4 +106,14 @@ class DealController extends Controller
         );
     }
 
+
+    /**
+     * Подробности по сделке
+     *
+     */
+    public function deal( $id )
+    {
+        dd(1);
+    }
+
 }

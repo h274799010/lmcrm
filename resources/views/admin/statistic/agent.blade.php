@@ -67,6 +67,15 @@
                             </thead>
                             <tbody>
                             <tr>
+                                <td>Leads added</td>
+                                <td class="summary_table_added_all center">
+                                    {{ $statistic['added']['all'] }}
+                                </td>
+                                <td class="summary_table_added_period center">
+                                    {{ $statistic['added']['period'] }}
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Leads seen</td>
                                 <td class="summary_table_seen_all center">
                                     {{ $statistic['auction']['all'] }}
@@ -133,11 +142,12 @@
 
                 </div>
 
-
-                {{-- Таблица салесманов --}}
-                <div class="row acc_manager_block">
+                {{-- если пользователь агент, выводим таблицу его продавцов --}}
+                @if( $statistic['user']['role'] == 'agent' )
+                    {{-- Таблица салесманов --}}
+                    <div class="row acc_manager_block">
                     <div class="col-md-12">
-                        <table class="table table-striped table-bordered account_managers_table">
+                        <table class="table table-striped table-bordered salesmen_table">
 
                             <thead>
                             <tr class="account_managers_table_head">
@@ -161,40 +171,37 @@
                             </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td> name </td>
-                                    <td class="center"> 40 </td>
-                                    <td class="center"> 20 </td>
-                                    <td class="center"> 40 </td>
-                                    <td class="center"> 20 </td>
-                                    <td class="center"> 40 </td>
-                                    <td class="center"> 20 </td>
-                                    <td class="center"> yes </td>
-                                    <td class="center">  </td>
+                            @forelse( $statistic['user']['salesmenData'] as $salesman )
+                                <tr class="">
+                                    <td class="center middle"> {{ $salesman['user']['email'] }} </td>
+
+                                    <td class="center middle"> {{ $salesman['added']['all'] }} </td>
+                                    <td class="center middle"> {{ $salesman['added']['period'] }} </td>
+
+                                    <td class="center middle"> {{ $salesman['auction']['all'] }} </td>
+                                    <td class="center middle"> {{ $salesman['auction']['period'] }} </td>
+
+                                    <td class="center middle"> {{ $salesman['openLeads']['all'] }} </td>
+                                    <td class="center middle"> {{ $salesman['openLeads']['period'] }} </td>
+
+                                    <td class="center middle">@if($salesman['sphere']['presence']) yes @else no @endif </td>
+
+                                    <td class="center middle">
+                                        <a class="btn btn-sm btn-success" href="{{ route('admin.statistic.agent', ['id'=>$salesman['user']['id']]) }}">
+                                            detail
+                                        </a>
+                                    </td>
                                 </tr>
-
-
-                            {{--@forelse( $statistic['sphere']['accManagers'] as $accManager )--}}
-                                {{--<tr class="">--}}
-                                    {{--<td class="center middle"> {{ $accManager['email'] }} </td>--}}
-                                    {{--<td class="center middle">{{ $accManager['allAgents'] }}</td>--}}
-                                    {{--<td class="center middle">{{ $accManager['periodAgents'] }}</td>--}}
-                                    {{--<td class="center middle">--}}
-                                        {{--<a class="btn btn-sm btn-success" href="{{ route('admin.statistic.accManager', ['id'=>$accManager['id']]) }}">--}}
-                                            {{--detail--}}
-                                        {{--</a>--}}
-                                    {{--</td>--}}
-                                {{--</tr>--}}
-                            {{--@empty--}}
-                                {{--<tr class="status_no_status">--}}
-                                    {{--<td colspan="4" class="center middle statistics_no_data"> No account managers </td>--}}
-                                {{--</tr>--}}
-                            {{--@endforelse--}}
+                            @empty
+                                <tr class="status_no_status">
+                                    <td colspan="8" class="center middle statistics_no_data"> No salesmen's </td>
+                                </tr>
+                            @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
-
+                @endif
 
                 {{-- Проверяем достаточно ли у агента открытых лидов по сфере для статистики --}}
                 @if( $statistic['user']['statisticStatus'] )
@@ -555,6 +562,9 @@
             // минимальное количество лидов которое нужно для вывода статистики
             sphere.find('.leads_needed').text( statistic['statistic']['sphere']['minOpen'] );
 
+            // обновляем данные по количеству добавленных лидов
+            sphere.find('.summary_table_added_all').text( statistic['statistic']['added']['all'] );
+            sphere.find('.summary_table_added_period').text( statistic['statistic']['added']['period'] );
 
             // обновляем данные по количеству открытых лидов
             sphere.find('.summary_table_open_all').text( statistic['statistic']['openLeads']['all'] );
@@ -573,6 +583,133 @@
             sphere.find('.status_no_status .allPercent').text( statistic['statistic']['statuses']['noStatus']['percentAll']+'%' );
             sphere.find('.status_no_status .countPeriod').text( statistic['statistic']['statuses']['noStatus']['countPeriod'] );
             sphere.find('.status_no_status .periodPercent').text( statistic['statistic']['statuses']['noStatus']['percentAll']+'%' );
+
+
+            if( $('.salesmen_table tbody tr').length != 0){
+
+                // выбираем таблицу салесманов
+                var salesmanTable = sphere.find('.salesmen_table tbody');
+
+                // очищаем таблицу
+                salesmanTable.empty();
+
+                // если нет статуса конкретного типа
+                if( statistic['statistic']['user']['salesmenData'].length == 0){
+                    // выводим что статусов нет
+
+                    // создание строки таблицы
+                    var tr = $('<tr />');
+
+                    // создание ячейки таблицы
+                    var noStatusRow = $('<td />');
+
+                    // добавление классов
+                    noStatusRow.addClass('center statistics_no_data');
+
+                    // добавляем атрибут объединения ячеек
+                    noStatusRow.attr('colspan', 8);
+
+                    // добавление данных в ячейки
+                    noStatusRow.text( 'No salesmen\'s' );
+
+                    // добавление ячеек в строку
+                    tr.append(noStatusRow);
+
+                    // добавление строки в таблицу
+                    salesmanTable.append( tr );
+                }
+
+
+                // перебираем все статусы и наполняем таблицу
+                $.each( statistic['statistic']['user']['salesmenData'], function( statusKey, salesmenData ){
+
+                    // создание строки таблицы
+                    var tr = $('<tr />');
+
+                    // создание ячеек таблицы
+                    var name = $('<td />');
+
+                    var allAdded = $('<td />');
+                    var periodAdded = $('<td />');
+
+                    var allSeen = $('<td />');
+                    var periodSeen = $('<td />');
+
+                    var allOpen = $('<td />');
+                    var periodOpen = $('<td />');
+
+                    var presence = $('<td />');
+
+                    var action = $('<td />');
+
+                    var link = $('<a />');
+
+                    var presenceData = salesmenData['sphere']['presence'] ? 'yes' : 'no';
+
+
+
+                    // добавление классов
+                    name.addClass('middle');
+
+                    allAdded.addClass('center middle');
+                    periodAdded.addClass('center middle');
+
+                    allSeen.addClass('center middle');
+                    periodSeen.addClass('center middle');
+
+                    allOpen.addClass('center middle');
+                    periodOpen.addClass('center middle');
+
+                    presence.addClass('center middle');
+
+                    action.addClass('center middle');
+
+                    link.addClass('btn btn-sm btn-success');
+
+                    link.attr('href', '{{ route('admin.statistic.agent', ['id'=>'']) }}/' + salesmenData['user']['id'] );
+
+                    // добавление данных в ячейки
+                    name.text( salesmenData['user']['email'] );
+
+                    allAdded.text( salesmenData['added']['all'] );
+                    periodAdded.text( salesmenData['added']['period'] );
+
+                    allSeen.text( salesmenData['auction']['all'] );
+                    periodSeen.text( salesmenData['auction']['period'] );
+
+                    allOpen.text( salesmenData['openLeads']['all'] );
+                    periodOpen.text( salesmenData['openLeads']['period'] );
+
+                    presence.text( presenceData );
+
+                    link.text('detail');
+
+                    action.append( link );
+
+
+                    // добавление ячеек в строку
+                    tr.append(name);
+
+                    tr.append(allAdded);
+                    tr.append(periodAdded);
+
+                    tr.append(allSeen);
+                    tr.append(periodSeen);
+
+                    tr.append(allOpen);
+                    tr.append(periodOpen);
+
+                    tr.append(presence);
+
+                    tr.append(action);
+
+
+                    // добавление строки в таблицу
+                    salesmanTable.append( tr );
+                });
+
+
+            }
 
             // массив с типами статусов, по которым составляются таблицы
             var statusesType = [ 'process-statuses', 'undefined-statuses', 'fail-statuses', 'bad-statuses', 'closeDeal-statuses' ];

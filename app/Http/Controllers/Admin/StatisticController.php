@@ -287,9 +287,10 @@ class StatisticController extends Controller
             $sphere = $spheres->first();
 
             $statistic = Statistic::agentBySphere( $user['id'], $sphere['id'], true );
-
         }
 
+
+//        dd( $statistic );
 
         return view('admin.statistic.agent', [
             'user' => $user,

@@ -26,7 +26,6 @@ class ClosedDeals extends Model
     const LEAD_SOURCE_AUCTION = 1;
     const LEAD_SOURCE_GROUP = 2;
 
-
     /**
      * Статусы сделок
      *
@@ -34,10 +33,6 @@ class ClosedDeals extends Model
     const DEAL_STATUS_WAITING = 1;
     const DEAL_STATUS_CONFIRMED = 2;
     const DEAL_STATUS_REJECTED = 3;
-
-//- 1  // ожидание платежа
-//- 2  // сделка подтверждена
-//- 3  // сделка забракованна по каким то причинам (причины описываются в комментарии ...пока что)
 
 
     /**
