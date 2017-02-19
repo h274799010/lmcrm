@@ -24,6 +24,12 @@ class SphereStatuses extends Model
             4 => 'bad'
         ];
 
+    const STATUS_TYPE_PROCESS = 1;
+    const STATUS_TYPE_UNCERTAIN = 2;
+    const STATUS_TYPE_REFUSENIKS = 3;
+    const STATUS_TYPE_BAD = 4;
+    const STATUS_TYPE_CLOSED_DEAL = 5;
+
 
     /**
      * Получение сфер по статусу

@@ -170,11 +170,14 @@
                 };
 
                 $.post('{{ route('agent.lead.paymentDealWallet') }}', params, function (data) {
-                    if(data == true) {
+                    if(data === true) {
                         $('#paymentBtnWrap').after('<div class="alert alert-success" role="alert">Paid</div>');
                         $('#paymentBtnWrap').remove();
                     } else {
-                        alert('server error');
+                        bootbox.dialog({
+                            message: data.description,
+                            show: true
+                        });
                     }
                 });
             });

@@ -230,7 +230,7 @@ class Pay
         if( !$member->wallet->isPossible( $amount ) ){
 
             // отмена платежа из-за низкого баланса
-            return [ 'status' => 'lowBalance', 'description' => trans('lead/lead.closingDeal.low_balance')];
+            return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
         }
 
 

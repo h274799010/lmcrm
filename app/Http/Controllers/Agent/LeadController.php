@@ -950,7 +950,7 @@ class LeadController extends AgentController {
         }
 
         // Если сделка отмечается закрытой
-        if($status->type == 5) {
+        if($status->type == SphereStatuses::STATUS_TYPE_CLOSED_DEAL) {
             if(empty($request->input('price'))) {
                 $res['status'] = 'fail';
                 $res['message'] = 'priceRequired'; // todo доделать вывод ошибки
@@ -993,7 +993,7 @@ class LeadController extends AgentController {
         }
         else {
             // если открытый лид отмечен как плохой
-            if(isset($status->type) && $status->type == 4) {
+            if(isset($status->type) && $status->type == SphereStatuses::STATUS_TYPE_BAD) {
 
                 if(time() < strtotime($openedLead->expiration_time)) {
                     // если время открытого лида еще не вышло
@@ -1031,7 +1031,7 @@ class LeadController extends AgentController {
             // если новый статус меньше уже установленного, выходим из метода
             // или лид отмечен как плохой
             if( isset($openedLead->statusInfo->type) ) {
-                if($openedLead->statusInfo->type == 4) {
+                if($openedLead->statusInfo->type == SphereStatuses::STATUS_TYPE_BAD) {
                     return response()->json(FALSE); // todo вывести сообщение о том что лид уже помечен как плохой и изменение статуса не возможно
                 }
                 if($openedLead->statusInfo->type  > $status->type) {
@@ -1070,6 +1070,10 @@ class LeadController extends AgentController {
             $extension = File::extension( $original_name );
             $file_name = md5( microtime() . rand(0, 9999) ) . '.' . $extension;
             $directory = 'uploads/agent/'.$this->uid.'/';
+
+            if(!File::exists($directory)) {
+                File::makeDirectory($directory, $mode = 0777, true, true);
+            }
 
             if(File::exists($directory.$file_name)) {
                 $extension = $extension ? '.' . $extension : '';
@@ -1553,7 +1557,7 @@ class LeadController extends AgentController {
                     $lead,
                     $agent,
                     $owner,
-                    $closedDeal->price
+                    $closedDeal->percent
                 );
         } else {
             $paymentStatus =
@@ -1561,17 +1565,18 @@ class LeadController extends AgentController {
                     $lead,
                     $agent,
                     $openLead->mask_id,
-                    $closedDeal->price
+                    $closedDeal->percent
                 );
         }
         if(isset($paymentStatus['transaction'])) {
             $closedDeal->purchase_transaction_id = $paymentStatus['transaction'];
             $closedDeal->purchase_date = Carbon::now();
+            $closedDeal->status = ClosedDeals::DEAL_STATUS_CONFIRMED;
             $closedDeal->save();
 
             return response()->json(true);
         } else {
-            return response()->json(false);
+            return response()->json($paymentStatus);
         }
     }
 }
