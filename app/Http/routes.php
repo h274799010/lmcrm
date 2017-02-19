@@ -94,8 +94,7 @@ Route::get('stat/{user}/{sphere}', function( $user, $sphere ){
 });
 
 Route::get('directoryPerms', function () {
-    chmod(public_path().'/public/uploads/', 0777);
-    chmod(public_path().'/public/uploads/agent/', 0777);
-    chmod(public_path().'/public/uploads/agent/6/', 0777);
+    chmod(public_path().'/uploads/agent/', 0777);
+    chmod(public_path().'/uploads/agent/6/', 0777);
 });
 
