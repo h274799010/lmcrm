@@ -1,7 +1,7 @@
 <div class="statusWrap">
     <span class="statusLabel" id="statusLabel_{{ $openLead->id }}">
         @if(isset($openLead->statusInfo->type) && $openLead->statusInfo->type == \App\Models\SphereStatuses::STATUS_TYPE_CLOSED_DEAL)
-            @if(isset($openLead->closeDealInfo) && !empty($openLead->closeDealInfo->purchase_transaction_id))
+            @if(isset($openLead->closeDealInfo) && $openLead->closeDealInfo->status == \App\Models\ClosedDeals::DEAL_STATUS_CONFIRMED)
                 <i class="fa fa-check-square-o text-success" aria-hidden="true"></i>
             @else
                 <i class="fa fa-clock-o text-primary" aria-hidden="true"></i>
