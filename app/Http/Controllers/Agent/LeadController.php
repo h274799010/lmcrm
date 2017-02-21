@@ -1034,7 +1034,7 @@ class LeadController extends AgentController {
                 if($openedLead->statusInfo->type == SphereStatuses::STATUS_TYPE_BAD) {
                     return response()->json(FALSE); // todo вывести сообщение о том что лид уже помечен как плохой и изменение статуса не возможно
                 }
-                if($openedLead->statusInfo->type  > $status->type) {
+                if($openedLead->statusInfo->type  > $status->type && $openedLead->statusInfo->type != SphereStatuses::STATUS_TYPE_UNCERTAIN) {
                     return response()->json(FALSE); // todo вывести какое-то сообщение об ошибке
                 }
             }
@@ -1059,7 +1059,12 @@ class LeadController extends AgentController {
         }
     }
 
-
+    /**
+     * Загрузка чеков для сделки
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function checkUpload(Request $request)
     {
         $open_lead_id = $request->input('open_lead_id');
@@ -1114,6 +1119,12 @@ class LeadController extends AgentController {
         });
     }
 
+    /**
+     * Удаление чека из сделки
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function checkDelete(Request $request)
     {
         $check = CheckClosedDeals::find($request->input('id'));
@@ -1426,8 +1437,89 @@ class LeadController extends AgentController {
         return $openResult;
     }
 
-    // Получение статусов для открытого лида
+    /**
+     * Получение списка статусов для открытого лида
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function getOpenLeadStatuses(Request $request)
+    {
+        $res = array(
+            'error' => '',
+            'statuses' => array(),
+            'currentStatus' => 0
+        );
+
+        $openLeadId = $request->input('lead_id');
+        $openLead = OpenLeads::with([
+            'lead' => function($query) {
+                $query->with('sphereStatuses');
+            },
+            'statusInfo'
+        ])->find($openLeadId);
+
+        if(!isset($openLead->id)) {
+            $res['error'] = 'Open lead undefined';
+        }
+        elseif (!isset($openLead->lead->id)) {
+            $res['error'] = 'Lead undefined';
+        }
+        elseif (!isset($openLead->lead->sphereStatuses->id)) {
+            $res['error'] = 'Statuses not found';
+        }
+        else {
+            $res['lead'] = $openLead->id;
+            $tmpSstatuses = $openLead->lead->sphereStatuses->statuses;
+
+            $statuses = array();
+            foreach ($tmpSstatuses as $status) {
+                $statuses[$status->type][$status->position] = $status;
+            }
+            if(isset($openLead->statusInfo->id)) {
+                $res['currentStatus'] = $openLead->statusInfo;
+                unset($statuses[ SphereStatuses::STATUS_TYPE_BAD ]);
+                if($openLead->statusInfo->type == SphereStatuses::STATUS_TYPE_PROCESS) {
+                    unset($statuses[ SphereStatuses::STATUS_TYPE_UNCERTAIN ]);
+                }
+            } else {
+                unset($statuses[ SphereStatuses::STATUS_TYPE_REFUSENIKS ]);
+            }
+
+            $res['statuses'] = array();
+
+            $statusesTypeNames = SphereStatuses::getStatusTypeName();
+
+            foreach ($statuses as $type => $status) {
+                switch ($type) {
+                    case SphereStatuses::STATUS_TYPE_BAD:
+                        $key = 0;
+                        break;
+                    case SphereStatuses::STATUS_TYPE_UNCERTAIN:
+                        $key = 1;
+                        break;
+                    case SphereStatuses::STATUS_TYPE_PROCESS:
+                        $key = 2;
+                        break;
+                    case SphereStatuses::STATUS_TYPE_REFUSENIKS:
+                        $key = 3;
+                        break;
+                    case SphereStatuses::STATUS_TYPE_CLOSED_DEAL:
+                        $key = 4;
+                        break;
+                    default:
+                        $key = 0;
+                        break;
+                }
+                $res['statuses'][$key]['name'] = $statusesTypeNames[$type];
+                $res['statuses'][$key]['type'] = $type;
+                $res['statuses'][$key]['statuses'] = $status;
+            }
+        }
+
+        return response()->json($res);
+    }
+    public function getOpenLeadStatusesOld(Request $request)
     {
         $res = array(
             'error' => '',
@@ -1448,25 +1540,64 @@ class LeadController extends AgentController {
         } elseif (!isset($openLead->lead->sphereStatuses->id)) {
             $res['error'] = 'Statuses not found';
         } else {
-            $res['currentStatus'] = $openLead->status;
+            //$res['currentStatus'] = $openLead->status;
             $res['lead'] = $openLead->id;
             $statuses = $openLead->lead->sphereStatuses->statuses;
 
-            if($openLead->status != 0) {
+            if(isset($openLead->statusInfo)) {
                 foreach ($statuses as $key => $status) {
-                    if($status->type == 4) {
+                    if($status->type == SphereStatuses::STATUS_TYPE_BAD) {
+                        unset($statuses[$key]);
+                    }
+                    if($openLead->statusInfo->type == SphereStatuses::STATUS_TYPE_PROCESS && $status->type == SphereStatuses::STATUS_TYPE_UNCERTAIN) {
                         unset($statuses[$key]);
                     }
                 }
+                $res['currentStatus'] = $openLead->statusInfo;
+            } else {
+                $res['currentStatus'] = 0;
             }
-            $res['statuses'] = $statuses;
+            $res['statuses'] = array();
+
+            $statuseTypeNames = SphereStatuses::getStatusTypeName();
+
+            foreach ($statuses as $status) {
+                switch ($status->type) {
+                    case SphereStatuses::STATUS_TYPE_BAD:
+                        $key = 0;
+                        break;
+                    case SphereStatuses::STATUS_TYPE_UNCERTAIN:
+                        $key = 1;
+                        break;
+                    case SphereStatuses::STATUS_TYPE_PROCESS:
+                        $key = 2;
+                        break;
+                    case SphereStatuses::STATUS_TYPE_REFUSENIKS:
+                        $key = 3;
+                        break;
+                    case SphereStatuses::STATUS_TYPE_CLOSED_DEAL:
+                        $key = 4;
+                        break;
+                    default:
+                        $key = 0;
+                        break;
+                }
+                $res['statuses'][$key]['name'] = $statuseTypeNames[$status->type];
+                $res['statuses'][$key]['type'] = $status->type;
+                $res['statuses'][$key]['statuses'][] = $status;
+            }
         }
 
 
         return response()->json($res);
     }
 
-    // Подробная информация о сделке
+    /**
+     * Страница подробной информации о лиде
+     *
+     * @param $lead_id
+     * @return View
+     */
     public function aboutDeal($lead_id)
     {
         $openLead = OpenLeads::with('statusInfo', 'closeDealInfo', 'uploadedCheques')->find($lead_id);
@@ -1541,6 +1672,12 @@ class LeadController extends AgentController {
         ]);
     }
 
+    /**
+     * Оплата сделки из кошелька агента
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function paymentDealWallet(Request $request)
     {
         $openLead = OpenLeads::find($request->input('id'));
