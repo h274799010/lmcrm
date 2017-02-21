@@ -3,8 +3,15 @@
 @section('content')
     <!-- Page Content -->
     <div class="row">
+        <div class="col-xs-12">
+            <div class="page-header">
+                <h3>Deal info</h3>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-4 col-sm-6 col-xs-12">
-            <h2>Open lead info</h2>
+            <h4>Open lead info</h4>
             <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
                 <tbody>
                 @foreach($leadData as $data)
@@ -17,29 +24,8 @@
             </table>
 
         </div>
-        <div class="col-md-6 col-sm-6 col-xs-12 documents-block">
-            <h2>Uploaded documents</h2>
-            <ul class="list-group" id="filesListGroup">
-                @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
-                    @foreach($openLead->uploadedCheques as $check)
-                        <li class="list-group-item">
-                            <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" download="{{ $check->name }}">{{ $check->name }}</a>
-                            <a href="#" class="btn btn-xs btn-danger delete-document" title="Delete this document?" data-id="{{ $check->id }}">
-                                <i class="fa fa-trash-o" aria-hidden="true"></i>
-                            </a>
-                        </li>
-                    @endforeach
-                @else
-                    <li class="list-group-item list-group-item-warning empty-check-item">You have not downloaded documents</li>
-                @endif
-            </ul>
-            <div>
-                <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
-                    <div id="uploadProgress"></div>
-                </div>
-                <a href="#" class="btn btn-sm btn-success" id="addCheckBtn">Add document</a>
-            </div>
-            <h2>Deal info</h2>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <h4>Deal info</h4>
             <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
                 <tbody>
                 @if(isset($openLead->statusInfo))
@@ -74,20 +60,72 @@
         </div>
         <!-- /.col-lg-10 -->
     </div>
+    <div class="row">
+        <div class="col-xs-12 documents-block">
+            <h4>Uploaded documents</h4>
+            <div class="row" id="filesListGroup">
+                @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
+                    @foreach($openLead->uploadedCheques as $key => $check)
+                        <div class="col-xs-6 col-md-3 file-item">
+                            @if($check->type == 'image')
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail">
+                                    <img src="/{{ $check->url }}{{ $check->file_name }}" alt="{{ $check->name }}">
+                                </a>
+                            @elseif($check->type == 'word')
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
+                                    <i class="fa fa-file-word-o" aria-hidden="true"></i>
+                                </a>
+                            @elseif($check->type == 'pdf')
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
+                                    <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                </a>
+                            @elseif($check->type == 'archive')
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
+                                    <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+                                </a>
+                            @elseif($check->type == 'text')
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
+                                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                </a>
+                            @else
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
+                                    <i class="fa fa-file" aria-hidden="true"></i>
+                                </a>
+                            @endif
+                            <div class="doc-links">
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" download="{{ $check->name }}">
+                                    {{ $check->name }}
+                                </a>
+                                <a href="#" class="btn btn-xs btn-danger delete-document" title="Delete this document?" data-id="{{ $check->id }}">
+                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                        @if( ($key + 1) % 2 == 0 )
+                            <div class="clearfix @if( ($key + 1) % 4 != 0 ) visible-sm visible-xs @endif "></div>
+                        @endif
+                    @endforeach
+                @else
+                    <div class="col-xs-12 empty-check-item"><div class="alert alert-warning">You have not downloaded documents</div></div>
+                @endif
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
+                <div id="uploadProgress"></div>
+            </div>
+            <a href="#" class="btn btn-sm btn-success" id="addCheckBtn">Add document</a>
+        </div>
+    </div>
     <!-- /.row -->
     <!-- /.container -->
 @endsection
 
 @section('styles')
     <style type="text/css">
-        .documents-block {}
-        .documents-block .list-group-item {
-            position: relative;
-            padding-right: 44px;
-        }
         .delete-document {
             position: absolute;
-            right: 15px;
+            right: 0;
             top: 50%;
             margin-top: -11px;
         }
@@ -130,6 +168,17 @@
         .popover {
             min-width: 186px;
         }
+        .doc-links {
+            position: relative;
+            padding-right: 44px;
+        }
+        .thumbnail.other {
+            font-size: 80px;
+            text-align: center;
+        }
+        .file-item {
+            margin-bottom: 20px;
+        }
     </style>
 @endsection
 
@@ -144,14 +193,40 @@
 
             $.post('{{ route('agent.lead.checkDelete') }}', params, function (data) {
                 if(data == true) {
-                    $this.closest('li').remove();
+                    $this.closest('.file-item').remove();
                 } else {
                     alert('server error!')
                 }
-                if($('#filesListGroup').find('li').length <= 0) {
-                    $('#filesListGroup').html('<li class="list-group-item list-group-item-warning empty-check-item">You have not downloaded documents</li>');
+                if($('#filesListGroup').find('.file-item').length <= 0) {
+                    $('#filesListGroup').html('<div class="col-xs-12 empty-check-item"><div class="alert alert-warning">You have not downloaded documents</div></div>');
+                } else {
+                    fileListClearfix();
                 }
             });
+        }
+
+        function fileListClearfix() {
+            var $filelist = $('#filesListGroup');
+
+            var $fileItems = $filelist.find('.file-item');
+
+            if($fileItems.length > 2) {
+                $filelist.find('.clearfix').remove();
+
+                $fileItems.each(function (i, item) {
+                    var num = i + 1;
+
+                    var classes = '';
+                    if(num % 4 != 0) {
+                        classes = ' visible-sm visible-xs';
+                    }
+
+                    var clearfix = '<div class="clearfix'+classes+'"></div>';
+                    if(num % 2 == 0) {
+                        $(item).after(clearfix);
+                    }
+                });
+            }
         }
 
         $(document).ready(function () {
@@ -198,7 +273,9 @@
             filters : {
                 max_file_size : '15mb',
                 mime_types: [
-                    {title : "Image files", extensions : "jpg,jpeg,png"}
+                    {title : "Image files", extensions : "jpg,jpeg,png"},
+                    {title : "Documents", extensions : "pdf,docx,doc,txt"},
+                    {title : "Archive", extensions : "zip,rar"}
                 ]
             },
 
@@ -236,11 +313,40 @@
 
                     $('#uploadProgress').empty();
 
+                    var thumbClass = ' other';
+                    var thumbHtml = '';
+                    switch (data.type) {
+                        case 'image':
+                            thumbClass = '';
+                            thumbHtml = '<img src="/'+data.url+data.file_name+'" alt="'+data.name+'">';
+                            break;
+                        case 'word':
+                            thumbHtml = '<i class="fa fa-file-word-o" aria-hidden="true"></i>';
+                            break;
+                        case 'pdf':
+                            thumbHtml = '<i class="fa fa-file-pdf-o" aria-hidden="true"></i>';
+                            break;
+                        case 'archive':
+                            thumbHtml = '<i class="fa fa-file-archive-o" aria-hidden="true"></i>';
+                            break;
+                        case 'text':
+                            thumbHtml = '<i class="fa fa-file-text-o" aria-hidden="true"></i>';
+                            break;
+                        default:
+                            thumbHtml = '<i class="fa fa-file" aria-hidden="true"></i>';
+                            break;
+                    }
+
                     var html = '';
-                    html += '<li class="list-group-item">';
+                    html += '<div class="col-xs-6 col-md-3 file-item">';
+                    html += '<a href="/'+data.url+data.file_name+'" download="'+data.name+'" class="thumbnail'+thumbClass+'">';
+                    html += thumbHtml;
+                    html += '</a>';
+                    html += '<div class="doc-links">';
                     html += '<a href="/'+data.url+data.file_name+'" class="document-link" download="'+data.name+'">'+data.name+'</a>';
                     html += '<a href="#" class="btn btn-xs btn-danger delete-document" title="Delete this document?" data-id="'+data.id+'"><i class="fa fa-trash-o" aria-hidden="true"></i></a>';
-                    html += '</li>';
+                    html += '</div>';
+                    html += '</div>';
 
                     $('#filesListGroup').append(html);
 
@@ -252,6 +358,7 @@
                             deleteCheck($(this));
                         }
                     });
+                    fileListClearfix();
                 },
 
                 Error: function(up, err) {

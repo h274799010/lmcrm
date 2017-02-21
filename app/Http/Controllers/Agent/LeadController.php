@@ -1099,6 +1099,27 @@ class LeadController extends AgentController {
                 $check->file_name = $file_name;
                 $check->save();
 
+                $extension = strtolower(File::extension( $check->file_name ));
+
+                if(in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
+                    $type = 'image';
+                }
+                elseif (in_array($extension, array('doc', 'docx', 'rtf'))) {
+                    $type = 'word';
+                }
+                elseif (in_array($extension, array('pdf'))) {
+                    $type = 'pdf';
+                }
+                elseif (in_array($extension, array('zip', 'rar'))) {
+                    $type = 'archive';
+                }
+                elseif (in_array($extension, array('txt'))) {
+                    $type = 'text';
+                }
+                else {
+                    $type = 'undefined';
+                }
+
                 // This will be included in JSON response result
                 return [
                     'success'   => true,
@@ -1107,6 +1128,7 @@ class LeadController extends AgentController {
                     'file_name' => $check->file_name,
                     'url'       => $check->url,
                     'id'        => $check->id,
+                    'type'      => $type,
                     // 'url'       => $photo->getImageUrl($filename, 'medium'),
                     // 'deleteUrl' => action('MediaController@deleteDelete', [$photo->id])
                 ];
@@ -1602,6 +1624,31 @@ class LeadController extends AgentController {
     {
         $openLead = OpenLeads::with('statusInfo', 'closeDealInfo', 'uploadedCheques')->find($lead_id);
         $user = Sentinel::getUser();
+
+        if(isset($openLead->uploadedCheques)) {
+            foreach ($openLead->uploadedCheques as $key => $cheque) {
+                $extension = strtolower(File::extension( $cheque->file_name ));
+
+                if(in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
+                    $openLead->uploadedCheques[$key]->type = 'image';
+                }
+                elseif (in_array($extension, array('doc', 'docx', 'rtf'))) {
+                    $openLead->uploadedCheques[$key]->type = 'word';
+                }
+                elseif (in_array($extension, array('pdf'))) {
+                    $openLead->uploadedCheques[$key]->type = 'pdf';
+                }
+                elseif (in_array($extension, array('zip', 'rar'))) {
+                    $openLead->uploadedCheques[$key]->type = 'archive';
+                }
+                elseif (in_array($extension, array('txt'))) {
+                    $openLead->uploadedCheques[$key]->type = 'text';
+                }
+                else {
+                    $openLead->uploadedCheques[$key]->type = 'undefined';
+                }
+            }
+        }
 
         $data = Lead::find( $openLead->lead_id );
         $leadData[] = [ 'name',$data->name ];
