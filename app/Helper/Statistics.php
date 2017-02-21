@@ -34,8 +34,17 @@ class Statistics
         'allCount' => false,             // количество лидов всего
         'periodCount' => false,          // количество лидов за заданный период
 
+        'allLeadsAddedId' => false,      // всего добавленных лидов
+        'periodLeadsAddedId' => false,   // лиды добавленные за период
+
+        'allLeadsAddedCount' => false,   // количество всех добавленных лидов
+        'periodLeadsAddedCount' => false,// количество лидов добавленных за период
+
         'allAuctionCount' => false,      // количество просмотренных лидов за все время
         'periodAuctionCount' => false,   // количество просмотренных лидов за период
+
+        'givenDateFrom' => false,        // переданное в метод начальное время периода
+        'givenDateTo' => false,          // переданное в метод конечное время периода
 
         'dateFrom' => false,             // начальное время периода
         'dateTo' => false,               // конечное время периода
@@ -68,6 +77,7 @@ class Statistics
         'addUserToSphere' => false,      // время, когда пользователь был добавлен в сферу
 
         'salesman' => false,             // id продавцов пользователя
+        'salesmenData' => false,         // продавцы пользователя с дынными
         'salesmanCount' => false,        // количество продавцов пользователя
 
         'statusesNames' =>               // массив с именами статусов
@@ -115,6 +125,10 @@ class Statistics
 
         // выбираем бользователя
         $user = User::with('roles')->find( $userId );
+
+        if(!$user){
+//            dd( $userId );
+        }
 
         // заносим модель пользователя в глобальный массив
         $this->openLeads['userModel'] = $user;
@@ -183,7 +197,8 @@ class Statistics
             return true;
         }
 
-        return false;    }
+        return false;
+    }
 
 
     /**
@@ -289,25 +304,25 @@ class Statistics
                 // добавляем id агента в переменную пользователею
                 $users = [ $set['user_id'] ];
 
+                // получение всех продавцов агента
+                $salesman = SalesmanInfo::
+                      where( 'agent_id', $set['user_id'] )
+                    ->lists('salesman_id');
+
+                // сохраняем количество продавцов в общем массиве
+                $this->openLeads['salesman'] = $salesman->toArray();
+
+                // сохраняем id продавцов в общем массиве
+                $this->openLeads['salesmanCount'] = $salesman->count();
+
                 // если есть указание на получение статистики в том числе и по продавцам агента
-                if( isset($set['salesman']) ){
-
-                    // получение всех продавцов агента
-                    $salesman = SalesmanInfo::
-                    where( 'agent_id', $set['user_id'] )
-                        ->lists('salesman_id');
-
-                    // сохраняем количество продавцов в общем массиве
-                    $this->openLeads['salesman'] = $salesman->toArray();
-
-                    // сохраняем id продавцов в общем массиве
-                    $this->openLeads['salesmanCount'] = $salesman->count();
-
+                if( $set['salesman'] ){
                     // добавляем продавцов в массив пользователя
                     $users = array_merge( $users, $this->openLeads['salesman'] );
-                    // заносим данные в общую переменную
-                    $this->openLeads['usersForStatistic'] = $users;
                 }
+
+                // заносим данные в общую переменную
+                $this->openLeads['usersForStatistic'] = $users;
             }
         }
 
@@ -702,6 +717,46 @@ class Statistics
 
 
     /**
+     * Получение всех лидов добавленнех пользователями
+     *
+     */
+    private function getAddedLeads()
+    {
+
+        // если указанны пользователи к статистике
+        if( $this->openLeads['usersForStatistic'] ){
+            // выбираем лиды добавленных выбранными пользователями
+
+            // выбираем все лиды добавленные пользователями
+            $this->openLeads['allLeadsAddedId'] = Lead::
+                  whereIn('agent_id', $this->openLeads['usersForStatistic'])
+                ->where('sphere_id', $this->openLeads['sphere_id'])
+                ->lists('id');
+
+            // подсчитываем все лиды добавленные пользователями
+            $this->openLeads['allLeadsAddedCount'] = $this->openLeads['allLeadsAddedId']->count();
+
+            // если задан период
+            if( $this->openLeads['dateFrom'] && $this->openLeads['dateTo'] ){
+                // находим лиды, добавленные пользователями за период
+
+                // выбираем лиды добавленные пользователями за период
+                $this->openLeads['periodLeadsAddedId'] = Lead::
+                      whereIn('agent_id', $this->openLeads['usersForStatistic'])
+                    ->where('sphere_id', $this->openLeads['sphere_id'])
+                    ->where( 'created_at', '>=', $this->openLeads['dateFrom'] )
+                    ->where( 'created_at', '<=', $this->openLeads['dateTo'] )
+                    ->lists('id');
+
+                // подсчитываем лиды добавленные пользователями за период
+                $this->openLeads['periodLeadsAddedCount'] = $this->openLeads['periodLeadsAddedId']->count();
+            }
+
+        }
+    }
+
+
+    /**
      * Получение всех лидов по заданной сфере
      *
      * Если сфера не заданна, вернется 0
@@ -814,6 +869,41 @@ class Statistics
         return false;
     }
 
+
+    /**
+     * Получение данных салесманов агента
+     *
+     */
+    private function getSalesmenData()
+    {
+
+        // считается только если считается статистика по агенту
+        if( $this->openLeads['userRole'] == 'agent' ){
+
+            // выбираем всех продавцов и переводим в коллекцию
+            $salesmen = collect($this->openLeads['salesman']);
+
+            // ссылка на данные по салесманам
+            $salesmenData = &$this->openLeads['salesmenData'];
+
+            // получение id сферы
+            $sphereId = $this->openLeads['sphere_id'];
+
+            // получение заданного промежутка времени
+            $dateFrom = $this->openLeads['givenDateFrom'];
+            $dateTo = $this->openLeads['givenDateTo'];
+
+            // перебираем всех продавцов агента
+            $salesmen->each(function( $salesman ) use( &$salesmenData, $sphereId, $dateFrom, $dateTo ){
+                // получаем по каждому статистику и записываем в общий массив
+
+                $statistic = new Statistics();
+                $salesmenData[] = $statistic->agentBySphereShort( $salesman, $sphereId, false, $dateFrom, $dateTo);
+            });
+        }
+    }
+
+
     /**
      * Получение статистики агента по сфере
      *
@@ -826,7 +916,7 @@ class Statistics
      *
      * @return array
      */
-    public function agentBySphere( $userId, $sphereId, $salesman, $dateFrom=false, $dateTo=false )
+    public function agentBySphereShort( $userId, $sphereId, $salesman, $dateFrom=false, $dateTo=false )
     {
 
         /** Обработка переданных функции данных */
@@ -849,6 +939,10 @@ class Statistics
 
         // если id сферы равен нулю - выходим
         if( !$sphereId ){ abort(403, 'Wrong sphere id'); }
+
+        // запоминаем переданные данные по периоду времени
+        $this->openLeads['givenDateFrom'] = $dateFrom;
+        $this->openLeads['givenDateTo'] = $dateTo;
 
         // если время не заданно
         if( !$dateFrom ){
@@ -891,6 +985,179 @@ class Statistics
 
         /** ======================================================================== */
 
+        // получение данных по всем салесманам
+        $this->getSalesmenData();
+
+        // подсчет лидов, добавленных пользователем
+        $this->getAddedLeads();
+
+        // добавление количества просмотренных лидов
+        $this->getAuctionLeads();
+
+        // формирование основного массива данных
+        $statistics =
+            [
+                'sphere' =>
+                [
+                    'id' => $this->openLeads['sphere_id'],
+                    'name' => $this->openLeads['sphereName'],
+                    'minOpen' => $this->openLeads['sphereMinOpen'],
+                    'status' => $this->openLeads['sphereStatus'],
+                ],
+
+                'user' =>
+                [
+                    'id' => $this->openLeads['user_id'],
+                    'role' => $this->openLeads['userRole'],
+                    'email' => $this->openLeads['userModel']['email'],
+                    'first_name' => $this->openLeads['userModel']['first_name'],
+                    'last_name' => $this->openLeads['userModel']['last_name'],
+                    'created_at' => $this->openLeads['userCreated'] ? $this->openLeads['userCreated']->format('d/m/Y') : '-',
+
+                    'addToSphere' => $this->openLeads['addUserToSphere'] ? $this->openLeads['addUserToSphere']->format('d/m/Y') : '-',
+
+                    'withSalesman' => $this->openLeads['salesman'],
+                    'salesmanCount' => $this->openLeads['salesmanCount'],
+                    'salesmenData' => $this->openLeads['salesmenData'] ? $this->openLeads['salesmenData'] : collect(),
+
+
+                    'statisticStatus' => $this->openLeads['allCount'] >= $this->openLeads['sphereMinOpen'],
+                ],
+
+                'period' =>
+                [
+                    'from' => $this->openLeads['dateFrom'],
+                    'to' => $this->openLeads['dateTo'],
+                ],
+
+                'added' =>
+                [
+                    'all' => $this->openLeads['allLeadsAddedCount'],
+                    'period' => $this->openLeads['periodLeadsAddedCount'],
+                ],
+
+                'auction' =>
+                [
+                    'all' => $this->openLeads['allAuctionCount'],
+                    'period' => $this->openLeads['periodAuctionCount'],
+                ],
+
+                'openLeads' =>
+                [
+                    'all' => $this->openLeads['allCount'],
+                    'period' => $this->openLeads['periodCount'],
+                ],
+            ];
+
+        // если статистика расчитывается по салесману
+        if( $this->openLeads['userRole'] == 'salesman' ){
+            // в массив статистики добавляются еще некоторые данные
+
+            // агент, к которому принадлежит продавец
+            $statistics['user']['parentAgent'] = SalesmanInfo::
+                  where('salesman_id', $this->openLeads['user_id'])
+                ->first()->agent_id;
+
+            // находится ли продавец на данный момент в заданной сфере
+            $isSalesmanSphere = UserMasks::
+                  where('user_id', $this->openLeads['user_id'])
+                ->where('sphere_id', $this->openLeads['sphere_id'])
+                ->lists('id');
+
+            $statistics['sphere']['presence'] = $isSalesmanSphere->count() > 0;
+        }
+
+        return $statistics;
+    }
+
+
+    /**
+     * Получение статистики агента по сфере
+     *
+     *
+     * @param  integer  $userId
+     * @param  integer  $sphereId
+     * @param  boolean  $salesman
+     * @param  boolean|string  $dateFrom
+     * @param  boolean|string  $dateTo
+     *
+     * @return array
+     */
+    public function agentBySphere( $userId, $sphereId, $salesman, $dateFrom=false, $dateTo=false )
+    {
+
+        /** Обработка переданных функции данных */
+
+        // проверка id пользователя
+        $userId = (int)$userId;
+
+        // проверка id сферы
+        $sphereId = (int)$sphereId;
+
+        // проверка типа параметра салесманов
+        if( gettype($salesman) !== 'boolean' ){
+            // должен быть 'boolean'
+            // если не 'boolean' - выбиваем ошибку
+            abort(403, 'Wrong parameter for salesman, it must be boolean');
+        }
+
+        // если id пользователя равен нулю - выходим
+        if( !$userId ){ abort(403, 'Wrong user id'); }
+
+        // если id сферы равен нулю - выходим
+        if( !$sphereId ){ abort(403, 'Wrong sphere id'); }
+
+        // запоминаем переданные данные по периоду времени
+        $this->openLeads['givenDateFrom'] = $dateFrom;
+        $this->openLeads['givenDateTo'] = $dateTo;
+
+        // если время не заданно
+        if( !$dateFrom ){
+            // выбирается текущая дата
+            $dateFrom = $dateTo = date('Y-m-d');
+        }
+
+        // приводим начальное время к нужному формату
+        $dateFrom = Carbon::createFromFormat('Y-m-d', $dateFrom)->format('Y-m-d 00:00:00');
+        // запоминаем дату в глобальной переменной
+        $this->openLeads['dateFrom'] = $dateFrom;
+
+        // приводи конечное время к нужному формату
+        $dateTo = Carbon::createFromFormat('Y-m-d', $dateTo)->format('Y-m-d 23:59:59');
+        // запоминаем дату в глобальной переменной
+        $this->openLeads['dateTo'] = $dateTo;
+
+        /** ======================================================================= */
+
+
+
+        /** Подготовка и получение нужных данных */
+
+        // получаем данные по сфере и заносим в глобальный массив
+        $this->getUser( $userId );
+
+        // получаем данные по сфере и заносим в глобальный массив
+        $this->getSphere( $sphereId );
+
+        // создание билдеров открытых лидов
+        $this->selectOpenLeads(
+            [
+                'sphere_id' => $sphereId,       // id сферы
+                'user_id' => $userId,           // id пользователя
+                'dateFrom' => $dateFrom,        // начало периода
+                'dateTo' => $dateTo,            // конец периода
+                'salesman' => $salesman         // получить открытые лиды вместе с салесманами агента
+            ]
+        );
+
+        /** ======================================================================== */
+
+        // получение данных по всем салесманам
+        $this->getSalesmenData();
+
+        // подсчет лидов, добавленных пользователем
+        $this->getAddedLeads();
+
         // формирование массива статусов по статусам сферы
         // и подсчет статистики по открытым лидам
         $this->getSphereStatuses();
@@ -931,6 +1198,8 @@ class Statistics
 
                     'withSalesman' => $this->openLeads['salesman'],
                     'salesmanCount' => $this->openLeads['salesmanCount'],
+                    'salesmenData' => $this->openLeads['salesmenData'] ? $this->openLeads['salesmenData'] : collect(),
+
 
                     'statisticStatus' => $this->openLeads['allCount'] >= $this->openLeads['sphereMinOpen'],
                 ],
@@ -939,6 +1208,12 @@ class Statistics
                 [
                     'from' => $this->openLeads['dateFrom'],
                     'to' => $this->openLeads['dateTo'],
+                ],
+
+            'added' =>
+                [
+                    'all' => $this->openLeads['allLeadsAddedCount'],
+                    'period' => $this->openLeads['periodLeadsAddedCount'],
                 ],
 
             'auction' =>
@@ -971,6 +1246,23 @@ class Statistics
 
             'transitions' => $this->openLeads['transitions'] ? $this->openLeads['transitions'] : [],
         ];
+
+        // если статистика расчитывается по салесману
+        if( $this->openLeads['userRole'] == 'salesman' ){
+            // в массив статистики добавляются еще некоторые данные
+
+            // агент, к которому принадлежит продавец
+            $statistics['user']['parentAgent'] = SalesmanInfo::
+                  where('salesman_id', $this->openLeads['user_id'])
+                ->first()->agent_id;
+
+            // находится ли продавец на данный момент в заданной сфере
+            $statistics['sphere']['presence'] = UserMasks::
+                  where('user_id', $this->openLeads['user_id'])
+                ->where('sphere_id', $this->openLeads['sphere_id'])
+                ->lists('id');
+
+        }
 
         return $statistics;
     }
@@ -1031,8 +1323,6 @@ class Statistics
 
         // получаем данные по сфере и заносим в глобальный массив
         $this->getSphere( $sphereId );
-
-//        dd( $this->openLeads );
 
         // создание билдеров открытых лидов
         $this->selectOpenLeads(
