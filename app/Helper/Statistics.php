@@ -665,8 +665,14 @@ class Statistics
 
             $users = $this->openLeads['usersForStatistic'] === [] ? false : $this->openLeads['usersForStatistic'];
 
+            // todo
+//            dd($users);
+
             $allAuctionLeads->whereIn('user_id', $users);
         }
+
+//        dd($this->openLeads);
+
 
         // выбираем все лиды с аукциона по заданным в билдере параметрам
         $allAuctionLeads = $allAuctionLeads
@@ -676,6 +682,7 @@ class Statistics
         // добавляем количество в статистику
         $this->openLeads['allAuctionCount'] = $allAuctionLeads->count();
 
+//        dd( $this->openLeads['allAuctionCount'] );
 
         /** Находим просмотренные лиды за заданный период */
 
@@ -1152,8 +1159,6 @@ class Statistics
 
         /** ======================================================================== */
 
-        // получение данных по всем салесманам
-        $this->getSalesmenData();
 
         // подсчет лидов, добавленных пользователем
         $this->getAddedLeads();
@@ -1173,6 +1178,9 @@ class Statistics
 
         // добавление количества просмотренных лидов
         $this->getAuctionLeads();
+
+        // получение данных по всем салесманам
+        $this->getSalesmenData();
 
         // формирование основного массива данных
         $statistics =

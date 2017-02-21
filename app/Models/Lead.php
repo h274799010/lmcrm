@@ -400,8 +400,7 @@ class Lead extends EloquentUser {
     public function auctionStatusName()
     {
         // выбираем значение из переменной статуса лида на аукционе
-        //return self::$auctionStatus[ $this['auction_status'] ];
-        return trans('lead/statuses.auctionStatus.'.$this['status']);
+        return trans('lead/statuses.auctionStatus.'.$this['auction_status']);
     }
 
 
@@ -415,8 +414,7 @@ class Lead extends EloquentUser {
     public function paymentStatusName()
     {
         // выбираем значение из переменной статуса лида по оплате
-        //return self::$paymentStatus[ $this['payment_status'] ];
-        return trans('lead/statuses.paymentStatus.'.$this['status']);
+        return trans('lead/statuses.paymentStatus.'.$this['payment_status']);
     }
 
 

@@ -57,38 +57,38 @@
                 {{--</div>--}}
                 {{--<a href="#" class="btn btn-sm btn-success" id="addCheckBtn">Add document</a>--}}
             {{--</div>--}}
-            {{--<h2>Deal info</h2>--}}
-            {{--<table class="table table-bordered table-striped table-hover" id="openLeadsTable">--}}
-                {{--<tbody>--}}
-                {{--@if(isset($openLead->statusInfo))--}}
-                    {{--<tr>--}}
-                        {{--<th>Name</th>--}}
-                        {{--<td>{{ $openLead->statusInfo->stepname }}</td>--}}
-                    {{--</tr>--}}
-                {{--@endif--}}
-                {{--@if(isset($openLead->closeDealInfo))--}}
-                    {{--<tr>--}}
-                        {{--<th>Price</th>--}}
-                        {{--<td>{{ $openLead->closeDealInfo->price }}</td>--}}
-                    {{--</tr>--}}
-                    {{--<tr>--}}
-                        {{--<th colspan="2">Comment</th>--}}
-                    {{--</tr>--}}
-                    {{--<tr>--}}
-                        {{--<td colspan="2">{{ $openLead->closeDealInfo->comments }}</td>--}}
-                    {{--</tr>--}}
-                {{--@endif--}}
-                {{--</tbody>--}}
-            {{--</table>--}}
-            {{--@if(isset($openLead->closeDealInfo) && empty($openLead->closeDealInfo->purchase_transaction_id))--}}
-                {{--<div id="paymentBtnWrap">--}}
-                    {{--<h2>Pay out:</h2>--}}
-                    {{--<a href="#" class="btn btn-sm btn-primary" id="btnPayWallet">Wallet</a>--}}
-                    {{--<a href="#" class="btn btn-sm btn-primary">Other</a>--}}
-                {{--</div>--}}
-            {{--@else--}}
-                {{--<div class="alert alert-success" role="alert">Paid</div>--}}
-            {{--@endif--}}
+            <h2>Deal info</h2>
+            <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
+                <tbody>
+                @if(isset($openLead->statusInfo))
+                    <tr>
+                        <th>Name</th>
+                        <td>{{ $openLead->statusInfo->stepname }}</td>
+                    </tr>
+                @endif
+                @if(isset($openLead->closeDealInfo))
+                    <tr>
+                        <th>Price</th>
+                        <td>{{ $openLead->closeDealInfo->price }}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Comment</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">{{ $openLead->closeDealInfo->comments }}</td>
+                    </tr>
+                @endif
+                </tbody>
+            </table>
+            @if(isset($openLead->closeDealInfo) && empty($openLead->closeDealInfo->purchase_transaction_id))
+                <div id="paymentBtnWrap">
+                    <h2>Pay out:</h2>
+                    <a href="#" class="btn btn-sm btn-primary" id="btnPayWallet">Wallet</a>
+                    <a href="#" class="btn btn-sm btn-primary">Other</a>
+                </div>
+            @else
+                <div class="alert alert-success" role="alert">Paid</div>
+            @endif
         </div>
         <!-- /.col-lg-10 -->
     </div>

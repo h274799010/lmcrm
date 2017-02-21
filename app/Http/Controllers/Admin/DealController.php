@@ -182,6 +182,8 @@ class DealController extends Controller
             $leadData[] = [ $attr->label, $str ];
         }
 
+        dd($openLead);
+
         return view('admin.deal.info', [
             'leadData' => $leadData,
             'openLead' => $openLead

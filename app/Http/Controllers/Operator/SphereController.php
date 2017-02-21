@@ -67,23 +67,6 @@ class SphereController extends Controller {
     public function index()
     {
 
-//        Log::info('Запущена страница', ['id'=>4]);
-
-
-//        Storage::get('file.jpg');
-
-//        dd( \Storage::disk('logs')->get('laravel.log') );
-
-        // вывод данных в лог
-//        dd( \Storage::disk('logs')->get('laravel-2017-01-04.log') );
-
-//        $monolog = Log::getMonolog();
-
-//        dd($monolog);
-
-
-        // todo заполнение таблицы данных по лидам, удалить
-//        \App\Lmcrm\Lead::FillingLeadData();
 
         // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
@@ -240,6 +223,7 @@ class SphereController extends Controller {
             'auctionStatusName' => $lead->auctionStatusName(),
             'paymentStatusName' => $lead->paymentStatusName(),
         ];
+
 
         return view('sphere.lead.edit')
             ->with('leadStatus',$leadStatus)
