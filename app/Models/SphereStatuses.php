@@ -41,4 +41,20 @@ class SphereStatuses extends Model
         return $this->belongsTo('App\Models\Sphere','id','sphere_id');
     }
 
+    /**
+     * Ф-ция возвращает имена типов статусов сферы
+     *
+     * @return array
+     */
+    public static function getStatusTypeName()
+    {
+        return array(
+            self::STATUS_TYPE_PROCESS => 'Process',
+            self::STATUS_TYPE_UNCERTAIN => 'Uncertain',
+            self::STATUS_TYPE_REFUSENIKS => 'Refuseniks',
+            self::STATUS_TYPE_BAD => 'Bad',
+            self::STATUS_TYPE_CLOSED_DEAL => 'Close deal',
+        );
+    }
+
 }

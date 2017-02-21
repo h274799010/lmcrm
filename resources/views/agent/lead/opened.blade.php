@@ -377,20 +377,97 @@
             border: solid 1px #ED5056;
         }
 
-        .item-type-1 {
-            background-color: #acf58c;
+        .panel-body {
+            border: 1px solid;
+            border-top: none;
+            margin-top: -1px;
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
         }
-        .item-type-2 {
-            background-color: #e4f693;
+        .item-type-1 .panel-body {
+            border-color: #00B050;
         }
-        .item-type-3 {
-            background-color: #fffbb2;
+        .item-type-2 .panel-body {
+            border-color: #D9A502;
         }
-        .item-type-4 {
-            background-color: #eed4d4;
+        .item-type-3 .panel-body {
+            border-color: #8A3324;
         }
-        .item-type-5 {
-            background-color: #80cbc4;
+        .item-type-4 .panel-body {
+            border-color: #CD0000;
+        }
+        .item-type-5 .panel-body {
+            border-color: #3F51B5;
+        }
+
+        .item-type-1 .list-group-item:not(.disabled), .item-type-1 .panel-heading {
+            background-color: #00B050;
+        }
+        .item-type-2 .list-group-item:not(.disabled), .item-type-2 .panel-heading {
+            background-color: #D9A502;
+        }
+        .item-type-3 .list-group-item:not(.disabled), .item-type-3 .panel-heading {
+            background-color: #8A3324;
+        }
+        .item-type-4 .list-group-item:not(.disabled), .item-type-4 .panel-heading {
+            background-color: #CD0000;
+        }
+        .item-type-5 .list-group-item:not(.disabled), .item-type-5 .panel-heading {
+            background-color: #3F51B5;
+        }
+        a.list-group-item .list-group-item-heading, a.list-group-item .list-group-item-text {
+            color: #ffffff;
+        }
+        a.list-group-item:hover .list-group-item-heading, a.list-group-item:hover .list-group-item-text {
+            color: #333;
+        }
+        a.list-group-item:hover {
+            background-color: #ffffff !important;
+        }
+        a.list-group-item.disabled:hover {
+            opacity: 0.6;
+            background-color: #eee !important;
+            color: #777 !important;
+            -webkit-transition: opacity 0.2s ease;
+            -moz-transition: opacity 0.2s ease;
+            -ms-transition: opacity 0.2s ease;
+            -o-transition: opacity 0.2s ease;
+            transition: opacity 0.2s ease;
+        }
+        .statusLabel.waiting {
+            color: #D9A502;
+        }
+        .statusLabel.rejected {
+            color: green;
+        }
+        .list-group {
+            margin-bottom: 0;
+        }
+        .list-group {
+            padding-bottom: 0;
+        }
+        .list-group-item.active .list-group-item-text,
+        .list-group-item.active:focus .list-group-item-text,
+        .list-group-item.active:hover .list-group-item-text,
+        .list-group-item.active .list-group-item-heading,
+        .list-group-item.active:focus .list-group-item-heading,
+        .list-group-item.active:hover .list-group-item-heading {
+            color: #333333 !important;
+        }
+        .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+            background-color: #ffffff !important;
+        }
+        .panel-heading {
+            color: #ffffff !important;
+        }
+        .list-group-item-heading .fa {
+            margin-right: 8px;
+        }
+        .btn-default.disabled:hover,
+        .btn-default.disabled:focus,
+        .btn-default.disabled:active {
+            color: #2b8eab;
+            border-color: #3ebbdf;
         }
 
     </style>
@@ -400,26 +477,47 @@
 @section('scripts')
     <script>
         var _token = '{{ csrf_token() }}';
-        function prependOpenLeadsStatuses(currentStatus, statuses, lead_id) {
+        function prependOpenLeadsStatuses(currentStatus, data, lead_id) {
             var html = '';
 
-            html += '<div class="list-group">';
 
-            $.each(statuses, function (i, status) {
-                var itemClass = '';
-                if(currentStatus >= status.id) {
-                    itemClass = ' disabled';
-                }
+            $.each(data, function (i, group) {
+                html += '<div class="panel panel-default item-type-'+group.type+'">';
+                html += '<div class="panel-heading">'+group.name+'</div>';
+                html += '<div class="panel-body">';
+                html += '<div class="list-group">';
+                $.each(group.statuses, function (ind, status) {
+                    var itemClass = '';
+                    var faClass = ' fa-square-o';
 
-                html += '<a href="#" class="list-group-item btnChangeStatus'+itemClass+' item-type-'+status.type+'" data-lead-id="'+lead_id+'" data-status="'+status.id+'" data-type="'+status.type+'">';
-                html += '<h4 class="list-group-item-heading">'+status.stepname+'</h4>';
-                if(status.comment) {
-                    html += '<p class="list-group-item-text">'+status.comment+'</p>';
-                }
-                html += '</a>';
+                    /*if(currentStatus != 0 && (currentStatus.type == status.type && currentStatus.position >= status.position)) {
+                        itemClass = ' disabled';
+                        faClass = ' fa-lock';
+                    }*/
+
+                    if(currentStatus != 0) {
+                        if(
+                            (currentStatus.type == '{{ \App\Models\SphereStatuses::STATUS_TYPE_UNCERTAIN }}' && (currentStatus.type == status.type && currentStatus.id == status.id))
+                            ||
+                            (currentStatus.type == '{{ \App\Models\SphereStatuses::STATUS_TYPE_PROCESS }}' && (currentStatus.type == status.type && currentStatus.position >= status.position))
+                        ) {
+                            itemClass = ' disabled';
+                            faClass = ' fa-lock';
+                        }
+                    }
+
+                    html += '<a href="#" class="list-group-item btnChangeStatus'+itemClass+'" data-lead-id="'+lead_id+'" data-status="'+status.id+'" data-type="'+status.type+'">';
+                    html += '<h4 class="list-group-item-heading"><i class="fa'+faClass+'" aria-hidden="true"></i>'+status.stepname+'</h4>';
+                    if(status.comment) {
+                        html += '<p class="list-group-item-text">'+status.comment+'</p>';
+                    }
+                    html += '</a>';
+                });
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
             });
 
-            html += '</div>';
 
             return html;
         }
@@ -437,11 +535,20 @@
         $(document).ready(function () {
             $(document).on('click', '.changeStatus', function (e) {
                 e.preventDefault();
+                var $this = $(this);
+                if($this.hasClass('disabled')) {
+                    return false;
+                }
 
                 var $modal = $('#setStatusModal');
-                var params = 'lead_id='+$(this).data('lead-id')+'&_token='+_token;
+                var params = 'lead_id='+$this.data('lead-id')+'&_token='+_token;
+                $this.find('.fa').removeClass('fa-pencil').addClass('fa-spinner fa-spin fa-fw');
+                $this.addClass('disabled');
 
                 $.post('{{ route('agent.lead.getOpenLeadStatuses') }}', params, function (data) {
+                    $this.find('.fa').removeClass('fa-spinner fa-spin fa-fw').addClass('fa-pencil');
+                    $this.removeClass('disabled');
+
                     var html = prependOpenLeadsStatuses(data.currentStatus, data.statuses, data.lead);
 
                     $modal.find('.modal-body').html(html);
@@ -455,7 +562,9 @@
 
                 if(!$(this).hasClass('disabled')) {
                     $('.btnChangeStatus').removeClass('active');
+                    $('.btnChangeStatus:not(.disabled)').find('.fa').addClass('fa-square-o').removeClass('fa-check-square-o');
                     $(this).addClass('active');
+                    $(this).find('.fa').removeClass('fa-square-o').addClass('fa-check-square-o');
                 }
                 propBtnSetStatus();
             });
@@ -509,7 +618,7 @@
                             else if(data.status == 'success') {
                                 if(data.stepname != '') {
                                     $statusLabel.html(data.stepname);
-                                    if(type > '{{ \App\Models\SphereStatuses::STATUS_TYPE_PROCESS }}') {
+                                    if(type != '{{ \App\Models\SphereStatuses::STATUS_TYPE_PROCESS }}' && type != '{{ \App\Models\SphereStatuses::STATUS_TYPE_UNCERTAIN }}') {
                                         $statusLabel.siblings().remove();
                                     }
                                 }
