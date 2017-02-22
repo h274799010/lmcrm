@@ -704,7 +704,8 @@
                         else if(data.status == 'success') {
                             if(data.stepname != '') {
                                 var lead_id = $checkModal.find('input[name=openedLeadId]').val();
-                                $statusLabel.html('<i class="fa fa-clock-o text-primary" aria-hidden="true"></i> '+data.stepname);
+                                $statusLabel.addClass('waiting');
+                                $statusLabel.html('<i class="fa fa-clock-o" aria-hidden="true"></i> '+data.stepname);
                                 $statusLabel.siblings().remove();
                                 $statusLabel.after('<a href="{{ url('/') }}/agent/lead/aboutDeal/'+lead_id+'" class="btn btn-default btn-sm btn-status aboutDeal"><i class="fa fa-eye" aria-hidden="true"></i></a>');
                             }
@@ -732,33 +733,6 @@
         @else
             jsonSpheres = {};
         @endif
-
-        /**
-         * Делает опции выпадающего меню на странице openLeads недоступными (отрабатывает только на фронтенде)
-         *
-         * перебирает все опции в селекте и останавливается только дойдя до активной опции
-         *
-         */
-
-        function disabledSelectOption() {
-
-            // выбираем все ячейки с селектом в таблице
-            $.each($(document).find('.select_cell'), function (k, cell) {
-
-                // перебираем все опции в ячейке
-                $.each($(cell).find('li'), function (k, li) {
-
-                    // если доходим до активного класса - останавливаемся
-                    if ($(li).hasClass('selectboxit-selected')) {
-                        return false;
-
-                        // если опция находится до активного класса - делаем ее недоступной
-                    } else {
-                        $(li).attr('data-disabled', 'true').addClass('disabled');
-                    }
-                });
-            });
-        }
 
         function prependSphereFilter(spheres) {
             var html = '<option selected="selected" value=""></option>';
@@ -828,7 +802,6 @@
                     "complete": function () {
                         $(document).find('#openLeadsTable select').selectBoxIt();
                         // делаем опции, которые находятся до активной опции - недоступными
-                        disabledSelectOption();
                         @if(isset($lead_id))
                             if(flag == true) {
                                 flag = false;
@@ -1274,13 +1247,15 @@
 
             multipart_params: {
                 _token: $('meta[name=csrf-token]').attr('content'),
-                open_lead_id: $('#checkModal').find('input[name=open_lead_id]').val()
+                open_lead_id: $('#checkModal').find('input[name=openedLeadId]').val()
             },
 
             filters : {
                 max_file_size : '15mb',
                 mime_types: [
-                    {title : "Image files", extensions : "jpg,jpeg,png"}
+                    {title : "Image files", extensions : "jpg,jpeg,png"},
+                    {title : "Documents", extensions : "pdf,docx,doc,txt"},
+                    {title : "Archive", extensions : "zip,rar"}
                 ]
             },
 
@@ -1288,7 +1263,7 @@
                 FilesAdded: function(up, files) {
                     $('#jsAjaxPreloader').show();
 
-                    up.settings.multipart_params.open_lead_id = $('#checkModal').find('input[name=open_lead_id]').val();
+                    up.settings.multipart_params.open_lead_id = $('#checkModal').find('input[name=openedLeadId]').val();
 
                     $.each(files, function (i, file) {
                         var data = '';
