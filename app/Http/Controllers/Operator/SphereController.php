@@ -8,6 +8,7 @@ use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
+use App\Models\CheckClosedDeals;
 use App\Models\FormFiltersOptions;
 use App\Models\LeadBitmask;
 use App\Models\Operator;
@@ -18,6 +19,7 @@ use App\Models\User;
 use App\Models\Salesman;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use PhpParser\Node\Expr\Cast\Object_;
@@ -827,6 +829,7 @@ class SphereController extends Controller {
         $typeRequest = $request->data['type'];
         $sphere_id = $request->data['sphereId'];
         $lead_id = $request->data['leadId'];
+        $dealFiles = $request->data['files'];
 
         if($lead_id == 'new') {
             $validator = Validator::make($request->data, [
@@ -1212,6 +1215,14 @@ class SphereController extends Controller {
             // закрытие сделки
             $openLead->closeDeal( $userData->price, $senderId );
 
+            if(count($dealFiles) > 0) {
+                $files = CheckClosedDeals::whereIn('id', $dealFiles)->get();
+                foreach ($files as $file) {
+                    $file->open_lead_id = $openLead->id;
+                    $file->save();
+                }
+            }
+
             // отправляем сообщение об успешном добавлении лида на общий аукцион
             return response()->json([ 'status'=>5, 'data'=>'Ok' ]);
 
@@ -1225,6 +1236,57 @@ class SphereController extends Controller {
 
     }
 
+    public function checkUpload(Request $request)
+    {
+        $agent_id = $request->input('agent_id');
+
+        return \Plupload::file('file', function($file) use ($agent_id) {
+
+            $original_name = $file->getClientOriginalName();
+            $extension = File::extension( $original_name );
+            $file_name = md5( microtime() . rand(0, 9999) ) . '.' . $extension;
+            $directory = 'uploads/agent/'.$agent_id.'/';
+
+            if(!File::exists($directory)) {
+                File::makeDirectory($directory, $mode = 0777, true, true);
+            }
+
+            if(File::exists($directory.$file_name)) {
+                $extension = $extension ? '.' . $extension : '';
+                do {
+                    $file_name = md5(microtime() . rand(0, 9999)) . '.' . $extension;
+                } while (File::exists($directory.$file_name));
+            }
+
+            if(!File::exists($directory.$file_name)) {
+
+                // Store the uploaded file
+                $file->move(public_path($directory), $file_name);
+
+                $check = new CheckClosedDeals();
+                $check->open_lead_id = 0;
+                $check->url = $directory;
+                $check->name = $original_name;
+                $check->file_name = $file_name;
+                $check->save();
+
+                // This will be included in JSON response result
+                return [
+                    'success'   => true,
+                    'message'   => 'Upload successful.',
+                    'name'      => $check->name,
+                    'file_name' => $check->file_name,
+                    'url'       => $check->url,
+                    'id'        => $check->id
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'The file already exists!'
+                ];
+            }
+        });
+    }
 
     /**
      * Показывает форму добавления лида

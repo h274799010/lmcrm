@@ -392,8 +392,12 @@
 
                             {{--<input type="file" multiple="multiple" name="files[]" />--}}
 
-                            <div class="closeDeal_files"></div>
-                            <button class="btn btn-xs btn-primary addFileButton">add file</button>
+                            {{--<div class="closeDeal_files"></div>--}}
+                            <div class="form-group">
+                                <div id="uploadedFiles" class="hidden"></div>
+                                <div id="uploadProgress"></div>
+                            </div>
+                            <button class="btn btn-xs btn-primary addFileButton" id="btnAddFile">add file</button>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -653,6 +657,46 @@
             color: white;
             width: 150px;
         }
+        .file-name {}
+        .upload-progress {
+            width: 100%;
+            margin-top: 6px;
+            background-color: #777777;
+            padding: 3px 0;
+            position: relative;
+        }
+        .upload-progress .upload-status {
+            display: block;
+            width: 0;
+            background-color: #5cb85c;
+            border: 1px solid #4cae4c;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 1;
+        }
+        .upload-progress.danger .upload-status {
+            background-color: #d9534f;
+            border: 1px solid #d43f3a;
+        }
+        .upload-progress .upload-status-percent {
+            color: #ffffff;
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+        .file-container {
+            margin-top: 16px;
+        }
+        .file-container:first-child {
+            margin-top: 0;
+        }
+        #uploadProgress {
+            padding-top: 15px;
+        }
 
     </style>
 @stop
@@ -714,7 +758,7 @@
         });
 
         // добавление поля для добавления файла
-        $('.addFileButton').bind('click', function(){
+        /*$('.addFileButton').bind('click', function(){
 
             // создаем поле input
             var input = $('<input />');
@@ -746,7 +790,77 @@
                 files = this.files;
             });
 
+        });*/
+
+
+        var uploaderImages = new plupload.Uploader({
+            runtimes : 'html5',
+
+            browse_button : 'btnAddFile',
+            multi_selection: true,
+            url : "{{ route('operator.lead.checkUpload') }}",
+
+            multipart_params: {
+                _token: $('meta[name=csrf-token]').attr('content'),
+                agent_id: false
+            },
+
+            filters : {
+                max_file_size : '15mb',
+                mime_types: [
+                    {title : "Image files", extensions : "jpg,jpeg,png"}
+                ]
+            },
+
+            init: {
+                FilesAdded: function(up, files) {
+                    up.settings.multipart_params.agent_id = $('.modal_user_block').data('userid');
+
+                    $.each(files, function (i, file) {
+                        var data = '';
+
+                        data += '<div class="controls file-container">';
+                        data += '<div id="checkName" class="file-name">'+file.name+'</div>';
+                        data += '<div class="upload-progress">';
+                        data += '<div id="uploadStatus_'+file.id+'" class="upload-status"></div>';
+                        data += '<div id="uploadStatusPercent_'+file.id+'" class="upload-status-percent">Pleas wait...</div>';
+                        data += '</div>';
+                        data += '</div>';
+
+                        $('#uploadProgress').append(data);
+
+                        uploaderImages.start();
+                    });
+                },
+
+                UploadProgress: function(up, file) {
+                    $('#uploadStatus_'+file.id).css('width', file.percent + '%');
+                    $('#uploadStatusPercent_'+file.id).html(file.percent + '%');
+                },
+
+                FileUploaded: function (up, file, res) {
+                    //$('#checkModalChange').removeClass('disabled').prop('disabled', false);
+
+                    var data = $.parseJSON(res.response);
+                    data = data.result;
+
+                    if(data.success == false) {
+                        $('#uploadStatusPercent_'+file.id).closest('.upload-progress').addClass('danger');
+                    } else {
+                        $('#uploadedFiles').append('<input type="hidden" name="files[]" class="inpFiles" value="'+data.id+'">');
+                    }
+
+                    $('#uploadStatusPercent_'+file.id).html(data.message);
+
+                },
+
+                Error: function(up, err) {
+                    alert("\nError #" + err.code + ": " + err.message);
+                }
+            }
         });
+
+        uploaderImages.init();
 
         // кнопка закрытия блока с пользователями которые немогут заплатить за открытие лида
         $('.can_not_buy_block_closeButton').bind('click', function(){
@@ -1122,6 +1236,8 @@
 
                     // делаем видимым блок добавления лида на аукцион
                     applyСloseDeal.removeClass('hidden');
+                    $('#uploadProgress').empty();
+                    $('#uploadedFiles').empty();
 
                     // показать попандер
                     $('.apply_lead_mask_modal').modal('show');
@@ -1790,6 +1906,14 @@
 
 
 //                    return true;
+
+                    if($(document).find('.inpFiles').length > 0) {
+                        var filesData = [];
+                        $(document).find('.inpFiles').each(function (i, file) {
+                            filesData.push($(file).val());
+                        });
+                        formFields.files = filesData;
+                    }
                 }
 
                 // добавляем тип в данные
