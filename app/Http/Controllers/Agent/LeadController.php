@@ -1713,9 +1713,12 @@ class LeadController extends AgentController {
             $leadData[] = [ $attr->label, $str ];
         }
 
+        $dealStatuses = ClosedDeals::getDealStatuses();
+
         return view('agent.lead.aboutDeal', [
             'leadData' => $leadData,
-            'openLead' => $openLead
+            'openLead' => $openLead,
+            'dealStatuses' => $dealStatuses
         ]);
     }
 

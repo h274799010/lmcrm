@@ -30,14 +30,26 @@
                 <tbody>
                 @if(isset($openLead->statusInfo))
                     <tr>
-                        <th>Name</th>
+                        <th>Deal name</th>
                         <td>{{ $openLead->statusInfo->stepname }}</td>
                     </tr>
                 @endif
                 @if(isset($openLead->closeDealInfo))
                     <tr>
-                        <th>Price</th>
+                        <th>Deal price</th>
                         <td>{{ $openLead->closeDealInfo->price }}</td>
+                    </tr>
+                    <tr>
+                        <th>To pay</th>
+                        <td>{{ $openLead->closeDealInfo->percent }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ date('Y-m-d H:i', $openLead->closeDealInfo->created_at->timestamp) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>{{ $dealStatuses[$openLead->closeDealInfo->status] }}</td>
                     </tr>
                     <tr>
                         <th colspan="2">Comment</th>
