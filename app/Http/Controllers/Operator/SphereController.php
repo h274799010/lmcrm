@@ -15,6 +15,7 @@ use App\Models\Operator;
 use App\Models\OperatorSphere;
 use App\Models\OperatorOrganizer;
 use App\Models\SphereFormFilters;
+use App\Models\SphereStatuses;
 use App\Models\User;
 use App\Models\Salesman;
 use Carbon\Carbon;
@@ -187,6 +188,8 @@ class SphereController extends Controller {
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options', 'leadAttr.options', 'leadAttr.validators', 'additionalNotes');
 
+        $sphereStatuses = $data->statuses()->where('type', '=', SphereStatuses::STATUS_TYPE_CLOSED_DEAL)->get();
+
 //        dd($data);
 
         $lead = Lead::with(['phone', 'user', 'operatorOrganizer'])->find($id);
@@ -232,7 +235,8 @@ class SphereController extends Controller {
             ->with('sphere',$data)
             ->with('mask',$shortMask)
             ->with('lead',$lead)
-            ->with('adFields',$adFields);
+            ->with('adFields',$adFields)
+            ->with('sphereStatuses', $sphereStatuses);
     }
 
 
@@ -813,12 +817,8 @@ class SphereController extends Controller {
      *
      * @return Response
      */
-    public function leadAction( Request $request ){
-
-
-//        dd($request);
-//        dd($_FILES);
-
+    public function leadAction( Request $request )
+    {
         /** Типы запроса: */
         // 1. save - просто сохраняем лида
         // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
@@ -1213,7 +1213,12 @@ class SphereController extends Controller {
             $openLead = OpenLeads::where( 'agent_id', $user->id )->where( 'lead_id', $lead_id )->first();
 
             // закрытие сделки
-            $openLead->closeDeal( $userData->price, $senderId );
+            $openLead->closeDeal( $userData->price, '', $senderId );
+
+            if( isset($request->data['dealStatus']) && !empty($request->data['dealStatus']) ) {
+                $openLead->status = $request->data['dealStatus'];
+                $openLead->save();
+            }
 
             if(count($dealFiles) > 0) {
                 $files = CheckClosedDeals::whereIn('id', $dealFiles)->get();

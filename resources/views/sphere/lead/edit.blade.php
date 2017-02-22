@@ -388,7 +388,20 @@
                         <div class="apply_closeDeal hidden">
                             @lang('operator/edit.modal_apply_body_close_the_dead')
                             <div class="apply_content"></div>
-                            <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
+                            @if(isset($sphereStatuses) && count($sphereStatuses) > 0)
+                                <div class="form-group">
+                                    <label for="closeDealStatus">Close deal status:</label>
+                                    <select name="status" id="closeDealStatus">
+                                        @foreach($sphereStatuses as $status)
+                                            <option value="{{ $status->id }}">{{ $status->stepname }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            <div class="form-group">
+                                <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
+                            </div>
 
                             {{--<input type="file" multiple="multiple" name="files[]" />--}}
 
@@ -1857,6 +1870,11 @@
 
                     // получение прайса из формы модального окна
                     leadApplyData.users[0].price = $('#closeDealPrice').val();
+
+                    if( $('#closeDealStatus').val() == '' ) {
+                        return true;
+                    }
+                    formFields.dealStatus = $('#closeDealStatus').val();
 
                     // добавляем тип в данные
 //                    formFields.type = leadApplyData.type;
