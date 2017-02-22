@@ -829,7 +829,6 @@ class SphereController extends Controller {
         $typeRequest = $request->data['type'];
         $sphere_id = $request->data['sphereId'];
         $lead_id = $request->data['leadId'];
-        $dealFiles = $request->data['files'];
 
         if($lead_id == 'new') {
             $validator = Validator::make($request->data, [
@@ -1220,8 +1219,8 @@ class SphereController extends Controller {
                 $openLead->save();
             }
 
-            if(count($dealFiles) > 0) {
-                $files = CheckClosedDeals::whereIn('id', $dealFiles)->get();
+            if(isset($request->data['files']) && count($request->data['files']) > 0) {
+                $files = CheckClosedDeals::whereIn('id', $request->data['files'])->get();
                 foreach ($files as $file) {
                     $file->open_lead_id = $openLead->id;
                     $file->save();
