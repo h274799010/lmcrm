@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Facades\Messages;
 use App\Models\AccountManager;
 use App\Models\Agent;
 use App\Models\Lead;
@@ -116,7 +117,19 @@ class DealController extends Controller
      */
     public function deal( $id )
     {
-        $openLead = OpenLeads::with('statusInfo', 'closeDealInfo', 'uploadedCheques')->find($id);
+        $deal = ClosedDeals::find($id);
+
+        $openLead = OpenLeads::with([
+            'statusInfo',
+            'uploadedCheques',
+            'closeDealInfo' => function($query) {
+                $query->with([
+                    'messages' => function($query) {
+                        $query->with('sender');
+                    }
+                ]);
+            }
+        ])->find($deal->open_lead_id);
         $user = User::find( $openLead->agent_id );
 
         $data = Lead::find( $openLead->lead_id );
@@ -182,12 +195,23 @@ class DealController extends Controller
             $leadData[] = [ $attr->label, $str ];
         }
 
-        dd($openLead);
+        //dd($openLead);
 
         return view('admin.deal.info', [
             'leadData' => $leadData,
             'openLead' => $openLead
         ]);
+    }
+
+    public function sendMessageDeal(Request $request)
+    {
+        $deal = ClosedDeals::find($request->input('deal_id'));
+        $mess = $request->input('message');
+        $sender = Sentinel::getUser();
+
+        $message = Messages::sendDeal($deal->id, $sender->id, $mess);
+
+        return response()->json($message);
     }
 
 }
