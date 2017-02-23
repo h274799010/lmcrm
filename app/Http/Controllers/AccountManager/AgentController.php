@@ -23,6 +23,7 @@ use App\Models\Sphere;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Mail;
 use Datatables;
+use Validator;
 
 class AgentController extends AccountManagerController {
 
@@ -35,8 +36,10 @@ class AgentController extends AccountManagerController {
     {
         $accountManager = AccountManager::find(Sentinel::getUser()->id);
         $spheres = $accountManager->spheres()->get();
+        $permissions = User::$bannedPermissions;
         return view('accountManager.agent.index', [
-            'spheres' => $spheres
+            'spheres' => $spheres,
+            'permissions' => $permissions
         ]);
     }
 
@@ -277,8 +280,17 @@ class AgentController extends AccountManagerController {
         $agentSpheres = $agent->agentSphere()->whereIn('sphere_id', $spheres->lists('id')->toArray())->with('sphere')->get();
 
         $agentSelectedSpheres = $agent->spheres()->get()->lists('id')->toArray();
+        $permissions = User::$bannedPermissions;
 
-        return view('accountManager.agent.create_edit', ['agent'=>$agent,'spheres'=>$accountManager->spheres()->get(), 'role'=>$role, 'userInfo'=>$userInfo, 'agentSpheres'=>$agentSpheres, 'agentSelectedSpheres'=>$agentSelectedSpheres ]);
+        return view('accountManager.agent.create_edit', [
+            'agent'=>$agent,
+            'spheres'=>$accountManager->spheres()->get(),
+            'role'=>$role,
+            'userInfo'=>$userInfo,
+            'agentSpheres'=>$agentSpheres,
+            'agentSelectedSpheres'=>$agentSelectedSpheres,
+            'permissions' => $permissions
+        ]);
     }
 
     /**
@@ -560,13 +572,30 @@ class AgentController extends AccountManagerController {
         return redirect()->route('accountManager.agent.index');
     }
 
-    public function ban($user_id)
+    public function ban(Request $request)
     {
-        $user = Sentinel::findById($user_id);
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+            'permissions' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(array(
+                'errors' => $validator->errors()
+            ));
+        }
+
+        $user = Sentinel::findById($request->input('user_id'));
+        $permissions = User::$bannedPermissions;
+
+        foreach ($request->input('permissions') as $permission) {
+            $permissions[$permission] = false;
+        }
 
         if($user->inRole('agent')) {
             $agent = Agent::findOrFail($user->id);
             $agent->banned_at = Carbon::now();
+            $agent->permissions = $permissions;
             $agent->save();
 
             $salesmans = $agent->salesmen()->get();
@@ -574,48 +603,94 @@ class AgentController extends AccountManagerController {
             if(count($salesmans)) {
                 foreach ($salesmans as $salesman) {
                     $salesman->banned_at = Carbon::now();
+                    $salesman->permissions = $permissions;
                     $salesman->save();
                 }
             }
         } else {
             $user->banned_at = Carbon::now();
+            $user->permissions = $permissions;
             $user->save();
         }
 
-        return redirect()->back();
+        return response()->json(array(
+            'errors' => array(),
+            'status'=>'success'
+        ));
     }
 
-    public function unban($user_id)
+    public function unbanData(Request $request)
     {
-        $user = Sentinel::findById($user_id);
+        $user = Sentinel::findById($request->input('user_id'));
+
+        $permissions = User::$bannedPermissions;
+
+        foreach ($user->permissions as $permission => $value) {
+            if(isset($permissions[$permission])) {
+                $permissions[$permission] = array(
+                    'value' => $value,
+                    'name' => trans('admin/users.permissions.'.$permission)
+                );
+            }
+        }
+
+        return response()->json($permissions);
+    }
+
+    public function unban(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(array(
+                'errors' => $validator->errors()
+            ));
+        }
+
+        $user = Sentinel::findById($request->input('user_id'));
+        $permissions = User::$bannedPermissions;
+
+        if(count($request->input('permissions')) > 0) {
+            foreach ($request->input('permissions') as $permission) {
+                if(isset($permissions[$permission])) {
+                    $permissions[$permission] = false;
+                }
+            }
+        }
 
         if($user->inRole('agent')) {
             $agent = Agent::findOrFail($user->id);
-            $agent->banned_at = null;
+            if(count($request->input('permissions')) == 0) {
+                $agent->banned_at = null;
+            }
+            $agent->permissions = $permissions;
             $agent->save();
 
             $salesmans = $agent->salesmen()->get();
 
             if(count($salesmans)) {
                 foreach ($salesmans as $salesman) {
-                    $salesman->banned_at = null;
+                    if(count($request->input('permissions')) == 0) {
+                        $salesman->banned_at = null;
+                    }
+                    $salesman->permissions = $permissions;
                     $salesman->save();
                 }
             }
-        } elseif ($user->inRole('salesman')) {
-            $salesman = Salesman::findOrFail($user->id);
-            $agent = $salesman->agent()->first();
-            if($agent->banned_at != null) {
-                return redirect()->back()->withErrors(['success'=>false, 'message' => 'The seller can not be unlocked, as his agent blocked.']);
-            }
-            $salesman->banned_at = null;
-            $salesman->save();
         } else {
-            $user->banned_at = null;
+            if(count($request->input('permissions')) == 0) {
+                $user->banned_at = null;
+            }
+            $user->permissions = $permissions;
             $user->save();
         }
 
-        return redirect()->back();
+        return response()->json(array(
+            'errors' => array(),
+            'status'=>'success'
+        ));
     }
 
 }

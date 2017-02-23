@@ -51,7 +51,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('agent/create',['as'=>'admin.agent.create', 'uses' => 'Admin\AgentController@create']);
     Route::post('agent/store',['as'=>'admin.agent.store', 'uses' => 'Admin\AgentController@store']);
     //Route::get('agent/{id}/block', ['as'=>'admin.agent.block', 'uses' => 'Admin\AgentController@ban']);
-    Route::get('agent/{id}/unblock', ['as'=>'admin.agent.unblock', 'uses' => 'Admin\AgentController@unban']);
+    Route::post('agent/unblockData', ['as'=>'admin.agent.unblockData', 'uses' => 'Admin\AgentController@unbanData']);
+    Route::post('agent/unblock', ['as'=>'admin.agent.unblock', 'uses' => 'Admin\AgentController@unban']);
 
     // баны пользователю
     Route::post('agent/block',['as'=>'admin.agent.block', 'uses' => 'Admin\AgentController@ban']);

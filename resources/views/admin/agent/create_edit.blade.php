@@ -448,18 +448,86 @@
                                 <td>{{ $salesman->role }}</td>
                                 <td>{{ $salesman->created_at }}</td>
                                 <td>
-                                    {{--<a href="{{ route('accountManager.agent.edit',[$salesman->id]) }}" class="btn btn-success btn-sm" ><span class="glyphicon glyphicon-pencil"></span>  {{ trans("admin/modal.edit") }}</a>
-                                    <a href="{{ route('accountManager.agent.delete',[$salesman->id]) }}" class="btn btn-sm btn-danger confirm"><span class="glyphicon glyphicon-trash"></span> {{ trans("admin/modal.delete") }}</a>--}}
                                     @if($salesman->banned_at)
-                                        <a href="{{ route('accountManager.agent.unblock',[$salesman->id]) }}" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.unblock") }}</a>
+                                        <a href="#" data-user="{{ $salesman->id }}" class="btn btn-sm btn-success btnUnBanUser"><span class="glyphicon glyphicon-off"></span></a>
                                     @else
-                                        <a href="{{ route('accountManager.agent.block',[$salesman->id]) }}" class="btn btn-sm btn-danger confirmBan"><span class="glyphicon glyphicon-off"></span> {{ trans("admin/modal.block") }}</a>
+                                        <a href="#" data-user="{{ $salesman->id }}" class="btn btn-sm btn-danger btnBanUser"><span class="glyphicon glyphicon-off"></span></a>
                                     @endif
                                 </td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                {{-- Модальное окно для выбора типа бана пользователя --}}
+                <div class="modal fade" id="modalBanUser" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <form id="banForm" method="post">
+                                <input type="hidden" name="user_id" value="">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title">
+                                        Block:
+                                    </h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group banned-form-group col-xs-12">
+                                        @foreach($permissions as $permission => $status)
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" name="permissions[]" value="{{ $permission }}">
+                                                    {{ trans('admin/users.permissions.'.$permission) }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-default modal-cancel" type="button">
+                                        Cancel
+                                    </button>
+                                    <button class="btn btn-danger btnBanForm" type="submit">
+                                        Ban
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modalUnBanUser" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <form id="unBanForm" method="post">
+                                <input type="hidden" name="user_id" value="">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title">
+                                        Unblock:
+                                    </h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group banned-form-group col-xs-12" id="unBanFormGroup">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-default modal-cancel" type="button">
+                                        Cancel
+                                    </button>
+                                    <button class="btn btn-success btnBanForm" type="submit">
+                                        Unblock
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
                 </div>
             @endif
             @if(( isset($agentMasks) && count($agentMasks) ) || ( isset($agent->salesmen) && count($agent->salesmen) ))
@@ -787,7 +855,15 @@
     span.green {
         color: green;
     }
-
+    .form-group.banned-form-group {
+        margin: 0;
+    }
+    .form-group.banned-form-group .checkbox {
+        margin: 0 0 10px;
+    }
+    .form-group.banned-form-group .checkbox:last-child {
+        margin: 0;
+    }
 </style>
 @stop
 
@@ -800,6 +876,83 @@
     });
     @if (isset($agent))
 
+    $(document).ready(function () {
+        $(document).on('click', '.btnBanForm', function (e) {
+            e.preventDefault();
+            $(this).closest('form').trigger('submit');
+        });
+        $(document).on('click', '.modal-cancel', function (e) {
+            e.preventDefault();
+
+            $(this).closest('.modal').modal('hide');
+        });
+
+        $(document).on('click', '.btnBanUser', function (e) {
+            e.preventDefault();
+
+            $('#banForm').find('input[name=user_id]').val( $(this).data('user') );
+            $('#modalBanUser').modal('show');
+        });
+
+        $(document).on('submit', '#banForm', function (e) {
+            e.preventDefault();
+
+            var params = $(this).serialize();
+
+            $.post('{{ route('admin.agent.block') }}', params, function (data) {
+                if(Object.keys(data.errors).length > 0) {
+                    console.log(data.errors);
+                } else if(data.status == 'success') {
+                    window.location.reload();
+                }
+            });
+        });
+
+        $(document).on('click', '.btnUnBanUser', function (e) {
+            e.preventDefault();
+
+            var params = 'user_id='+$(this).data('user')+'&_token={{ csrf_token() }}';
+            var $wrapper = $('#unBanFormGroup');
+
+            $('#unBanForm').find('input[name=user_id]').val( $(this).data('user') );
+
+            $.post('{{ route('admin.agent.unblockData') }}', params, function (permissions) {
+                $wrapper.empty();
+                var html = '';
+                $.each(permissions, function (i, permission) {
+                    var checkProp = '';
+                    if(permission.value == false) {
+                        checkProp = ' checked="checked"';
+                    }
+
+                    html += '<div class="checkbox">';
+                    html += '<label>';
+                    html += '<input type="checkbox" name="permissions[]" value="'+i+'"'+checkProp+'> ';
+                    html += permission.name;
+                    html += '</label>';
+                    html += '</div>';
+                });
+
+                $wrapper.html(html);
+                $.material.init();
+                $('#modalUnBanUser').modal('show');
+            });
+        });
+
+        $(document).on('submit', '#unBanForm', function (e) {
+            e.preventDefault();
+
+            var params = $(this).serialize();
+
+            $.post('{{ route('admin.agent.unblock') }}', params, function (data) {
+                if(Object.keys(data.errors).length > 0) {
+                    console.log(data.errors);
+                } else if(data.status == 'success') {
+                    window.location.reload();
+                }
+            });
+        });
+    });
 
     $(function(){
 
@@ -936,8 +1089,6 @@
                 $alert.slideDown();
             });
         });
-
-
     });
 
     @endif
