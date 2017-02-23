@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Facades\CreateLead;
+use App\Facades\Messages;
 use App\Helper\PayMaster;
 use App\Helper\PayMaster\PayInfo;
 use App\Helper\PayMaster\Pay;
@@ -1631,7 +1632,18 @@ class LeadController extends AgentController {
      */
     public function aboutDeal($lead_id)
     {
-        $openLead = OpenLeads::with('statusInfo', 'closeDealInfo', 'uploadedCheques')->find($lead_id);
+        $openLead = OpenLeads::with([
+            'statusInfo',
+            'uploadedCheques',
+            'closeDealInfo' => function($query) {
+                $query->with([
+                    'messages' => function($query) {
+                        $query->with('sender');
+                    }
+                ]);
+            }
+        ])->find($lead_id);
+
         $user = Sentinel::getUser();
 
         if(isset($openLead->uploadedCheques)) {
@@ -1774,5 +1786,16 @@ class LeadController extends AgentController {
         } else {
             return response()->json($paymentStatus);
         }
+    }
+
+    public function sendMessageDeal(Request $request)
+    {
+        $deal = ClosedDeals::find($request->input('deal_id'));
+        $mess = $request->input('message');
+        $sender = Sentinel::getUser();
+
+        $message = Messages::sendDeal($deal->id, $sender->id, $mess);
+
+        return response()->json($message);
     }
 }

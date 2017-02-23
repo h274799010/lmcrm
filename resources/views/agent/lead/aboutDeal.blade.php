@@ -135,35 +135,22 @@
                 <div class="row">
                     <div class="col-xs-12 operator_comments_block">
                         <div id="all_comment" class="operator_comments_text">
-                            <div class="col-xs-8">
-                                <div class="message-wrap">
-                                    <div class="info date"><span>Date:</span> 12.02.2017</div>
-                                    <div class="info user"><span>From:</span> admin@admin.com</div>
-                                    <hr>
-                                    <div class="message">
-                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse ipsam numquam quis rem! Adipisci alias eius ex minima mollitia saepe!
+                            @if(isset($openLead->closeDealInfo) && isset($openLead->closeDealInfo->messages) && count($openLead->closeDealInfo->messages) > 0)
+                                @foreach($openLead->closeDealInfo->messages as $message)
+                                    <div class="col-xs-8 @if(Sentinel::getUser()->id == $message->sender_id)col-xs-offset-4 @endif ">
+                                        <div class="message-wrap @if(Sentinel::getUser()->id == $message->sender_id)from @endif ">
+                                            <div class="info date"><span>Date:</span> {{ $message->created_at }}</div>
+                                            @if(Sentinel::getUser()->id != $message->sender_id)
+                                                @if(isset($message->sender))
+                                                    <div class="info user"><span>From:</span> {{ $message->sender->email }}</div>
+                                                @endif
+                                            @endif
+                                            <hr>
+                                            <div class="message">{{ $message->message }}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-8">
-                                <div class="message-wrap">
-                                    <div class="info date"><span>Date:</span> 12.02.2017</div>
-                                    <div class="info user"><span>From:</span> admin@admin.com</div>
-                                    <hr>
-                                    <div class="message">
-                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse ipsam numquam quis rem! Adipisci alias eius ex minima mollitia saepe!
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-8 col-xs-offset-4">
-                                <div class="message-wrap from">
-                                    <div class="info date"><span>Date:</span> 12.02.2017</div>
-                                    <hr>
-                                    <div class="message">
-                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse ipsam numquam quis rem! Adipisci alias eius ex minima mollitia saepe!
-                                    </div>
-                                </div>
-                            </div>
+                                @endforeach
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -195,7 +182,7 @@
         }
         .operator_comments_block {
             margin-bottom: 10px;
-            max-height: 250px;
+            max-height: 400px;
             overflow-y: auto;
             padding-top: 15px;
         }
@@ -395,9 +382,19 @@
                 var message = $('#inpMessage').val();
 
                 if(message == '') {
-                    alert('Empty message');
+                    bootbox.dialog({
+                        message: 'Empty message!',
+                        show: true
+                    });
                     return true;
                 }
+
+                var params = 'message='+message+'&deal_id={{ $openLead->closeDealInfo->id }}'+'&_token={{ csrf_token() }}';
+
+                $.post('{{ route('agent.lead.sendMessageDeal') }}', params, function (data) {
+                    console.log(data);
+                    window.location.reload();
+                });
             });
         });
 

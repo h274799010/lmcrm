@@ -189,6 +189,7 @@ return [
         App\Providers\LeadServiceProvider::class,
         App\Providers\NoticeServiceProvider::class,
         App\Providers\UserServiceProvider::class,
+        App\Providers\MessageServiceProvider::class,
 
         /*
          * Статистика
@@ -260,6 +261,7 @@ return [
         'CreateLead' => App\Facades\CreateLead::class,
         'Notice' => App\Facades\Notice::class,
         'Statistic' => App\Facades\Statistic::class,
+        'Messages' => App\Facades\Messages::class,
     ],
 
 ];

@@ -19,7 +19,7 @@ class CreateMessagesTable extends Migration
             $table->string('type', 50);         // тип (закрытие сделки, открытые лиды...)
             $table->string('detail', 50);       // поле для уточнений (id сделки, id открытого лида...)
             $table->string('subject', 200);     // тема сообщения
-            $table->longText('massage');        // тело сообщения
+            $table->longText('message');        // тело сообщения
             $table->longText('additional');     // дополнительное поле с json данными (стринг)
             $table->timestamps();
             $table->engine = 'InnoDB';

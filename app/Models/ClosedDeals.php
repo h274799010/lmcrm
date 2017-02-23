@@ -65,7 +65,7 @@ class ClosedDeals extends Model
      */
     public function messages()
     {
-        return $this->hasMany('App\Models\Message', 'id', 'detail');
+        return $this->hasMany('App\Models\Message', 'detail', 'id')->orderBy('created_at');
     }
 
 
