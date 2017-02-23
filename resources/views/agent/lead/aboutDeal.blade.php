@@ -129,12 +129,132 @@
             <a href="#" class="btn btn-sm btn-success" id="addCheckBtn">Add document</a>
         </div>
     </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="messages-block">
+                <div class="row">
+                    <div class="col-xs-12 operator_comments_block">
+                        <div id="all_comment" class="operator_comments_text">
+                            <div class="col-xs-8">
+                                <div class="message-wrap">
+                                    <div class="info date"><span>Date:</span> 12.02.2017</div>
+                                    <div class="info user"><span>From:</span> admin@admin.com</div>
+                                    <hr>
+                                    <div class="message">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse ipsam numquam quis rem! Adipisci alias eius ex minima mollitia saepe!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-8">
+                                <div class="message-wrap">
+                                    <div class="info date"><span>Date:</span> 12.02.2017</div>
+                                    <div class="info user"><span>From:</span> admin@admin.com</div>
+                                    <hr>
+                                    <div class="message">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse ipsam numquam quis rem! Adipisci alias eius ex minima mollitia saepe!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-8 col-xs-offset-4">
+                                <div class="message-wrap from">
+                                    <div class="info date"><span>Date:</span> 12.02.2017</div>
+                                    <hr>
+                                    <div class="message">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse ipsam numquam quis rem! Adipisci alias eius ex minima mollitia saepe!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-wrap">
+                    <div class="col-xs-12">
+                        <div class="col-xs-10 col-sm-6 operator_textarea_block">
+                            <textarea id="inpMessage" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-10 col-sm-6">
+                            <button id="sendMessage" type="button" class="btn btn-xs btn-primary">Send message</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- /.row -->
     <!-- /.container -->
 @endsection
 
 @section('styles')
     <style type="text/css">
+        .messages-block {
+            margin-top: 20px;
+            background: #F8F8F8;
+            border: #D9D9D9 solid 1px;
+            border-radius: 5px;
+        }
+        .operator_comments_block {
+            margin-bottom: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-top: 15px;
+        }
+        .form-wrap {
+            padding-bottom: 15px;
+        }
+        .operator_textarea_block {
+            margin-bottom: 10px;
+        }
+        .message-wrap {
+            background-color: #d6e9c6;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            position: relative;
+            margin-left: 16px;
+        }
+        .message-wrap.from {
+            background-color: #bce8f1;
+            margin-right: 16px;
+            margin-left: 0;
+        }
+        .message-wrap:before {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-right: 16px solid #d6e9c6;
+            position: absolute;
+            top: 50%;
+            margin-top: -7px;
+            left: -16px;
+        }
+        .message-wrap.from:before {
+            border-right: none;
+            border-left: 16px solid #bce8f1;
+            left: auto;
+            right: -16px;
+        }
+        .message-wrap .date, .message-wrap .user {
+            padding: 3px 0;
+        }
+        .message-wrap .info {
+            font-style: italic;
+            color: gray;
+            display: inline-block;
+            margin-right: 15px;
+        }
+        .message-wrap .info span {
+            color: #333333;
+            font-weight: bold;
+            font-style: normal;
+        }
+        .message-wrap hr {
+            margin: 3px 0;
+        }
+
         .delete-document {
             position: absolute;
             right: 0;
@@ -267,6 +387,17 @@
                         });
                     }
                 });
+            });
+
+            $(document).on('click', '#sendMessage', function (e) {
+                e.preventDefault();
+
+                var message = $('#inpMessage').val();
+
+                if(message == '') {
+                    alert('Empty message');
+                    return true;
+                }
             });
         });
 
