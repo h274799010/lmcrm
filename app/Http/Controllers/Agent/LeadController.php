@@ -817,61 +817,70 @@ class LeadController extends AgentController {
         $arr[] = [ 'phone',$data->phone->phone ];
         $arr[] = [ 'email',$data->email ];
 
-        // получаем все атрибуты агента
-        foreach ($data->SphereFormFilters as $key=>$sphereAttr){
-
-            $str = '';
-            foreach ($sphereAttr->options as $option){
-                $mask = new LeadBitmask($data->sphere_id,$data->id);
-
-            $resp = $mask->where('fb_'.$option->attr_id.'_'.$option->id,1)->where('user_id',$id)->first();
-
-                if (count($resp)){
-
-                    if( $str=='' ){
-                        $str = $option->name;
-                    }else{
-                        $str .= ', ' .$option->name;
-                    }
-
-                }
-
+        if($data->status == 8) {
+            $sender = Agent::find($data->agent_id);
+            if(isset($sender->id)) {
+                $arr[] = ['sender', $sender->email];
             }
-            $arr[] = [ $sphereAttr->label, $str ];
         }
 
-        // получаем все атрибуты лида
-        foreach ($data->SphereAdditionForms as $key=>$attr){
+        if($data->status != 8) {
+            // получаем все атрибуты агента
+            foreach ($data->SphereFormFilters as $key=>$sphereAttr){
 
-            $str = '';
+                $str = '';
+                foreach ($sphereAttr->options as $option){
+                    $mask = new LeadBitmask($data->sphere_id,$data->id);
 
-            $mask = new LeadBitmask($data->sphere_id,$data->id);
-            $AdMask = $mask->findAdMask($id);
+                    $resp = $mask->where('fb_'.$option->attr_id.'_'.$option->id,1)->where('user_id',$id)->first();
 
-            // обработка полей с типом 'radio', 'checkbox' и 'select'
-            // у этих атрибутов несколько опций (по идее должно быть)
-            if( $attr->_type=='radio' || $attr->_type=='checkbox' || $attr->_type=='select' ){
+                    if (count($resp)){
 
-                foreach ($attr->options as $option){
-
-                    if($AdMask['ad_'.$option->attr_id.'_'.$option->id]==1){
                         if( $str=='' ){
                             $str = $option->name;
                         }else{
                             $str .= ', ' .$option->name;
                         }
+
                     }
+
+                }
+                $arr[] = [ $sphereAttr->label, $str ];
+            }
+
+            // получаем все атрибуты лида
+            foreach ($data->SphereAdditionForms as $key=>$attr){
+
+                $str = '';
+
+                $mask = new LeadBitmask($data->sphere_id,$data->id);
+                $AdMask = $mask->findAdMask($id);
+
+                // обработка полей с типом 'radio', 'checkbox' и 'select'
+                // у этих атрибутов несколько опций (по идее должно быть)
+                if( $attr->_type=='radio' || $attr->_type=='checkbox' || $attr->_type=='select' ){
+
+                    foreach ($attr->options as $option){
+
+                        if($AdMask['ad_'.$option->attr_id.'_'.$option->id]==1){
+                            if( $str=='' ){
+                                $str = $option->name;
+                            }else{
+                                $str .= ', ' .$option->name;
+                            }
+                        }
+                    }
+
+
+                }else{
+
+                    $str = $AdMask['ad_'.$attr->id.'_0'];
+
                 }
 
 
-            }else{
-
-                $str = $AdMask['ad_'.$attr->id.'_0'];
-
+                $arr[] = [ $attr->label, $str ];
             }
-
-
-            $arr[] = [ $attr->label, $str ];
         }
 
 
