@@ -128,6 +128,8 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
     // Подробная информация о сделке
     Route::get('lead/aboutDeal/{lead_id}',['as'=>'agent.lead.aboutDeal', 'uses' => 'Agent\LeadController@aboutDeal']);
 
+    Route::post('lead/sendMessageDeal',['as'=>'agent.lead.sendMessageDeal', 'uses' => 'Agent\LeadController@sendMessageDeal']);
+
     Route::group( ['middleware'=>['agent']],function() {
         // Группа роутов для которых проверяются разрешения
         Route::group([ 'middleware' => ['permissions'] ], function () {

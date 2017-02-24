@@ -53,5 +53,8 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // Дублирование лида
     Route::get('lead/duplicate/{lead_id}', ['as' => 'operator.lead.duplicate', 'uses' => 'Operator\SphereController@duplicate']);
 
+    // Загрузка чека оператором при закрытии сделки
+    Route::post('lead/checkUpload',['as'=>'operator.lead.checkUpload', 'uses' => 'Operator\SphereController@checkUpload']);
+
 
 });

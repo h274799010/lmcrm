@@ -371,6 +371,9 @@
             right: 0;
             margin-top: -15px;
             z-index: 9;
+            padding: 5px 0;
+            width: 32px;
+            text-align: center;
         }
 
         #main_table table tr td:nth-child(3) {
@@ -391,7 +394,7 @@
             border-color: #D9A502;
         }
         .item-type-3 .panel-body {
-            border-color: #8A3324;
+            border-color: #7f3300;
         }
         .item-type-4 .panel-body {
             border-color: #CD0000;
@@ -400,29 +403,75 @@
             border-color: #3F51B5;
         }
 
-        .item-type-1 .list-group-item:not(.disabled), .item-type-1 .panel-heading {
+        .item-type-1 .list-group-item:not(.disabled),
+        .item-type-1 .panel-heading {
             background-color: #00B050;
         }
-        .item-type-2 .list-group-item:not(.disabled), .item-type-2 .panel-heading {
+        .item-type-2 .list-group-item:not(.disabled),
+        .item-type-2 .panel-heading {
             background-color: #D9A502;
         }
-        .item-type-3 .list-group-item:not(.disabled), .item-type-3 .panel-heading {
-            background-color: #8A3324;
+        .item-type-3 .list-group-item:not(.disabled),
+        .item-type-3 .panel-heading {
+            background-color: #7f3300;
         }
-        .item-type-4 .list-group-item:not(.disabled), .item-type-4 .panel-heading {
+        .item-type-4 .list-group-item:not(.disabled),
+        .item-type-4 .panel-heading {
             background-color: #CD0000;
         }
-        .item-type-5 .list-group-item:not(.disabled), .item-type-5 .panel-heading {
+        .item-type-5 .list-group-item:not(.disabled),
+        .item-type-5 .panel-heading {
             background-color: #3F51B5;
         }
         a.list-group-item .list-group-item-heading, a.list-group-item .list-group-item-text {
             color: #ffffff;
         }
-        a.list-group-item:hover .list-group-item-heading, a.list-group-item:hover .list-group-item-text {
-            color: #333;
+        a.list-group-item, a.list-group-item:hover {
+            -webkit-transition: all 0.2s ease;
+            -moz-transition: all 0.2s ease;
+            -ms-transition: all 0.2s ease;
+            -o-transition: all 0.2s ease;
+            transition: all 0.2s ease;
         }
-        a.list-group-item:hover {
-            background-color: #ffffff !important;
+        .item-type-1 a.list-group-item:not(.disabled):hover,.item-type-1 a.list-group-item:not(.disabled).active {
+            background-color: rgba(0, 176, 80, 0.4);
+        }
+        .item-type-1 a.list-group-item:not(.disabled):hover *,.item-type-1 a.list-group-item:not(.disabled).active * {
+            color: #007f3f !important;
+        }
+
+        .item-type-2 a.list-group-item:not(.disabled):hover,.item-type-2 a.list-group-item:not(.disabled).active {
+            background-color: rgba(217, 165, 2, 0.4);
+        }
+        .item-type-2 a.list-group-item:not(.disabled):hover *,.item-type-2 a.list-group-item:not(.disabled).active * {
+            color: #a26c02 !important;
+        }
+
+        .item-type-3 a.list-group-item:not(.disabled):hover,.item-type-3 a.list-group-item:not(.disabled).active {
+            background-color: rgba(127, 51, 0, 0.4);
+        }
+        .item-type-3 a.list-group-item:not(.disabled):hover *,.item-type-3 a.list-group-item:not(.disabled).active * {
+            color: #7f3300 !important;
+        }
+
+        .item-type-4 a.list-group-item:not(.disabled):hover,.item-type-4 a.list-group-item:not(.disabled).active {
+            background-color: rgba(205, 0, 0, 0.4);
+        }
+        .item-type-4 a.list-group-item:not(.disabled):hover *,.item-type-4 a.list-group-item:not(.disabled).active * {
+            color: #ab0000 !important;
+        }
+
+        .item-type-5 a.list-group-item:not(.disabled):hover,.item-type-5 a.list-group-item:not(.disabled).active {
+            background-color: rgba(63, 81, 181, 0.4);
+        }
+        .item-type-5 a.list-group-item:not(.disabled):hover *,.item-type-5 a.list-group-item:not(.disabled).active * {
+            color: #3f4b9e !important;
+        }
+        a.list-group-item:not(.disabled):hover .list-group-item-heading, a.list-group-item:not(.disabled).active .list-group-item-heading {
+            font-weight: bold;
+        }
+        a.list-group-item .list-group-item-heading {
+            font-size: 16px;
         }
         a.list-group-item.disabled:hover {
             opacity: 0.6;
@@ -445,17 +494,6 @@
         }
         .list-group {
             padding-bottom: 0;
-        }
-        .list-group-item.active .list-group-item-text,
-        .list-group-item.active:focus .list-group-item-text,
-        .list-group-item.active:hover .list-group-item-text,
-        .list-group-item.active .list-group-item-heading,
-        .list-group-item.active:focus .list-group-item-heading,
-        .list-group-item.active:hover .list-group-item-heading {
-            color: #333333 !important;
-        }
-        .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
-            background-color: #ffffff !important;
         }
         .panel-heading {
             color: #ffffff !important;
@@ -666,7 +704,8 @@
                         else if(data.status == 'success') {
                             if(data.stepname != '') {
                                 var lead_id = $checkModal.find('input[name=openedLeadId]').val();
-                                $statusLabel.html('<i class="fa fa-clock-o text-primary" aria-hidden="true"></i> '+data.stepname);
+                                $statusLabel.addClass('waiting');
+                                $statusLabel.html('<i class="fa fa-clock-o" aria-hidden="true"></i> '+data.stepname);
                                 $statusLabel.siblings().remove();
                                 $statusLabel.after('<a href="{{ url('/') }}/agent/lead/aboutDeal/'+lead_id+'" class="btn btn-default btn-sm btn-status aboutDeal"><i class="fa fa-eye" aria-hidden="true"></i></a>');
                             }
@@ -694,33 +733,6 @@
         @else
             jsonSpheres = {};
         @endif
-
-        /**
-         * Делает опции выпадающего меню на странице openLeads недоступными (отрабатывает только на фронтенде)
-         *
-         * перебирает все опции в селекте и останавливается только дойдя до активной опции
-         *
-         */
-
-        function disabledSelectOption() {
-
-            // выбираем все ячейки с селектом в таблице
-            $.each($(document).find('.select_cell'), function (k, cell) {
-
-                // перебираем все опции в ячейке
-                $.each($(cell).find('li'), function (k, li) {
-
-                    // если доходим до активного класса - останавливаемся
-                    if ($(li).hasClass('selectboxit-selected')) {
-                        return false;
-
-                        // если опция находится до активного класса - делаем ее недоступной
-                    } else {
-                        $(li).attr('data-disabled', 'true').addClass('disabled');
-                    }
-                });
-            });
-        }
 
         function prependSphereFilter(spheres) {
             var html = '<option selected="selected" value=""></option>';
@@ -790,7 +802,6 @@
                     "complete": function () {
                         $(document).find('#openLeadsTable select').selectBoxIt();
                         // делаем опции, которые находятся до активной опции - недоступными
-                        disabledSelectOption();
                         @if(isset($lead_id))
                             if(flag == true) {
                                 flag = false;
@@ -1236,13 +1247,15 @@
 
             multipart_params: {
                 _token: $('meta[name=csrf-token]').attr('content'),
-                open_lead_id: $('#checkModal').find('input[name=open_lead_id]').val()
+                open_lead_id: $('#checkModal').find('input[name=openedLeadId]').val()
             },
 
             filters : {
                 max_file_size : '15mb',
                 mime_types: [
-                    {title : "Image files", extensions : "jpg,jpeg,png"}
+                    {title : "Image files", extensions : "jpg,jpeg,png"},
+                    {title : "Documents", extensions : "pdf,docx,doc,txt"},
+                    {title : "Archive", extensions : "zip,rar"}
                 ]
             },
 
@@ -1250,7 +1263,7 @@
                 FilesAdded: function(up, files) {
                     $('#jsAjaxPreloader').show();
 
-                    up.settings.multipart_params.open_lead_id = $('#checkModal').find('input[name=open_lead_id]').val();
+                    up.settings.multipart_params.open_lead_id = $('#checkModal').find('input[name=openedLeadId]').val();
 
                     $.each(files, function (i, file) {
                         var data = '';

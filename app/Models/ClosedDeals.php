@@ -58,6 +58,16 @@ class ClosedDeals extends Model
             ->select('id', 'email', 'first_name', 'last_name', 'created_at');
     }
 
+    /**
+     * Переписка по сделке
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function messages()
+    {
+        return $this->hasMany('App\Models\Message', 'detail', 'id')->orderBy('created_at');
+    }
+
 
     /**
      * Возвращает массив с источниками по лидам

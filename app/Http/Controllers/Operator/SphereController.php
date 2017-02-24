@@ -8,16 +8,19 @@ use App\Helper\PayMaster;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
+use App\Models\CheckClosedDeals;
 use App\Models\FormFiltersOptions;
 use App\Models\LeadBitmask;
 use App\Models\Operator;
 use App\Models\OperatorSphere;
 use App\Models\OperatorOrganizer;
 use App\Models\SphereFormFilters;
+use App\Models\SphereStatuses;
 use App\Models\User;
 use App\Models\Salesman;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use PhpParser\Node\Expr\Cast\Object_;
@@ -185,6 +188,8 @@ class SphereController extends Controller {
         $data = Sphere::findOrFail($sphere);
         $data->load('attributes.options', 'leadAttr.options', 'leadAttr.validators', 'additionalNotes');
 
+        $sphereStatuses = $data->statuses()->where('type', '=', SphereStatuses::STATUS_TYPE_CLOSED_DEAL)->get();
+
 //        dd($data);
 
         $lead = Lead::with(['phone', 'user', 'operatorOrganizer'])->find($id);
@@ -230,7 +235,8 @@ class SphereController extends Controller {
             ->with('sphere',$data)
             ->with('mask',$shortMask)
             ->with('lead',$lead)
-            ->with('adFields',$adFields);
+            ->with('adFields',$adFields)
+            ->with('sphereStatuses', $sphereStatuses);
     }
 
 
@@ -811,12 +817,8 @@ class SphereController extends Controller {
      *
      * @return Response
      */
-    public function leadAction( Request $request ){
-
-
-//        dd($request);
-//        dd($_FILES);
-
+    public function leadAction( Request $request )
+    {
         /** Типы запроса: */
         // 1. save - просто сохраняем лида
         // 2. toAuction - сохраняем лида, уведомляем агентов и размещаем на аукционе
@@ -1210,7 +1212,20 @@ class SphereController extends Controller {
             $openLead = OpenLeads::where( 'agent_id', $user->id )->where( 'lead_id', $lead_id )->first();
 
             // закрытие сделки
-            $openLead->closeDeal( $userData->price, $senderId );
+            $openLead->closeDeal( $userData->price, '', $senderId );
+
+            if( isset($request->data['dealStatus']) && !empty($request->data['dealStatus']) ) {
+                $openLead->status = $request->data['dealStatus'];
+                $openLead->save();
+            }
+
+            if(isset($request->data['files']) && count($request->data['files']) > 0) {
+                $files = CheckClosedDeals::whereIn('id', $request->data['files'])->get();
+                foreach ($files as $file) {
+                    $file->open_lead_id = $openLead->id;
+                    $file->save();
+                }
+            }
 
             // отправляем сообщение об успешном добавлении лида на общий аукцион
             return response()->json([ 'status'=>5, 'data'=>'Ok' ]);
@@ -1225,6 +1240,57 @@ class SphereController extends Controller {
 
     }
 
+    public function checkUpload(Request $request)
+    {
+        $agent_id = $request->input('agent_id');
+
+        return \Plupload::file('file', function($file) use ($agent_id) {
+
+            $original_name = $file->getClientOriginalName();
+            $extension = File::extension( $original_name );
+            $file_name = md5( microtime() . rand(0, 9999) ) . '.' . $extension;
+            $directory = 'uploads/agent/'.$agent_id.'/';
+
+            if(!File::exists($directory)) {
+                File::makeDirectory($directory, $mode = 0777, true, true);
+            }
+
+            if(File::exists($directory.$file_name)) {
+                $extension = $extension ? '.' . $extension : '';
+                do {
+                    $file_name = md5(microtime() . rand(0, 9999)) . '.' . $extension;
+                } while (File::exists($directory.$file_name));
+            }
+
+            if(!File::exists($directory.$file_name)) {
+
+                // Store the uploaded file
+                $file->move(public_path($directory), $file_name);
+
+                $check = new CheckClosedDeals();
+                $check->open_lead_id = 0;
+                $check->url = $directory;
+                $check->name = $original_name;
+                $check->file_name = $file_name;
+                $check->save();
+
+                // This will be included in JSON response result
+                return [
+                    'success'   => true,
+                    'message'   => 'Upload successful.',
+                    'name'      => $check->name,
+                    'file_name' => $check->file_name,
+                    'url'       => $check->url,
+                    'id'        => $check->id
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'The file already exists!'
+                ];
+            }
+        });
+    }
 
     /**
      * Показывает форму добавления лида

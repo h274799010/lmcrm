@@ -4,6 +4,54 @@
 @section('left_block')
     <div class="col-md-offset-1 col-md-8 col-xs-8">
         <div  id="content" data-sphere_id="{{$sphere->id}}" data-lead_id="{{$lead->id}}" style="padding-bottom: 100px;">
+            {{-- блок с состоянием лида в системе --}}
+            <div class="panel panel-default lead_state">
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th colspan="2">Counter</th>
+                            <th>Expenses</th>
+                            <th colspan="2">Revenue</th>
+                            <th colspan="2">Sales profit</th>
+                            <th colspan="2">Completion time</th>
+                            <th colspan="3">Status</th>
+                        </tr>
+                        <tr>
+                            <th>Discoveries</th>
+                            <th>Dealings</th>
+                            <th>Operator</th>
+                            <th>Realization</th>
+                            <th>Dealings</th>
+                            <th>Depositor</th>
+                            <th>System</th>
+                            <th>Lead</th>
+                            <th>Open leads</th>
+                            <th>Lead</th>
+                            <th>Auction</th>
+                            <th>Payment</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{ $leadStatus['opened']  }} / {{ $leadStatus['maxOpened'] }}</td>
+                            <td>{{ $leadStatus['closingDeal']  }}</td>
+                            <td>{{ $leadStatus['operatorSpend']  }}</td>
+                            <td>{{ $leadStatus['revenueForOpen']  }}</td>
+                            <td>{{ $leadStatus['revenueForClosingDeal']  }}</td>
+                            <td>@if( $leadStatus['depositorProfit']<0 ) {{ $leadStatus['depositorProfit'] }} wasted @else {{ $leadStatus['depositorProfit'] }} @endif</td>
+                            <td>{{ $leadStatus['systemProfit'] }}</td>
+                            <td>@if( $leadStatus['expiry_time'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['expiry_time'] }} @endif</td>
+                            <td>@if( $leadStatus['open_lead_expired'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['open_lead_expired'] }} @endif</td>
+                            <td>{{ $leadStatus['statusName'] }}</td>
+                            <td>{{ $leadStatus['auctionStatusName'] }}</td>
+                            <td>{{ $leadStatus['paymentStatusName'] }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             {{ Form::model($lead,array('route' => ['operator.sphere.lead.update','sphere'=>$sphere->id,'id'=>$lead->id], 'id'=>'editFormAgent', 'method' => 'put', 'class' => 'validate', 'files'=> false)) }}
 
             <div class="depositor_info">
@@ -260,89 +308,7 @@
 
             {{ Form::close() }}
 
-            {{-- блок с состоянием лида в системе --}}
-            <div class="panel panel-default lead_state">
-                <div class="panel-body">
 
-                    <div class="lead_state_head">Counter</div>
-                    <table class="table table-bordered lead_state_table">
-                        <tr>
-                            <td>Discoveries</td>
-                            <td> {{ $leadStatus['opened']  }} / {{ $leadStatus['maxOpened'] }} </td>
-                        </tr>
-                        <tr>
-                            <td>Dealings</td>
-                            <td>{{ $leadStatus['closingDeal']  }}</td>
-                        </tr>
-                    </table>
-
-
-                    <div class="lead_state_head">Expenses</div>
-                    <table class="table table-bordered lead_state_table">
-                        <tr>
-                            <td>Operator</td>
-                            <td>{{ $leadStatus['operatorSpend']  }}</td>
-                        </tr>
-                    </table>
-
-
-                    <div class="lead_state_head">Revenue</div>
-                    <table class="table table-bordered lead_state_table">
-                        <tr>
-                            <td>Realization</td>
-                            <td>{{ $leadStatus['revenueForOpen']  }}</td>
-                        </tr>
-                        <tr>
-                            <td>Dealings</td>
-                            <td>{{ $leadStatus['revenueForClosingDeal']  }}</td>
-                        </tr>
-                    </table>
-
-
-                    <div class="lead_state_head">Sales profit</div>
-                    <table class="table table-bordered lead_state_table">
-                        <tr>
-                            <td>Depositor</td>
-                            <td>@if( $leadStatus['depositorProfit']<0 ) {{ $leadStatus['depositorProfit'] }} wasted @else {{ $leadStatus['depositorProfit'] }} @endif</td>
-                        </tr>
-                        <tr>
-                            <td>System</td>
-                            <td>{{ $leadStatus['systemProfit'] }}</td>
-                        </tr>
-                    </table>
-
-
-                    <div class="lead_state_head">Completion time</div>
-                    <table class="table table-bordered lead_state_table">
-                        <tr>
-                            <td>Lead</td>
-                            <td>@if( $leadStatus['expiry_time'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['expiry_time'] }} @endif</td>
-                        </tr>
-                        <tr>
-                            <td>Open leads</td>
-                            <td>@if( $leadStatus['open_lead_expired'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['open_lead_expired'] }} @endif</td>
-                        </tr>
-                    </table>
-
-                    
-                    <div class="lead_state_head">Status</div>
-                    <table class="table table-bordered lead_state_table">
-                        <tr>
-                            <td>Lead</td>
-                            <td>{{ $leadStatus['statusName'] }}</td>
-                        </tr>
-                        <tr>
-                            <td>Auction</td>
-                            <td>{{ $leadStatus['auctionStatusName'] }}</td>
-                        </tr>
-                        <tr>
-                            <td>Payment</td>
-                            <td>{{ $leadStatus['paymentStatusName'] }}</td>
-                        </tr>
-                    </table>
-
-                </div>
-            </div>
 
         </div>
 
@@ -422,12 +388,29 @@
                         <div class="apply_closeDeal hidden">
                             @lang('operator/edit.modal_apply_body_close_the_dead')
                             <div class="apply_content"></div>
-                            <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
+                            @if(isset($sphereStatuses) && count($sphereStatuses) > 0)
+                                <div class="form-group">
+                                    <label for="closeDealStatus">Close deal status:</label>
+                                    <select name="status" id="closeDealStatus">
+                                        @foreach($sphereStatuses as $status)
+                                            <option value="{{ $status->id }}">{{ $status->stepname }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            <div class="form-group">
+                                <input class="form-control valid" type="text" name="price" id="closeDealPrice" placeholder="price">
+                            </div>
 
                             {{--<input type="file" multiple="multiple" name="files[]" />--}}
 
-                            <div class="closeDeal_files"></div>
-                            <button class="btn btn-xs btn-primary addFileButton">add file</button>
+                            {{--<div class="closeDeal_files"></div>--}}
+                            <div class="form-group">
+                                <div id="uploadedFiles" class="hidden"></div>
+                                <div id="uploadProgress"></div>
+                            </div>
+                            <button class="btn btn-xs btn-primary addFileButton" id="btnAddFile">add file</button>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -687,6 +670,46 @@
             color: white;
             width: 150px;
         }
+        .file-name {}
+        .upload-progress {
+            width: 100%;
+            margin-top: 6px;
+            background-color: #777777;
+            padding: 3px 0;
+            position: relative;
+        }
+        .upload-progress .upload-status {
+            display: block;
+            width: 0;
+            background-color: #5cb85c;
+            border: 1px solid #4cae4c;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 1;
+        }
+        .upload-progress.danger .upload-status {
+            background-color: #d9534f;
+            border: 1px solid #d43f3a;
+        }
+        .upload-progress .upload-status-percent {
+            color: #ffffff;
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+        .file-container {
+            margin-top: 16px;
+        }
+        .file-container:first-child {
+            margin-top: 0;
+        }
+        #uploadProgress {
+            padding-top: 15px;
+        }
 
     </style>
 @stop
@@ -748,7 +771,7 @@
         });
 
         // добавление поля для добавления файла
-        $('.addFileButton').bind('click', function(){
+        /*$('.addFileButton').bind('click', function(){
 
             // создаем поле input
             var input = $('<input />');
@@ -780,7 +803,77 @@
                 files = this.files;
             });
 
+        });*/
+
+
+        var uploaderImages = new plupload.Uploader({
+            runtimes : 'html5',
+
+            browse_button : 'btnAddFile',
+            multi_selection: true,
+            url : "{{ route('operator.lead.checkUpload') }}",
+
+            multipart_params: {
+                _token: $('meta[name=csrf-token]').attr('content'),
+                agent_id: false
+            },
+
+            filters : {
+                max_file_size : '15mb',
+                mime_types: [
+                    {title : "Image files", extensions : "jpg,jpeg,png"}
+                ]
+            },
+
+            init: {
+                FilesAdded: function(up, files) {
+                    up.settings.multipart_params.agent_id = $('.modal_user_block').data('userid');
+
+                    $.each(files, function (i, file) {
+                        var data = '';
+
+                        data += '<div class="controls file-container">';
+                        data += '<div id="checkName" class="file-name">'+file.name+'</div>';
+                        data += '<div class="upload-progress">';
+                        data += '<div id="uploadStatus_'+file.id+'" class="upload-status"></div>';
+                        data += '<div id="uploadStatusPercent_'+file.id+'" class="upload-status-percent">Pleas wait...</div>';
+                        data += '</div>';
+                        data += '</div>';
+
+                        $('#uploadProgress').append(data);
+
+                        uploaderImages.start();
+                    });
+                },
+
+                UploadProgress: function(up, file) {
+                    $('#uploadStatus_'+file.id).css('width', file.percent + '%');
+                    $('#uploadStatusPercent_'+file.id).html(file.percent + '%');
+                },
+
+                FileUploaded: function (up, file, res) {
+                    //$('#checkModalChange').removeClass('disabled').prop('disabled', false);
+
+                    var data = $.parseJSON(res.response);
+                    data = data.result;
+
+                    if(data.success == false) {
+                        $('#uploadStatusPercent_'+file.id).closest('.upload-progress').addClass('danger');
+                    } else {
+                        $('#uploadedFiles').append('<input type="hidden" name="files[]" class="inpFiles" value="'+data.id+'">');
+                    }
+
+                    $('#uploadStatusPercent_'+file.id).html(data.message);
+
+                },
+
+                Error: function(up, err) {
+                    alert("\nError #" + err.code + ": " + err.message);
+                }
+            }
         });
+
+        uploaderImages.init();
 
         // кнопка закрытия блока с пользователями которые немогут заплатить за открытие лида
         $('.can_not_buy_block_closeButton').bind('click', function(){
@@ -1156,6 +1249,8 @@
 
                     // делаем видимым блок добавления лида на аукцион
                     applyСloseDeal.removeClass('hidden');
+                    $('#uploadProgress').empty();
+                    $('#uploadedFiles').empty();
 
                     // показать попандер
                     $('.apply_lead_mask_modal').modal('show');
@@ -1776,6 +1871,11 @@
                     // получение прайса из формы модального окна
                     leadApplyData.users[0].price = $('#closeDealPrice').val();
 
+                    if( $('#closeDealStatus').val() == '' ) {
+                        return true;
+                    }
+                    formFields.dealStatus = $('#closeDealStatus').val();
+
                     // добавляем тип в данные
 //                    formFields.type = leadApplyData.type;
                     // добавляем данные агентов
@@ -1824,6 +1924,14 @@
 
 
 //                    return true;
+
+                    if($(document).find('.inpFiles').length > 0) {
+                        var filesData = [];
+                        $(document).find('.inpFiles').each(function (i, file) {
+                            filesData.push($(file).val());
+                        });
+                        formFields.files = filesData;
+                    }
                 }
 
                 // добавляем тип в данные

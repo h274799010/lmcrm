@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Facades\CreateLead;
+use App\Facades\Messages;
 use App\Helper\PayMaster;
 use App\Helper\PayMaster\PayInfo;
 use App\Helper\PayMaster\Pay;
@@ -817,61 +818,70 @@ class LeadController extends AgentController {
         $arr[] = [ 'phone',$data->phone->phone ];
         $arr[] = [ 'email',$data->email ];
 
-        // получаем все атрибуты агента
-        foreach ($data->SphereFormFilters as $key=>$sphereAttr){
-
-            $str = '';
-            foreach ($sphereAttr->options as $option){
-                $mask = new LeadBitmask($data->sphere_id,$data->id);
-
-            $resp = $mask->where('fb_'.$option->attr_id.'_'.$option->id,1)->where('user_id',$id)->first();
-
-                if (count($resp)){
-
-                    if( $str=='' ){
-                        $str = $option->name;
-                    }else{
-                        $str .= ', ' .$option->name;
-                    }
-
-                }
-
+        if($data->status == 8) {
+            $sender = Agent::find($data->agent_id);
+            if(isset($sender->id)) {
+                $arr[] = ['sender', $sender->email];
             }
-            $arr[] = [ $sphereAttr->label, $str ];
         }
 
-        // получаем все атрибуты лида
-        foreach ($data->SphereAdditionForms as $key=>$attr){
+        if($data->status != 8) {
+            // получаем все атрибуты агента
+            foreach ($data->SphereFormFilters as $key=>$sphereAttr){
 
-            $str = '';
+                $str = '';
+                foreach ($sphereAttr->options as $option){
+                    $mask = new LeadBitmask($data->sphere_id,$data->id);
 
-            $mask = new LeadBitmask($data->sphere_id,$data->id);
-            $AdMask = $mask->findAdMask($id);
+                    $resp = $mask->where('fb_'.$option->attr_id.'_'.$option->id,1)->where('user_id',$id)->first();
 
-            // обработка полей с типом 'radio', 'checkbox' и 'select'
-            // у этих атрибутов несколько опций (по идее должно быть)
-            if( $attr->_type=='radio' || $attr->_type=='checkbox' || $attr->_type=='select' ){
+                    if (count($resp)){
 
-                foreach ($attr->options as $option){
-
-                    if($AdMask['ad_'.$option->attr_id.'_'.$option->id]==1){
                         if( $str=='' ){
                             $str = $option->name;
                         }else{
                             $str .= ', ' .$option->name;
                         }
+
                     }
+
+                }
+                $arr[] = [ $sphereAttr->label, $str ];
+            }
+
+            // получаем все атрибуты лида
+            foreach ($data->SphereAdditionForms as $key=>$attr){
+
+                $str = '';
+
+                $mask = new LeadBitmask($data->sphere_id,$data->id);
+                $AdMask = $mask->findAdMask($id);
+
+                // обработка полей с типом 'radio', 'checkbox' и 'select'
+                // у этих атрибутов несколько опций (по идее должно быть)
+                if( $attr->_type=='radio' || $attr->_type=='checkbox' || $attr->_type=='select' ){
+
+                    foreach ($attr->options as $option){
+
+                        if($AdMask['ad_'.$option->attr_id.'_'.$option->id]==1){
+                            if( $str=='' ){
+                                $str = $option->name;
+                            }else{
+                                $str .= ', ' .$option->name;
+                            }
+                        }
+                    }
+
+
+                }else{
+
+                    $str = $AdMask['ad_'.$attr->id.'_0'];
+
                 }
 
 
-            }else{
-
-                $str = $AdMask['ad_'.$attr->id.'_0'];
-
+                $arr[] = [ $attr->label, $str ];
             }
-
-
-            $arr[] = [ $attr->label, $str ];
         }
 
 
@@ -1099,6 +1109,27 @@ class LeadController extends AgentController {
                 $check->file_name = $file_name;
                 $check->save();
 
+                $extension = strtolower(File::extension( $check->file_name ));
+
+                if(in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
+                    $type = 'image';
+                }
+                elseif (in_array($extension, array('doc', 'docx', 'rtf'))) {
+                    $type = 'word';
+                }
+                elseif (in_array($extension, array('pdf'))) {
+                    $type = 'pdf';
+                }
+                elseif (in_array($extension, array('zip', 'rar'))) {
+                    $type = 'archive';
+                }
+                elseif (in_array($extension, array('txt'))) {
+                    $type = 'text';
+                }
+                else {
+                    $type = 'undefined';
+                }
+
                 // This will be included in JSON response result
                 return [
                     'success'   => true,
@@ -1107,6 +1138,7 @@ class LeadController extends AgentController {
                     'file_name' => $check->file_name,
                     'url'       => $check->url,
                     'id'        => $check->id,
+                    'type'      => $type,
                     // 'url'       => $photo->getImageUrl($filename, 'medium'),
                     // 'deleteUrl' => action('MediaController@deleteDelete', [$photo->id])
                 ];
@@ -1600,8 +1632,44 @@ class LeadController extends AgentController {
      */
     public function aboutDeal($lead_id)
     {
-        $openLead = OpenLeads::with('statusInfo', 'closeDealInfo', 'uploadedCheques')->find($lead_id);
+        $openLead = OpenLeads::with([
+            'statusInfo',
+            'uploadedCheques',
+            'closeDealInfo' => function($query) {
+                $query->with([
+                    'messages' => function($query) {
+                        $query->with('sender');
+                    }
+                ]);
+            }
+        ])->find($lead_id);
+
         $user = Sentinel::getUser();
+
+        if(isset($openLead->uploadedCheques)) {
+            foreach ($openLead->uploadedCheques as $key => $cheque) {
+                $extension = strtolower(File::extension( $cheque->file_name ));
+
+                if(in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
+                    $openLead->uploadedCheques[$key]->type = 'image';
+                }
+                elseif (in_array($extension, array('doc', 'docx', 'rtf'))) {
+                    $openLead->uploadedCheques[$key]->type = 'word';
+                }
+                elseif (in_array($extension, array('pdf'))) {
+                    $openLead->uploadedCheques[$key]->type = 'pdf';
+                }
+                elseif (in_array($extension, array('zip', 'rar'))) {
+                    $openLead->uploadedCheques[$key]->type = 'archive';
+                }
+                elseif (in_array($extension, array('txt'))) {
+                    $openLead->uploadedCheques[$key]->type = 'text';
+                }
+                else {
+                    $openLead->uploadedCheques[$key]->type = 'undefined';
+                }
+            }
+        }
 
         $data = Lead::find( $openLead->lead_id );
         $leadData[] = [ 'name',$data->name ];
@@ -1666,9 +1734,12 @@ class LeadController extends AgentController {
             $leadData[] = [ $attr->label, $str ];
         }
 
+        $dealStatuses = ClosedDeals::getDealStatuses();
+
         return view('agent.lead.aboutDeal', [
             'leadData' => $leadData,
-            'openLead' => $openLead
+            'openLead' => $openLead,
+            'dealStatuses' => $dealStatuses
         ]);
     }
 
@@ -1715,5 +1786,16 @@ class LeadController extends AgentController {
         } else {
             return response()->json($paymentStatus);
         }
+    }
+
+    public function sendMessageDeal(Request $request)
+    {
+        $deal = ClosedDeals::find($request->input('deal_id'));
+        $mess = $request->input('message');
+        $sender = Sentinel::getUser();
+
+        $message = Messages::sendDeal($deal->id, $sender->id, $mess);
+
+        return response()->json($message);
     }
 }
