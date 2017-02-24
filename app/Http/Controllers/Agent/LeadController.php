@@ -1790,12 +1790,38 @@ class LeadController extends AgentController {
 
     public function sendMessageDeal(Request $request)
     {
-        $deal = ClosedDeals::find($request->input('deal_id'));
+        $validator = Validator::make($request->all(), [
+            'message' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(array(
+                'status' => 'errors',
+                'errors' => $validator->errors()
+            ));
+        }
+
+        $deal_id = (int)$request->input('deal_id');
         $mess = $request->input('message');
+
+        if( !$deal_id ) {
+            abort(403, 'Wrong deal id');
+        }
+
+        $deal = ClosedDeals::find($deal_id);
         $sender = Sentinel::getUser();
 
         $message = Messages::sendDeal($deal->id, $sender->id, $mess);
 
-        return response()->json($message);
+        if(isset($message->id)) {
+            return response()->json([
+                'status' => 'success'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'fail',
+                'errors' => 'An error occurred while sending a message! Try later!'
+            ]);
+        }
     }
 }

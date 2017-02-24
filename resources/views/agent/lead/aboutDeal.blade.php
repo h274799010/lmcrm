@@ -381,19 +381,37 @@
 
                 var message = $('#inpMessage').val();
 
-                if(message == '') {
+                /*if(message == '') {
                     bootbox.dialog({
                         message: 'Empty message!',
                         show: true
                     });
                     return true;
-                }
+                }*/
 
                 var params = 'message='+message+'&deal_id={{ $openLead->closeDealInfo->id }}'+'&_token={{ csrf_token() }}';
 
                 $.post('{{ route('agent.lead.sendMessageDeal') }}', params, function (data) {
-                    console.log(data);
-                    window.location.reload();
+                    if(data.status == 'success') {
+                        window.location.reload();
+                    }
+                    else if(data.status == 'fail') {
+                        bootbox.dialog({
+                            message: data.errors,
+                            show: true
+                        });
+                    }
+                    else if (data.status == 'errors') {
+                        var html = '';
+                        $.each(data.errors, function (i, error) {
+                            if(i > 0) html += '<br>';
+                            html += error;
+                        });
+                        bootbox.dialog({
+                            message: html,
+                            show: true
+                        });
+                    }
                 });
             });
         });
