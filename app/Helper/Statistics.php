@@ -4,6 +4,8 @@ namespace App\Helper;
 
 use App\Models\AccountManagersAgents;
 use App\Models\AccountManagerSphere;
+use App\Models\Agent;
+use App\Models\AgentInfo;
 use App\Models\AgentSphere;
 use App\Models\Auction;
 use App\Models\Lead;
@@ -65,6 +67,7 @@ class Statistics
 
         'user_id' => false,              // id пользователя
         'userRole' => false,             // роль пользователя
+        'userSubRole' => false,          // суб роль пользователя
         'userModel' => false,            // модель пользователя
         'userCreated' => false,          // время когда пользователь был зарегистрирован в системе
 
@@ -77,8 +80,11 @@ class Statistics
         'addUserToSphere' => false,      // время, когда пользователь был добавлен в сферу
 
         'salesman' => false,             // id продавцов пользователя
+        'salesmanSwitch' => false,       // переключатель который указывает включать данные салесмана в статистику агента или нет
         'salesmenData' => false,         // продавцы пользователя с дынными
         'salesmanCount' => false,        // количество продавцов пользователя
+
+        'salesmanBannedCount' => false,  // количество забаненных продавцов пользователя
 
         'statusesNames' =>               // массив с именами статусов
             [
@@ -158,6 +164,13 @@ class Statistics
 
                 // выставляем роль пользователя как 'accManager'
                 $userRole = 'account_manager';
+            }elseif( $role->slug == 'leadbayer' ){
+                // суброли
+                $this->openLeads['userSubRole'] = 'lead buyer';
+
+            }elseif( $role->slug == 'dealmaker' ){
+                // суброли
+                $this->openLeads['userSubRole'] = 'deal maker';
             }
         });
 
@@ -321,6 +334,13 @@ class Statistics
                     $users = array_merge( $users, $this->openLeads['salesman'] );
                 }
 
+                // todo расчет количества забаненных пользователей
+                $this->openLeads['salesmanBannedCount'] = User::
+                      whereIn( 'id', $this->openLeads['salesman'] )
+                    ->where( 'banned_at', '<>', NULL )
+                    ->count();
+
+
                 // заносим данные в общую переменную
                 $this->openLeads['usersForStatistic'] = $users;
             }
@@ -454,6 +474,9 @@ class Statistics
                 $statusesNames[ $status->id ] = [ 'name' => $status->stepname, 'type'=> $status->type ];
             }
         );
+
+        // подсчитываем сумарные данные по каждому типу статусов
+        $this->sphereStatusesCalculateSummary();
     }
 
 
@@ -550,7 +573,6 @@ class Statistics
             $status['countAll'] = OpenLeads::
                       whereIn( 'id', $this->openLeads['allLeadsId']->toArray() )
                     ->where( 'status', $statusData['id'] )
-                    ->where( 'state', '<>', 2 )
                     ->count();
 
             // процент по общему количеству лидов
@@ -564,13 +586,67 @@ class Statistics
                 $status['countPeriod'] = OpenLeads::
                       whereIn( 'id', $this->openLeads['periodLeadsId']->toArray() )
                     ->where( 'status', $statusData['id'] )
-                    ->where( 'state', '<>', 2 )
                     ->count();
 
                 // процент количества статуса по открытым лидам за период
                 $status['percentPeriod'] = $this->openLeads['periodCount'] != 0 ? round($status['countPeriod'] * 100 / $this->openLeads['periodCount'], 2) : 0;
             }
         }
+    }
+
+
+    /**
+     * Подсчет сумарных данных по каждому типу статусов
+     *
+     * Метод перебирает все типы статусов (если они есть)
+     * и выводит по каждому общеие данные
+     * которые добавляет самой последней строкой в таблицу (последний элемент массива)
+     *
+     */
+    private function sphereStatusesCalculateSummary()
+    {
+
+        // ссылка на глобальную переменную со статусов по типам
+        $globalTypes = &$this->openLeads['statuses']['type'];
+
+        // делаем копию всех типов и преобразовываем в коллекцию
+        $typeStatuses = collect($this->openLeads['statuses']['type']);
+
+        // перебираем каждый тип со статусами
+        $typeStatuses->each(function( $type, $key ) use ( &$globalTypes ){
+
+            // если тип есть (он не false)
+            if( $type ){
+                // находим сумарные данные по нему
+
+                // переменная с сумарными данными
+                $summary =
+                [
+                    "name" => "Summary",
+                    "type" => 'countSummary',
+                    "countAll" => 0,
+                    "percentAll" => 0,
+                    "countPeriod" => 0,
+                    "percentPeriod" => 0
+                ];
+
+                // преобразовываем массив с типами в коллекцию
+                $type = collect($type);
+
+                // перебираем каждый статус типа
+                $type->each(function( $status ) use(&$summary){
+                    // суммируем его по каждому полю
+
+                    $summary['countAll'] = $summary['countAll'] + $status['countAll'];
+                    $summary['percentAll'] = $summary['percentAll'] + $status['percentAll'];
+                    $summary['countPeriod'] = $summary['countPeriod'] + $status['countPeriod'];
+                    $summary['percentPeriod'] = $summary['percentPeriod'] + $status['percentPeriod'];
+                });
+
+                // добавляем сумму в конец массива типа со статусами
+                $globalTypes[$key][] = $summary;
+            }
+        });
     }
 
 
@@ -653,36 +729,121 @@ class Statistics
         // билдер по всем лидам на аукционе
         $allAuctionLeads = Auction::withTrashed();
 
-        // если заданна сфера
+        // проверка на наличие сферы
         if( $this->openLeads['sphere_id'] ){
-            // добавляем в билдер выборку по сферам
-            $allAuctionLeads->where('sphere_id', $this->openLeads['sphere_id']);
+            // если сфера задана
+
+            // выбираем все id аукционов по сфере
+            $allAuctionLeadsId = $allAuctionLeads->where('sphere_id', $this->openLeads['sphere_id'])->lists('id');
+
+        }else{
+            // если сфера не задана
+
+            // выбираем все id аукционов
+            $allAuctionLeadsId = $allAuctionLeads->lists('id');
         }
 
-        // если заданны пользователи
+
+        // проверка на наличие пользователя
         if( $this->openLeads['usersForStatistic'] || $this->openLeads['usersForStatistic'] === [] ){
-            // добавляем в билдер выборку по пользователям
+            // если пользователи заданны
 
-            $users = $this->openLeads['usersForStatistic'] === [] ? false : $this->openLeads['usersForStatistic'];
+            // преобразование массива пользователя
+            $users = $this->openLeads['usersForStatistic'] === [] ? collect() : collect($this->openLeads['usersForStatistic']);
 
-            // todo
-//            dd($users);
+            // преобразование массива с id аукционов
+            $allLeads = $allAuctionLeadsId === [] ? false : $allAuctionLeadsId;
 
-            $allAuctionLeads->whereIn('user_id', $users);
+            // переменная с количеством увиденных лидов пользователями
+            $allAuctionCount = 0;
+
+            // перебираем всех пользователей и находим количество увиденных лидов за все время
+            $users->each(function( $user ) use ( $allLeads, &$allAuctionCount ){
+
+                // запрос на получение лидов по аукциону за все время
+                $allAuction = Auction::
+                      withTrashed()
+                    ->whereIn( 'id', $allLeads )
+                    ->where( 'user_id', $user )
+                    ->groupBy('lead_id')
+                    ->get();
+
+                // прибавление количества лидов на аукционе за все время
+                $allAuctionCount = $allAuctionCount + $allAuction->count();
+            });
+
+            // добавляем лиды увиденные за все время пользователями в общую переменную
+            $this->openLeads['allAuctionCount'] = $allAuctionCount;
+
+        }else{
+            // если пользователи не заданны
+
+            // получаем id всех агентов по сфере
+            $usersSphere = AgentSphere::
+                  where( 'sphere_id', $this->openLeads['sphere_id'] )
+                ->lists('agent_id');
+
+            // получаем всех агентов с их продавцами по сфере
+            $agents = Agent::
+                  whereIn( 'id', $usersSphere )
+                ->with('salesmen')
+                ->get();
+
+            // массив с пользователями
+            $users = [];
+
+            // перебираем всех агентов и собираем массив с пользователями (салесманами и агентами)
+            $agents->each(function( $agent ) use (&$users){
+                // заносим в массив пользователей id агента
+                $users[] = $agent['id'];
+
+                // перебираем всех продавцов агента
+                $agent->salesmen->each(function( $salesman ) use (&$users){
+                    // заносим id продавца в массив с пользователями
+                    $users[] = $salesman['id'];
+                });
+            });
+
+            // преобразование массива пользователя
+            $users = $users === [] ? collect() : collect($users);
+
+            // преобразование массива с id аукционов
+            $allLeads = $allAuctionLeadsId === [] ? false : $allAuctionLeadsId;
+
+            // переменная с количеством увиденных лидов пользователями
+            $allAuctionCount = 0;
+
+            // перебираем всех пользователей и находим количество увиденных лидов за все время
+            $users->each(function( $user ) use ( $allLeads, &$allAuctionCount ){
+
+                // запрос на получение лидов по аукциону за все время
+                $allAuction = Auction::
+                withTrashed()
+                    ->whereIn( 'id', $allLeads )
+                    ->where( 'user_id', $user )
+                    ->groupBy('lead_id')
+                    ->get();
+
+                // прибавление количества лидов на аукционе за все время
+                $allAuctionCount = $allAuctionCount + $allAuction->count();
+            });
+
+            // добавляем лиды увиденные за все время пользователями в общую переменную
+            $this->openLeads['allAuctionCount'] = $allAuctionCount;
+
+
+            // выбираем все лиды с аукциона по заданным в билдере параметрам
+//            $allAuctionLeads = $allAuctionLeads
+//                ->groupBy('lead_id')
+//                ->get();
+//
+//            // добавляем количество в статистику
+//            $this->openLeads['allAuctionCount'] = $allAuctionLeads->count();
+
+//            dd($this->openLeads['allAuctionCount']);
+
         }
 
-//        dd($this->openLeads);
-
-
-        // выбираем все лиды с аукциона по заданным в билдере параметрам
-        $allAuctionLeads = $allAuctionLeads
-            ->groupBy('lead_id')
-            ->get();
-
-        // добавляем количество в статистику
-        $this->openLeads['allAuctionCount'] = $allAuctionLeads->count();
-
-//        dd( $this->openLeads['allAuctionCount'] );
 
         /** Находим просмотренные лиды за заданный период */
 
@@ -697,28 +858,116 @@ class Statistics
                 ->where( 'created_at', '<=', $this->openLeads['dateTo'] )
             ;
 
-            // если заданна сфера
+            // проверка на наличие сферы
             if( $this->openLeads['sphere_id'] ){
-                // добавляем в билдер выборку по сферам
-                $periodAuctionLeads->where('sphere_id', $this->openLeads['sphere_id']);
+                // если сфера задана
+
+                // выбираем все id аукционов по сфере
+                $periodAuctionLeadsId = $periodAuctionLeads->where('sphere_id', $this->openLeads['sphere_id'])->lists('id');
+
+            }else{
+                // если сфера не задана
+
+                // выбираем все id аукционов
+                $periodAuctionLeadsId = $periodAuctionLeads->lists('id');
             }
 
-            // если заданны пользователи
+
+            // проверка на наличие пользователя
             if( $this->openLeads['usersForStatistic'] || $this->openLeads['usersForStatistic'] === [] ){
-                // добавляем в билдер выборку по пользователям
+                // если пользователи заданны
 
-                $users = $this->openLeads['usersForStatistic'] === [] ? false : $this->openLeads['usersForStatistic'];
+                // преобразование массива пользователя
+                $users = $this->openLeads['usersForStatistic'] === [] ? collect() : collect($this->openLeads['usersForStatistic']);
 
-                $periodAuctionLeads->whereIn('user_id', $users);
+                // преобразование массива с id аукционов
+                $periodLeads = $periodAuctionLeadsId === [] ? false : $periodAuctionLeadsId;
+
+                // переменная с количеством увиденных лидов пользователями
+                $usersPeriodCount = 0;
+
+                // перебираем всех пользователей и находим количество увиденных лидов за заданный период
+                $users->each(function( $user ) use ( $periodLeads, &$usersPeriodCount ){
+
+                    // запрос на получение лидов по аукциону за заданный период
+                    $count = Auction::
+                          withTrashed()
+                        ->whereIn( 'id', $periodLeads )
+                        ->where( 'user_id', $user )
+                        ->groupBy('lead_id')
+                        ->get();
+
+                    // прибавление количества лидов на аукционе за заданный период
+                    $usersPeriodCount = $usersPeriodCount + $count->count();
+                });
+
+                // добавляем лиды увиденные за заданный период пользователями в общую переменную
+                $this->openLeads['periodAuctionCount'] = $usersPeriodCount;
+
+            }else{
+                // если пользователи не заданны
+
+                // получаем id всех агентов по сфере
+                $usersSphere = AgentSphere::
+                where( 'sphere_id', $this->openLeads['sphere_id'] )
+                    ->lists('agent_id');
+
+                // получаем всех агентов с их продавцами по сфере
+                $agents = Agent::
+                whereIn( 'id', $usersSphere )
+                    ->with('salesmen')
+                    ->get();
+
+                // массив с пользователями
+                $users = [];
+
+                // перебираем всех агентов и собираем массив с пользователями (салесманами и агентами)
+                $agents->each(function( $agent ) use (&$users){
+                    // заносим в массив пользователей id агента
+                    $users[] = $agent['id'];
+
+                    // перебираем всех продавцов агента
+                    $agent->salesmen->each(function( $salesman ) use (&$users){
+                        // заносим id продавца в массив с пользователями
+                        $users[] = $salesman['id'];
+                    });
+                });
+
+                // преобразование массива пользователя
+                $users = $users === [] ? collect() : collect($users);
+
+                // преобразование массива с id аукционов
+                $periodLeads = $periodAuctionLeadsId === [] ? false : $periodAuctionLeadsId;
+
+                // переменная с количеством увиденных лидов пользователями
+                $periodAuctionCount = 0;
+
+                // перебираем всех пользователей и находим количество увиденных лидов за все время
+                $users->each(function( $user ) use ( $periodLeads, &$periodAuctionCount ){
+
+                    // запрос на получение лидов по аукциону за все время
+                    $periodAuction = Auction::
+                    withTrashed()
+                        ->whereIn( 'id', $periodLeads )
+                        ->where( 'user_id', $user )
+                        ->groupBy('lead_id')
+                        ->get();
+
+                    // прибавление количества лидов на аукционе за все время
+                    $periodAuctionCount = $periodAuctionCount + $periodAuction->count();
+                });
+
+                // добавляем лиды увиденные за все время пользователями в общую переменную
+                $this->openLeads['periodAuctionCount'] = $periodAuctionCount;
+
+                // выбираем лиды с аукциона по заданным в билдере параметрам за период
+//                $periodAuctionLeads = $periodAuctionLeads
+//                    ->groupBy('lead_id')
+//                    ->get();
+//
+//                // добавляем количество в статистику
+//                $this->openLeads['periodAuctionCount'] = $periodAuctionLeads->count();
             }
-
-            // выбираем лиды с аукциона по заданным в билдере параметрам за период
-            $periodAuctionLeads = $periodAuctionLeads
-                ->groupBy('lead_id')
-                ->get();
-
-            // добавляем количество в статистику
-            $this->openLeads['periodAuctionCount'] = $periodAuctionLeads->count();
         }
     }
 
@@ -941,6 +1190,9 @@ class Statistics
             abort(403, 'Wrong parameter for salesman, it must be boolean');
         }
 
+        // запоминаем переключатель салесмана в общем массиве
+        $this->openLeads['salesmanSwitch'] = $salesman;
+
         // если id пользователя равен нулю - выходим
         if( !$userId ){ abort(403, 'Wrong user id'); }
 
@@ -1016,6 +1268,7 @@ class Statistics
                 [
                     'id' => $this->openLeads['user_id'],
                     'role' => $this->openLeads['userRole'],
+                    'subRole' => $this->openLeads['userSubRole'],
                     'email' => $this->openLeads['userModel']['email'],
                     'first_name' => $this->openLeads['userModel']['first_name'],
                     'last_name' => $this->openLeads['userModel']['last_name'],
@@ -1025,6 +1278,8 @@ class Statistics
 
                     'withSalesman' => $this->openLeads['salesman'],
                     'salesmanCount' => $this->openLeads['salesmanCount'],
+                    'salesmanBannedCount' => $this->openLeads['salesmanBannedCount'],
+
                     'salesmenData' => $this->openLeads['salesmenData'] ? $this->openLeads['salesmenData'] : collect(),
 
 
@@ -1108,6 +1363,9 @@ class Statistics
             abort(403, 'Wrong parameter for salesman, it must be boolean');
         }
 
+        // запоминаем переключатель салесмана в общем массиве
+        $this->openLeads['salesmanSwitch'] = $salesman;
+
         // если id пользователя равен нулю - выходим
         if( !$userId ){ abort(403, 'Wrong user id'); }
 
@@ -1170,9 +1428,6 @@ class Statistics
         // подсчет открытых лидов без статуса
         $this->sphereStatusesCount('noStatus');
 
-        // подсчет открытых лидов с закрытыми сделками
-        $this->sphereStatusesCount('closeDeal');
-
         // получение всех транзитов по сфере
         $this->getSphereTransitions();
 
@@ -1197,6 +1452,7 @@ class Statistics
                 [
                     'id' => $this->openLeads['user_id'],
                     'role' => $this->openLeads['userRole'],
+                    'subRole' => $this->openLeads['userSubRole'],
                     'email' => $this->openLeads['userModel']['email'],
                     'first_name' => $this->openLeads['userModel']['first_name'],
                     'last_name' => $this->openLeads['userModel']['last_name'],
@@ -1206,6 +1462,9 @@ class Statistics
 
                     'withSalesman' => $this->openLeads['salesman'],
                     'salesmanCount' => $this->openLeads['salesmanCount'],
+
+                    'salesmanBannedCount' => $this->openLeads['salesmanBannedCount'],
+
                     'salesmenData' => $this->openLeads['salesmenData'] ? $this->openLeads['salesmenData'] : collect(),
 
 
@@ -1248,8 +1507,6 @@ class Statistics
                     ],
 
                 'noStatus' => $this->openLeads['statuses']['noStatus'] ? $this->openLeads['statuses']['noStatus'] : [],
-
-                'closeDeal' => $this->openLeads['statuses']['closeDeal'] ? $this->openLeads['statuses']['closeDeal'] : [],
             ],
 
             'transitions' => $this->openLeads['transitions'] ? $this->openLeads['transitions'] : [],
@@ -1584,6 +1841,23 @@ class Statistics
             ];
 
         return $statistics;
+    }
+
+
+    /**
+     * Статистика оператора по сфере
+     *
+     * @param  integer  $id
+     * @param  integer|boolean  $sphereId
+     * @param  string|boolean  $dateFrom
+     * @param  string|boolean  $dateTo
+     *
+     * @return array
+     */
+    public function operator( $id, $sphereId=false, $dateFrom=false, $dateTo=false )
+    {
+
+        return [];
     }
 
 }

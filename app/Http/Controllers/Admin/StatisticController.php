@@ -287,6 +287,7 @@ class StatisticController extends Controller
             $sphere = $spheres->first();
 
             $statistic = Statistic::agentBySphere( $user['id'], $sphere['id'], true );
+//            $statistic = Statistic::agentBySphere( $user['id'], $sphere['id'], false );
         }
 
 
@@ -425,6 +426,8 @@ class StatisticController extends Controller
 
         // выбираем статистику
         $statistic = Statistic::agentBySphere( $user['id'], $currentSphere['id'], true, $timeFrom, $timeTo );
+//        $statistic = Statistic::agentBySphere( $user['id'], $currentSphere['id'], false, $timeFrom, $timeTo );
+
 
         return response()->json([ 'spheres'=>$spheres, 'statistic'=>$statistic ]);
     }

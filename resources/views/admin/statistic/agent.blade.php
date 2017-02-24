@@ -6,11 +6,60 @@
 
 {{-- Content --}}
 @section('main')
-    <div class="page-header">
-        <h3>
-            @lang('statistic.page_title') {{ $statistic['user']['email'] }}
-        </h3>
+
+    <div class="breadcrumb-wrapper">
+        <ul class="breadcrumb" style="margin-bottom: 5px;">
+            <li><a href="/">LM CRM</a></li>
+            <li><a href="{{ route('admin.statistic.agents') }}">Agents statistic</a></li>
+            <li class="active">Agent: {{ $statistic['user']['email'] }}</li>
+        </ul>
     </div>
+
+
+    <table class="agent_data_table">
+        <thead>
+            <tr>
+                <th colspan="2">Agent data</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>first name:</th>
+                <td>{{ $statistic['user']['first_name'] }}</td>
+            </tr>
+            <tr>
+                <th>last name:</th>
+                <td>{{ $statistic['user']['last_name'] }}</td>
+            </tr>
+            <tr>
+                <th>email:</th>
+                <td>{{ $statistic['user']['email'] }}</td>
+            </tr>
+            <tr>
+                <th>role:</th>
+                <td>{{ $statistic['user']['subRole'] }}</td>
+            </tr>
+            <tr>
+                <th>salesmen's count:</th>
+                <td>{{ $statistic['user']['salesmanCount'] }} ({{ $statistic['user']['salesmanBannedCount'] }} banned)</td>
+            </tr>
+            <tr>
+                <th>registration date:</th>
+                <td>{{ $statistic['user']['created_at'] }}</td>
+            </tr>
+            <tr>
+                <th>add to sphere date:</th>
+                <td>{{ $statistic['user']['addToSphere'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {{--<div class="page-header">--}}
+        {{--<h3>--}}
+            {{--@lang('statistic.page_title') {{ $statistic['user']['email'] }}--}}
+        {{--</h3>--}}
+    {{--</div>--}}
 
     {{-- Проверка есть ли у пользователя сферы --}}
     @if($spheres->count() == 0)
@@ -52,155 +101,115 @@
 
             <div class="row sphere_status_block">
 
-                <h4 class="statistic-sphere-name"> <span class="sphere-name">{{ $statistic['sphere']['name'] }}</span>
+                <h4 class="statistic-sphere-name">
+                    <span class="sphere-name">{{ $statistic['sphere']['name'] }}</span>
                 </h4>
 
-                <div class="row">
-                    <div class="col-md-3">
-                        <table class="summary_table">
-                            <thead>
-                            <tr>
-                                <th></th>
-                                <th class="summary_table_addition center">all</th>
-                                <th class="summary_table_addition center">period</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>Leads added</td>
-                                <td class="summary_table_added_all center">
-                                    {{ $statistic['added']['all'] }}
-                                </td>
-                                <td class="summary_table_added_period center">
-                                    {{ $statistic['added']['period'] }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Leads seen</td>
-                                <td class="summary_table_seen_all center">
-                                    {{ $statistic['auction']['all'] }}
-                                </td>
-                                <td class="summary_table_seen_period center">
-                                    {{ $statistic['auction']['period'] }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Leads open</td>
-                                <td class="summary_table_open_all center">
-                                    {{ $statistic['openLeads']['all'] }}
-                                </td>
-                                <td class="summary_table_open_period center">
-                                    {{ $statistic['openLeads']['period'] }}
-                                </td>
-                            </tr>
-                            </tbody>
+                   {{-- Сводная таблица данных по лидам пользователя --}}
+                <div class="row user_manager_block">
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered user_leads_info">
 
-                        </table>
-                    </div>
-                    <div class="col-md-2">
-                        <table class="summary_table">
                             <thead>
-                                <tr>
-                                    <th></th>
-                                    <th class="summary_table_addition">amount</th>
-                                </tr>
+                            <tr class="user_leads_info_head">
+                                <th colspan="6">Leads</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" class="center middle">added</th>
+                                <th colspan="2" class="center middle">seen</th>
+                                <th colspan="2" class="center middle">open</th>
+                            </tr>
+                            <tr>
+                                <th class="center middle">all</th>
+                                <th class="center middle">period</th>
+                                <th class="center middle">all</th>
+                                <th class="center middle">period</th>
+                                <th class="center middle">all</th>
+                                <th class="center middle">period</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Salesmen</td>
-                                    <td class="center">{{ $statistic['user']['salesmanCount'] }}</td>
+
+                                <tr class="">
+
+                                    <td class="center middle summary_table_added_all"> {{ $statistic['added']['all'] }} </td>
+                                    <td class="center middle summary_table_added_period"> {{ $statistic['added']['period'] }} </td>
+
+                                    <td class="center middle summary_table_seen_all"> {{ $statistic['auction']['all'] }} </td>
+                                    <td class="center middle summary_table_seen_period"> {{ $statistic['auction']['period'] }} </td>
+
+                                    <td class="center middle summary_table_open_all"> {{ $statistic['openLeads']['all'] }} </td>
+                                    <td class="center middle summary_table_open_period"> {{ $statistic['openLeads']['period'] }} </td>
+
                                 </tr>
                             </tbody>
                         </table>
-
                     </div>
-                    <div class="col-md-3">
-                        <table class="summary_table">
-                            <thead>
-                            <tr>
-                                <th></th>
-                                <th class="summary_table_addition center">date</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>registration</td>
-                                <td class="user_created_at center">
-                                    {{ $statistic['user']['created_at'] }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>add to sphere</td>
-                                <td class="user_addToSphere center">
-                                    {{ $statistic['user']['addToSphere'] }}
-                                </td>
-                            </tr>
-                            </tbody>
-
-                        </table>
-                    </div>
-
                 </div>
+
 
                 {{-- если пользователь агент, выводим таблицу его продавцов --}}
                 @if( $statistic['user']['role'] == 'agent' )
                     {{-- Таблица салесманов --}}
-                    <div class="row acc_manager_block">
-                    <div class="col-md-12">
-                        <table class="table table-striped table-bordered salesmen_table">
+                    <div class="row user_manager_block">
+                        <div class="col-md-12">
+                            <table class="table table-striped table-bordered salesmen_table">
 
-                            <thead>
-                            <tr class="account_managers_table_head">
-                                <th colspan="9">Salesmen</th>
-                            </tr>
-                            <tr>
-                                <th rowspan="2" class="center middle">name</th>
-                                <th colspan="2" class="center middle">leads added</th>
-                                <th colspan="2" class="center middle">leads seen</th>
-                                <th colspan="2" class="center middle">leads open</th>
-                                <th rowspan="2" class="center middle">presence</th>
-                                <th rowspan="2" class="center middle">action</th>
-                            </tr>
-                            <tr>
-                                <th class="center middle">all</th>
-                                <th class="center middle">period</th>
-                                <th class="center middle">all</th>
-                                <th class="center middle">period</th>
-                                <th class="center middle">all</th>
-                                <th class="center middle">period</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @forelse( $statistic['user']['salesmenData'] as $salesman )
-                                <tr class="">
-                                    <td class="center middle"> {{ $salesman['user']['email'] }} </td>
-
-                                    <td class="center middle"> {{ $salesman['added']['all'] }} </td>
-                                    <td class="center middle"> {{ $salesman['added']['period'] }} </td>
-
-                                    <td class="center middle"> {{ $salesman['auction']['all'] }} </td>
-                                    <td class="center middle"> {{ $salesman['auction']['period'] }} </td>
-
-                                    <td class="center middle"> {{ $salesman['openLeads']['all'] }} </td>
-                                    <td class="center middle"> {{ $salesman['openLeads']['period'] }} </td>
-
-                                    <td class="center middle">@if($salesman['sphere']['presence']) yes @else no @endif </td>
-
-                                    <td class="center middle">
-                                        <a class="btn btn-sm btn-success" href="{{ route('admin.statistic.agent', ['id'=>$salesman['user']['id']]) }}">
-                                            detail
-                                        </a>
-                                    </td>
+                                <thead>
+                                <tr class="salesmen_table_head">
+                                    <th colspan="10">Salesmen</th>
                                 </tr>
-                            @empty
-                                <tr class="status_no_status">
-                                    <td colspan="8" class="center middle statistics_no_data"> No salesmen's </td>
+                                <tr>
+                                    <th rowspan="2" class="center middle">name</th>
+                                    <th colspan="2" class="center middle">leads added</th>
+                                    <th colspan="2" class="center middle">leads seen</th>
+                                    <th colspan="2" class="center middle">leads open</th>
+                                    <th rowspan="2" class="center middle">presence</th>
+                                    <th rowspan="2" class="center middle">status</th>
+                                    <th rowspan="2" class="center middle">action</th>
                                 </tr>
-                            @endforelse
-                            </tbody>
-                        </table>
+                                <tr>
+                                    <th class="center middle salesman_count_data">all</th>
+                                    <th class="center middle salesman_count_data">period</th>
+                                    <th class="center middle salesman_count_data">all</th>
+                                    <th class="center middle salesman_count_data">period</th>
+                                    <th class="center middle salesman_count_data">all</th>
+                                    <th class="center middle salesman_count_data">period</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse( $statistic['user']['salesmenData'] as $salesman )
+                                    <tr class="">
+                                        <td class="center middle"> {{ $salesman['user']['email'] }} </td>
+
+                                        <td class="center middle"> {{ $salesman['added']['all'] }} </td>
+                                        <td class="center middle"> {{ $salesman['added']['period'] }} </td>
+
+                                        <td class="center middle"> {{ $salesman['auction']['all'] }} </td>
+                                        <td class="center middle"> {{ $salesman['auction']['period'] }} </td>
+
+                                        <td class="center middle"> {{ $salesman['openLeads']['all'] }} </td>
+                                        <td class="center middle"> {{ $salesman['openLeads']['period'] }} </td>
+
+                                        <td class="center middle"> status </td>
+
+                                        <td class="center middle">@if($salesman['sphere']['presence']) yes @else no @endif </td>
+
+                                        <td class="center middle">
+                                            <a class="btn btn-sm btn-success" href="{{ route('admin.statistic.agent', ['id'=>$salesman['user']['id']]) }}">
+                                                detail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr class="status_no_status">
+                                        <td colspan="10" class="center middle statistics_no_data"> No salesmen's </td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
                 @endif
 
                 {{-- Проверяем достаточно ли у агента открытых лидов по сфере для статистики --}}
@@ -607,7 +616,7 @@
                     noStatusRow.addClass('center statistics_no_data');
 
                     // добавляем атрибут объединения ячеек
-                    noStatusRow.attr('colspan', 8);
+                    noStatusRow.attr('colspan', 10);
 
                     // добавление данных в ячейки
                     noStatusRow.text( 'No salesmen\'s' );
@@ -640,6 +649,8 @@
 
                     var presence = $('<td />');
 
+                    var status = $('<td />');
+
                     var action = $('<td />');
 
                     var link = $('<a />');
@@ -662,11 +673,14 @@
 
                     presence.addClass('center middle');
 
+                    status.addClass('center middle');
+
                     action.addClass('center middle');
 
                     link.addClass('btn btn-sm btn-success');
 
                     link.attr('href', '{{ route('admin.statistic.agent', ['id'=>'']) }}/' + salesmenData['user']['id'] );
+
 
                     // добавление данных в ячейки
                     name.text( salesmenData['user']['email'] );
@@ -684,6 +698,8 @@
 
                     link.text('detail');
 
+                    status.text('status');
+
                     action.append( link );
 
 
@@ -700,6 +716,8 @@
                     tr.append(periodOpen);
 
                     tr.append(presence);
+
+                    tr.append(status);
 
                     tr.append(action);
 
