@@ -22,5 +22,6 @@ return [
     'masks' => 'Masks',
     'activate' => 'Activate',
     'accountManagers' => 'Account Managers',
-    'ranks' => 'Rank in the sphere'
+    'ranks' => 'Rank in the sphere',
+    'phones' => 'Phones'
 ];

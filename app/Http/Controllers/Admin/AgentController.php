@@ -3,6 +3,7 @@
 use App\Helper\CreditHelper;
 use App\Http\Controllers\AdminController;
 use App\Http\Requests\AgentFormRequest;
+use App\Http\Requests\UserPhonesRequest;
 use App\Models\AccountManager;
 use App\Models\Agent;
 use App\Models\Salesman;
@@ -11,6 +12,7 @@ use App\Models\AgentInfo;
 use App\Models\AgentSphere;
 use App\Models\TransactionsDetails;
 use App\Models\User;
+use App\Models\UserPhones;
 use App\Models\Wallet;
 use App\Models\Sphere;
 //use App\Http\Requests\Admin\UserRequest;
@@ -176,7 +178,7 @@ class AgentController extends AdminController
     public function edit($id)
     {
         // данные агента
-        $agent = Agent::with('agentInfo')->findOrFail($id);
+        $agent = Agent::with('agentInfo', 'phones')->findOrFail($id);
 
         // Получаем дополнительную роль (тип) продавцов
         foreach ($agent->salesmen as $key => $salesman) {
@@ -772,5 +774,63 @@ class AgentController extends AdminController
         }
 
         return response()->json($result);
+    }
+
+    /**
+     * Сохранение/обновления номеров телефона агента
+     *
+     * @param UserPhonesRequest $request
+     * @return mixed
+     */
+    public function phonesUpdate(UserPhonesRequest $request)
+    {
+        $phone = $request->input('phone');
+        $comment = $request->input('comment');
+        $id = (int)$request->input('id');
+        $user_id = (int)$request->input('user_id');
+
+
+        if( !$id && $id != 0 ) {
+            abort(403, 'Wrong phone id');
+        }
+        if( !$user_id ) {
+            abort(403, 'Wrong user id');
+        }
+
+        if($id == 0) {
+            $userPhone = new UserPhones();
+        } else {
+            $userPhone = UserPhones::find($id);
+        }
+        $userPhone->phone = $phone;
+        $userPhone->comment = $comment;
+        $userPhone->user_id = $user_id;
+        $userPhone->save();
+
+        return response()->json([
+            'status' => 'success',
+            'phone' => $userPhone
+        ]);
+    }
+
+    /**
+     * Удаление номеров телефона агента
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function phonesDelete(Request $request)
+    {
+        $id = $request->input('id');
+        $userPhone = UserPhones::find($id);
+        $userPhone->delete();
+
+        if( !$id ) {
+            abort(403, 'Wrong phone id');
+        }
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 }
