@@ -822,12 +822,12 @@ class AgentController extends AdminController
     public function phonesDelete(Request $request)
     {
         $id = $request->input('id');
-        $userPhone = UserPhones::find($id);
-        $userPhone->delete();
-
         if( !$id ) {
             abort(403, 'Wrong phone id');
         }
+
+        $userPhone = UserPhones::find($id);
+        $userPhone->delete();
 
         return response()->json([
             'status' => 'success'

@@ -53,4 +53,7 @@ Route::group(['prefix' => 'accountManager','middleware' => ['auth'] ], function(
     Route::post('statistic/agentData/', ['as' => 'accountManager.statistic.agentData', 'uses' => 'AccountManager\StatisticController@agentStatisticData']);
     Route::post('statistic/getFilterAgent',['as'=>'accountManager.statistic.getFilterAgent', 'AccountManager' => 'Admin\StatisticController@getFilterAgent']);
 
+    // Сохранение телефонов агента
+    Route::post('agent/phonesUpdate',['as'=>'accountManager.agent.phonesUpdate', 'uses' => 'AccountManager\AgentController@phonesUpdate']);
+    Route::post('agent/phonesDelete',['as'=>'accountManager.agent.phonesDelete', 'uses' => 'AccountManager\AgentController@phonesDelete']);
 });

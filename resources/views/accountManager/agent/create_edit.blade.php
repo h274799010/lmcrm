@@ -49,6 +49,9 @@
                         {{ trans('admin/modal.ranks') }} </a>
                 </li>
             @endif
+            <li><a href="#phones" data-toggle="tab">
+                    {{ trans('admin/modal.phones') }} </a>
+            </li>
 
 
         </ul>
@@ -358,6 +361,49 @@
                     </div>
                 </div>
             @endif
+            <div class="tab-pane" id="phones">
+                <div id="phonesWrap">
+                    @if(isset($agent) && isset($agent->phones) && count($agent->phones) > 0)
+                        @foreach($agent->phones as $phone)
+                            <div class="row phoneItem" data-id="{{ $phone->id }}">
+                                <div class="col-xs-4">
+                                    <div class="form-group">
+                                        <label for="user_phone_{{ $phone->id }}" class="control-label">Phone</label>
+                                        <div class="controls">
+                                            <input id="user_phone_{{ $phone->id }}" name="phone" type="text" class="form-control phone" value="{{ $phone->phone }}">
+                                            <span class="help-block">{{ $errors->first('first_name', ':message') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div class="form-group">
+                                        <label for="user_phone_{{ $phone->id }}_comment" class="control-label">Comment</label>
+                                        <div class="controls">
+                                            <input id="user_phone_{{ $phone->id }}_comment" type="text" class="form-control comment" name="comment" value="{{ $phone->comment }}">
+                                            <span class="help-block">{{ $errors->first('first_name', ':message') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-2">
+                                    <div class="form-group buttons-wrap clearfix">
+                                        <button type="button" class="btn btn-sm btn-success btnPhoneUpdate" title="{{ trans("admin/modal.update") }}">
+                                            <span class="glyphicon glyphicon-ok-circle"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-warning btnPhoneDelete" title="{{ trans("admin/modal.delete") }}">
+                                            <span class="glyphicon glyphicon-ban-circle"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+                <div class="row">
+                    <div class="col-md-offset-11 col-md-1">
+                        <div class="btn btn-primary btn-fab btn-add-phone" id="btnAddPhone" title="Add phone">+</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     @if(isset($agent->salesmen) && count($agent->salesmen))
@@ -529,15 +575,58 @@
         .form-group.banned-form-group .checkbox:last-child {
             margin: 0;
         }
+        .btn.btn-add-phone {
+            padding-top: 13px;
+        }
+        .btn.btn-add-phone:hover {
+            color: #009688;
+        }
+        .buttons-wrap {
+            padding-top: 20px;
+        }
+        .popover.confirmation .popover-content,
+        .popover.confirmation .popover-title {
+            padding-left: 8px;
+            padding-right: 8px;
+            min-width: 140px;
+        }
+        .popover.confirmation .popover-title {
+            color: #333333;
+        }
+        .popover.confirmation .popover-content {
+            background-color: #ffffff;
+        }
     </style>
 @stop
 
 
 
 @section('scripts')
+    <script type="text/javascript" src="{{ asset('assets/web/js/bootstrap-confirmation.min.js') }}"> </script>
     <script type="text/javascript">
 
         @if (isset($agent))
+        function deletePhone($this) {
+            var $phoneItem = $this.closest('.phoneItem');
+
+            var id = $phoneItem.data('id');
+
+            if(id == undefined || id == 0) {
+                $phoneItem.remove();
+                return true;
+            }
+
+            var params = {
+                _token: '{{ csrf_token() }}',
+                id: $phoneItem.data('id')
+            };
+
+            $.post('{{ route('accountManager.agent.phonesDelete') }}', params, function (data) {
+                if(data.status == 'success') {
+                    $phoneItem.remove();
+                }
+            });
+        }
 
         $(document).ready(function () {
             $(document).on('click', '.btnBanForm', function (e) {
@@ -609,6 +698,90 @@
                         console.log(data.errors);
                     } else if(data.status == 'success') {
                         window.location.reload();
+                    }
+                });
+            });
+
+            $(document).on('click', '#btnAddPhone', function (e) {
+                e.preventDefault();
+
+                var index = $(document).find('.phoneItem').length + 1;
+
+                var html = '';
+                html += '<div class="row phoneItem" data-id="0">';
+                html += '<div class="col-xs-4">';
+                html += '<div class="form-group">';
+                html += '<label for="new_user_phone_'+index+'" class="control-label">Phone</label>';
+                html += '<div class="controls">';
+                html += '<input id="new_user_phone_'+index+'" name="phone" type="text" class="form-control phone">';
+                html += '<span class="help-block"></span>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '<div class="col-xs-6">';
+                html += '<div class="form-group">';
+                html += '<label for="new_user_phone_'+index+'_comment" class="control-label">Comment</label>';
+                html += '<div class="controls">';
+                html += '<input id="new_user_phone_'+index+'_comment" type="text" class="form-control comment" name="comment">';
+                html += '<span class="help-block"></span>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '<div class="col-xs-2">';
+                html += '<div class="form-group buttons-wrap clearfix">';
+                html += '<button type="button" class="btn btn-sm btn-success btnPhoneUpdate" title="{{ trans("admin/modal.update") }}">';
+                html += '<span class="glyphicon glyphicon-ok-circle"></span>';
+                html += '</button>';
+                html += '<button type="button" class="btn btn-sm btn-warning btnPhoneDelete" title="{{ trans("admin/modal.delete") }}">';
+                html += '<span class="glyphicon glyphicon-ban-circle"></span>';
+                html += '</button>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+
+                $('#phonesWrap').append(html);
+
+                $('.btnPhoneDelete').confirmation({
+                    onConfirm: function() {
+                        deletePhone($(this));
+                    }
+                });
+            });
+
+            $(document).on('click', '.btnPhoneUpdate', function (e) {
+                e.preventDefault();
+
+                var $phoneItem = $(this).closest('.phoneItem');
+
+                var id = $phoneItem.data('id'),
+                    phone = $phoneItem.find('input.phone').val(),
+                    comment = $phoneItem.find('input.comment').val();
+
+                var params = {
+                    _token: '{{ csrf_token() }}',
+                    id: $phoneItem.data('id'),
+                    user_id: '{{ $agent->id }}',
+                    phone: phone,
+                    comment: comment
+                };
+
+                $.post('{{ route('accountManager.agent.phonesUpdate') }}', params, function (data, textStatus, jqXHR) {
+                    if(data.status == 'success') {
+                        $phoneItem.data('id', data.phone.id);
+                        bootbox.dialog({
+                            message: 'Phone updated success',
+                            show: true
+                        });
+                    }
+                }).fail(function (data) {
+                    if(data.status == 422) {
+                        var response = data.responseJSON;
+                        $.each(response, function (key, errors) {
+
+                            var $input = $phoneItem.find('input[name='+key+']');
+                            $input.closest('.form-group').addClass('has-error is-empty');
+                            $input.siblings('.help-block').html(errors[0])
+                        });
                     }
                 });
             });
