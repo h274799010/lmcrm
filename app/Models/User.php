@@ -128,4 +128,9 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
         return $this->hasMany('\App\Models\AccountManagerSphere', 'account_manager_id', 'id');
     }
 
+    public function permissions(){
+
+        return 1;
+    }
+
 }

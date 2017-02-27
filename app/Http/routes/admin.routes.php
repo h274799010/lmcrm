@@ -54,6 +54,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::post('agent/unblockData', ['as'=>'admin.agent.unblockData', 'uses' => 'Admin\AgentController@unbanData']);
     Route::post('agent/unblock', ['as'=>'admin.agent.unblock', 'uses' => 'Admin\AgentController@unban']);
 
+    Route::post('agent/permission/switch', ['as'=>'admin.agent.permission.switch', 'uses' => 'Admin\AgentController@switchPermission']);
+
     // баны пользователю
     Route::post('agent/block',['as'=>'admin.agent.block', 'uses' => 'Admin\AgentController@ban']);
 
@@ -146,12 +148,23 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('statistic/accManager/{id}', ['as' => 'admin.statistic.accManager', 'uses' => 'Admin\StatisticController@accManagerStatistic']);
     Route::post('statistic/accManagerData/', ['as' => 'admin.statistic.accManagerData', 'uses' => 'Admin\StatisticController@accManagerStatisticData']);
 
+    // статистика оператора
+    Route::get('statistic/operators', ['as' => 'admin.statistic.operators', 'uses' => 'Admin\StatisticController@operatorsList']);
+    Route::get('statistic/operator/{id}', ['as' => 'admin.statistic.operator', 'uses' => 'Admin\StatisticController@operatorStatistic']);
+    Route::post('statistic/operatorData/', ['as' => 'admin.statistic.operatorData', 'uses' => 'Admin\StatisticController@operatorStatisticData']);
+
+
     // данные по сделкам
     Route::get('deals/all', ['as' => 'admin.deals.all', 'uses' => 'Admin\DealController@AllDeals']);
     Route::get('deals/to/confirmation', ['as' => 'admin.deals.to.confirmation', 'uses' => 'Admin\DealController@ToConfirmationDeals']);
     Route::get('deal/{id}', ['as' => 'admin.deal', 'uses' => 'Admin\DealController@deal']);
     Route::post('dealData', ['as' => 'admin.dealData', 'uses' => 'Admin\DealController@dealData']);
     Route::post('lead/sendMessageDeal',['as'=>'admin.lead.sendMessageDeal', 'uses' => 'Admin\DealController@sendMessageDeal']);
+
+
+    Route::post('statistic/transitionDetails', ['as' => 'admin.statistic.transition.details', 'uses' => 'Admin\StatisticController@transitionDetails']);
+
+
 
     // Настройки
     Route::get('settings/roles', ['as' => 'admin.settings.roles', 'uses' => 'Admin\SettingsController@roles']);

@@ -1313,6 +1313,47 @@ textarea.tab_notes{
     font-size: 14px !important;
 }
 
+.user_leads_info_head th{
+    color: #ffffff !important;
+    background: #3F51B5;
+    text-align: center;
+    font-size: 14px !important;
+}
+
+.account_managers_table_head th{
+    color: #ffffff !important;
+    background: #3F51B5;
+    text-align: center;
+    font-size: 14px !important;
+}
+
+.salesmen_table_head th{
+    color: #ffffff !important;
+    background: #3F51B5;
+    text-align: center;
+    font-size: 14px !important;
+}
+
+table.salesmen_table th{
+    color: grey;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px !important;
+}
+
+table.user_leads_info th{
+    color: grey;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px !important;
+}
+
+table.salesmen_table tr th.salesman_count_data{
+    width: 5% !important;
+}
+
+
+
 tr td.statistics_no_data{
     color: grey !important;
     background: white !important;
@@ -1472,6 +1513,15 @@ h4.statistic-sphere-name{
     font-weight: 600;
 }
 
+.user_manager_block{
+    margin-top: 25px;
+    margin-bottom: 20px;
+}
+
+table.user_leads_info tr td{
+    width: 16%;
+}
+
 .acc_manager_block{
     margin-top: 25px;
     margin-bottom: 20px;
@@ -1512,5 +1562,73 @@ h4.statistic-sphere-name{
 }
 
 
+.breadcrumb-wrapper{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.agent_data_table{
+
+}
+
+.agent_data_table thead th{
+    padding: 3px 15px 3px 0;
+    vertical-align: middle;
+    /*background: #3F51B5;*/
+    color: #3F51B5;
+}
+
+.agent_data_table tbody th{
+    padding: 3px 15px 3px 0;
+    vertical-align: middle;
+    text-align: right;
+}
+
+.icon_red{
+    color: red;
+}
+
+.icon_green{
+    color: green;
+}
+
+.user_permission{
+    cursor: pointer;
+}
+
+.agent_data_table td{
+
+}
+
+.width-prc-20{
+    width: 20% !important;
+}
+
+.transitionDetail{
+    cursor: pointer;
+}
+
+.modal_transition_head{
+    color: white;
+    background: #808080;
+    padding: 8px;
+    margin-bottom: 15px;
+}
+
+.modal_current_user_table th{
+    color: darkgray;
+    font-size: 12px;
+    text-align: center;
+}
+
+.modal_current_user_table td{
+    /*color: darkgray;*/
+    /*font-size: 12px;*/
+    text-align: center;
+}
+
+.modal_current_user_name{
+    text-align: left !important;
+}
 
 

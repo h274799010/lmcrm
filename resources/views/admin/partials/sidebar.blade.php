@@ -74,6 +74,11 @@
                             <i class="fa fa-user-md"></i> Account managers
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.statistic.operators') }}">
+                            <i class="fa fa-phone"></i> Operator
+                        </a>
+                    </li>
                 </ul>
             </li>
 
