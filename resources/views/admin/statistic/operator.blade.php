@@ -456,7 +456,7 @@
             var sphere = $('.sphere_status_block');
 
             // обновление имени сферы
-            sphere.find('.for_processing').text( statistic['statistic']['sphere']['name'] );
+            sphere.find('.sphere-name').text( statistic['statistic']['sphere']['name'] );
 
             sphere.find('.operator_for_processing').text( statistic['statistic']['leads']['for_processing'] );
             sphere.find('.operator_processed_all').text( statistic['statistic']['leads']['processed_all'] );
