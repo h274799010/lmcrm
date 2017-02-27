@@ -6,18 +6,27 @@ use App\Facades\Lead;
 use App\Models\AccountManagersAgents;
 use App\Models\AccountManagerSphere;
 use App\Models\AgentSphere;
+use App\Models\OpenLeads;
+use App\Models\OpenLeadsStatusDetails;
+use App\Models\Operator;
+use App\Models\OperatorSphere;
 use App\Models\Salesman;
 use App\Models\Sphere;
+use App\Models\SphereStatusTransitions;
 use App\Models\User;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use GuzzleHttp\Psr7\Response;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Psy\Util\Json;
 use Yajra\Datatables\Facades\Datatables;
 use App\Models\Agent;
 use App\Models\AccountManager;
 use Statistic;
+use Carbon\Carbon;
 
 
 class StatisticController extends Controller
@@ -32,7 +41,7 @@ class StatisticController extends Controller
     /**
      * Страница со списком всех агентов
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      */
     public function agentsList()
     {
@@ -164,7 +173,7 @@ class StatisticController extends Controller
     /**
      * Страница со списком всех агентов
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      */
     public function spheresList(){
 
@@ -641,16 +650,13 @@ class StatisticController extends Controller
     }
 
 
-
-
-
     /**
      * Подгрузка данных для фильтра в списке агентов
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    function getFilterAgent(Request $request)
+    public function getFilterAgent(Request $request)
     {
         $type = $request->input('type');
         $id = $request->input('id');
@@ -684,5 +690,339 @@ class StatisticController extends Controller
         }
 
         return response()->json($result);
+    }
+
+
+    /**
+     * Список операторов для статистики
+     *
+     * @return View
+     */
+    public function operatorsList()
+    {
+
+        // находим роль
+        $role = Sentinel::findRoleBySlug('operator');
+        // находим id всех пользователей по роли
+        $operatorsId = $role->users()->lists('id');
+
+        // находим всех операторов
+        $operators = OperatorSphere::
+              whereIn('id', $operatorsId)
+            ->select('id', 'email', 'first_name', 'last_name', 'updated_at', 'created_at')
+            ->get();
+
+
+        // перебираем всех операторов и добавляем ему нужные данные
+        $operators->map(function( $operator ){
+
+            // количество лидов которые добавил оператор
+            $operator->leadsAddedCount = Lead::where('agent_id', $operator->id)->count();
+
+            // сферы оператора
+            $operator->sphere = $operator->spheres;
+
+            // все лиды которые еще нужно отредактировать
+            $operator->leadsToEdit = Lead::
+                  whereIn('sphere_id', $operator->sphere->pluck('id'))
+                ->where('status', 0)
+                ->count();
+
+            // лиды которые оператор уже отредактировал
+            $operator->leadsEdited = Operator::where('operator_id', $operator->id)->count();
+
+        });
+
+
+//        dd( $operators );
+
+        return view('admin.statistic.operatorsList', ['operators' => $operators]);
+    }
+
+
+    /**
+     * Страница со статистикой одного оператора
+     *
+     *
+     * @param  integer  $operator_id
+     *
+     * @return View
+     */
+    public function operatorStatistic( $operator_id )
+    {
+
+        // проверка id пользователя
+        $operatorId = (int)$operator_id;
+
+        // если id пользователя равен нулю - выходим
+        if( !$operatorId ){ abort(403, 'Wrong user id'); }
+
+        $operator = OperatorSphere::with('spheres')->find($operatorId);
+
+//        dd($operator);
+
+        // переменная со сферами
+        $spheres = collect();
+        // перебираем все сферы пользователя и выбираем данные по сфере в отдельную коллекцию
+        $operator->spheres->each(function( $sphere ) use( &$spheres ){
+            // добавляем данные по сфере в $spheres
+            $spheres->push(
+                collect(
+                    [
+                        'id' => $sphere->id,
+                        'name' => $sphere->name,
+                        'openLead' => $sphere->openLead,
+                        'minLead' => $sphere->minLead,
+                    ]
+                )
+            );
+        });
+
+
+        // проверка на количество сфер
+        if( $spheres->count() == 0){
+            // если у агента нет сфер
+
+            // указываем что статистики нет
+            $statistic = false;
+
+        }else {
+            // если у агента есть сферы
+
+            // выбираем первую сферу из списка
+            $sphere = $spheres->first();
+
+            // лиды к обработке
+            $for_processing = Lead::
+                  where('sphere_id', $sphere['id'])
+                ->where('status', 0)
+                ->count();
+
+            // обработанные лиды
+            $processed_all = Operator::where('operator_id', $operator->id)->count();
+
+            // добавленные лиды
+            $added_all = Lead::where('agent_id', $operator->id)->count();
+
+            $statistic =
+            [
+                'leads' =>
+                [
+                    'for_processing' => $for_processing,
+
+                    'processed_all' => $processed_all,
+                    'processed_period' => 0,
+
+                    'added_all' => $added_all,
+                    'added_period' => 0,
+
+                ],
+            ];
+
+        }
+
+
+        return view('admin.statistic.operator', [
+            'operator' => $operator,
+            'spheres' => $spheres,
+            'currentSphere' => $sphere,
+            'statistic' => $statistic,
+        ]);
+    }
+
+
+    /**
+     * Подгрузка данных для фильтра в списке агентов
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function operatorStatisticData( Request $request )
+    {
+
+        // проверка id пользователя
+        $operatorId = (int)$request->agent_id;
+
+        // если id пользователя равен нулю - выходим
+        if( !$operatorId ){ abort(403, 'Wrong user id'); }
+
+        $operator = OperatorSphere::with('spheres')->find($operatorId);
+
+//        dd($operator);
+
+        // переменная со сферами
+        $spheres = collect();
+        // перебираем все сферы пользователя и выбираем данные по сфере в отдельную коллекцию
+        $operator->spheres->each(function( $sphere ) use( &$spheres ){
+            // добавляем данные по сфере в $spheres
+            $spheres->push(
+                collect(
+                    [
+                        'id' => $sphere->id,
+                        'name' => $sphere->name,
+                        'openLead' => $sphere->openLead,
+                        'minLead' => $sphere->minLead,
+                    ]
+                )
+            );
+        });
+
+
+        // проверка на количество сфер
+        if( $spheres->count() == 0){
+            // если у агента нет сфер
+
+            // указываем что статистики нет
+            $statistic = false;
+
+        }else {
+            // если у агента есть сферы
+
+            // выбираем первую сферу из списка
+            $sphere = Sphere::find($request->sphere_id);
+
+            // лиды к обработке
+            $for_processing = Lead::
+                  where('sphere_id', $sphere['id'])
+                ->where('status', 0)
+                ->count();
+
+            // приводим начальное время к нужному формату
+            $dateFrom = Carbon::createFromFormat('Y-m-d', $request->timeFrom)->format('Y-m-d 00:00:00');
+            // запоминаем дату в глобальной переменной
+            $this->openLeads['dateFrom'] = $dateFrom;
+
+            // приводи конечное время к нужному формату
+            $dateTo = Carbon::createFromFormat('Y-m-d', $request->timeTo)->format('Y-m-d 23:59:59');
+            // запоминаем дату в глобальной переменной
+            $this->openLeads['dateTo'] = $dateTo;
+
+
+            // обработанные лиды
+            $operators_leads_all = Operator::where('operator_id', $operator->id)->lists('id');
+
+            $processed_all = Lead::whereIn('id', $operators_leads_all)->where('sphere_id', $sphere['id'])->count();
+
+
+            // обработанные лиды за период
+            $operators_leads_period = Operator::
+                  where('operator_id', $operator->id)
+                ->where( 'created_at', '>=', $dateFrom )
+                ->where( 'created_at', '<=', $dateTo )
+                ->lists('id');
+
+            $processed_period = Lead::whereIn('id', $operators_leads_period)->where('sphere_id', $sphere['id'])->count();
+
+
+
+            // добавленные лиды
+            $added_all = Lead::
+                  where('sphere_id', $sphere['id'])
+                ->where('agent_id', $operator->id)
+                ->count();
+
+            // добавленные лиды за период
+            $added_period = Lead::
+            where('sphere_id', $sphere['id'])
+                ->where('agent_id', $operator->id)
+                ->where( 'created_at', '>=', $dateFrom )
+                ->where( 'created_at', '<=', $dateTo )
+                ->count();
+
+            $statistic =
+                [
+                    'leads' =>
+                    [
+                        'for_processing' => $for_processing,
+
+                        'processed_all' => $processed_all,
+                        'processed_period' => $processed_period,
+
+                        'added_all' => $added_all,
+                        'added_period' => $added_period,
+
+                    ],
+
+                    'sphere' => $sphere,
+
+                ];
+
+        }
+
+
+
+//        statistic['statistic']['sphere']['name']
+
+        return response()->json([ 'spheres' => $spheres, 'statistic' => $statistic ]);
+    }
+
+
+    /**
+     * Подробности по транзиту
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function transitionDetails( Request $request )
+    {
+
+        $transitId = (int)$request->transitId;
+
+        $currentUser = (int)$request->userId;
+
+        $sphereTransition = SphereStatusTransitions::find($transitId);
+
+        $statusDetails = OpenLeadsStatusDetails::
+              where('previous_status_id', $sphereTransition['previous_status_id'])
+            ->where('status_id', $sphereTransition['status_id'])
+            ->get();
+
+
+        $usersId = collect( $statusDetails->unique('user_id')->pluck('user_id') );
+
+//        dd( $usersId );
+
+        $users = [];
+
+        // перебираем всех пользователей кроме текущего и выбираем нужные данные
+        $usersId->each(function( $user ) use(&$users, $sphereTransition, $statusDetails, $currentUser){
+
+            if( $user != $currentUser ) {
+
+                // todo находим данные пользователя
+                $userData = Agent::find($user);
+
+                $allOpenLeadsId = OpenLeads::where('agent_id', $user)->lists('lead_id');
+
+                $allOpenLeads = Lead::whereIn('id', $allOpenLeadsId)->where('sphere_id', $sphereTransition->sphere_id)->count();
+
+                $userStatusDetails = OpenLeadsStatusDetails::
+                where('previous_status_id', $sphereTransition['previous_status_id'])
+                    ->where('status_id', $sphereTransition['status_id'])
+                    ->where('user_id', $user)
+                    ->count();
+
+                // вычисление процента
+                $percent = $allOpenLeads != 0 ? round($userStatusDetails * 100 / $allOpenLeads, 2) : 0;
+
+
+                $users[] =
+                [
+                    'id' => $user,
+                    'email' => $userData->email,
+                    'phone' => '-',
+                    'percent' => $percent,
+                ];
+            }
+
+        });
+
+//        dd($users);
+
+        return response()->json([ 'users' => $users ]);
     }
 }

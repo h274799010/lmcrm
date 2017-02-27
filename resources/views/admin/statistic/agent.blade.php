@@ -15,51 +15,72 @@
         </ul>
     </div>
 
+    {{--таблица с данными по агенту--}}
 
-    <table class="agent_data_table">
-        <thead>
-            <tr>
-                <th colspan="2">Agent data</th>
+    <div class="row">
 
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th>first name:</th>
-                <td>{{ $statistic['user']['first_name'] }}</td>
-            </tr>
-            <tr>
-                <th>last name:</th>
-                <td>{{ $statistic['user']['last_name'] }}</td>
-            </tr>
-            <tr>
-                <th>email:</th>
-                <td>{{ $statistic['user']['email'] }}</td>
-            </tr>
-            <tr>
-                <th>role:</th>
-                <td>{{ $statistic['user']['subRole'] }}</td>
-            </tr>
-            <tr>
-                <th>salesmen's count:</th>
-                <td>{{ $statistic['user']['salesmanCount'] }} ({{ $statistic['user']['salesmanBannedCount'] }} banned)</td>
-            </tr>
-            <tr>
-                <th>registration date:</th>
-                <td>{{ $statistic['user']['created_at'] }}</td>
-            </tr>
-            <tr>
-                <th>add to sphere date:</th>
-                <td>{{ $statistic['user']['addToSphere'] }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="col-md-5">
+            <table class="agent_data_table">
+                <thead>
+                <tr>
+                    <th colspan="2">Agent data</th>
 
-    {{--<div class="page-header">--}}
-        {{--<h3>--}}
-            {{--@lang('statistic.page_title') {{ $statistic['user']['email'] }}--}}
-        {{--</h3>--}}
-    {{--</div>--}}
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>first name:</th>
+                    <td>{{ $statistic['user']['first_name'] }}</td>
+                </tr>
+                <tr>
+                    <th>last name:</th>
+                    <td>{{ $statistic['user']['last_name'] }}</td>
+                </tr>
+                <tr>
+                    <th>email:</th>
+                    <td>{{ $statistic['user']['email'] }}</td>
+                </tr>
+                <tr>
+                    <th>role:</th>
+                    <td>{{ $statistic['user']['subRole'] }}</td>
+                </tr>
+                <tr>
+                    <th>salesmen's count:</th>
+                    <td>{{ $statistic['user']['salesmanCount'] }} ({{ $statistic['user']['salesmanBannedCount'] }} banned)</td>
+                </tr>
+                <tr>
+                    <th>registration date:</th>
+                    <td>{{ $statistic['user']['created_at'] }}</td>
+                </tr>
+                <tr>
+                    <th>add to sphere date:</th>
+                    <td>{{ $statistic['user']['addToSphere'] }}</td>
+                </tr>
+                </tbody>
+            </table>
+            <a class="" href="{{ route('admin.user.edit', ['id'=>$statistic['user']['id']]) }}">
+                edit
+            </a>
+        </div>
+
+        <div class="col-md-4">
+
+            <h5>Permissions</h5>
+
+            <ul class="list-group">
+                @foreach( $statistic['user']['permissions'] as $permission=>$status )
+                    <li class="list-group-item">
+                        @if($status) <i data-permission="{{ $permission }}" class="glyphicon glyphicon-ok icon_green user_permission"></i> @else <i data-permission="{{ $permission }}" class="glyphicon glyphicon-ban-circle icon_red user_permission"></i> @endif
+                        {{ trans('admin/users.permissions.' .$permission) }}
+                    </li>
+                @endforeach
+            </ul>
+
+        </div>
+
+    </div>
+
+
 
     {{-- Проверка есть ли у пользователя сферы --}}
     @if($spheres->count() == 0)
@@ -191,9 +212,9 @@
                                         <td class="center middle"> {{ $salesman['openLeads']['all'] }} </td>
                                         <td class="center middle"> {{ $salesman['openLeads']['period'] }} </td>
 
-                                        <td class="center middle"> status </td>
+                                        <td class="center middle"> @if($salesman['sphere']['presence']) yes @else no @endif </td>
 
-                                        <td class="center middle">@if($salesman['sphere']['presence']) yes @else no @endif </td>
+                                        <td class="center middle">@if($salesman['user']['active']) Active @else Banned @endif </td>
 
                                         <td class="center middle">
                                             <a class="btn btn-sm btn-success" href="{{ route('admin.statistic.agent', ['id'=>$salesman['user']['id']]) }}">
@@ -435,7 +456,7 @@
                             </thead>
                             <tbody>
                             @forelse($statistic['transitions'] as $transit)
-                                <tr>
+                                <tr data-transitId="{{ $transit['transitionId'] }}">
                                     <td class="center middle fromStatus"> {{ $transit['fromStatus'] }} </td>
                                     <td class="center middle statistics_transitions_statuses_arrow"> <i class="glyphicon glyphicon-arrow-right"></i> </td>
                                     <td class="center middle toStatus"> {{ $transit['toStatus'] }} </td>
@@ -467,6 +488,88 @@
         </div>
 
     @endif
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="transitionDetailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Transition</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row modal_transition_head">
+                        <div class="center col-md-4 modal_status_from">
+                        </div>
+                        <div class="center col-md-4">
+                            <i class="glyphicon glyphicon-arrow-right"></i>
+                        </div>
+                        <div class="center col-md-4 modal_status_to">
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            current user
+                        </div>
+                    </div>
+
+                    <table class="table modal_current_user_table">
+                        <thead>
+                        {{--<tr>--}}
+                            {{--<th colspan="3" class="center">current user</th>--}}
+                        {{--</tr>--}}
+                        <tr>
+                            <th>name</th>
+                            <th>phone</th>
+                            <th>percent</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="modal_current_user_name">11</td>
+                            <td class="modal_current_user_phone">-</td>
+                            <td class="modal_current_user_percent">22</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+
+
+                    <table class="table modal_users_table">
+                        <thead>
+                            <tr>
+                                <th>name</th>
+                                <th>phone</th>
+                                <th>percent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>11</td>
+                                <td>22</td>
+                                <td>22</td>
+                            </tr>
+                            <tr>
+                                <td>11</td>
+                                <td>22</td>
+                                <td>22</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 @stop
 
@@ -681,6 +784,8 @@
 
                     link.attr('href', '{{ route('admin.statistic.agent', ['id'=>'']) }}/' + salesmenData['user']['id'] );
 
+                    // определение права пользователя (активный или забаненный
+                    var active = salesmenData['user']['active'] ? 'Active' : 'Banned';
 
                     // добавление данных в ячейки
                     name.text( salesmenData['user']['email'] );
@@ -698,7 +803,7 @@
 
                     link.text('detail');
 
-                    status.text('status');
+                    status.text( active );
 
                     action.append( link );
 
@@ -847,6 +952,8 @@
                 // создание строки таблицы
                 var tr = $('<tr />');
 
+
+
                 // создание ячеек таблицы
                 var fromStatus = $('<td />');
                 var arrow = $('<td />');
@@ -857,7 +964,13 @@
                 var periodPercent = $('<td />');
                 var periodRating = $('<td />');
 
+
+                tr.bind('click', transitionDetailAction);
+
                 // добавление классов
+                tr.attr('data-transitId', transitionData.transitionId);
+                tr.addClass('transitionDetail');
+
                 fromStatus.addClass('center middle fromStatus');
                 arrow.addClass('center middle statistics_transitions_statuses_arrow');
                 toStatus.addClass('center middle toStatus');
@@ -928,6 +1041,112 @@
         }
 
 
+        function transitionDetailAction(){
+
+            var self = this;
+
+            var transitid = $(this).data('transitid');
+
+
+            // отправка запроса на сервер
+            $.post(
+                '{{ route('admin.statistic.transition.details') }}',
+                { _token: '{{ csrf_token() }}', transitId: transitid, userId: '{{ $statistic['user']['id'] }}' },
+                function (data)
+                {
+
+                    $('.modal_status_from').text( $(self).find('.fromStatus').text() );
+                    $('.modal_status_to').text( $(self).find('.toStatus').text() );
+                    $('.modal_current_user_name').text('{{ $statistic['user']['email'] }}');
+                    $('.modal_current_user_percent').text( $(self).find('.allPercent').text() );
+
+                    var tbody = $('.modal_users_table tbody');
+
+                    tbody.empty();
+
+                    if( data.users.length == 0 ){
+
+                        var tr = $('<tr/>');
+
+                        var row = $('<td/>');
+
+                        row.attr('colspan', 3);
+    
+                        row.addClass('center');
+
+                        row.text('No transitions');
+
+                        tr.append(row);
+
+                        tbody.append(tr);
+
+
+                    }else{
+
+                        $.each(data.users, function(key, user){
+//                            console.log(user);
+
+                            var tr = $('<tr/>');
+
+                            var name = $('<td/>');
+                            var phone = $('<td/>');
+                            var percent = $('<td/>');
+
+                            name.addClass('');
+                            phone.addClass('center');
+                            percent.addClass('center');
+
+                            name.text( user['email'] );
+                            phone.text( user['phone'] );
+                            percent.text( user['percent']+'%' );
+
+                            tr.append(name);
+                            tr.append(phone);
+                            tr.append(percent);
+
+                            tbody.append(tr);
+
+                        });
+
+                    }
+
+                    $('#transitionDetailModal').modal('show');
+
+
+//                    console.log(data);
+
+                    // обработка данных полученных с фронтенда
+//                    if(data == 'false'){
+//                        // у агента нет сфер
+//
+//                        // просто обновляем страницу
+////                        document.location.reload();
+//
+//                    }else{
+//                        // все данные в порядке
+//
+//                        // обновляем статистику на странице
+//                        statisticUpdate( data );
+//
+//                        // todo удалить
+////                        console.log( data );
+//                    }
+
+
+
+                }
+            );
+
+
+
+//            alert( $(this).data('transitid') );
+
+            // todo отправка запроса на сервер для получения данных по транзиту
+
+
+//            $('#transitionDetailModal').modal('show');
+        }
+
         $(function() {
 
             // подулючение select2 к селекту
@@ -980,6 +1199,51 @@
             $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('').trigger('change');
             });
+
+            // переключение права пользователя (если true в false и на оборот)
+            $('.user_permission').bind('click', function(){
+
+                var self = this;
+
+                // выбираем правило которое нужно изменить
+                var permission = $(this).data('permission');
+
+                // заносим параметры
+                var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $user->id }}', permission: permission };
+
+                // отправка запроса на сервер
+                $.post(
+                    '{{ route('admin.agent.permission.switch') }}',
+                    params,
+                    function(data){
+                        // проверяем статус
+                        if( data.status == true ){
+                            // если статус true
+
+                            // меняем классы в арзрешениях на соответствующие
+                            if(data.permissions[permission]){
+
+                                $(self).removeClass('glyphicon-ban-circle icon_red');
+                                $(self).addClass('glyphicon-ok icon_green');
+
+                            }else{
+
+                                $(self).removeClass('glyphicon-ok icon_green');
+                                $(self).addClass('glyphicon-ban-circle icon_red');
+
+                            }
+                        }
+                    }
+                );
+            });
+
+
+            // модальное окно с подробностями по транзиту
+            $('.transitionDetail').bind('click', function(){
+
+                $('#transitionDetailModal').modal('show');
+            });
+
 
         });
     </script>

@@ -773,4 +773,58 @@ class AgentController extends AdminController
 
         return response()->json($result);
     }
+
+
+    /**
+     * Переключение одного разрешения пользователя
+     *
+     * если был false станет true и на оборот
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return json
+     */
+    public function switchPermission( Request $request )
+    {
+
+        $userId = $request['agent_id'];
+        $permission = $request['permission'];
+
+        // получение всех правил системы по пользователям
+        $systemPermissions = User::$bannedPermissions;
+
+        // пользователь которому нужно поменять права
+        $user = Sentinel::findById($userId);
+
+        // получаем права пользователя
+        $permissions = $user->permissions;
+
+        // проверка на наличие прав у пользователя
+        if( $permissions == []){
+            // если прав нет
+
+            // записываем их
+            $permissions = $systemPermissions;
+        }
+
+        // проверяем заданное правило на существование
+        if( !isset($permissions[$permission]) ){
+            // если не существует
+            // выходим из метода
+            return response()->json([ 'status' => false ]);
+        }
+
+        // меняем значение правила
+        $permissions[$permission] = $permissions[$permission] == false;
+
+        // заносим правила в модель
+        $user->permissions = $permissions;
+        // сохраняем
+        $user->save();
+
+        // отправляем ответ на фронтенд
+        return response()->json([ 'status' => true, 'permissions' => $permissions ]);
+    }
+
 }

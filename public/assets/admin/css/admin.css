@@ -1584,6 +1584,51 @@ table.user_leads_info tr td{
     text-align: right;
 }
 
+.icon_red{
+    color: red;
+}
+
+.icon_green{
+    color: green;
+}
+
+.user_permission{
+    cursor: pointer;
+}
+
 .agent_data_table td{
 
 }
+
+.width-prc-20{
+    width: 20% !important;
+}
+
+.transitionDetail{
+    cursor: pointer;
+}
+
+.modal_transition_head{
+    color: white;
+    background: #808080;
+    padding: 8px;
+    margin-bottom: 15px;
+}
+
+.modal_current_user_table th{
+    color: darkgray;
+    font-size: 12px;
+    text-align: center;
+}
+
+.modal_current_user_table td{
+    /*color: darkgray;*/
+    /*font-size: 12px;*/
+    text-align: center;
+}
+
+.modal_current_user_name{
+    text-align: left !important;
+}
+
+

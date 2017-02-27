@@ -71,6 +71,9 @@ class Statistics
         'userModel' => false,            // модель пользователя
         'userCreated' => false,          // время когда пользователь был зарегистрирован в системе
 
+        'userPermissions' => false,      // права пользователя
+        'userActive' => false,           // забаннен пользователь или нет. true - на забаннен, false - забаннен
+
         'usersForStatistic'=> false,     // массив с id пользователей по которым нужно выбрать статистику
 
         'agentsCount' => false,          // количество агентов акк. менеджера
@@ -84,7 +87,7 @@ class Statistics
         'salesmenData' => false,         // продавцы пользователя с дынными
         'salesmanCount' => false,        // количество продавцов пользователя
 
-        'salesmanBannedCount' => false,  // количество забаненных продавцов пользователя
+        'salesmanBannedCount' => 0,  // количество забаненных продавцов пользователя
 
         'statusesNames' =>               // массив с именами статусов
             [
@@ -133,11 +136,60 @@ class Statistics
         $user = User::with('roles')->find( $userId );
 
         if(!$user){
-//            dd( $userId );
+            abort(403, 'User not found with user_id=' .$userId);
         }
 
         // заносим модель пользователя в глобальный массив
         $this->openLeads['userModel'] = $user;
+
+        // проверка прав пользователя
+
+        // проверка на наличие прав в поле
+        if( $user->permissions === [] ){
+            // если поле пустое
+
+            // выставляем статус Active пользователя в true (не забанен)
+            $this->openLeads['userActive'] = true;
+            // выставляем все разрешения пользователя в true
+            $this->openLeads['userPermissions'] =
+            [
+                "create_leads" => true,
+                "opening_leads" => true,
+                "working_leads" => true,
+            ];
+
+        }else{
+
+            // переменная с количетвом закрытых разрешений
+            $bannedPermissionsCount = 0;
+
+            // выставляем все разрешения пользователя в true
+            $this->openLeads['userPermissions'] = $user->permissions;
+
+            // преобразовываем массив с правами в коллекцию
+            $permissions = collect($user->permissions);
+
+            // перебираем все права и находим ограничения
+            $permissions->each(function( $permission ) use(&$bannedPermissionsCount){
+                // если есть ограничение
+                // инкриментим переменную с количеством забаненных прав
+                if(!$permission){ ++$bannedPermissionsCount; }
+            });
+
+            // проверка количества ограничений
+            if( $bannedPermissionsCount != 0 ){
+                // если есть хоть одно ограничение по правам
+
+                // выставляем что пользователь забанен
+                $this->openLeads['userActive'] = false;
+
+            }else{
+                // если нет ни однгого ограничения по правам
+
+                // выставляем что пользователь не забанен
+                $this->openLeads['userActive'] = true;
+            }
+        }
 
         // заносим в глобальный массив время когда пользователь зарегистрировался в системе
         $this->openLeads['userCreated'] = $user['created_at'];
@@ -334,12 +386,46 @@ class Statistics
                     $users = array_merge( $users, $this->openLeads['salesman'] );
                 }
 
-                // todo расчет количества забаненных пользователей
-                $this->openLeads['salesmanBannedCount'] = User::
+                // расчет забаненных салесманов агента
+                $salesmenData = User::
                       whereIn( 'id', $this->openLeads['salesman'] )
-                    ->where( 'banned_at', '<>', NULL )
-                    ->count();
+                    ->get();
 
+                // задаем ссылку на глобальную переменную с количеством забаненных салесманов
+                $salesmanBannedCount = &$this->openLeads['salesmanBannedCount'];
+
+                // перебираем данные всех салесманов и и уточняем их прова
+                $salesmenData->each(function( $salesman ) use(&$salesmanBannedCount){
+
+                    // проверка на наличие прав в поле
+                    if( $salesman->permissions == [] ){
+                        // если поле пустое
+
+                        // выхдим из метода
+                        return true;
+                    }
+
+                    // переменная с количетвом закрытых разрешений
+                    $bannedPermissionsCount = 0;
+
+                    // преобразовываем его в коллекцию
+                    $permissions = collect($salesman->permissions);
+
+                    // перебираем все права и находим ограничения
+                    $permissions->each(function( $permission ) use(&$bannedPermissionsCount){
+                        // если есть ограничение
+                        // инкриментим переменную с количеством забаненных прав
+                        if(!$permission){ ++$bannedPermissionsCount; }
+                    });
+
+                    // если есть хоть одно ограничение по правам
+                    if( $bannedPermissionsCount != 0 ){
+                        // выставляем что пользователь забанен
+                        ++$salesmanBannedCount;
+                    }
+
+                    return true;
+                });
 
                 // заносим данные в общую переменную
                 $this->openLeads['usersForStatistic'] = $users;
@@ -1274,6 +1360,9 @@ class Statistics
                     'last_name' => $this->openLeads['userModel']['last_name'],
                     'created_at' => $this->openLeads['userCreated'] ? $this->openLeads['userCreated']->format('d/m/Y') : '-',
 
+                    'active' => $this->openLeads['userActive'],
+                    'permissions' => $this->openLeads['userPermissions'],
+
                     'addToSphere' => $this->openLeads['addUserToSphere'] ? $this->openLeads['addUserToSphere']->format('d/m/Y') : '-',
 
                     'withSalesman' => $this->openLeads['salesman'],
@@ -1457,6 +1546,9 @@ class Statistics
                     'first_name' => $this->openLeads['userModel']['first_name'],
                     'last_name' => $this->openLeads['userModel']['last_name'],
                     'created_at' => $this->openLeads['userCreated'] ? $this->openLeads['userCreated']->format('d/m/Y') : '-',
+
+                    'active' => $this->openLeads['userActive'],
+                    'permissions' => $this->openLeads['userPermissions'],
 
                     'addToSphere' => $this->openLeads['addUserToSphere'] ? $this->openLeads['addUserToSphere']->format('d/m/Y') : '-',
 

@@ -6,11 +6,22 @@
 
 {{-- Content --}}
 @section('main')
-    <div class="page-header">
-        <h3>
-            {!! trans("admin/agent.agents") !!}
-        </h3>
+
+    <div class="breadcrumb-wrapper">
+        <ul class="breadcrumb" style="margin-bottom: 5px;">
+            <li><a href="/">LM CRM</a></li>
+            <li class="active">Agents statistic</li>
+        </ul>
     </div>
+
+    {{--<div class="page-header">--}}
+        {{--<h3>--}}
+            {{--{!! trans("admin/agent.agents") !!}--}}
+        {{--</h3>--}}
+    {{--</div>--}}
+
+
+
     <div class="row">
         <div class="col-md-6 col-xs-12" id="agentsListFilter">
             <div class="col-xs-4">
