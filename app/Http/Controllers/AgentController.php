@@ -195,10 +195,39 @@ class AgentController extends BaseController
             $userData['role'] = $role->name;
         }
 
+        $historyBadLeads = $this->user->historyBadLeads()->with('sphere')->get();
+        $penaltyLeads = array(
+            'total' => 0,
+            'spheres' => array(),
+            'undefined' => array(
+                'name' => 'Undefined spheres',
+                'total' => 0
+            )
+        );
+        foreach ($historyBadLeads as $historyBadLead) {
+            $penaltyLeads['total'] += $historyBadLead->price;
+
+            if(isset($historyBadLead->sphere->id)) {
+                if(isset($penaltyLeads['spheres'][$historyBadLead->sphere_id])) {
+                    $sphereTotal = $penaltyLeads['spheres'][$historyBadLead->sphere_id]['total'];
+                } else {
+                    $sphereTotal = 0;
+                }
+                $penaltyLeads['spheres'][$historyBadLead->sphere_id] = array(
+                    'name' => $historyBadLead->sphere->name,
+                    'total' => $sphereTotal + $historyBadLead->price
+                );
+            }
+            else {
+                $penaltyLeads['undefined']['total'] += $historyBadLead->price;
+            }
+        }
+
         // добавляем данные по балансу на страницу
         view()->share([
             'balance' => $balance,
-            'userData' => $userData
+            'userData' => $userData,
+            'penaltyLeads' => $penaltyLeads
         ]);
 
         // переводим данные по балансу в json

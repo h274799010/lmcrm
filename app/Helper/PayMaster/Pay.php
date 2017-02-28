@@ -2,6 +2,7 @@
 
 namespace App\Helper\PayMaster;
 
+use App\Models\HistoryBadLeads;
 use App\Models\SalesmanInfo;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -395,6 +396,13 @@ class Pay
                 'lead_id'       => $lead_id,            // id лида по которому идет транзакция
             ]
         );
+
+        $historyBadLead = new HistoryBadLeads();
+        $historyBadLead->sphere_id = $lead->sphere_id;
+        $historyBadLead->lead_id = $lead->id;
+        $historyBadLead->depositor_id = $lead->agent_id;
+        $historyBadLead->price = $amount;
+        $historyBadLead->save();
 
         $paymentStatus['status'] = true;
 

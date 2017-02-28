@@ -32,7 +32,33 @@
             {{--@if(isset($balance))--}}
                 <ul class="nav navbar-top-links navbar-left flip">
                     <li>
-                        <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance['wasted']}} </a>
+                        <a class="text-danger penalty-data-menu-toggle" data-target="#" data-toggle="dropdown" aria-haspopup="true">
+                            <i class="fa fa-times-circle"></i>
+                            @if($penaltyLeads['total'] > 0)
+                                -{{ $penaltyLeads['total'] }}
+                            @else
+                                0
+                            @endif
+                        </a>
+
+                        @if(count($penaltyLeads['spheres']) > 0 || $penaltyLeads['undefined']['total'] > 0)
+                            <ul id="penalty_data_content" class="dropdown-menu balance_data_menu penalty-data-menu" aria-labelledby="balance_data">
+                                @if(count($penaltyLeads['spheres']) > 0)
+                                    @foreach($penaltyLeads['spheres'] as $sphere)
+                                        <li class="clearfix">
+                                            <span>{{ $sphere['name'] }}</span>
+                                            <span>-{{ $sphere['total'] }}</span>
+                                        </li>
+                                    @endforeach
+                                @endif
+                                @if($penaltyLeads['undefined']['total'] > 0)
+                                    <li class="clearfix">
+                                        <span>{{ $penaltyLeads['undefined']['name'] }}</span>
+                                        <span>-{{ $penaltyLeads['undefined']['total'] }}</span>
+                                    </li>
+                                @endif
+                            </ul>
+                        @endif
                     </li>
 
                     <li class="credit_button dropdown balance_data_container" >
@@ -47,7 +73,33 @@
             @elseif( isset($balance) && isset($salesman_id) )
                 <ul class="nav navbar-top-links navbar-left flip">
                     <li>
-                        <a class="text-danger"><i class="fa fa-times-circle"></i> {{$balance['wasted']}} </a>
+                        <a class="text-danger penalty-data-menu-toggle" data-target="#" data-toggle="dropdown" aria-haspopup="true">
+                            <i class="fa fa-times-circle"></i>
+                            @if($penaltyLeads['total'] > 0)
+                                -{{ $penaltyLeads['total'] }}
+                            @else
+                                0
+                            @endif
+                        </a>
+
+                        @if(count($penaltyLeads['spheres']) > 0 || $penaltyLeads['undefined']['total'] > 0)
+                            <ul id="penalty_data_content" class="dropdown-menu balance_data_menu penalty-data-menu" aria-labelledby="balance_data">
+                                @if(count($penaltyLeads['spheres']) > 0)
+                                    @foreach($penaltyLeads['spheres'] as $sphere)
+                                        <li class="clearfix">
+                                            <span>{{ $sphere['name'] }}</span>
+                                            <span>-{{ $sphere['total'] }}</span>
+                                        </li>
+                                    @endforeach
+                                @endif
+                                @if($penaltyLeads['undefined']['total'] > 0)
+                                    <li class="clearfix">
+                                        <span>{{ $penaltyLeads['undefined']['name'] }}</span>
+                                        <span>-{{ $penaltyLeads['undefined']['total'] }}</span>
+                                    </li>
+                                @endif
+                            </ul>
+                        @endif
                     </li>
 
                     <li class="credit_button dropdown salesman_balance_data_container" >
