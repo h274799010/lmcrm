@@ -5,50 +5,52 @@
     <div class="col-md-offset-1 col-md-8 col-xs-8">
         <div  id="content" data-sphere_id="{{$sphere->id}}" data-lead_id="{{$lead->id}}" style="padding-bottom: 100px;">
             {{-- блок с состоянием лида в системе --}}
-            <div class="panel panel-default lead_state">
-                <div class="panel-body">
-                    <table class="table table-bordered table-striped table-hover">
-                        <thead>
-                        <tr>
-                            <th colspan="2">Counter</th>
-                            <th>Expenses</th>
-                            <th colspan="2">Revenue</th>
-                            <th colspan="2">Sales profit</th>
-                            <th colspan="2">Completion time</th>
-                            <th colspan="3">Status</th>
-                        </tr>
-                        <tr>
-                            <th>Discoveries</th>
-                            <th>Dealings</th>
-                            <th>Operator</th>
-                            <th>Realization</th>
-                            <th>Dealings</th>
-                            <th>Depositor</th>
-                            <th>System</th>
-                            <th>Lead</th>
-                            <th>Open leads</th>
-                            <th>Lead</th>
-                            <th>Auction</th>
-                            <th>Payment</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>{{ $leadStatus['opened']  }} / {{ $leadStatus['maxOpened'] }}</td>
-                            <td>{{ $leadStatus['closingDeal']  }}</td>
-                            <td>{{ $leadStatus['operatorSpend']  }}</td>
-                            <td>{{ $leadStatus['revenueForOpen']  }}</td>
-                            <td>{{ $leadStatus['revenueForClosingDeal']  }}</td>
-                            <td>@if( $leadStatus['depositorProfit']<0 ) {{ $leadStatus['depositorProfit'] }} wasted @else {{ $leadStatus['depositorProfit'] }} @endif</td>
-                            <td>{{ $leadStatus['systemProfit'] }}</td>
-                            <td>@if( $leadStatus['expiry_time'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['expiry_time'] }} @endif</td>
-                            <td>@if( $leadStatus['open_lead_expired'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['open_lead_expired'] }} @endif</td>
-                            <td>{{ $leadStatus['statusName'] }}</td>
-                            <td>{{ $leadStatus['auctionStatusName'] }}</td>
-                            <td>{{ $leadStatus['paymentStatusName'] }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th colspan="2">Counter</th>
+                                <th>Expenses</th>
+                                <th colspan="2">Revenue</th>
+                                <th colspan="2">Sales profit</th>
+                                <th colspan="2">Completion time</th>
+                                <th colspan="3">Status</th>
+                            </tr>
+                            <tr>
+                                <th>Discoveries</th>
+                                <th>Dealings</th>
+                                <th>Operator</th>
+                                <th>Realization</th>
+                                <th>Dealings</th>
+                                <th>Depositor</th>
+                                <th>System</th>
+                                <th>Lead</th>
+                                <th>Open leads</th>
+                                <th>Lead</th>
+                                <th>Auction</th>
+                                <th>Payment</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{ $leadStatus['opened']  }} / {{ $leadStatus['maxOpened'] }}</td>
+                                <td>{{ $leadStatus['closingDeal']  }}</td>
+                                <td>{{ $leadStatus['operatorSpend']  }}</td>
+                                <td>{{ $leadStatus['revenueForOpen']  }}</td>
+                                <td>{{ $leadStatus['revenueForClosingDeal']  }}</td>
+                                <td>@if( $leadStatus['depositorProfit']<0 ) {{ $leadStatus['depositorProfit'] }} wasted @else {{ $leadStatus['depositorProfit'] }} @endif</td>
+                                <td>{{ $leadStatus['systemProfit'] }}</td>
+                                <td>@if( $leadStatus['expiry_time'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['expiry_time'] }} @endif</td>
+                                <td>@if( $leadStatus['open_lead_expired'] =='0000-00-00 00:00:00') - @else {{ $leadStatus['open_lead_expired'] }} @endif</td>
+                                <td>{{ $leadStatus['statusName'] }}</td>
+                                <td>{{ $leadStatus['auctionStatusName'] }}</td>
+                                <td>{{ $leadStatus['paymentStatusName'] }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
