@@ -535,6 +535,9 @@ span.badge.statistics_head_badge{
 .agent-info-block li.text-danger {
 	color: #a94442;
 }
+.agent-info-block li.status-label {
+	padding: 0;
+}
 
 .delete_note{
 	color: red;

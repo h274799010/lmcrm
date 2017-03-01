@@ -206,11 +206,14 @@ class AgentController extends BaseController
 
         $badLeads = HistoryBadLeads::whereIn('depositor_id', $userIds)->count();
 
+        $permissions = $this->user->permissions;
+
         // добавляем данные по балансу на страницу
         view()->share([
             'balance' => $balance,
             'userData' => $userData,
-            'badLeads' => $badLeads
+            'badLeads' => $badLeads,
+            'permissions' => $permissions
         ]);
 
         // переводим данные по балансу в json

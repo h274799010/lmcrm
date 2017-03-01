@@ -22,10 +22,29 @@
                         <li><i class="fa fa-users" aria-hidden="true"></i> {{ $userData['role'] }}</li>
                     @endif
                     @if($userData['status'] == true)
-                        <li class="text-danger"><i class="fa fa-ban" aria-hidden="true"></i> Banned</li>
+                        <li class="text-danger status-label">
+                            <a class="text-danger penalty-data-menu-toggle" data-target="#" data-toggle="dropdown" aria-haspopup="true">
+                            <i class="fa fa-ban" aria-hidden="true"></i> Banned
                     @else
-                        <li class="text-success"><i class="fa fa-check" aria-hidden="true"></i> Active</li>
+                        <li class="text-success status-label">
+                            <a class="text-success penalty-data-menu-toggle" data-target="#" data-toggle="dropdown" aria-haspopup="true">
+                            <i class="fa fa-check" aria-hidden="true"></i> Active
                     @endif
+                            </a>
+                            <ul class="dropdown-menu">
+                                @foreach($permissions as $permission => $value)
+                                    @if($value == false)
+                                        <li class="text-danger">
+                                            <i class="fa fa-ban" aria-hidden="true"></i>
+                                    @else
+                                        <li class="text-success">
+                                            <i class="fa fa-check" aria-hidden="true"></i>
+                                    @endif
+                                            {{ trans('admin/users.permissions.'.$permission) }}
+                                        </li>
+                                @endforeach
+                            </ul>
+                    </li>
                 </ul>
             @endif
             @if( isset($balance) && (!isset($salesman_id) || $salesman_id == false) )
