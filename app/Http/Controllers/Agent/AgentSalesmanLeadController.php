@@ -8,6 +8,7 @@ use App\Models\Agent;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
 use App\Models\Customer;
+use App\Models\HistoryBadLeads;
 use App\Models\LeadBitmask;
 use App\Models\OpenLeads;
 use App\Models\Organizer;
@@ -131,33 +132,9 @@ class AgentSalesmanLeadController extends LeadController
             $userData['role'] = $role->name;
         }
 
-        $historyBadLeads = $this->salesman->historyBadLeads()->with('sphere')->get();
-        $penaltyLeads = array(
-            'total' => 0,
-            'spheres' => array(),
-            'undefined' => array(
-                'name' => 'Undefined spheres',
-                'total' => 0
-            )
-        );
-        foreach ($historyBadLeads as $historyBadLead) {
-            $penaltyLeads['total'] += $historyBadLead->price;
+        $userIds = array($this->salesman->id);
 
-            if(isset($historyBadLead->sphere->id)) {
-                if(isset($penaltyLeads['spheres'][$historyBadLead->sphere_id])) {
-                    $sphereTotal = $penaltyLeads['spheres'][$historyBadLead->sphere_id]['total'];
-                } else {
-                    $sphereTotal = 0;
-                }
-                $penaltyLeads['spheres'][$historyBadLead->sphere_id] = array(
-                    'name' => $historyBadLead->sphere->name,
-                    'total' => $sphereTotal + $historyBadLead->price
-                );
-            }
-            else {
-                $penaltyLeads['undefined']['total'] += $historyBadLead->price;
-            }
-        }
+        $badLeads = HistoryBadLeads::whereIn('depositor_id', $userIds)->count();
 
 
         // добавляем данные по балансу на страницу
@@ -165,7 +142,7 @@ class AgentSalesmanLeadController extends LeadController
             'balance' => $balance,
             'salesman_id' => $this->salesman->id,
             'userData' => $userData,
-            'penaltyLeads' => $penaltyLeads
+            'badLeads' => $badLeads
         ]);
 
         // переводим данные по балансу в json

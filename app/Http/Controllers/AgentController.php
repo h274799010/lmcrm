@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
+use App\Models\HistoryBadLeads;
 use App\Models\Salesman;
 use App\Models\AgentBitmask;
 use App\Models\User;
@@ -195,39 +196,21 @@ class AgentController extends BaseController
             $userData['role'] = $role->name;
         }
 
-        $historyBadLeads = $this->user->historyBadLeads()->with('sphere')->get();
-        $penaltyLeads = array(
-            'total' => 0,
-            'spheres' => array(),
-            'undefined' => array(
-                'name' => 'Undefined spheres',
-                'total' => 0
-            )
-        );
-        foreach ($historyBadLeads as $historyBadLead) {
-            $penaltyLeads['total'] += $historyBadLead->price;
+        $userIds = array($this->user->id);
 
-            if(isset($historyBadLead->sphere->id)) {
-                if(isset($penaltyLeads['spheres'][$historyBadLead->sphere_id])) {
-                    $sphereTotal = $penaltyLeads['spheres'][$historyBadLead->sphere_id]['total'];
-                } else {
-                    $sphereTotal = 0;
-                }
-                $penaltyLeads['spheres'][$historyBadLead->sphere_id] = array(
-                    'name' => $historyBadLead->sphere->name,
-                    'total' => $sphereTotal + $historyBadLead->price
-                );
-            }
-            else {
-                $penaltyLeads['undefined']['total'] += $historyBadLead->price;
-            }
+        if($this->user->inRole('agent')) {
+            $salesmans = $this->user->salesmen()->get()->lists('id')->toArray();
+
+            $userIds = array_merge($userIds, $salesmans);
         }
+
+        $badLeads = HistoryBadLeads::whereIn('depositor_id', $userIds)->count();
 
         // добавляем данные по балансу на страницу
         view()->share([
             'balance' => $balance,
             'userData' => $userData,
-            'penaltyLeads' => $penaltyLeads
+            'badLeads' => $badLeads
         ]);
 
         // переводим данные по балансу в json
