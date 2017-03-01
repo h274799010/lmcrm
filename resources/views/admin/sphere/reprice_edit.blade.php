@@ -61,49 +61,51 @@
         </div>
     </div>
 
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <div class="col-xs-12">
-                <h4 class="page_header">Mask history</h4>
+    @if(count($maskHistory) > 0)
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="col-xs-12">
+                    <h4 class="page_header">Mask history</h4>
 
-                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                    @foreach($maskHistory as $history)
-                        <div class="panel panel-default panel-history">
-                            <div class="panel-heading" role="tab" id="heading_{{ $history->id }}">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{ $history->id }}" aria-expanded="true" aria-controls="collapse_{{ $history->id }}">
-                                        <span>Date:</span> {{ $history->created_at }}, <span>Price:</span> {{ $history->mask['lead_price'] }}
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="collapse_{{ $history->id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{ $history->id }}">
-                                <div class="panel-body">
-                                    @forelse($sphere->attributes as $attr)
-                                        <h5 class="page_header">{{ $attr->label }} </h5>
-                                        @if ($attr->_type == 'radio' || $attr->_type == 'checkbox' || $attr->_type == 'select')
-                                            @foreach($attr->options as $option)
-                                                <div class="_form-group">
-                                                    <div class="checkbox">
-                                                        <label for="ch-{{ $option->id }}">
-                                                            {!! Form::checkbox('options[]',$option->id, isset($history->short_mask[$option->id])?$history->short_mask[$option->id]:null, array('class' => '','id'=>"ch-$option->id",'disabled'=>true)) !!}
-                                                            {{ $option->name }}
-                                                        </label>
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                        @foreach($maskHistory as $history)
+                            <div class="panel panel-default panel-history">
+                                <div class="panel-heading" role="tab" id="heading_{{ $history->id }}">
+                                    <h4 class="panel-title">
+                                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{ $history->id }}" aria-expanded="true" aria-controls="collapse_{{ $history->id }}">
+                                            <span>Date:</span> {{ $history->created_at }}, <span>Price:</span> {{ $history->mask['lead_price'] }}
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse_{{ $history->id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{ $history->id }}">
+                                    <div class="panel-body">
+                                        @forelse($sphere->attributes as $attr)
+                                            <h5 class="page_header">{{ $attr->label }} </h5>
+                                            @if ($attr->_type == 'radio' || $attr->_type == 'checkbox' || $attr->_type == 'select')
+                                                @foreach($attr->options as $option)
+                                                    <div class="_form-group">
+                                                        <div class="checkbox">
+                                                            <label for="ch-{{ $option->id }}">
+                                                                {!! Form::checkbox('options[]',$option->id, isset($history->short_mask[$option->id])?$history->short_mask[$option->id]:null, array('class' => '','id'=>"ch-$option->id",'disabled'=>true)) !!}
+                                                                {{ $option->name }}
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            @endforeach
-                                        @else
+                                                @endforeach
+                                            @else
 
-                                        @endif
-                                    @empty
-                                    @endforelse
+                                            @endif
+                                        @empty
+                                        @endforelse
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 @stop
 
 @section('styles')
