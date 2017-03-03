@@ -194,15 +194,16 @@
                         @foreach($accountManagers as $sphere_id => $sphere)
                             <h4>{{ $sphere['name'] }}</h4>
                             <div class="form-group-wrap">
-                                @foreach($sphere['accountManagers'] as $id => $email)
-                                    <div class="col-xs-4">
+                                @foreach($sphere['accountManagers'] as $id => $data)
+                                    <div class="col-xs-12">
                                         <div class="radio">
                                             <label for="accountManaget-{{ $sphere_id }}_{{ $id }}">
                                                 {!! Form::radio('accountManager_'.$sphere_id, $id, (isset($attachedAccManagers[$sphere_id]) && $id == $attachedAccManagers[$sphere_id])?$id:null, array('class' => '','id'=>"accountManaget-".$sphere_id.'_'.$id, 'data-sphere' => $sphere_id)) !!}
                                                 <span class="circle"></span>
                                                 <span class="check"></span>
-                                                {{ $email }}
+                                                {{ $data['email'] }}
                                             </label>
+                                            (<a href="{{ route('admin.statistic.accManager', ['id'=>$id]) }}">{{ $data['name'] }}</a>)
                                         </div>
                                     </div>
                                 @endforeach

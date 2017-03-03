@@ -232,7 +232,10 @@ class AgentController extends AdminController
                     'accountManagers' => array()
                 );
                 foreach ($agentSphere->sphere->accountManagers as $accManager) {
-                    $tmp['accountManagers'][$accManager->id] = $accManager->email;
+                    $tmp['accountManagers'][$accManager->id] = array(
+                        'email' => $accManager->email,
+                        'name' => $accManager->first_name . ' ' . $accManager->last_name
+                    );
                 }
                 $accountManagers[$agentSphere->sphere->id] = $tmp;
             }
