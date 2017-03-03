@@ -743,6 +743,14 @@ class LeadController extends AgentController {
     {
         $user = $this->user;
 
+        $salesmans = $user->salesmen()->get()->lists('id')->toArray();
+
+        $userIds = array($user->id);
+
+        if(count($salesmans) > 0) {
+            $userIds = array_merge($userIds, $salesmans);
+        }
+
         $openLeads = OpenLeads::select([
                 'open_leads.id', 'open_leads.lead_id',
                 'open_leads.agent_id','open_leads.mask_id',
@@ -750,7 +758,7 @@ class LeadController extends AgentController {
                 'open_leads.state',
                 'open_leads.expiration_time'
             ])
-            ->where('open_leads.agent_id', '=', $user->id);
+            ->whereIn('open_leads.agent_id', $userIds);
 
         if (count($request->only('filter'))) {
             // если фильтр есть

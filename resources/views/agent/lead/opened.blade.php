@@ -34,6 +34,7 @@
                     <th></th>
                     <th>{{ trans("site/lead.opened.icon") }}</th>
                     <th>{{ trans('site/lead.opened.status') }}</th>
+                    <th>{{ trans('site/lead.opened.buyer') }}</th>
                     <th>{{ trans('site/lead.opened.name') }}</th>
                     <th>{{ trans('site/lead.opened.phone') }}</th>
                     <th>{{ trans('site/lead.opened.email') }}</th>
