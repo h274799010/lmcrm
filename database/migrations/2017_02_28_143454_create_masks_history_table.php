@@ -17,7 +17,7 @@ class CreateMasksHistoryTable extends Migration
             $table->integer('sphere_id');   // id сферы к которой принадлежит маска
             $table->integer('mask_id');     // id маски
             $table->integer('user_id');     // id пользователя создавшего маску
-            $table->json('mask');           // данные по предыдущей версии маски
+            $table->longText('mask');       // json данные по предыдущей версии маски
             $table->timestamps();
             $table->engine = 'InnoDB';
         });
