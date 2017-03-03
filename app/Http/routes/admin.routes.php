@@ -54,7 +54,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::post('agent/unblockData', ['as'=>'admin.agent.unblockData', 'uses' => 'Admin\AgentController@unbanData']);
     Route::post('agent/unblock', ['as'=>'admin.agent.unblock', 'uses' => 'Admin\AgentController@unban']);
 
+    /** Изменение прав пользователя */
+    // изменение одного права
     Route::post('agent/permission/switch', ['as'=>'admin.agent.permission.switch', 'uses' => 'Admin\AgentController@switchPermission']);
+    // изменение всех прав по заданному массиву
+    Route::post('agent/permission/update', ['as'=>'admin.agent.permissions.update', 'uses' => 'Admin\AgentController@permissionsUpdate']);
+
 
     // баны пользователю
     Route::post('agent/block',['as'=>'admin.agent.block', 'uses' => 'Admin\AgentController@ban']);
@@ -157,7 +162,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::post('dealData', ['as' => 'admin.dealData', 'uses' => 'Admin\DealController@dealData']);
     Route::post('lead/sendMessageDeal',['as'=>'admin.lead.sendMessageDeal', 'uses' => 'Admin\DealController@sendMessageDeal']);
 
-
+    // подробности по транзиту
     Route::post('statistic/transitionDetails', ['as' => 'admin.statistic.transition.details', 'uses' => 'Admin\StatisticController@transitionDetails']);
 
 

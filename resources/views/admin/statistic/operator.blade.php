@@ -8,7 +8,7 @@
 @section('main')
 
     <div class="breadcrumb-wrapper">
-        <ul class="breadcrumb" style="margin-bottom: 5px;">
+        <ul class="breadcrumb">
             <li><a href="/">LM CRM</a></li>
             <li><a href="{{ route('admin.statistic.operators') }}">Operator statistic</a></li>
             <li class="active">Operator: {{ $operator['email'] }}</li>
@@ -42,7 +42,7 @@
                 </tr>
                 <tr>
                     <th>registration date:</th>
-                    <td>{{ $operator['created_at'] }}</td>
+                    <td>{{ $operator['created_at']->format('d/m/Y') }}</td>
                 </tr>
                 {{--<tr>--}}
                     {{--<th>add to sphere date:</th>--}}
@@ -102,25 +102,34 @@
                     <span class="sphere-name">{{ $currentSphere['name'] }}</span>
                 </h4>
 
-                {{-- Сводная таблица данных по лидам пользователя --}}
+                {{-- Сводная таблица данных по лидам оператора --}}
                 <div class="row user_manager_block">
                     <div class="col-md-12">
-                        <table class="table table-striped table-bordered">
+                        <table class="table table-striped table-bordered operator_data_table">
 
                             <thead>
                             <tr class="user_leads_info_head">
-                                <th colspan="5">Leads</th>
+                                <th colspan="9">Leads</th>
                             </tr>
                             <tr>
                                 <th rowspan="2" class="center middle width-prc-20">for processing</th>
                                 <th colspan="2" class="center middle">processed</th>
+                                <th colspan="2" class="center middle">marked as bad</th>
                                 <th colspan="2" class="center middle">added</th>
+                                <th colspan="2" class="center middle">users banned</th>
                             </tr>
                             <tr>
-                                <th class="center middle width-prc-20">all</th>
-                                <th class="center middle width-prc-20">period</th>
-                                <th class="center middle width-prc-20">all</th>
-                                <th class="center middle width-prc-20">period</th>
+                                <th class="center middle operator_count_col">all</th>
+                                <th class="center middle operator_count_col">period</th>
+
+                                <th class="center middle operator_count_col">all</th>
+                                <th class="center middle operator_count_col">period</th>
+
+                                <th class="center middle operator_count_col">all</th>
+                                <th class="center middle operator_count_col">period</th>
+
+                                <th class="center middle operator_count_col">all</th>
+                                <th class="center middle operator_count_col">period</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -132,253 +141,62 @@
                                 <td class="center middle operator_processed_all">{{ $statistic['leads']['processed_all'] }}</td>
                                 <td class="center middle operator_processed_period">{{ $statistic['leads']['processed_period'] }}</td>
 
+                                <td class="center middle marked_bad_all">{{ $statistic['leads']['marked_bad_all'] }}</td>
+                                <td class="center middle marked_bad_period">{{ $statistic['leads']['marked_bad_period'] }}</td>
+
                                 <td class="center middle operator_added_all">{{ $statistic['leads']['added_all'] }}</td>
                                 <td class="center middle operator_added_period">{{ $statistic['leads']['added_period'] }}</td>
+
+                                <td class="center middle users_banned_all">{{ $statistic['leads']['users_banned_all'] }}</td>
+                                <td class="center middle users_banned_period">{{ $statistic['leads']['users_banned_period'] }}</td>
 
                             </tr>
                             </tbody>
                         </table>
+
+
+
+
+                        <table class="table table-striped operator_bad_leads_table">
+
+                            <thead>
+                            <tr class="operator_bad_leads_table_head center">
+                                <th colspan="4">Leads marked as bad</th>
+                            </tr>
+                            <tr>
+                                <th class="center middle">name</th>
+                                <th class="center middle">phone</th>
+                                <th class="center middle">email</th>
+                                <th class="center middle">created_at</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            @forelse($marked_bad as $bad)
+                                <tr>
+
+                                    <td class="center middle">{{ $bad['name'] }}</td>
+                                    <td class="center middle">{{ $bad['phone']['phone'] }}</td>
+                                    <td class="center middle">{{ $bad['email'] }}</td>
+                                    <td class="center middle">{{ $bad['created_at'] }}</td>
+
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="center middle">No bad leads</td>
+                                </tr>
+                            @endforelse
+
+                            </tbody>
+                        </table>
+
+
+
                     </div>
                 </div>
 
 
-                @if( false )
-
-                {{-- Общие данные - no status и close Deal --}}
-                <div class="table-statuses table-statuses-large table_status_block">
-                    <table class="table topStatusTable">
-
-                        <thead>
-                        <tr>
-                            <th class="center middle">status</th>
-                            <th class="center middle">amount all</th>
-                            <th class="center middle">percent all</th>
-                            <th class="center middle">amount period</th>
-                            <th class="center middle">percent period</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="status_no_status">
-                            <td class="center middle"> No status </td>
-                            <td class="percent-col center middle countAll">{{ $statistic['statuses']['noStatus']['countAll'] }}</td>
-                            <td class="percent-col center middle allPercent">{{ $statistic['statuses']['noStatus']['percentAll'] }}%</td>
-                            <td class="percent-col center middle countPeriod">{{ $statistic['statuses']['noStatus']['countPeriod'] }}</td>
-                            <td class="percent-col center middle periodPercent">{{ $statistic['statuses']['noStatus']['percentPeriod'] }}%</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Процессные статусы --}}
-                <div class="table-statuses table-statuses-small table_status_block">
-                    <table class="table process-statuses">
-                        <thead>
-                        <tr class="statistics_process_statuses">
-                            <th colspan="5">Process</th>
-                        </tr>
-                        <tr>
-                            <th class="center middle">status</th>
-                            <th class="center middle">amount all</th>
-                            <th class="center middle">percent all</th>
-                            <th class="center middle">amount period</th>
-                            <th class="center middle">percent period</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        @forelse( $statistic['statuses']['type'][1] as $status)
-                            <tr>
-                                <td class="center middle name">{{ $status['name'] }}</td>
-                                <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
-                                <td class="percent-col center middle allPercent">{{ $status['percentAll'] }}%</td>
-                                <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
-                                <td class="percent-col center middle periodPercent">{{ $status['percentPeriod'] }}%</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="center statistics_no_data" colspan="5">No data</td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Неопределенные статусы --}}
-                <div class="table-statuses table-statuses-small table_status_block">
-                    <table class="table undefined-statuses">
-                        <thead>
-                        <tr class="statistics_uncertain_statuses">
-                            <th colspan="5">Uncertain</th>
-                        </tr>
-                        <tr>
-                            <th class="center middle">status</th>
-                            <th class="center middle">amount all</th>
-                            <th class="center middle">percent all</th>
-                            <th class="center middle">amount period</th>
-                            <th class="center middle">percent period</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        @forelse( $statistic['statuses']['type'][2] as $status)
-                            <tr>
-                                <td class="center middle name">{{ $status['name'] }}</td>
-                                <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
-                                <td class="percent-col center middle allPercent">{{ $status['percentAll'] }}%</td>
-                                <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
-                                <td class="percent-col center middle periodPercent">{{ $status['percentPeriod'] }}%</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="center statistics_no_data" colspan="5">No data</td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Отказные статусы --}}
-                <div class="table-statuses table-statuses-small table_status_block">
-                    <table class="table fail-statuses">
-                        <thead>
-                        <tr class="statistics_refuseniks_statuses">
-                            <th colspan="5">Refuseniks</th>
-                        </tr>
-                        <tr>
-                            <th class="center middle">status</th>
-                            <th class="center middle">amount all</th>
-                            <th class="center middle">percent all</th>
-                            <th class="center middle">amount period</th>
-                            <th class="center middle">percent period</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        @forelse( $statistic['statuses']['type'][3] as $status)
-                            <tr>
-                                <td class="center middle name">{{ $status['name'] }}</td>
-                                <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
-                                <td class="percent-col center middle allPercent">{{ $status['percentAll'] }}%</td>
-                                <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
-                                <td class="percent-col center middle periodPercent">{{ $status['percentPeriod'] }}%</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="center statistics_no_data" colspan="5">No data</td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Плохие статусы --}}
-                <div class="table-statuses table-statuses-small table_status_block">
-                    <table class="table bad-statuses">
-                        <thead>
-                        <tr class="statistics_bad_statuses">
-                            <th colspan="5">Bad</th>
-                        </tr>
-                        <tr>
-                            <th class="center middle">status</th>
-                            <th class="center middle">amount all</th>
-                            <th class="center middle">percent all</th>
-                            <th class="center middle">amount period</th>
-                            <th class="center middle">percent period</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        @forelse( $statistic['statuses']['type'][4] as $status)
-                            <tr>
-                                <td class="center middle name">{{ $status['name'] }}</td>
-                                <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
-                                <td class="percent-col center middle allPercent">{{ $status['percentAll'] }}%</td>
-                                <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
-                                <td class="percent-col center middle periodPercent">{{ $status['percentPeriod'] }}%</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="center statistics_no_data" colspan="5">No data</td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Статусы по закрытым сделкам --}}
-                <div class="table-statuses table-statuses-large table_status_block">
-                    <table class="table closeDeal-statuses">
-                        <thead>
-                        <tr class="statistics_closeDeal_statuses">
-                            <th colspan="5" class="middle center">Close Deal</th>
-                        </tr>
-                        <tr>
-                            <th class="center middle">status</th>
-                            <th class="center middle">amount all</th>
-                            <th class="center middle">percent all</th>
-                            <th class="center middle">amount period</th>
-                            <th class="center middle">percent period</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        @forelse( $statistic['statuses']['type'][5] as $status)
-                            <tr>
-                                <td class="center middle name">{{ $status['name'] }}</td>
-                                <td class="percent-col center middle countAll">{{ $status['countAll'] }}</td>
-                                <td class="percent-col center middle allPercent">{{ $status['percentAll'] }}%</td>
-                                <td class="percent-col center middle countPeriod">{{ $status['countPeriod'] }}</td>
-                                <td class="percent-col center middle periodPercent">{{ $status['percentPeriod'] }}%</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="center statistics_no_data" colspan="5">No data</td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Статистика по транзитам --}}
-                <div class="table-statuses table-statuses-large table_status_block">
-                    <table class="table performance-table">
-                        <thead>
-                        <tr class="statistics_transitions_statuses">
-                            <th colspan="8">Transitions</th>
-                        </tr>
-                        <tr>
-                            <th class="center middle">from</th>
-                            <th class="center middle"></th>
-                            <th class="center middle">to</th>
-                            <th class="center middle">all</th>
-                            <th class="center middle">all rating</th>
-                            <th class="center middle"></th>
-                            <th class="center middle">period</th>
-                            <th class="center middle">period rating</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @forelse($statistic['transitions'] as $transit)
-                            <tr>
-                                <td class="center middle fromStatus"> {{ $transit['fromStatus'] }} </td>
-                                <td class="center middle statistics_transitions_statuses_arrow"> <i class="glyphicon glyphicon-arrow-right"></i> </td>
-                                <td class="center middle toStatus"> {{ $transit['toStatus'] }} </td>
-                                <td class="percent-col center middle allPercent">{{ $transit['percentAll'] }}%</td>
-                                <td class="center middle status_{{ $transit['ratingAll'] }} rating">{{ $transit['ratingAll'] }}</td>
-                                <td class="center middle statistics_transitions_emptyCall"></td>
-                                <td class="percent-col center middle periodPercent">{{ $transit['percentPeriod'] }}%</td>
-                                <td class="center middle status_{{ $transit['ratingPeriod'] }} rating">{{ $transit['ratingPeriod'] }}</td>
-                            </tr>
-                        @empty
-                            <tr >
-                                <td class="center statistics_no_data" colspan="8">No data</td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                @endif
 
             </div>
 
@@ -407,6 +225,27 @@
         span.green {
             color: green;
         }
+
+        table.operator_data_table th{
+            color: #80808A;
+            font-size: 12px;
+        }
+
+        .operator_bad_leads_table{
+            margin-top: 50px;
+        }
+
+        .operator_bad_leads_table_head th{
+            color: white;
+            background: #3F51B5;
+            text-align: center;
+        }
+
+        .operator_bad_leads_table th{
+            color: #80808A;
+            font-size: 12px;
+        }
+
     </style>
 @stop
 
@@ -461,11 +300,21 @@
             sphere.find('.operator_for_processing').text( statistic['statistic']['leads']['for_processing'] );
             sphere.find('.operator_processed_all').text( statistic['statistic']['leads']['processed_all'] );
             sphere.find('.operator_processed_period').text( statistic['statistic']['leads']['processed_period'] );
+
+
+            sphere.find('.marked_bad_all').text( statistic['statistic']['leads']['marked_bad_all'] );
+            sphere.find('.marked_bad_period').text( statistic['statistic']['leads']['marked_bad_period'] );
+
+
             sphere.find('.operator_added_all').text( statistic['statistic']['leads']['added_all'] );
             sphere.find('.operator_added_period').text( statistic['statistic']['leads']['added_period'] );
 
 
-            {{--<td class="center middle operator_for_processing">{{ $statistic['leads']['for_processing'] }}</td>--}}
+            sphere.find('.users_banned_all').text( statistic['statistic']['leads']['users_banned_all'] );
+            sphere.find('.users_banned_period').text( statistic['statistic']['leads']['users_banned_period'] );
+
+
+        {{--<td class="center middle operator_for_processing">{{ $statistic['leads']['for_processing'] }}</td>--}}
         {{----}}
             {{--<td class="center middle operator_processed_all">{{ $statistic['leads']['processed_all'] }}</td>--}}
             {{--<td class="center middle operator_processed_period">{{ $statistic['leads']['processed_period'] }}</td>--}}

@@ -12,8 +12,10 @@ use App\Models\Operator;
 use App\Models\OperatorSphere;
 use App\Models\Salesman;
 use App\Models\Sphere;
+use App\Models\SphereStatuses;
 use App\Models\SphereStatusTransitions;
 use App\Models\User;
+use App\Models\UserMasks;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Contracts\View\View;
@@ -731,6 +733,15 @@ class StatisticController extends Controller
             // лиды которые оператор уже отредактировал
             $operator->leadsEdited = Operator::where('operator_id', $operator->id)->count();
 
+            // лиды которые обработал оператор
+            $operatorLeadsId = Operator::where('operator_id', $operator->id)->lists('lead_id');
+            // лиды которые забанил оператор
+            $operator->marked_bad = Lead::
+                  whereIn('id', $operatorLeadsId)
+                ->where('status', 2)
+                ->count();
+
+
         });
 
 
@@ -802,7 +813,33 @@ class StatisticController extends Controller
             $processed_all = Operator::where('operator_id', $operator->id)->count();
 
             // добавленные лиды
-            $added_all = Lead::where('agent_id', $operator->id)->count();
+            $added_all = Lead::
+                  where('sphere_id', $sphere['id'])
+                ->where('agent_id', $operator->id)
+                ->count();
+
+
+            // лиды которые обработал оператор
+            $operatorLeadsId = Operator::where('operator_id', $operator->id)->lists('lead_id');
+            // лиды которые забанил оператор
+            $marked_bad = Lead::
+                  whereIn('id', $operatorLeadsId)
+                ->with('phone')
+                ->where('sphere_id', $sphere['id'])
+                ->select('id', 'email', 'customer_id', 'name', 'created_at')
+                ->where('status', 2)
+                ->get();
+
+            // количество лидов которые забанил оператор
+            $marked_bad_all = $marked_bad->count();
+
+            // количество лидов добавленные оператором, которые забанили пользователи
+            $users_banned_all = Lead::
+                  where('agent_id', $operator->id)
+                ->where('sphere_id', $sphere['id'])
+                ->where('status', 5)
+                ->count();
+
 
             $statistic =
             [
@@ -816,6 +853,11 @@ class StatisticController extends Controller
                     'added_all' => $added_all,
                     'added_period' => 0,
 
+                    'marked_bad_all' => $marked_bad_all,
+                    'marked_bad_period' => 0,
+
+                    'users_banned_all' => $users_banned_all,
+                    'users_banned_period' => 0,
                 ],
             ];
 
@@ -827,6 +869,7 @@ class StatisticController extends Controller
             'spheres' => $spheres,
             'currentSphere' => $sphere,
             'statistic' => $statistic,
+            'marked_bad' => $marked_bad,
         ]);
     }
 
@@ -925,11 +968,47 @@ class StatisticController extends Controller
 
             // добавленные лиды за период
             $added_period = Lead::
-            where('sphere_id', $sphere['id'])
+                  where('sphere_id', $sphere['id'])
                 ->where('agent_id', $operator->id)
                 ->where( 'created_at', '>=', $dateFrom )
                 ->where( 'created_at', '<=', $dateTo )
                 ->count();
+
+            // лиды которые обработал оператор
+            $operatorLeadsId = Operator::where('operator_id', $operator->id)->lists('lead_id');
+            // количество лидов которые забанил оператор
+            $marked_bad_all = Lead::
+                  whereIn('id', $operatorLeadsId)
+                ->where('sphere_id', $sphere['id'])
+                ->where('status', 2)
+                ->count();
+
+            // количество лидов которые забанил оператор за период
+            $marked_bad_period = Lead::
+                  whereIn('id', $operatorLeadsId)
+                ->where('sphere_id', $sphere['id'])
+                ->where('status', 2)
+                ->where( 'created_at', '>=', $dateFrom )
+                ->where( 'created_at', '<=', $dateTo )
+                ->count();
+
+
+            // количество лидов добавленные оператором, которые забанили пользователи
+            $users_banned_all = Lead::
+                  where('agent_id', $operator->id)
+                ->where('sphere_id', $sphere['id'])
+                ->where('status', 5)
+                ->count();
+
+            // количество лидов добавленные оператором, которые забанили пользователи
+            $users_banned_period = Lead::
+                  where('agent_id', $operator->id)
+                ->where('sphere_id', $sphere['id'])
+                ->where('status', 5)
+                ->where( 'created_at', '>=', $dateFrom )
+                ->where( 'created_at', '<=', $dateTo )
+                ->count();
+
 
             $statistic =
                 [
@@ -943,6 +1022,11 @@ class StatisticController extends Controller
                         'added_all' => $added_all,
                         'added_period' => $added_period,
 
+                        'marked_bad_all' => $marked_bad_all,
+                        'marked_bad_period' => $marked_bad_period,
+
+                        'users_banned_all' => $users_banned_all,
+                        'users_banned_period' => $users_banned_period,
                     ],
 
                     'sphere' => $sphere,
@@ -952,8 +1036,7 @@ class StatisticController extends Controller
         }
 
 
-
-//        statistic['statistic']['sphere']['name']
+//        dd($statistic);
 
         return response()->json([ 'spheres' => $spheres, 'statistic' => $statistic ]);
     }
@@ -970,59 +1053,141 @@ class StatisticController extends Controller
     public function transitionDetails( Request $request )
     {
 
+        /** Проверка полученных данных */
+
+        // id транзита
         $transitId = (int)$request->transitId;
 
+        // id текущего пользователя
         $currentUser = (int)$request->userId;
 
+
+        /** Проверка роли пользователя */
+
+        // если роль "агент",
+        // то в общий массив пользователей добавляются id пользователя
+        // и id салесманов этого пользователя
+
+        // если роль "салесман",
+        // то в общий массив пользователей добавляется только id салесмана
+
+        // выбираем пользователя с ролями
+        $userSystemData = User::with('roles')->find( $currentUser );
+
+        // массив c id всех пользователей
+        $allUsers = [];
+        // определяем роль, agent или salesman
+        $userRole = false;
+        // перебираем все роли пользователя и выбираем нужную роль
+        $userSystemData->roles->each(function( $role ) use ( &$userRole ){
+            // выбираем нужную роль
+            if( $role->slug == 'agent' ){
+                // если роль пользователя "agent"
+
+                // выставляем роль пользователя как 'agent'
+                $userRole = 'agent';
+
+            }elseif( $role->slug == 'salesman' ){
+                // если роль пользователя "salesman"
+
+                // выставляем роль пользователя как 'salesman'
+                $userRole = 'salesman';
+            }
+        });
+
+        // выбор пользователя в зависимости от его роли
+        if( $userRole == 'agent' ){
+            // если агент
+            // выбираем модель агента
+            $currentUserData = Agent::with('salesmen')->find( $currentUser );
+
+            // добавляем к общим пользователям id агента
+            $allUsers[] = $currentUserData['id'];
+
+            // перебираем всех салесманов пользователя
+            $currentUserData['salesmen']->each(function( $salesman ) use( &$allUsers ){
+                // добавляем id салесмана в общий массив
+                $allUsers[] = $salesman['id'];
+            });
+
+        }elseif( $userRole == 'salesman' ){
+            // если салесман
+            // выбираем модель salesman
+            $currentUserData = Salesman::find( $currentUser );
+
+            // добавляем к общим пользователям id салесмана
+            $allUsers[] = $currentUserData['id'];
+
+        }else{
+            // если нет совпадений по роли
+            // выходим c ошибкой
+            abort( 403, 'Wrong user slug' );
+        }
+
+
+        /** Выборка данных лидов которые учавствуют в транзите */
+
+        // находим транзит по сфере
         $sphereTransition = SphereStatusTransitions::find($transitId);
 
+        // находим данные по транзитам в истории статусов
         $statusDetails = OpenLeadsStatusDetails::
               where('previous_status_id', $sphereTransition['previous_status_id'])
             ->where('status_id', $sphereTransition['status_id'])
             ->get();
 
+        // данные по статусу сферы на который перешли с транзита
+        $sphereStatus = SphereStatuses::find($sphereTransition['status_id']);
 
-        $usersId = collect( $statusDetails->unique('user_id')->pluck('user_id') );
+        // проверка статуса на тип
+        if( $sphereStatus['type'] == 1 ){
+            // если это процессный статус, то делаем выборку без предыдущего статуса
 
-//        dd( $usersId );
+            // находим транзиты конкретный пользователей (агента и его салесманов)
+            $userStatusDetails = OpenLeadsStatusDetails::
+                  whereIn('user_id', $allUsers)
+                ->where('status_id', $sphereTransition['status_id'])
+                ->lists('open_lead_id');
 
-        $users = [];
+        }else{
+            // если любой другой статус, делаем выборку от предыдущего к последующему статусу
 
-        // перебираем всех пользователей кроме текущего и выбираем нужные данные
-        $usersId->each(function( $user ) use(&$users, $sphereTransition, $statusDetails, $currentUser){
+            // находим транзиты конкретный пользователей (агента и его салесманов)
+            $userStatusDetails = OpenLeadsStatusDetails::
+                  whereIn('user_id', $allUsers)
+                ->where('previous_status_id', $sphereTransition['previous_status_id'])
+                ->where('status_id', $sphereTransition['status_id'])
+                ->lists('open_lead_id');
+        }
 
-            if( $user != $currentUser ) {
+        // id лидов которые были открыты пользователями
+        $leadsId = OpenLeads::whereIn('id', $userStatusDetails)
+            ->lists('lead_id');
 
-                // todo находим данные пользователя
-                $userData = Agent::find($user);
-
-                $allOpenLeadsId = OpenLeads::where('agent_id', $user)->lists('lead_id');
-
-                $allOpenLeads = Lead::whereIn('id', $allOpenLeadsId)->where('sphere_id', $sphereTransition->sphere_id)->count();
-
-                $userStatusDetails = OpenLeadsStatusDetails::
-                where('previous_status_id', $sphereTransition['previous_status_id'])
-                    ->where('status_id', $sphereTransition['status_id'])
-                    ->where('user_id', $user)
-                    ->count();
-
-                // вычисление процента
-                $percent = $allOpenLeads != 0 ? round($userStatusDetails * 100 / $allOpenLeads, 2) : 0;
+        // данные лидов
+        $leads = Lead::
+              whereIn('id', $leadsId)
+            ->select('id', 'email', 'customer_id', 'name')
+            ->with('phone')
+            ->get();
 
 
-                $users[] =
-                [
-                    'id' => $user,
-                    'email' => $userData->email,
-                    'phone' => '-',
-                    'percent' => $percent,
-                ];
-            }
+        /** Расчет общего процента транзита по системе */
 
-        });
+        // находим маски сферы (чтобы узнать какой открытый лид к какой сфере относится)
+        $userMasks = UserMasks::where('sphere_id', $sphereTransition['sphere_id'])->lists('id');
 
-//        dd($users);
+        // считаем количество открытых лидов
+        $allOpenLeads = OpenLeads::whereIn('mask_name_id', $userMasks)->count();
 
-        return response()->json([ 'users' => $users ]);
+        // считаем количество транзитов
+        $allTransitions = $statusDetails->count();
+
+        // вычисление процента за весь период
+        $overallPercent = $allOpenLeads != 0 ? round($allTransitions * 100 / $allOpenLeads, 2) : 0;
+
+
+
+        return response()->json([ 'leads' => $leads, 'overallPercent' => $overallPercent ]);
     }
 }

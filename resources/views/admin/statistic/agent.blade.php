@@ -8,7 +8,7 @@
 @section('main')
 
     <div class="breadcrumb-wrapper">
-        <ul class="breadcrumb" style="margin-bottom: 5px;">
+        <ul class="breadcrumb">
             <li><a href="/">LM CRM</a></li>
             <li><a href="{{ route('admin.statistic.agents') }}">Agents statistic</a></li>
             <li class="active">Agent: {{ $statistic['user']['email'] }}</li>
@@ -16,7 +16,6 @@
     </div>
 
     {{--таблица с данными по агенту--}}
-
     <div class="row">
 
         <div class="col-md-5">
@@ -67,14 +66,15 @@
 
             <h5>Permissions</h5>
 
-            <ul class="list-group">
+            <ul class="list-group permissions_group">
                 @foreach( $statistic['user']['permissions'] as $permission=>$status )
-                    <li class="list-group-item">
-                        @if($status) <i data-permission="{{ $permission }}" class="glyphicon glyphicon-ok icon_green user_permission"></i> @else <i data-permission="{{ $permission }}" class="glyphicon glyphicon-ban-circle icon_red user_permission"></i> @endif
+                    <li data-status="{{ $status ? 'true':'false' }}" data-permission="{{ $permission }}" class="list-group-item">
+                        <i data-permission="{{ $permission }}" class="glyphicon @if($status) glyphicon-ok icon_green user_permission @else glyphicon-ban-circle icon_red user_permission @endif "></i>
                         {{ trans('admin/users.permissions.' .$permission) }}
                     </li>
                 @endforeach
             </ul>
+            <div class="permissions_change">change</div>
 
         </div>
 
@@ -89,7 +89,7 @@
         {{--todo дооформить, поставить по средине, цвет сделать серый--}}
         No spheres
     @else
-        {{-- Если сферы есть --}}
+        {{-- Если есть хоть одна сфера --}}
 
         {{-- строка с селектами --}}
         <div class="row">
@@ -126,23 +126,35 @@
                     <span class="sphere-name">{{ $statistic['sphere']['name'] }}</span>
                 </h4>
 
-                   {{-- Сводная таблица данных по лидам пользователя --}}
+               {{-- Сводная таблица данных по лидам пользователя --}}
                 <div class="row user_manager_block">
                     <div class="col-md-12">
                         <table class="table table-striped table-bordered user_leads_info">
 
                             <thead>
                             <tr class="user_leads_info_head">
-                                <th colspan="6">Leads</th>
+                                <th colspan="10">Leads</th>
                             </tr>
                             <tr>
                                 <th colspan="2" class="center middle">added</th>
+
+                                <th colspan="2" class="center middle">operator banned</th>
+
+                                <th colspan="2" class="center middle">users banned</th>
+
                                 <th colspan="2" class="center middle">seen</th>
                                 <th colspan="2" class="center middle">open</th>
                             </tr>
                             <tr>
                                 <th class="center middle">all</th>
                                 <th class="center middle">period</th>
+
+                                <th class="center middle">all</th>
+                                <th class="center middle">period</th>
+
+                                <th class="center middle">all</th>
+                                <th class="center middle">period</th>
+
                                 <th class="center middle">all</th>
                                 <th class="center middle">period</th>
                                 <th class="center middle">all</th>
@@ -155,6 +167,12 @@
 
                                     <td class="center middle summary_table_added_all"> {{ $statistic['added']['all'] }} </td>
                                     <td class="center middle summary_table_added_period"> {{ $statistic['added']['period'] }} </td>
+
+                                    <td class="center middle summary_table_operator_bad_all"> {{ $statistic['operatorBad']['all'] }}</td>
+                                    <td class="center middle summary_table_operator_bad_period"> {{ $statistic['operatorBad']['period'] }}</td>
+
+                                    <td class="center middle summary_table_users_bad_all"> {{ $statistic['agentBad']['all'] }}</td>
+                                    <td class="center middle summary_table_users_bad_period"> {{ $statistic['agentBad']['period'] }}</td>
 
                                     <td class="center middle summary_table_seen_all"> {{ $statistic['auction']['all'] }} </td>
                                     <td class="center middle summary_table_seen_period"> {{ $statistic['auction']['period'] }} </td>
@@ -171,6 +189,71 @@
 
                 {{-- если пользователь агент, выводим таблицу его продавцов --}}
                 @if( $statistic['user']['role'] == 'agent' )
+
+                    {{-- Таблица чистых данных по текущему агенту (данные только агента, без салесманов) --}}
+                    <div class="row user_manager_block">
+                        <div class="col-md-12">
+                            <table class="table table-striped table-bordered just_agent_table">
+
+                                <thead>
+                                <tr class="just_agent_table_head">
+                                    <th colspan="10">Just a agent data</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" class="center middle">leads added</th>
+
+                                    <th colspan="2" class="center middle">operator banned</th>
+
+                                    <th colspan="2" class="center middle">users banned</th>
+
+                                    <th colspan="2" class="center middle">leads seen</th>
+
+                                    <th colspan="2" class="center middle">leads open</th>
+                                </tr>
+                                <tr>
+                                    <th class="center middle just_agent_count_data">all</th>
+                                    <th class="center middle just_agent_count_data">period</th>
+
+                                    <th class="center middle just_agent_count_data">all</th>
+                                    <th class="center middle just_agent_count_data">period</th>
+
+                                    <th class="center middle just_agent_count_data">all</th>
+                                    <th class="center middle just_agent_count_data">period</th>
+
+
+                                    <th class="center middle just_agent_count_data">all</th>
+                                    <th class="center middle just_agent_count_data">period</th>
+
+                                    <th class="center middle just_agent_count_data">all</th>
+                                    <th class="center middle just_agent_count_data">period</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                    <tr>
+
+                                        <td class="center middle just_agent_added_all"> {{ $statistic['user']['justAgent']['added']['all'] }} </td>
+                                        <td class="center middle just_agent_added_period"> {{ $statistic['user']['justAgent']['added']['period'] }} </td>
+
+                                        <td class="center middle just_agent_operatorBad_all"> {{ $statistic['user']['justAgent']['operatorBad']['all'] }}</td>
+                                        <td class="center middle just_agent_operatorBad_period"> {{ $statistic['user']['justAgent']['operatorBad']['period'] }}</td>
+
+                                        <td class="center middle just_agent_agentBad_all"> {{ $statistic['user']['justAgent']['agentBad']['all'] }}</td>
+                                        <td class="center middle just_agent_agentBad_period"> {{ $statistic['user']['justAgent']['agentBad']['period'] }}</td>
+
+                                        <td class="center middle just_agent_auction_all"> {{ $statistic['user']['justAgent']['auction']['all'] }} </td>
+                                        <td class="center middle just_agent_auction_period"> {{ $statistic['user']['justAgent']['auction']['period'] }} </td>
+
+                                        <td class="center middle just_agent_openLeads_all"> {{ $statistic['user']['justAgent']['openLeads']['all'] }} </td>
+                                        <td class="center middle just_agent_openLeads_period"> {{ $statistic['user']['justAgent']['openLeads']['period'] }} </td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     {{-- Таблица салесманов --}}
                     <div class="row user_manager_block">
                         <div class="col-md-12">
@@ -178,11 +261,15 @@
 
                                 <thead>
                                 <tr class="salesmen_table_head">
-                                    <th colspan="10">Salesmen</th>
+                                    <th colspan="14">Salesmen</th>
                                 </tr>
                                 <tr>
                                     <th rowspan="2" class="center middle">name</th>
                                     <th colspan="2" class="center middle">leads added</th>
+
+                                    <th colspan="2" class="center middle">operator banned</th>
+                                    <th colspan="2" class="center middle">users banned</th>
+
                                     <th colspan="2" class="center middle">leads seen</th>
                                     <th colspan="2" class="center middle">leads open</th>
                                     <th rowspan="2" class="center middle">presence</th>
@@ -192,6 +279,15 @@
                                 <tr>
                                     <th class="center middle salesman_count_data">all</th>
                                     <th class="center middle salesman_count_data">period</th>
+
+
+                                    <th class="center middle salesman_count_data">all</th>
+                                    <th class="center middle salesman_count_data">period</th>
+
+                                    <th class="center middle salesman_count_data">all</th>
+                                    <th class="center middle salesman_count_data">period</th>
+
+
                                     <th class="center middle salesman_count_data">all</th>
                                     <th class="center middle salesman_count_data">period</th>
                                     <th class="center middle salesman_count_data">all</th>
@@ -205,6 +301,12 @@
 
                                         <td class="center middle"> {{ $salesman['added']['all'] }} </td>
                                         <td class="center middle"> {{ $salesman['added']['period'] }} </td>
+
+                                        <td class="center middle"> {{ $salesman['operatorBad']['all'] }}</td>
+                                        <td class="center middle"> {{ $salesman['operatorBad']['period'] }}</td>
+
+                                        <td class="center middle"> {{ $salesman['agentBad']['all'] }}</td>
+                                        <td class="center middle"> {{ $salesman['agentBad']['period'] }}</td>
 
                                         <td class="center middle"> {{ $salesman['auction']['all'] }} </td>
                                         <td class="center middle"> {{ $salesman['auction']['period'] }} </td>
@@ -231,6 +333,7 @@
                             </table>
                         </div>
                     </div>
+
                 @endif
 
                 {{-- Проверяем достаточно ли у агента открытых лидов по сфере для статистики --}}
@@ -241,7 +344,7 @@
                         Not enough open leads for statistics. <span class="leads_needed"></span> open leads needed
                     </div>
 
-                    {{-- Общие данные - no status и close Deal --}}
+                    {{-- Общие данные - no status --}}
                     <div class="table-statuses table-statuses-large table_status_block">
                         <table class="table topStatusTable">
 
@@ -436,6 +539,97 @@
                         </table>
                     </div>
 
+                    {{-- Сводная таблица по всем типам статусов --}}
+                    <div class="table-statuses table-statuses-large table_status_block">
+                        <table class="table table-bordered groups-statuses">
+                            <thead>
+                                <tr class="statistics_groups_statuses">
+                                    <th colspan="13" class="middle center">Statuses by groups</th>
+                                </tr>
+                                <tr>
+                                    <th rowspan="2" class="center middle">time period</th>
+
+                                    <th colspan="2" class="center middle">No status</th>
+                                    <th colspan="2" class="center middle">Process</th>
+                                    <th colspan="2" class="center middle">Uncertain</th>
+                                    <th colspan="2" class="center middle">Refuseniks</th>
+                                    <th colspan="2" class="center middle">Bad</th>
+                                    <th colspan="2" class="center middle">Close Deal</th>
+                                </tr>
+
+                                <tr>
+
+                                    <th class="center middle">amount</th>
+                                    <th class="center middle">percent</th>
+
+                                    <th class="center middle">amount</th>
+                                    <th class="center middle">percent</th>
+
+                                    <th class="center middle">amount</th>
+                                    <th class="center middle">percent</th>
+
+                                    <th class="center middle">amount</th>
+                                    <th class="center middle">percent</th>
+
+                                    <th class="center middle">amount</th>
+                                    <th class="center middle">percent</th>
+
+                                    <th class="center middle">amount</th>
+                                    <th class="center middle">percent</th>
+
+                                </tr>
+
+                            </thead>
+                            <tbody>
+
+                                <tr>
+                                    <th class="center middle name"> all </th>
+
+                                    <td class="percent-col center middle group_no_status_countAll">{{ $statistic['statuses']['noStatus']['countAll'] }}</td>
+                                    <td class="percent-col center middle group_no_status_allPercent">{{ $statistic['statuses']['noStatus']['percentAll'] }}%</td>
+
+                                    <td class="percent-col center middle group_process_countAll"></td>
+                                    <td class="percent-col center middle group_process_allPercent"></td>
+
+                                    <td class="percent-col center middle group_uncertain_countAll"></td>
+                                    <td class="percent-col center middle group_uncertain_allPercent"></td>
+
+                                    <td class="percent-col center middle group_refuseniks_countAll"></td>
+                                    <td class="percent-col center middle group_refuseniks_allPercent"></td>
+
+                                    <td class="percent-col center middle group_bad_countAll"></td>
+                                    <td class="percent-col center middle group_bad_allPercent"></td>
+
+                                    <td class="percent-col center middle group_close_deal_countAll"></td>
+                                    <td class="percent-col center middle group_close_deal_allPercent"></td>
+                                </tr>
+
+                                <tr>
+                                    <th class="center middle name"> period </th>
+
+                                    <td class="percent-col center middle group_no_status_countPeriod">{{ $statistic['statuses']['noStatus']['countPeriod'] }}</td>
+                                    <td class="percent-col center middle group_no_status_periodPercent">{{ $statistic['statuses']['noStatus']['percentPeriod'] }}%</td>
+
+                                    <td class="percent-col center middle group_process_countPeriod"></td>
+                                    <td class="percent-col center middle group_process_periodPercent"></td>
+
+                                    <td class="percent-col center middle group_uncertain_countPeriod"></td>
+                                    <td class="percent-col center middle group_uncertain_periodPercent"></td>
+
+                                    <td class="percent-col center middle group_refuseniks_countPeriod"></td>
+                                    <td class="percent-col center middle group_refuseniks_periodPercent"></td>
+
+                                    <td class="percent-col center middle group_bad_countPeriod"></td>
+                                    <td class="percent-col center middle group_bad_periodPercent"></td>
+
+                                    <td class="percent-col center middle group_close_deal_countPeriod"></td>
+                                    <td class="percent-col center middle group_close_deal_periodPercent"></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+
                     {{-- Статистика по транзитам --}}
                     <div class="table-statuses table-statuses-large table_status_block">
                         <table class="table performance-table">
@@ -491,8 +685,8 @@
 
 
 
-    <!-- Modal -->
-    <div class="modal fade" id="transitionDetailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <!-- Transition modal -->
+    <div id="transitionDetailModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -511,54 +705,32 @@
                         </div>
                     </div>
 
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            current user
-                        </div>
-                    </div>
-
-                    <table class="table modal_current_user_table">
+                    <table class="modal_current_user_table">
                         <thead>
-                        {{--<tr>--}}
-                            {{--<th colspan="3" class="center">current user</th>--}}
-                        {{--</tr>--}}
-                        <tr>
-                            <th>name</th>
-                            <th>phone</th>
-                            <th>percent</th>
-                        </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td class="modal_current_user_name">11</td>
-                            <td class="modal_current_user_phone">-</td>
-                            <td class="modal_current_user_percent">22</td>
-                        </tr>
+                            <tr>
+                                <th>agent:</th><td class="modal_current_user_name"></td>
+                            </tr>
+                            <tr>
+                                <th>agent percent:</th><td class="modal_current_user_percent"></td>
+                            </tr>
+                            <tr>
+                                <th>overall percent:</th><td class="modal_overall_percent"></td>
+                            </tr>
                         </tbody>
                     </table>
 
 
-
-                    <table class="table modal_users_table">
+                    <table class="table modal_leads_table">
                         <thead>
                             <tr>
                                 <th>name</th>
                                 <th>phone</th>
-                                <th>percent</th>
+                                <th>email</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>11</td>
-                                <td>22</td>
-                                <td>22</td>
-                            </tr>
-                            <tr>
-                                <td>11</td>
-                                <td>22</td>
-                                <td>22</td>
-                            </tr>
                         </tbody>
                     </table>
 
@@ -570,6 +742,27 @@
         </div>
     </div>
 
+    <!-- Permission modal -->
+    <div id="permissionModal" class="modal fade">
+        <div class="modal-dialog permission-modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Change permissions</h4>
+                </div>
+                <div class="modal-body">
+
+                    <ul class="list-group modal_permissions_group">
+                    </ul>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary modal_permissions_update">update</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @stop
 
@@ -599,13 +792,30 @@
 @section('scripts')
     <script type="text/javascript">
 
-        // дата начала периода
+        /**
+         * Дата начала периода
+         *
+         */
         var dataStart = 0;
-        // дата окончания периода
+
+        /**
+         * Дата окончания периода
+         *
+         */
         var dataEnd = 0;
 
         /**
-         * Функция обновления данных статистики на странице
+         * Переменная с разрешениями агента
+         *
+         * сами разрешения агента отображаются в двух местах:
+         * на странице и в модальном окне переключения
+         * Эта переменная нужна чтобы облегчить синхронизацию данных
+         *
+         */
+        var agentPermissions = [];
+
+        /**
+         * Обновления данных статистики на странице
          *
          */
         function statisticUpdate( statistic ){
@@ -654,6 +864,7 @@
                 sphere.find('.bad-statuses').addClass('hidden');
                 sphere.find('.performance-table').addClass('hidden');
                 sphere.find('.closeDeal-statuses').addClass('hidden');
+                sphere.find('.groups-statuses').addClass('hidden');
 
                 sphere.find('.sphere_no_data').removeClass('hidden');
 
@@ -667,6 +878,7 @@
                 sphere.find('.bad-statuses').removeClass('hidden');
                 sphere.find('.performance-table').removeClass('hidden');
                 sphere.find('.closeDeal-statuses').removeClass('hidden');
+                sphere.find('.groups-statuses').removeClass('hidden');
 
                 sphere.find('.sphere_no_data').addClass('hidden');
             }
@@ -677,6 +889,14 @@
             // обновляем данные по количеству добавленных лидов
             sphere.find('.summary_table_added_all').text( statistic['statistic']['added']['all'] );
             sphere.find('.summary_table_added_period').text( statistic['statistic']['added']['period'] );
+
+            // обновляем данные по количеству лидов забаненных оператором
+            sphere.find('.summary_table_operator_bad_all').text( statistic['statistic']['operatorBad']['all'] );
+            sphere.find('.summary_table_operator_bad_period').text( statistic['statistic']['operatorBad']['period'] );
+
+            // обновляем данные по количеству забаненных агентами
+            sphere.find('.summary_table_users_bad_all').text( statistic['statistic']['agentBad']['all'] );
+            sphere.find('.summary_table_users_bad_period').text( statistic['statistic']['agentBad']['period'] );
 
             // обновляем данные по количеству открытых лидов
             sphere.find('.summary_table_open_all').text( statistic['statistic']['openLeads']['all'] );
@@ -691,11 +911,28 @@
             sphere.find('.user_addToSphere').text( statistic['statistic']['user']['addToSphere'] );
 
             // обновление данных по открытым лидам с отсутствующим статусом
+            // в таблице отсутствующих статусов
             sphere.find('.status_no_status .countAll').text( statistic['statistic']['statuses']['noStatus']['countAll'] );
             sphere.find('.status_no_status .allPercent').text( statistic['statistic']['statuses']['noStatus']['percentAll']+'%' );
             sphere.find('.status_no_status .countPeriod').text( statistic['statistic']['statuses']['noStatus']['countPeriod'] );
-            sphere.find('.status_no_status .periodPercent').text( statistic['statistic']['statuses']['noStatus']['percentAll']+'%' );
+            sphere.find('.status_no_status .periodPercent').text( statistic['statistic']['statuses']['noStatus']['percentPeriod']+'%' );
+            // в таблице статусов по типам
+            sphere.find('.groups-statuses .group_no_status_countAll').text( statistic['statistic']['statuses']['noStatus']['countAll'] );
+            sphere.find('.groups-statuses .group_no_status_allPercent').text( statistic['statistic']['statuses']['noStatus']['percentAll']+'%' );
+            sphere.find('.groups-statuses .group_no_status_countPeriod').text( statistic['statistic']['statuses']['noStatus']['countPeriod'] );
+            sphere.find('.groups-statuses .group_no_status_periodPercent').text( statistic['statistic']['statuses']['noStatus']['percentPeriod']+'%' );
 
+            // обновление "чистых" данных по лиду
+            sphere.find('.just_agent_table .just_agent_added_all').text( statistic['statistic']['user']['justAgent']['added']['all'] );
+            sphere.find('.just_agent_table .just_agent_added_period').text( statistic['statistic']['user']['justAgent']['added']['period'] );
+            sphere.find('.just_agent_table .just_agent_operatorBad_all').text( statistic['statistic']['user']['justAgent']['operatorBad']['all'] );
+            sphere.find('.just_agent_table .just_agent_operatorBad_period').text( statistic['statistic']['user']['justAgent']['operatorBad']['period'] );
+            sphere.find('.just_agent_table .just_agent_agentBad_all').text( statistic['statistic']['user']['justAgent']['agentBad']['all'] );
+            sphere.find('.just_agent_table .just_agent_agentBad_period').text( statistic['statistic']['user']['justAgent']['agentBad']['period'] );
+            sphere.find('.just_agent_table .just_agent_auction_all').text( statistic['statistic']['user']['justAgent']['auction']['all'] );
+            sphere.find('.just_agent_table .just_agent_auction_period').text( statistic['statistic']['user']['justAgent']['auction']['period'] );
+            sphere.find('.just_agent_table .just_agent_openLeads_all').text( statistic['statistic']['user']['justAgent']['openLeads']['all'] );
+            sphere.find('.just_agent_table .just_agent_openLeads_period').text( statistic['statistic']['user']['justAgent']['openLeads']['period'] );
 
             if( $('.salesmen_table tbody tr').length != 0){
 
@@ -705,9 +942,9 @@
                 // очищаем таблицу
                 salesmanTable.empty();
 
-                // если нет статуса конкретного типа
+                // если салесманов нет
                 if( statistic['statistic']['user']['salesmenData'].length == 0){
-                    // выводим что статусов нет
+                    // выводим что таблица пустая
 
                     // создание строки таблицы
                     var tr = $('<tr />');
@@ -719,7 +956,7 @@
                     noStatusRow.addClass('center statistics_no_data');
 
                     // добавляем атрибут объединения ячеек
-                    noStatusRow.attr('colspan', 10);
+                    noStatusRow.attr('colspan', 14);
 
                     // добавление данных в ячейки
                     noStatusRow.text( 'No salesmen\'s' );
@@ -732,7 +969,7 @@
                 }
 
 
-                // перебираем все статусы и наполняем таблицу
+                // перебираем салесманов и наполняем таблицу
                 $.each( statistic['statistic']['user']['salesmenData'], function( statusKey, salesmenData ){
 
                     // создание строки таблицы
@@ -743,6 +980,12 @@
 
                     var allAdded = $('<td />');
                     var periodAdded = $('<td />');
+
+                    var allOperatorBad = $('<td />');
+                    var periodOperatorBad = $('<td />');
+
+                    var allAgentBad = $('<td />');
+                    var periodAgentBad = $('<td />');
 
                     var allSeen = $('<td />');
                     var periodSeen = $('<td />');
@@ -768,6 +1011,12 @@
                     allAdded.addClass('center middle');
                     periodAdded.addClass('center middle');
 
+                    allOperatorBad.addClass('center middle');
+                    periodOperatorBad.addClass('center middle');
+
+                    allAgentBad.addClass('center middle');
+                    periodAgentBad.addClass('center middle');
+
                     allSeen.addClass('center middle');
                     periodSeen.addClass('center middle');
 
@@ -784,14 +1033,30 @@
 
                     link.attr('href', '{{ route('admin.statistic.agent', ['id'=>'']) }}/' + salesmenData['user']['id'] );
 
+
+
+
                     // определение права пользователя (активный или забаненный
                     var active = salesmenData['user']['active'] ? 'Active' : 'Banned';
+
+
+
 
                     // добавление данных в ячейки
                     name.text( salesmenData['user']['email'] );
 
                     allAdded.text( salesmenData['added']['all'] );
                     periodAdded.text( salesmenData['added']['period'] );
+
+
+
+                    allOperatorBad.text( salesmenData['operatorBad']['all'] );
+                    periodOperatorBad.text( salesmenData['operatorBad']['period'] );
+
+                    allAgentBad.text( salesmenData['agentBad']['all'] );
+                    periodAgentBad.text( salesmenData['agentBad']['period'] );
+
+
 
                     allSeen.text( salesmenData['auction']['all'] );
                     periodSeen.text( salesmenData['auction']['period'] );
@@ -813,6 +1078,18 @@
 
                     tr.append(allAdded);
                     tr.append(periodAdded);
+
+
+
+
+                    tr.append(allOperatorBad);
+                    tr.append(periodOperatorBad);
+
+                    tr.append(allAgentBad);
+                    tr.append(periodAgentBad);
+
+
+
 
                     tr.append(allSeen);
                     tr.append(periodSeen);
@@ -873,6 +1150,57 @@
 
                     // добавление строки в таблицу
                     table.append( tr );
+
+                    // добавляем данные в таблицу групп статусов в зависимости от типа статуса
+
+                    // стили статусов
+                    var styleCountAll;
+                    var styleAllPercent;
+                    var styleCountPeriod;
+                    var stylePeriodPercent;
+
+                    switch(typeIndex){
+
+                        case 1:
+                            styleCountAll = ' .group_process_countAll';
+                            styleAllPercent = ' .group_process_allPercent';
+                            styleCountPeriod = ' .group_process_countPeriod';
+                            stylePeriodPercent = ' .group_process_periodPercent';
+                            break;
+
+                        case 2:
+                            styleCountAll = ' .group_uncertain_countAll';
+                            styleAllPercent = ' .group_uncertain_allPercent';
+                            styleCountPeriod = ' .group_uncertain_countPeriod';
+                            stylePeriodPercent = ' .group_uncertain_periodPercent';
+                            break;
+
+                        case 3:
+                            styleCountAll = ' .group_refuseniks_countAll';
+                            styleAllPercent = ' .group_refuseniks_allPercent';
+                            styleCountPeriod = ' .group_refuseniks_countPeriod';
+                            stylePeriodPercent = ' .group_refuseniks_periodPercent';
+                            break;
+
+                        case 4:
+                            styleCountAll = ' .group_bad_countAll';
+                            styleAllPercent = ' .group_bad_allPercent';
+                            styleCountPeriod = ' .group_bad_countPeriod';
+                            stylePeriodPercent = ' .group_bad_periodPercent';
+                            break;
+
+                        case 5:
+                            styleCountAll = ' .group_close_deal_countAll';
+                            styleAllPercent = ' .group_close_deal_allPercent';
+                            styleCountPeriod = ' .group_close_deal_countPeriod';
+                            stylePeriodPercent = ' .group_close_deal_periodPercent';
+                            break;
+                    }
+
+                    sphere.find('.groups-statuses' + styleCountAll).text( '0' );
+                    sphere.find('.groups-statuses' + styleAllPercent).text( '0%' );
+                    sphere.find('.groups-statuses' + styleCountPeriod).text( '0' );
+                    sphere.find('.groups-statuses' + stylePeriodPercent).text( '0%' );
                 }
 
                 // перебираем все статусы и наполняем таблицу
@@ -894,6 +1222,65 @@
                     allPercent.addClass('percent-col center middle allPercent');
                     countPeriod.addClass('percent-col center middle countPeriod');
                     periodPercent.addClass('percent-col center middle periodPercent');
+
+                    // если присутствует тип - добавляем класс к строке
+                    if( statusData['type'] ){
+
+                        // добавляем строке класс count_summary
+                        tr.addClass('count_summary');
+
+                        // добавляем данные в таблицу групп статусов в зависимости от типа статуса
+
+                        // стили статусов
+                        var styleCountAll;
+                        var styleAllPercent;
+                        var styleCountPeriod;
+                        var stylePeriodPercent;
+
+                        switch(typeIndex){
+
+                            case 1:
+                                styleCountAll = ' .group_process_countAll';
+                                styleAllPercent = ' .group_process_allPercent';
+                                styleCountPeriod = ' .group_process_countPeriod';
+                                stylePeriodPercent = ' .group_process_periodPercent';
+                                break;
+
+                            case 2:
+                                styleCountAll = ' .group_uncertain_countAll';
+                                styleAllPercent = ' .group_uncertain_allPercent';
+                                styleCountPeriod = ' .group_uncertain_countPeriod';
+                                stylePeriodPercent = ' .group_uncertain_periodPercent';
+                                break;
+
+                            case 3:
+                                styleCountAll = ' .group_refuseniks_countAll';
+                                styleAllPercent = ' .group_refuseniks_allPercent';
+                                styleCountPeriod = ' .group_refuseniks_countPeriod';
+                                stylePeriodPercent = ' .group_refuseniks_periodPercent';
+                                break;
+
+                            case 4:
+                                styleCountAll = ' .group_bad_countAll';
+                                styleAllPercent = ' .group_bad_allPercent';
+                                styleCountPeriod = ' .group_bad_countPeriod';
+                                stylePeriodPercent = ' .group_bad_periodPercent';
+                                break;
+
+                            case 5:
+                                styleCountAll = ' .group_close_deal_countAll';
+                                styleAllPercent = ' .group_close_deal_allPercent';
+                                styleCountPeriod = ' .group_close_deal_countPeriod';
+                                stylePeriodPercent = ' .group_close_deal_periodPercent';
+                                break;
+                        }
+
+                        sphere.find('.groups-statuses' + styleCountAll).text( statusData['countAll'] );
+                        sphere.find('.groups-statuses' + styleAllPercent).text( statusData['percentAll']+'%' );
+                        sphere.find('.groups-statuses' + styleCountPeriod).text( statusData['countPeriod'] );
+                        sphere.find('.groups-statuses' + stylePeriodPercent).text( statusData['percentPeriod']+'%' );
+
+                    }
 
                     // добавление данных в ячейки
                     name.text( statusData['name'] );
@@ -1005,7 +1392,11 @@
             });
         }
 
-        // функция отправки данных на сервер для обновления периода и прочего
+
+        /**
+         * Загрузка данных по статистике с сервера (по заданным параметрам)
+         *
+         */
         function loadStatistic() {
 
             // выбираем данные селекта сфер (id сферы)
@@ -1041,17 +1432,20 @@
         }
 
 
+        /**
+         * Данные по транзиту
+         *
+         */
         function transitionDetailAction(){
 
             var self = this;
 
-            var transitid = $(this).data('transitid');
-
+            var transitId = $(this).data('transitid');
 
             // отправка запроса на сервер
             $.post(
                 '{{ route('admin.statistic.transition.details') }}',
-                { _token: '{{ csrf_token() }}', transitId: transitid, userId: '{{ $statistic['user']['id'] }}' },
+                { _token: '{{ csrf_token() }}', transitId: transitId, userId: '{{ $statistic['user']['id'] }}' },
                 function (data)
                 {
 
@@ -1059,22 +1453,23 @@
                     $('.modal_status_to').text( $(self).find('.toStatus').text() );
                     $('.modal_current_user_name').text('{{ $statistic['user']['email'] }}');
                     $('.modal_current_user_percent').text( $(self).find('.allPercent').text() );
+                    $('.modal_overall_percent').text( data['overallPercent'] + '%' );
 
-                    var tbody = $('.modal_users_table tbody');
+                    var tbody = $('.modal_leads_table tbody');
 
                     tbody.empty();
 
-                    if( data.users.length == 0 ){
+                    if( data.leads.length == 0 ){
 
                         var tr = $('<tr/>');
 
                         var row = $('<td/>');
 
                         row.attr('colspan', 3);
-    
+
                         row.addClass('center');
 
-                        row.text('No transitions');
+                        row.text('No leads');
 
                         tr.append(row);
 
@@ -1083,69 +1478,37 @@
 
                     }else{
 
-                        $.each(data.users, function(key, user){
+                        $.each(data.leads, function(key, lead){
 //                            console.log(user);
 
                             var tr = $('<tr/>');
 
                             var name = $('<td/>');
+                            var email = $('<td/>');
                             var phone = $('<td/>');
-                            var percent = $('<td/>');
 
                             name.addClass('');
+                            email.addClass('center');
                             phone.addClass('center');
-                            percent.addClass('center');
 
-                            name.text( user['email'] );
-                            phone.text( user['phone'] );
-                            percent.text( user['percent']+'%' );
+                            name.text( lead['name'] );
+                            email.text( lead['email'] );
+                            phone.text( lead['phone']['phone'] );
 
                             tr.append(name);
                             tr.append(phone);
-                            tr.append(percent);
+                            tr.append(email);
 
                             tbody.append(tr);
-
                         });
 
                     }
 
                     $('#transitionDetailModal').modal('show');
-
-
-//                    console.log(data);
-
-                    // обработка данных полученных с фронтенда
-//                    if(data == 'false'){
-//                        // у агента нет сфер
-//
-//                        // просто обновляем страницу
-////                        document.location.reload();
-//
-//                    }else{
-//                        // все данные в порядке
-//
-//                        // обновляем статистику на странице
-//                        statisticUpdate( data );
-//
-//                        // todo удалить
-////                        console.log( data );
-//                    }
-
-
-
                 }
             );
-
-
-
-//            alert( $(this).data('transitid') );
-
-            // todo отправка запроса на сервер для получения данных по транзиту
-
-
-//            $('#transitionDetailModal').modal('show');
         }
+
 
         $(function() {
 
@@ -1200,51 +1563,222 @@
                 $(this).val('').trigger('change');
             });
 
-            // переключение права пользователя (если true в false и на оборот)
-            $('.user_permission').bind('click', function(){
+            // вызов модального окна по смене прав пользователя
+            $('.permissions_change').bind('click', function(){
 
-                var self = this;
+                // блок с данными прав на странице
+                var permissions_group = $('ul.permissions_group li');
 
-                // выбираем правило которое нужно изменить
-                var permission = $(this).data('permission');
+                // очищаем переменную с правами
+                agentPermissions = [];
 
-                // заносим параметры
-                var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $user->id }}', permission: permission };
+                // блок с данными прав в модальном окне
+                var modalPermissions = $('ul.modal_permissions_group');
+
+                // очищаем блок с правами в модальном окне
+                modalPermissions.empty();
+
+                // перебираем все права из блока прав на фронтенде
+                $.each(permissions_group, function( key, permission){
+
+                    // сохраняем разрешение в переменной с разрешениями
+                    agentPermissions.push(
+                        {
+                            status: $(permission).data('status'),
+                            name: $(permission).data('permission'),
+                            title: $(permission).text().trim()
+                        }
+                    );
+
+
+                    /** Отрисовываем разрешения в блоке прав модального окна */
+
+                    // создание основного узла
+                    var li = $('<li />');
+                    // создание узла лейбла
+                    var label = $('<label />');
+                    // создание узла инпута
+                    var input = $('<input />');
+
+                    // добавление узлу li основных классов
+                    li.addClass('list-group-item togglebutton');
+
+                    li.attr('data-name', $(permission).data('permission'));
+
+                    // добавление узлу input тип
+                    input.attr('type', 'checkbox');
+
+                    // проверка на статус у права
+                    if( $(permission).data('status')){
+                        // если статус положительный добавляем атрибут checked
+                        input.attr('checked', 'checked');
+                    }
+
+                    // добавляем input в лейбл
+                    label.append(input);
+                    // добавляем в дейбыл имя права
+                    label.html( label.html() + $(permission).text().trim() );
+
+                    // добавляем лейбл в узел li
+                    li.append(label);
+                    // добавляем li в блок прав модального окна
+                    modalPermissions.append(li);
+                });
+
+                // инициализация материалайз (чтобы прорисовались инпуты)
+                $.material.init();
+
+                // показываем модальное окно
+                $('#permissionModal').modal('show');
+            });
+
+
+            /**
+             * Обработка нажатия на кнопку сохранения пермиссий
+             *
+             *
+             * получение данных по правам из блока прав модального окна
+             * оформление данных в json
+             * отправка на сервер
+             * при успешном ответе - обновить данные в блоке прав пользователя
+             *
+             */
+            $('.modal_permissions_update').bind('click', function(){
+
+                // скрытие модального окна
+                $('#permissionModal').modal('hide');
+
+
+                /** Собираем данные с блока прав модального окна и оформляем в json */
+
+                // блок с данными прав в модальном окне
+                var modalPermissions = $('ul.modal_permissions_group li');
+
+                // переменная с правами пользователя
+                var permissions = {};
+
+                // наполняем переменную с правами
+                $.each(modalPermissions, function( key, data ){
+
+                    // переменная с данными
+                    var permission = $(data);
+
+                    // собираем данные в объект с данными
+                    permissions[key] =
+                    {
+                        status: permission.find('input:checked').length == 1 ? 'true':'false',
+                        name: permission.data('name')
+                    };
+
+                });
+
+
+                /** Отправка данных на сервер */
+
+                // получаем параметры
+                var params ={ _token: '{{ csrf_token() }}', agent_id: '{{ $user->id }}', permissions: permissions };
 
                 // отправка запроса на сервер
                 $.post(
-                    '{{ route('admin.agent.permission.switch') }}',
+                    '{{ route('admin.agent.permissions.update') }}',
                     params,
                     function(data){
                         // проверяем статус
                         if( data.status == true ){
-                            // если статус true
+                            // если статусы изменены нормально
 
-                            // меняем классы в арзрешениях на соответствующие
-                            if(data.permissions[permission]){
+                            /** Обновляем права на странице */
 
-                                $(self).removeClass('glyphicon-ban-circle icon_red');
-                                $(self).addClass('glyphicon-ok icon_green');
+                            // выбираем блок с правами пользователя на странице
+                            var permissionBlock = $('.permissions_group');
 
-                            }else{
+                            // очищаем блок
+                            permissionBlock.empty();
 
-                                $(self).removeClass('glyphicon-ok icon_green');
-                                $(self).addClass('glyphicon-ban-circle icon_red');
+                            // перебираем все права которые пришли с сервера
+                            $.each(data.permissions, function( key, permission ){
 
-                            }
+                                /** Создание узлов */
+
+                                // узел li
+                                var li = $('<li />');
+                                // узел иконки i
+                                var i = $('<i />');
+
+
+                                /** Приведение нужных данных */
+
+                                // преобразовываем bulean статус в строку
+                                var status = permission.status ? 'true':'false';
+
+
+                                /** Добавление атрибутов data-* */
+
+                                // атрибут со статусом в li
+                                li.attr('data-status', status);
+                                // атрибут с разрешением в li
+                                li.attr('data-permission', permission.name);
+                                // атрибут с разрешением в i
+                                i.attr('data-permission', permission.name);
+
+
+                                /** Добавление классов */
+
+                                // класс li
+                                li.addClass('list-group-item');
+
+                                // класс иконки
+                                if( permission.status ){
+                                    // если статус true
+                                    i.addClass('glyphicon glyphicon-ok icon_green user_permission');
+
+                                }else{
+                                    // если статус false
+                                    i.addClass('glyphicon glyphicon-ban-circle icon_red user_permission');
+                                }
+
+
+                                /** Добавление узлов и данных */
+
+                                // добавление i K li
+                                li.append(i);
+                                // добавление названия к узлу
+                                li.html( li.html()+' ' + permission.title );
+                                // добавляем li в конец блока с правами
+                                permissionBlock.append(li);
+                            });
+
+
+                            /** Сообщение об успешном выполнении */
+
+                            // сообщение пользователю что права успешно изменились
+                            $.snackbar(
+                                {
+                                    content: "Permissions changed", // text of the snackbar
+                                    style: "toast", // add a custom class to your snackbar
+                                    timeout: 4000 // time in milliseconds after the snackbar autohides, 0 is disabled
+                                }
+                            );
+
+                        }else{
+                            // если изменить права не удалось
+
+                            // ошибка при попытке изменить права
+                            $.snackbar(
+                                {
+                                    content: "Permissions change error", // text of the snackbar
+                                    style: "toast", // add a custom class to your snackbar
+                                    timeout: 4000 // time in milliseconds after the snackbar autohides, 0 is disabled
+                                }
+                            );
                         }
                     }
                 );
             });
 
-
-            // модальное окно с подробностями по транзиту
-            $('.transitionDetail').bind('click', function(){
-
-                $('#transitionDetailModal').modal('show');
-            });
-
-
+            // инициализациям материалайз
+            $.material.init();
         });
+
     </script>
 @stop
