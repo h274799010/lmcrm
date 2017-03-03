@@ -960,6 +960,15 @@ class LeadController extends AgentController {
         $openedLead = OpenLeads::with('statusInfo')->find( $openedLeadId );
         $status = SphereStatuses::find($request->input('status'));
 
+        $lead = $openedLead->lead()->first();
+        $interval = 0;
+        if(isset($lead->id)) {
+            $sphere = $lead->sphere()->first();
+            if(isset($sphere->id)) {
+                $interval = $sphere->lead_uncertain_status_interval;
+            }
+        }
+
         if(!isset($status->id)) {
             $res['status'] = 'fail';
             $res['message'] = 'Status not found';
@@ -1044,15 +1053,13 @@ class LeadController extends AgentController {
                 }
             }
 
-
-
             // если новый статус меньше уже установленного, выходим из метода
             // или лид отмечен как плохой
             if( isset($openedLead->statusInfo->type) ) {
                 if($openedLead->statusInfo->type == SphereStatuses::STATUS_TYPE_BAD) {
                     return response()->json(FALSE); // todo вывести сообщение о том что лид уже помечен как плохой и изменение статуса не возможно
                 }
-                if($openedLead->statusInfo->type  > $status->type && $openedLead->statusInfo->type != SphereStatuses::STATUS_TYPE_UNCERTAIN) {
+                if($openedLead->statusInfo->type  > $status->type && $openedLead->statusInfo->type != SphereStatuses::STATUS_TYPE_UNCERTAIN && $openedLead->statusInfo->type != SphereStatuses::STATUS_TYPE_REFUSENIKS) {
                     return response()->json(FALSE); // todo вывести какое-то сообщение об ошибке
                 }
             }
@@ -1067,6 +1074,13 @@ class LeadController extends AgentController {
 
             // сохраняем историю статусов
             OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
+
+            // Если новый статус типа Uncertain и перед ним не было никакого статуса
+            // - продляем время на установку статуса bad_lead
+            if(!isset($openedLead->statusInfo->id) && $status->type == SphereStatuses::STATUS_TYPE_UNCERTAIN) {
+                $openedLead->expiration_time = date('Y-m-d H:i:s', time()+$interval);
+                $openedLead->save();
+            }
 
             // присылаем подтверждение что статус изменен
             $res['status'] = 'success';
@@ -1516,10 +1530,13 @@ class LeadController extends AgentController {
             foreach ($tmpSstatuses as $status) {
                 $statuses[$status->type][$status->position] = $status;
             }
+            if( time() > strtotime($openLead->expiration_time) || (isset($openLead->statusInfo->id) && $openLead->statusInfo->type != SphereStatuses::STATUS_TYPE_UNCERTAIN) ) {
+                unset($statuses[ SphereStatuses::STATUS_TYPE_BAD ]);
+            }
             if(isset($openLead->statusInfo->id)) {
                 $res['currentStatus'] = $openLead->statusInfo;
-                unset($statuses[ SphereStatuses::STATUS_TYPE_BAD ]);
-                if($openLead->statusInfo->type == SphereStatuses::STATUS_TYPE_PROCESS) {
+                //unset($statuses[ SphereStatuses::STATUS_TYPE_BAD ]);
+                if($openLead->statusInfo->type == SphereStatuses::STATUS_TYPE_PROCESS || $openLead->statusInfo->type == SphereStatuses::STATUS_TYPE_REFUSENIKS) {
                     unset($statuses[ SphereStatuses::STATUS_TYPE_UNCERTAIN ]);
                 }
             } else {

@@ -538,6 +538,8 @@
                         if(
                             (currentStatus.type == '{{ \App\Models\SphereStatuses::STATUS_TYPE_UNCERTAIN }}' && (currentStatus.type == status.type && currentStatus.id == status.id))
                             ||
+                            (currentStatus.type == '{{ \App\Models\SphereStatuses::STATUS_TYPE_REFUSENIKS }}' && (currentStatus.type == status.type && currentStatus.id == status.id))
+                            ||
                             (currentStatus.type == '{{ \App\Models\SphereStatuses::STATUS_TYPE_PROCESS }}' && (currentStatus.type == status.type && currentStatus.position >= status.position))
                         ) {
                             itemClass = ' disabled';
@@ -657,7 +659,7 @@
                             else if(data.status == 'success') {
                                 if(data.stepname != '') {
                                     $statusLabel.html(data.stepname);
-                                    if(type != '{{ \App\Models\SphereStatuses::STATUS_TYPE_PROCESS }}' && type != '{{ \App\Models\SphereStatuses::STATUS_TYPE_UNCERTAIN }}') {
+                                    if(type != '{{ \App\Models\SphereStatuses::STATUS_TYPE_PROCESS }}' && type != '{{ \App\Models\SphereStatuses::STATUS_TYPE_UNCERTAIN }}' && type != '{{ \App\Models\SphereStatuses::STATUS_TYPE_REFUSENIKS }}') {
                                         $statusLabel.siblings().remove();
                                     }
                                 }
