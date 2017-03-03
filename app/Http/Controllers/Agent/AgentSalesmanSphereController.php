@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Agent;
 
 use App\Models\Agent;
 use App\Models\Auction;
+use App\Models\HistoryBadLeads;
 use App\Models\Sphere;
 use App\Models\User;
 use App\Models\UserMasks;
@@ -125,12 +126,19 @@ class AgentSalesmanSphereController extends SphereController
             $userData['role'] = $role->name;
         }
 
+        $userIds = array($this->salesman->id);
+
+        $badLeads = HistoryBadLeads::whereIn('depositor_id', $userIds)->count();
+
+        $permissions = $this->salesman->permissions;
 
         // добавляем данные по балансу на страницу
         view()->share([
             'balance' => $balance,
             'salesman_id' => $this->salesman->id,
-            'userData' => $userData
+            'userData' => $userData,
+            'badLeads' => $badLeads,
+            'permissions' => $permissions
         ]);
 
         // переводим данные по балансу в json

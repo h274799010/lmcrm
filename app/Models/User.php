@@ -46,6 +46,16 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
     );
 
     /**
+     * Получаем все номера телефонов пользователя
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function phones()
+    {
+        return $this->hasMany('App\Models\UserPhones', 'user_id', 'id');
+    }
+
+    /**
      * Исключенные пользователи из выборки лидов в Obtained leads
      * (например продавци агента)
      *

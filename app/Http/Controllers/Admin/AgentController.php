@@ -3,7 +3,9 @@
 use App\Helper\CreditHelper;
 use App\Http\Controllers\AdminController;
 use App\Http\Requests\AgentFormRequest;
+use App\Http\Requests\UserPhonesRequest;
 use App\Models\AccountManager;
+use App\Models\AccountManagerAgent;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\Transactions;
@@ -11,6 +13,7 @@ use App\Models\AgentInfo;
 use App\Models\AgentSphere;
 use App\Models\TransactionsDetails;
 use App\Models\User;
+use App\Models\UserPhones;
 use App\Models\Wallet;
 use App\Models\Sphere;
 //use App\Http\Requests\Admin\UserRequest;
@@ -176,7 +179,7 @@ class AgentController extends AdminController
     public function edit($id)
     {
         // данные агента
-        $agent = Agent::with('agentInfo')->findOrFail($id);
+        $agent = Agent::with('agentInfo', 'phones')->findOrFail($id);
 
         // Получаем дополнительную роль (тип) продавцов
         foreach ($agent->salesmen as $key => $salesman) {
@@ -214,12 +217,35 @@ class AgentController extends AdminController
         $userInfo = PayMaster::userInfo($id);
 
         $agentSpheres = $agent->agentSphere()->with(['sphere' => function($query) {
-            $query->with('statuses');
+            $query->with('statuses', 'accountManagers');
         }])->get();
 
         $openLeadsStatistic = $agent->openLeadsStatistic();
 
-        $accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
+        //$accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
+
+        $accountManagers = array();
+        foreach ($agentSpheres as $agentSphere) {
+            if(isset($agentSphere->sphere->id) && count($agentSphere->sphere->accountManagers) > 0) {
+                $tmp = array(
+                    'name' => $agentSphere->sphere->name,
+                    'accountManagers' => array()
+                );
+                foreach ($agentSphere->sphere->accountManagers as $accManager) {
+                    $tmp['accountManagers'][$accManager->id] = array(
+                        'email' => $accManager->email,
+                        'name' => $accManager->first_name . ' ' . $accManager->last_name
+                    );
+                }
+                $accountManagers[$agentSphere->sphere->id] = $tmp;
+            }
+        }
+
+        $accountManagerAgents = AccountManagerAgent::where('agent_id', '=', $agent->id)->get();
+        $attachedAccManagers = array();
+        foreach ($accountManagerAgents as $accountManagerAgent) {
+            $attachedAccManagers[ $accountManagerAgent->sphere_id ] = $accountManagerAgent->account_manager_id;
+        }
 
         $agentMasks = $agent->spheres()->get();
 
@@ -237,7 +263,8 @@ class AgentController extends AdminController
             'accountManagers'=>$accountManagers,
             'agentMasks' => $agentMasks,
             'statistic' => $openLeadsStatistic,
-            'permissions' => $permissions
+            'permissions' => $permissions,
+            'attachedAccManagers' => $attachedAccManagers
         ]);
     }
 
@@ -735,13 +762,29 @@ class AgentController extends AdminController
 
     public function attachAccountManagers(Request $request)
     {
-        $agent = Agent::findOrFail($request->input('agent_id'));
+        $data = $request['data'];
 
-        $accountManagers = ( $request->input('accountManagers') ?: [] );
+        $agent_id = (int)$request['agent_id'];
 
-        $agent->accountManagers()->sync( $accountManagers );
+        if( !$agent_id ) {
+            abort(403, 'Wrong agent id');
+        }
 
-        return redirect()->back();
+        AccountManagerAgent::where('agent_id', '=', $agent_id)->delete();
+
+        if(empty($data)) {
+            return response()->json('Data saved successfully');
+        }
+
+        foreach ($data as $val) {
+            $accountManagerAgent = new AccountManagerAgent();
+            $accountManagerAgent->account_manager_id = $val['id'];
+            $accountManagerAgent->agent_id = $agent_id;
+            $accountManagerAgent->sphere_id = $val['sphere'];
+            $accountManagerAgent->save();
+        }
+
+        return response()->json('Data saved successfully');
     }
 
     function getFilter(Request $request)
@@ -778,6 +821,64 @@ class AgentController extends AdminController
         }
 
         return response()->json($result);
+    }
+
+    /**
+     * Сохранение/обновления номеров телефона агента
+     *
+     * @param UserPhonesRequest $request
+     * @return mixed
+     */
+    public function phonesUpdate(UserPhonesRequest $request)
+    {
+        $phone = $request->input('phone');
+        $comment = $request->input('comment');
+        $id = (int)$request->input('id');
+        $user_id = (int)$request->input('user_id');
+
+
+        if( !$id && $id != 0 ) {
+            abort(403, 'Wrong phone id');
+        }
+        if( !$user_id ) {
+            abort(403, 'Wrong user id');
+        }
+
+        if($id == 0) {
+            $userPhone = new UserPhones();
+        } else {
+            $userPhone = UserPhones::find($id);
+        }
+        $userPhone->phone = $phone;
+        $userPhone->comment = $comment;
+        $userPhone->user_id = $user_id;
+        $userPhone->save();
+
+        return response()->json([
+            'status' => 'success',
+            'phone' => $userPhone
+        ]);
+    }
+
+    /**
+     * Удаление номеров телефона агента
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function phonesDelete(Request $request)
+    {
+        $id = $request->input('id');
+        if( !$id ) {
+            abort(403, 'Wrong phone id');
+        }
+
+        $userPhone = UserPhones::find($id);
+        $userPhone->delete();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 
 

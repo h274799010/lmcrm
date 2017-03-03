@@ -77,6 +77,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     Route::post('agent/getFilter',['as'=>'admin.agent.getFilter', 'uses' => 'Admin\AgentController@getFilter']);
 
+    // Сохранение телефонов агента
+    Route::post('agent/phonesUpdate',['as'=>'admin.agent.phonesUpdate', 'uses' => 'Admin\AgentController@phonesUpdate']);
+    Route::post('agent/phonesDelete',['as'=>'admin.agent.phonesDelete', 'uses' => 'Admin\AgentController@phonesDelete']);
+
 
     Route::get('operator', ['as' => 'admin.operator.index', 'uses' => 'Admin\OperatorController@index']);
     Route::get('operator/data', 'Admin\OperatorController@data');

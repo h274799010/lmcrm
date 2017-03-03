@@ -51,6 +51,16 @@ class Salesman extends EloquentUser implements AuthenticatableContract, CanReset
     }
 
     /**
+     * Получаем данные о плохих лидах внесенных продавцом
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function historyBadLeads()
+    {
+        return $this->hasMany('App\Models\HistoryBadLeads', 'depositor_id', 'id');
+    }
+
+    /**
      * Все маски по всем сферам salesman
      *
      *

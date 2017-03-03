@@ -293,6 +293,24 @@ footer,.footer,#footer{
 .balance_data_menu  .balance_masks_block > li >span:last-child{
     float: right;
 }
+.penalty-data-menu-toggle:hover {
+	cursor: pointer;
+}
+.penalty-data-menu > li {
+	padding-right: 10px;
+}
+.penalty-data-menu > li > span {
+	font-weight: normal;
+}
+.penalty-data-menu > li > span:last-child {
+	font-weight: bold;
+	color: #843534;
+	float: right;
+}
+.penalty-data-menu > li:last-child {
+	margin-bottom: 0;
+	border-bottom: none;
+}
 
 .sphere_deleted{
 	color: #9f191f;
@@ -516,6 +534,9 @@ span.badge.statistics_head_badge{
 }
 .agent-info-block li.text-danger {
 	color: #a94442;
+}
+.agent-info-block li.status-label {
+	padding: 0;
 }
 
 .delete_note{

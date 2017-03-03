@@ -79,33 +79,23 @@
                 @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
                     @foreach($openLead->uploadedCheques as $key => $check)
                         <div class="col-xs-6 col-md-3 file-item">
-                            @if($check->type == 'image')
-                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail">
-                                    <img src="/{{ $check->url }}{{ $check->file_name }}" alt="{{ $check->name }}">
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" target="_blank" class="thumbnail @if($check->type != 'image') other @endif ">
+                                    @if($check->type == 'image')
+                                        <img src="/{{ $check->url }}{{ $check->file_name }}" alt="{{ $check->name }}">
+                                    @elseif($check->type == 'word')
+                                        <i class="fa fa-file-word-o" aria-hidden="true"></i>
+                                    @elseif($check->type == 'pdf')
+                                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                    @elseif($check->type == 'archive')
+                                        <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+                                    @elseif($check->type == 'text')
+                                        <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                    @else
+                                        <i class="fa fa-file" aria-hidden="true"></i>
+                                    @endif
                                 </a>
-                            @elseif($check->type == 'word')
-                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
-                                    <i class="fa fa-file-word-o" aria-hidden="true"></i>
-                                </a>
-                            @elseif($check->type == 'pdf')
-                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
-                                    <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-                                </a>
-                            @elseif($check->type == 'archive')
-                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
-                                    <i class="fa fa-file-archive-o" aria-hidden="true"></i>
-                                </a>
-                            @elseif($check->type == 'text')
-                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
-                                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                                </a>
-                            @else
-                                <a href="/{{ $check->url }}{{ $check->file_name }}" download="{{ $check->name }}" class="thumbnail other">
-                                    <i class="fa fa-file" aria-hidden="true"></i>
-                                </a>
-                            @endif
                             <div class="doc-links">
-                                <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" download="{{ $check->name }}">
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" target="_blank">
                                     {{ $check->name }}
                                 </a>
                                 <a href="#" class="btn btn-xs btn-danger delete-document" title="Delete this document?" data-id="{{ $check->id }}">
@@ -381,19 +371,37 @@
 
                 var message = $('#inpMessage').val();
 
-                if(message == '') {
+                /*if(message == '') {
                     bootbox.dialog({
                         message: 'Empty message!',
                         show: true
                     });
                     return true;
-                }
+                }*/
 
                 var params = 'message='+message+'&deal_id={{ $openLead->closeDealInfo->id }}'+'&_token={{ csrf_token() }}';
 
                 $.post('{{ route('agent.lead.sendMessageDeal') }}', params, function (data) {
-                    console.log(data);
-                    window.location.reload();
+                    if(data.status == 'success') {
+                        window.location.reload();
+                    }
+                    else if(data.status == 'fail') {
+                        bootbox.dialog({
+                            message: data.errors,
+                            show: true
+                        });
+                    }
+                    else if (data.status == 'errors') {
+                        var html = '';
+                        $.each(data.errors, function (i, error) {
+                            if(i > 0) html += '<br>';
+                            html += error;
+                        });
+                        bootbox.dialog({
+                            message: html,
+                            show: true
+                        });
+                    }
                 });
             });
         });
@@ -479,11 +487,11 @@
 
                     var html = '';
                     html += '<div class="col-xs-6 col-md-3 file-item">';
-                    html += '<a href="/'+data.url+data.file_name+'" download="'+data.name+'" class="thumbnail'+thumbClass+'">';
+                    html += '<a href="/'+data.url+data.file_name+'" target="_blank" class="thumbnail'+thumbClass+'">';
                     html += thumbHtml;
                     html += '</a>';
                     html += '<div class="doc-links">';
-                    html += '<a href="/'+data.url+data.file_name+'" class="document-link" download="'+data.name+'">'+data.name+'</a>';
+                    html += '<a href="/'+data.url+data.file_name+'" class="document-link" target="_blank">'+data.name+'</a>';
                     html += '<a href="#" class="btn btn-xs btn-danger delete-document" title="Delete this document?" data-id="'+data.id+'"><i class="fa fa-trash-o" aria-hidden="true"></i></a>';
                     html += '</div>';
                     html += '</div>';

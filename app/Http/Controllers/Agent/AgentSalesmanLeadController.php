@@ -8,6 +8,7 @@ use App\Models\Agent;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
 use App\Models\Customer;
+use App\Models\HistoryBadLeads;
 use App\Models\LeadBitmask;
 use App\Models\OpenLeads;
 use App\Models\Organizer;
@@ -131,12 +132,19 @@ class AgentSalesmanLeadController extends LeadController
             $userData['role'] = $role->name;
         }
 
+        $userIds = array($this->salesman->id);
+
+        $badLeads = HistoryBadLeads::whereIn('depositor_id', $userIds)->count();
+
+        $permissions = $this->salesman->permissions;
 
         // добавляем данные по балансу на страницу
         view()->share([
             'balance' => $balance,
             'salesman_id' => $this->salesman->id,
-            'userData' => $userData
+            'userData' => $userData,
+            'badLeads' => $badLeads,
+            'permissions' => $permissions
         ]);
 
         // переводим данные по балансу в json

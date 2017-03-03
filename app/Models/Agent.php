@@ -158,6 +158,26 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $this->hasMany('\App\Models\AgentSphere', 'agent_id', 'id');
     }
 
+    /**
+     * Получаем все номера телефонов пользователя
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function phones()
+    {
+        return $this->hasMany('App\Models\UserPhones', 'user_id', 'id');
+    }
+
+    /**
+     * Получаем данные о плохих лидах внесенных агентом
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function historyBadLeads()
+    {
+        return $this->hasMany('App\Models\HistoryBadLeads', 'depositor_id', 'id');
+    }
+
 
     /**
      * Все маски по всем сферам агента

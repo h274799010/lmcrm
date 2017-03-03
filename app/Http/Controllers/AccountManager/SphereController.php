@@ -7,6 +7,7 @@ use App\Http\Controllers\AccountManagerController;
 use App\Models\AccountManager;
 use App\Models\Agent;
 use App\Models\AgentBitmask;
+use App\Models\MaskHistory;
 use App\Models\Sphere;
 use App\Models\Auction;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
@@ -109,13 +110,30 @@ class SphereController extends AccountManagerController {
         // находим короткую маску
         $bitmask = $mask->findShortMaskById();
 
+        $maskHistory = MaskHistory::where('mask_id', '=', $mask_id)
+            ->where('sphere_id', '=', $sphere->id)
+            ->orderBy('created_at', 'desc')->get();
+
+        foreach ($maskHistory as $key => $value) {
+            $value->mask = json_decode($value->mask, true);
+            $short_mask = array();
+            foreach($value->mask as $field=>$val){
+                if(stripos($field,'fb_')!==false){
+                    $short_mask[preg_replace('/^fb_[\d]+_/','',$field)]=$val;
+                }
+            }
+            $value->short_mask = $short_mask;
+            $maskHistory[$key] = $value;
+        }
+
 
         return view('accountManager.sphere.reprice_edit')
             ->with('sphere', $sphere)
             ->with('mask_id', $mask_id)
             ->with('mask', $bitmask)
             ->with('user', $user)
-            ->with('price', $mask);
+            ->with('price', $mask)
+            ->with('maskHistory', $maskHistory);
     }
 
 
@@ -138,6 +156,7 @@ class SphereController extends AccountManagerController {
 
         // выбираем маску
         $mask = $mask->find($mask_id);
+        $oldMask = $mask;
 
         // возвращаем номер таблицы в маску
         $mask->changeTable($sphere);
@@ -150,6 +169,17 @@ class SphereController extends AccountManagerController {
 
         // сохранение изменений
         $mask->save();
+
+        $userMask = UserMasks::where('sphere_id', '=', $sphere)->where('mask_id', '=', $mask->id)->first();
+        $userMask->active = 1;
+        $userMask->save();
+
+        $maskHistory = new MaskHistory();
+        $maskHistory->sphere_id = $sphere;
+        $maskHistory->mask_id = $oldMask->id;
+        $maskHistory->user_id = $oldMask->user_id;
+        $maskHistory->mask = $oldMask;
+        $maskHistory->save();
 
         // добавлаем лиды агенту в таблицу аукциона (если есть лиды по маске)
         //Auction::addByAgentMask( $mask_id, $sphere );

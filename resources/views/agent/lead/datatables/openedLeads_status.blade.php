@@ -14,7 +14,7 @@
             {{ $openLead->statusInfo->stepname }}
         @endif
     </span>
-    @if($openLead->status == 0 || (isset($openLead->statusInfo->type)  && ($openLead->statusInfo->type == \App\Models\SphereStatuses::STATUS_TYPE_PROCESS || $openLead->statusInfo->type == \App\Models\SphereStatuses::STATUS_TYPE_UNCERTAIN)))
+    @if($openLead->status == 0 || (isset($openLead->statusInfo->type)  && ($openLead->statusInfo->type == \App\Models\SphereStatuses::STATUS_TYPE_PROCESS || $openLead->statusInfo->type == \App\Models\SphereStatuses::STATUS_TYPE_UNCERTAIN || $openLead->statusInfo->type == \App\Models\SphereStatuses::STATUS_TYPE_REFUSENIKS)))
         <button class="btn btn-default btn-sm btn-status changeStatus" data-lead-id="{{ $openLead->id }}"><i class="fa fa-pencil" aria-hidden="true"></i></button>
     @endif
     @if( isset($openLead->statusInfo->type)  && $openLead->statusInfo->type == \App\Models\SphereStatuses::STATUS_TYPE_CLOSED_DEAL )

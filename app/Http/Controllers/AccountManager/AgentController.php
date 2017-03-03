@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AccountManager;
 use App\Helper\PayMaster;
 use App\Http\Controllers\AccountManagerController;
 use App\Http\Requests\AgentFormRequest;
+use App\Http\Requests\UserPhonesRequest;
 use App\Models\AccountManager;
 use App\Models\AccountManagersAgents;
 use App\Models\AgentBitmask;
@@ -13,6 +14,7 @@ use App\Models\AgentSphere;
 use App\Models\Salesman;
 use App\Models\User;
 use App\Models\UserMasks;
+use App\Models\UserPhones;
 use App\Models\Wallet;
 use Carbon\Carbon;
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
@@ -229,7 +231,7 @@ class AgentController extends AccountManagerController {
         $accountManagerSpheresIds = $accountManager->spheres()->get()->lists('id')->toArray();
 
         // данные агента
-        $agent = Agent::with('agentInfo')
+        $agent = Agent::with('agentInfo', 'phones')
             ->with(['salesmen' => function ($query) use ($accountManagerSpheresIds) {
                 return $query->whereIn('sphere_id', $accountManagerSpheresIds);
             }])
@@ -691,6 +693,64 @@ class AgentController extends AccountManagerController {
             'errors' => array(),
             'status'=>'success'
         ));
+    }
+
+    /**
+     * Сохранение/обновления номеров телефона агента
+     *
+     * @param UserPhonesRequest $request
+     * @return mixed
+     */
+    public function phonesUpdate(UserPhonesRequest $request)
+    {
+        $phone = $request->input('phone');
+        $comment = $request->input('comment');
+        $id = (int)$request->input('id');
+        $user_id = (int)$request->input('user_id');
+
+
+        if( !$id && $id != 0 ) {
+            abort(403, 'Wrong phone id');
+        }
+        if( !$user_id ) {
+            abort(403, 'Wrong user id');
+        }
+
+        if($id == 0) {
+            $userPhone = new UserPhones();
+        } else {
+            $userPhone = UserPhones::find($id);
+        }
+        $userPhone->phone = $phone;
+        $userPhone->comment = $comment;
+        $userPhone->user_id = $user_id;
+        $userPhone->save();
+
+        return response()->json([
+            'status' => 'success',
+            'phone' => $userPhone
+        ]);
+    }
+
+    /**
+     * Удаление номеров телефона агента
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function phonesDelete(Request $request)
+    {
+        $id = $request->input('id');
+        if( !$id ) {
+            abort(403, 'Wrong phone id');
+        }
+
+        $userPhone = UserPhones::find($id);
+        $userPhone->delete();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 
 }

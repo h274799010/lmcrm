@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
+use App\Models\HistoryBadLeads;
 use App\Models\Salesman;
 use App\Models\AgentBitmask;
 use App\Models\User;
@@ -195,10 +196,24 @@ class AgentController extends BaseController
             $userData['role'] = $role->name;
         }
 
+        $userIds = array($this->user->id);
+
+        if($this->user->inRole('agent')) {
+            $salesmans = $this->user->salesmen()->get()->lists('id')->toArray();
+
+            $userIds = array_merge($userIds, $salesmans);
+        }
+
+        $badLeads = HistoryBadLeads::whereIn('depositor_id', $userIds)->count();
+
+        $permissions = $this->user->permissions;
+
         // добавляем данные по балансу на страницу
         view()->share([
             'balance' => $balance,
-            'userData' => $userData
+            'userData' => $userData,
+            'badLeads' => $badLeads,
+            'permissions' => $permissions
         ]);
 
         // переводим данные по балансу в json

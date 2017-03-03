@@ -21,6 +21,7 @@ return [
     'opened.phone' => 'Phone',
     'opened.email' => 'E-Mail',
     'opened.maskname' => 'Mask name',
+    'opened.buyer' => 'Buyer',
 
     // organizer
     'opened.organizer.title' => 'Organizer',
