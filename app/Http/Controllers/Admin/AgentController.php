@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Requests\AgentFormRequest;
 use App\Http\Requests\UserPhonesRequest;
 use App\Models\AccountManager;
+use App\Models\AccountManagerAgent;
 use App\Models\Agent;
 use App\Models\Salesman;
 use App\Models\Transactions;
@@ -216,12 +217,32 @@ class AgentController extends AdminController
         $userInfo = PayMaster::userInfo($id);
 
         $agentSpheres = $agent->agentSphere()->with(['sphere' => function($query) {
-            $query->with('statuses');
+            $query->with('statuses', 'accountManagers');
         }])->get();
 
         $openLeadsStatistic = $agent->openLeadsStatistic();
 
-        $accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
+        //$accountManagers = Sentinel::findRoleBySlug('account_manager')->getUsers();
+
+        $accountManagers = array();
+        foreach ($agentSpheres as $agentSphere) {
+            if(isset($agentSphere->sphere->id) && count($agentSphere->sphere->accountManagers) > 0) {
+                $tmp = array(
+                    'name' => $agentSphere->sphere->name,
+                    'accountManagers' => array()
+                );
+                foreach ($agentSphere->sphere->accountManagers as $accManager) {
+                    $tmp['accountManagers'][$accManager->id] = $accManager->email;
+                }
+                $accountManagers[$agentSphere->sphere->id] = $tmp;
+            }
+        }
+
+        $accountManagerAgents = AccountManagerAgent::where('agent_id', '=', $agent->id)->get();
+        $attachedAccManagers = array();
+        foreach ($accountManagerAgents as $accountManagerAgent) {
+            $attachedAccManagers[ $accountManagerAgent->sphere_id ] = $accountManagerAgent->account_manager_id;
+        }
 
         $agentMasks = $agent->spheres()->get();
 
@@ -239,7 +260,8 @@ class AgentController extends AdminController
             'accountManagers'=>$accountManagers,
             'agentMasks' => $agentMasks,
             'statistic' => $openLeadsStatistic,
-            'permissions' => $permissions
+            'permissions' => $permissions,
+            'attachedAccManagers' => $attachedAccManagers
         ]);
     }
 
@@ -731,13 +753,29 @@ class AgentController extends AdminController
 
     public function attachAccountManagers(Request $request)
     {
-        $agent = Agent::findOrFail($request->input('agent_id'));
+        $data = $request['data'];
 
-        $accountManagers = ( $request->input('accountManagers') ?: [] );
+        $agent_id = (int)$request['agent_id'];
 
-        $agent->accountManagers()->sync( $accountManagers );
+        if( !$agent_id ) {
+            abort(403, 'Wrong agent id');
+        }
 
-        return redirect()->back();
+        AccountManagerAgent::where('agent_id', '=', $agent_id)->delete();
+
+        if(empty($data)) {
+            return response()->json('Data saved successfully');
+        }
+
+        foreach ($data as $val) {
+            $accountManagerAgent = new AccountManagerAgent();
+            $accountManagerAgent->account_manager_id = $val['id'];
+            $accountManagerAgent->agent_id = $agent_id;
+            $accountManagerAgent->sphere_id = $val['sphere'];
+            $accountManagerAgent->save();
+        }
+
+        return response()->json('Data saved successfully');
     }
 
     function getFilter(Request $request)

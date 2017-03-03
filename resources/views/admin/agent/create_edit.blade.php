@@ -191,19 +191,23 @@
                             <div class="alertContent"></div>
                         </div>
                         <input type="hidden" name="agent_id" value="{{ $agent->id }}">
-                        <h3>Account Managers:</h3>
-                        <div class="form-group-wrap">
-                            @foreach($accountManagers as $accountManager)
-                                <div class="col-xs-6">
-                                    <div class="checkbox">
-                                        <label for="accountManaget-{{ $accountManager->id }}">
-                                            {!! Form::checkbox('accountManagers[]', $accountManager->id, (in_array($accountManager->id, $agent->accountManagers()->get()->lists('id')->toArray()))?$accountManager->id:null, array('class' => '','id'=>"accountManaget-".$accountManager->id)) !!}
-                                            {{ $accountManager->email }}
-                                        </label>
+                        @foreach($accountManagers as $sphere_id => $sphere)
+                            <h4>{{ $sphere['name'] }}</h4>
+                            <div class="form-group-wrap">
+                                @foreach($sphere['accountManagers'] as $id => $email)
+                                    <div class="col-xs-4">
+                                        <div class="radio">
+                                            <label for="accountManaget-{{ $sphere_id }}_{{ $id }}">
+                                                {!! Form::radio('accountManager_'.$sphere_id, $id, (isset($attachedAccManagers[$sphere_id]) && $id == $attachedAccManagers[$sphere_id])?$id:null, array('class' => '','id'=>"accountManaget-".$sphere_id.'_'.$id, 'data-sphere' => $sphere_id)) !!}
+                                                <span class="circle"></span>
+                                                <span class="check"></span>
+                                                {{ $email }}
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
-                            @endforeach
-                        </div>
+                                @endforeach
+                            </div>
+                        @endforeach
 
                         <div class="form-group clearfix">
                             <div class="col-md-12">
@@ -214,7 +218,7 @@
                                     <span class="glyphicon glyphicon-remove-circle"></span> {{
                             trans("admin/modal.reset") }}
                                 </button>
-                                <button type="submit" class="btn btn-sm btn-success">
+                                <button type="submit" class="btn btn-sm btn-success" id="btnAttachAccManagers">
                                     <span class="glyphicon glyphicon-ok-circle"></span>
                                     @if	(isset($agent))
                                         {{ trans("admin/modal.update") }}
@@ -1128,6 +1132,32 @@
                     }
                 });
         });
+
+        $(document).on('click', '#btnAttachAccManagers', function (e) {
+            e.preventDefault();
+
+            var $wrapper = $('#accountManagers');
+
+            var params = {
+                _token: '{{ csrf_token() }}',
+                agent_id: $wrapper.find('input[name=agent_id]').val(),
+                data: []
+            };
+
+            $wrapper.find('input[type=radio]:checked').each(function (ind, inp) {
+                params.data.push({
+                    sphere: $(inp).data('sphere'),
+                    id: $(inp).val()
+                });
+            });
+
+            $.post('{{ route('admin.agent.attachAccountManagers') }}', params, function (data) {
+                bootbox.dialog({
+                    message: data,
+                    show: true
+                });
+            });
+        })
     });
 
     $(function(){
