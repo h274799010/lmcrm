@@ -17,15 +17,15 @@ class SphereStatuses extends Model
      *
      */
     private $statusType =
-        [
-            0 => 'no_status',
-            1 => 'process',
-            2 => 'uncertain',
-            3 => 'refuseniks',
-            4 => 'bad',
-            5 => 'closed_deal',
-            6 => 'collect_status'
-        ];
+    [
+        0 => 'no_status',
+        1 => 'process',
+        2 => 'uncertain',
+        3 => 'refuseniks',
+        4 => 'bad',
+        5 => 'closed_deal',
+        6 => 'collect_status'
+    ];
 
 
     /**
@@ -57,6 +57,15 @@ class SphereStatuses extends Model
 //    const STATUS_COLLECTING_BAD = 4;
 //    const STATUS_COLLECTING_CLOSED_DEAL = 5;
 
+
+    const DEAL_TYPE_ONE_PAYMENT = 1;
+    const DEAL_TYPE_FEW_PAYMENTS = 2;
+
+    const DEAL_TYPE_ONE_PAYMENT_NAME = 'one payment';
+    const DEAL_TYPE_FEW_PAYMENTS_NAME = 'few payments';
+
+
+
     /**
      * Получение сфер по статусу
      *
@@ -83,5 +92,43 @@ class SphereStatuses extends Model
             self::STATUS_TYPE_CLOSED_DEAL => 'Close deal',
         );
     }
+
+
+    /**
+     * Возвращает имена типов сделок сделок
+     *
+     *
+     * @param  boolean  $key
+     *
+     * @return array
+     */
+    public static function getDealsType( $key=false )
+    {
+        if($key){
+
+            return
+            [
+                self::DEAL_TYPE_ONE_PAYMENT => self::DEAL_TYPE_ONE_PAYMENT_NAME,
+                self::DEAL_TYPE_FEW_PAYMENTS => self::DEAL_TYPE_FEW_PAYMENTS_NAME,
+            ];
+
+        }else{
+
+            return
+            [
+                [
+                    'id' => self::DEAL_TYPE_ONE_PAYMENT,
+                    'name' => self::DEAL_TYPE_ONE_PAYMENT_NAME
+                ],
+
+                [
+                    'id' => self::DEAL_TYPE_FEW_PAYMENTS,
+                    'name' => self::DEAL_TYPE_FEW_PAYMENTS_NAME
+                ],
+            ];
+        }
+
+    }
+
 
 }

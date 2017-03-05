@@ -15,6 +15,7 @@ class CreateClosedDealsTable extends Migration
         Schema::create('closed_deals', function (Blueprint $table) {
             $table->increments('id');                    // id
             $table->integer('open_lead_id');             // id открытого лида, по которому закрывается сделка
+            $table->integer('deal_type');                // id типа закрытой сделки
             $table->integer('agent_id');                 // id агента который закрывает сделку
             $table->integer('sender');                   // id пользователя который отдал лид агенту (оператор или партнер)
             $table->integer('lead_source');              // кто добавил: оператор, партнер...

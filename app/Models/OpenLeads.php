@@ -274,12 +274,12 @@ class OpenLeads extends Model {
      *
      * @return boolean
      */
-    public function closeDeal( $price, $comments, $senderId=false )
+    public function closeDeal( $price, $comments, $senderId=false, $dealType )
     {
 
         // если у агента уже заключена сделка
         // выходим
-        if( $this->state == 2 ){ return false; }
+        if( $this->state == 2 ){ return 'lead is already open'; }
 
         // выбираем лид
         $lead = Lead::find( $this['lead_id'] );
@@ -364,6 +364,9 @@ class OpenLeads extends Model {
 
         $closedDeal = new ClosedDeals();
         $closedDeal->open_lead_id = $this['id'];                // id открытого лида, по которому закрывается сделка
+
+        $closedDeal->deal_type = $dealType;                    // todo сохраняем тип сделки
+
         $closedDeal->agent_id = $agent->id;                     // id агента который закрывает сделку
         $closedDeal->sender = $sender_id;                       // id пользователя который отдал лид агенту (оператор или партнер)
         $closedDeal->lead_source = $lead_source;                // лид получен с аукциона или передан напрямую по группе (1-auction, 2-group)

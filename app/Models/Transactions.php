@@ -23,6 +23,12 @@ class Transactions extends Model {
     public $timestamps = false;
 
 
+    /**
+     * Поля БД с датой
+     *
+     */
+    protected $dates = ['created_at'];
+
 
     /**
      * Данные пользователя запустишего транзакцию

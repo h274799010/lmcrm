@@ -15,7 +15,7 @@
 
     <div class="row">
         <div class="col-md-10 col-sm-10 col-xs-12">
-            <h2>Open lead info</h2>
+            <h4>Open lead info</h4>
             <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
                 <tbody>
                 @foreach($leadData as $data)
@@ -34,7 +34,98 @@
     <div class="row">
 
         <div class="col-md-6 col-sm-6 col-xs-12 documents-block">
-            <h2>Uploaded documents</h2>
+
+            <h4>Deal info</h4>
+            <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
+                <tbody>
+                @if(isset($openLead->statusInfo))
+                    <tr>
+                        <th>Deal name</th>
+                        <td>{{ $openLead->statusInfo->stepname }}</td>
+                    </tr>
+                @endif
+                @if(isset($openLead->closeDealInfo))
+                    <tr>
+                        <th>Deal price</th>
+                        <td>{{ $openLead->closeDealInfo->price }}</td>
+                    </tr>
+                    <tr>
+                        <th>To pay</th>
+                        <td>{{ $openLead->closeDealInfo->percent }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ $openLead->closeDealInfo->created_at }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td class="deal_status">
+                            {{ $dealStatusNames[ $openLead->closeDealInfo->status ] }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Comment</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">{{ $openLead->closeDealInfo->comments }}</td>
+                    </tr>
+                @endif
+                </tbody>
+            </table>
+
+            {{--@if(isset($openLead->closeDealInfo) && empty($openLead->closeDealInfo->purchase_transaction_id))--}}
+                {{--<div id="paymentBtnWrap">--}}
+                    {{--<h2>Pay out:</h2>--}}
+                    {{--<a href="#" class="btn btn-sm btn-primary" id="btnPayWallet">Wallet</a>--}}
+                    {{--<a href="#" class="btn btn-sm btn-primary">Other</a>--}}
+                {{--</div>--}}
+            {{--@else--}}
+                {{--<div class="alert alert-success" role="alert">Paid</div>--}}
+            {{--@endif--}}
+
+
+            <h4>Transactions</h4>
+            <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
+                <thead>
+                <tr>
+                    <th class="center">amount</th>
+                    <th class="center">date</th>
+                </tr>
+                </thead>
+                <tbody>
+                @forelse($transactions as $transaction)
+                    <tr>
+                        <td class="center">{{ $transaction['amount'] * -1 }}</td>
+                        <td class="center">{{ $transaction['transaction']['created_at']->format('d/m/Y') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="2" class="center">No status</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+
+
+            <span
+                    data-status="3"
+                    class="btn btn-raised btn-danger dealStatusChangeBottom
+                    @if( $openLead->closeDealInfo->status == 2 || $openLead->closeDealInfo->status == 3 )
+                        disabled
+                    @endif">
+                Reject
+            </span>
+            <span
+                    data-status="2"
+                    class="btn btn-raised btn-success dealStatusChangeBottom
+                    @if( $openLead->closeDealInfo->status == 2 || $openLead->closeDealInfo->status == 3 )
+                    disabled
+                    @endif">
+                Approve
+            </span>
+
+
+            <h4>Uploaded documents</h4>
             <ul class="list-group" id="filesListGroup">
                 @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
                     @foreach($openLead->uploadedCheques as $check)
@@ -50,45 +141,6 @@
                 @endif
             </ul>
 
-
-            {{--<div>--}}
-                {{--<div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">--}}
-                    {{--<div id="uploadProgress"></div>--}}
-                {{--</div>--}}
-                {{--<a href="#" class="btn btn-sm btn-success" id="addCheckBtn">Add document</a>--}}
-            {{--</div>--}}
-            <h2>Deal info</h2>
-            <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
-                <tbody>
-                @if(isset($openLead->statusInfo))
-                    <tr>
-                        <th>Name</th>
-                        <td>{{ $openLead->statusInfo->stepname }}</td>
-                    </tr>
-                @endif
-                @if(isset($openLead->closeDealInfo))
-                    <tr>
-                        <th>Price</th>
-                        <td>{{ $openLead->closeDealInfo->price }}</td>
-                    </tr>
-                    <tr>
-                        <th colspan="2">Comment</th>
-                    </tr>
-                    <tr>
-                        <td colspan="2">{{ $openLead->closeDealInfo->comments }}</td>
-                    </tr>
-                @endif
-                </tbody>
-            </table>
-            @if(isset($openLead->closeDealInfo) && empty($openLead->closeDealInfo->purchase_transaction_id))
-                <div id="paymentBtnWrap">
-                    <h2>Pay out:</h2>
-                    <a href="#" class="btn btn-sm btn-primary" id="btnPayWallet">Wallet</a>
-                    <a href="#" class="btn btn-sm btn-primary">Other</a>
-                </div>
-            @else
-                <div class="alert alert-success" role="alert">Paid</div>
-            @endif
         </div>
         <!-- /.col-lg-10 -->
     </div>
@@ -205,12 +257,19 @@
         .message-wrap hr {
             margin: 3px 0;
         }
+
+        .table th{
+            background: #63A4B8;
+            color: white;
+        }
+
     </style>
 @endsection
 
 @section('scripts')
     <script type="text/javascript">
         $(document).ready(function () {
+
             $(document).on('click', '#sendMessage', function (e) {
                 e.preventDefault();
 
@@ -249,6 +308,69 @@
                     }
                 });
             });
+
+
+            /**
+             * Кнопка изменения состояния сделки
+             *
+             */
+            $('.dealStatusChangeBottom').bind('click', function(){
+
+                // если кнопка уже отключена - выходим из метода
+                if( $(this).attr('disabled') ){
+                    return false;
+                }
+
+                // параметры по сделке
+                var params = { _token: '{{ csrf_token() }}', status_id: $(this).data('status'), deal_id: '{{ $openLead['closeDealInfo']['id'] }}' };
+
+
+                /**
+                 * пост на изменение состояния сделки
+                 *
+                 */
+                $.post(
+                    '{{ route('admin.deal.status.change') }}',
+                    params,
+                    function(data)
+                    {
+
+                        // проверка статуса
+                        if( data.actionStatus == 'true'){
+                            // изменение прошло нормально
+
+                            // отключаем кнопки изменения состояния
+                            $('.dealStatusChangeBottom').attr('disabled', 'disabled');
+
+                            // изменяем имя статуса
+                            $('.deal_status').text( data.statusName );
+
+                            // сообщение об успешном изменение статуса сделки
+                            $.snackbar(
+                                {
+                                    content: data.snackbar, // text of the snackbar
+                                    style: "toast", // add a custom class to your snackbar
+                                    timeout: 4000 // time in milliseconds after the snackbar autohides, 0 is disabled
+                                }
+                            );
+
+                        }else{
+                            // ошибка при изменении
+
+                            // ошибка при изменении статуса сделки
+                            $.snackbar(
+                                {
+                                    content: data.snackbar, // text of the snackbar
+                                    style: "toast", // add a custom class to your snackbar
+                                    timeout: 4000 // time in milliseconds after the snackbar autohides, 0 is disabled
+                                }
+                            );
+                        }
+                    }
+                );
+
+            });
+
         });
     </script>
 @endsection

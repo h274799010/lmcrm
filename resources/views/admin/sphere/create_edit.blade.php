@@ -1195,6 +1195,16 @@
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
                                                         </div>
 
+                                                        {{-- селектбокс с типами сделок --}}
+                                                        <div class="col-xs-3">
+
+                                                            {{--<input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >--}}
+                                                            <select ng-model="status.additional_type" class="selectbox deals_types_selectbox">
+                                                                <option ng-repeat="dealType in data.dealsTypes" value="@{{ dealType.id }}">@{{ dealType.name }}</option>
+                                                            </select>
+
+                                                        </div>
+
                                                         {{-- смена позиции статуса --}}
                                                         <div sv-handle class="col-xs-1">
                                                             <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
@@ -2103,6 +2113,10 @@
 
         tr.status_transition_row{
             background: #FFFFFF;
+        }
+
+        .deals_types_selectbox{
+            width: 200px;
         }
 
     </style>

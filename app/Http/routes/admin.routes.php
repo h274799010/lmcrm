@@ -169,6 +169,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // подробности по транзиту
     Route::post('statistic/transitionDetails', ['as' => 'admin.statistic.transition.details', 'uses' => 'Admin\StatisticController@transitionDetails']);
 
+    // изменение статуса сделки
+    Route::post('agent/deal/status/change', ['as'=>'admin.deal.status.change', 'uses' => 'Admin\DealController@changeDealStatus']);
 
 
     // Настройки

@@ -615,6 +615,7 @@ class SphereController extends AdminController {
 
                 $arr['id'] = $chrct->id;
                 $arr['type'] = $chrct->type;
+                $arr['additional_type'] = $chrct->additional_type;
                 $arr['stepname'] = $chrct->stepname;
                 $arr['comment'] = $chrct->comment;
                 $arr['position'] = $chrct->position;
@@ -624,7 +625,7 @@ class SphereController extends AdminController {
             }
             $threshold['settings']['stat']['minLead']=$group->minLead;
 
-            $threshold['values'][0] = SphereStatuses::where('type', 6)->get();
+            $threshold['values'][6] = SphereStatuses::where('type', 6)->get();
 
             // добавление заметок в массив данных сферы
             foreach($group->additionalNotes()->get() as $dbNote) {
@@ -637,7 +638,17 @@ class SphereController extends AdminController {
 
         }
 
-        $data=['opt'=>$settings,"cform"=>$data,'lead'=>$lead,'threshold'=>$threshold, 'notes'=>$notes, 'statusTransitions'=>$statusTransitions];
+        /** Данные для отправки на фронтенд */
+        $data=
+        [
+            'opt'=>$settings,
+            "cform"=>$data,
+            'lead'=>$lead,
+            'threshold'=>$threshold,
+            'notes'=>$notes,
+            'statusTransitions'=>$statusTransitions,
+            'dealsTypes' => SphereStatuses::getDealsType(),
+        ];
         return response()->json($data);
     }
 
@@ -1476,6 +1487,7 @@ class SphereController extends AdminController {
                             // заносим туда данные
                             $dbStatus->stepname = $status['stepname'];
                             $dbStatus->type = $status['type'];
+                            $dbStatus->additional_type = $status['additional_type'];
                             $dbStatus->comment = $status['comment'];
                             $dbStatus->position = (isset($status['position'])) ? $status['position'] : 0;
 
@@ -1491,6 +1503,7 @@ class SphereController extends AdminController {
                         $newStatus = new SphereStatuses();
                         $newStatus->stepname = $status['stepname'];
                         $newStatus->type = $status['type'];
+                        $newStatus->additional_type = $status['additional_type'];
                         $newStatus->comment = $status['comment'];
                         $newStatus->position = (isset($status['position'])) ? $status['position'] : 0;
 

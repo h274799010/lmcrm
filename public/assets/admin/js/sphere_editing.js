@@ -874,9 +874,25 @@ var app = angular.module('app', ['angular-sortable-view'])
                 position: $scope.data.threshold.values[type].length + 1 // позиция
             };
 
+            // проверка типа статуса
+            if( type == 5 ){
+                // если сделка, добавляем первое значение из типов сделки
+                newStatus['additional_type'] = String( $scope.data.dealsTypes[0].id );
+            }
+            
             // добавляем статус в модель
             $scope.data.threshold.values[type].push( newStatus );
-
+    
+            // инициализация селектбоксов
+            setTimeout(function(){
+        
+                // селектбоксы типов сделок
+                $('.deals_types_selectbox').select2({
+                    // allowClear: true
+                });
+        
+            }, 500);
+            
             // перестройка транзитов статусов (уже ненужно)
             //makeStatusTransitions();
         };
@@ -1729,17 +1745,24 @@ var app = angular.module('app', ['angular-sortable-view'])
                 // преобразовываем статус в строку (иначе выпадающее меню на него не реагирует
                 data.opt.variables.status.values = String( data.opt.variables.status.values );
     
+                // пореборазование дополнительного статуса сделки в строку
+                angular.forEach( data.threshold.values[5], function( status ){
+                    
+                    status.additional_type = String( status.additional_type );
+                });
+                
+                // объект с собранными статусами
                 data.collectingStatuses =
                 {
-                    process: 0,
-                    uncertain: 0,
-                    refuseniks: 0,
-                    bad: 0,
-                    deal: 0,
-    
+                    process: false,
+                    uncertain: false,
+                    refuseniks: false,
+                    bad: false,
+                    deal: false,
                 };
 
-                angular.forEach( data.threshold.values[0], function( status ){
+                // выбираем собирательные статусы по типу
+                angular.forEach( data.threshold.values[6], function( status ){
                     
                     switch(status.additional_type){
                         
@@ -1766,9 +1789,6 @@ var app = angular.module('app', ['angular-sortable-view'])
                 });
                 
                 
-                console.log( data.collectingStatuses );
-                
-                
                 // отдаем модель
                 $scope.data = data;
 
@@ -1788,18 +1808,22 @@ var app = angular.module('app', ['angular-sortable-view'])
                         dbStatusTransitions[val.previous_status_id] ={};
                     }
 
-                    //dbStatusTransitions[val.previous_status_id].push(val);
-
-                    //console.log( val);
-
                     dbStatusTransitions[val.previous_status_id][val.status_id] = val;
                 });
 
+                // инициализация селектбоксов
                 setTimeout(function(){
 
+                    // селектбоксы транзитов
                     $('.transition_selectbox').select2({
                         allowClear: true
                     });
+                    
+                    // селектбоксы типов сделок
+                    $('.deals_types_selectbox').select2({
+                        // allowClear: true
+                    });
+                    
                 }, 500);
 
             })

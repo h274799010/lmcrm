@@ -12,6 +12,7 @@ use App\Models\OperatorSphere;
 use App\Models\Sphere;
 use App\Transformers\LeadTransformer;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 
@@ -23,6 +24,8 @@ use App\Models\ClosedDeals;
 use App\Models\LeadBitmask;
 use App\Models\AgentBitmask;
 use Validator;
+use App\Models\TransactionsLeadInfo;
+use App\Models\TransactionsDetails;
 
 class DealController extends Controller
 {
@@ -84,7 +87,7 @@ class DealController extends Controller
 
         // выбираем все сделки вместе с открытыми лидами и данными агентов
         $allDeals = ClosedDeals::
-              where('status', 1)
+              where('status', 4)
             ->with(
                 [
                     'openLeads'=>function( $query ){
@@ -132,6 +135,19 @@ class DealController extends Controller
             }
         ])->find($deal->open_lead_id);
         $user = User::find( $openLead->agent_id );
+
+
+        $leadsTransactions = TransactionsLeadInfo::
+              where( 'lead_id', $openLead->lead_id )
+            ->lists('transaction_id');
+
+        $transactions = TransactionsDetails::
+              whereIn('transaction_id', $leadsTransactions)
+            ->with('transaction')
+            ->where('user_id', $openLead->agent_id)
+            ->where('type', 'closingDeal')
+            ->get();
+
 
         $data = Lead::find( $openLead->lead_id );
         $leadData[] = [ 'name',$data->name ];
@@ -196,14 +212,21 @@ class DealController extends Controller
             $leadData[] = [ $attr->label, $str ];
         }
 
-        //dd($openLead);
+//        dd($openLead);
 
         return view('admin.deal.info', [
             'leadData' => $leadData,
-            'openLead' => $openLead
+            'openLead' => $openLead,
+            'transactions' => $transactions,
+            'dealStatusNames' => ClosedDeals::getDealStatuses(),
         ]);
     }
 
+
+    /**
+     * Отправка сообщения по сделке
+     *
+     */
     public function sendMessageDeal(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -241,4 +264,42 @@ class DealController extends Controller
         }
     }
 
+
+    /**
+     * Изменение статуса сделки
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function changeDealStatus(Request $request)
+    {
+
+        $dealId = $request->deal_id;
+        $status = $request->status_id;
+
+        $deal = ClosedDeals::find($dealId);
+
+        if( $status == ClosedDeals::DEAL_STATUS_CONFIRMED ){
+
+            $snackbar = 'Deal confirmed';
+
+        }elseif( $status == ClosedDeals::DEAL_STATUS_REJECTED ){
+
+            $snackbar = 'Deal rejected';
+
+        }else{
+
+            return response()->json([ 'actionStatus'=>'false' ]);
+        }
+
+        $deal->status = $status;
+        $deal->save();
+
+        $statusName = ClosedDeals::getDealStatuses();
+
+
+        return response()->json([ 'actionStatus'=>'true', 'statusName'=>$statusName[ $status ], 'snackbar'=>$snackbar]);
+    }
 }
