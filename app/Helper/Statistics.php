@@ -99,8 +99,6 @@ class Statistics
             [
                 // индекс отсутствующего статуса
                 0 => [ 'name' => 'No status', 'type'=> 0 ],
-                // индекс статуса по закрытию сделки
-                -2 => [ 'name' => 'Close Deal', 'type'=> 0 ]
                 // дальше добавляются имена статусов по заданной сфере
             ],
 
@@ -567,6 +565,23 @@ class Statistics
 
         // подсчитываем сумарные данные по каждому типу статусов
         $this->sphereStatusesCalculateSummary();
+
+        // выбираем собранные статусы
+        $collectiveStatuses = SphereStatuses::where('type', 6)->get();
+
+        // перебираем все собранные статусы
+        $collectiveStatuses->each(function( $status )
+            use( &$statusesNames )
+        {
+
+            // добавляем имя статуса в коллекцию
+            $statusesNames[ $status->id ] =
+            [
+                'name' => $status->stepname,
+                'type'=> $status->type,
+                'additional_type'=> $status->additional_type
+            ];
+        });
     }
 
 
@@ -759,14 +774,47 @@ class Statistics
 
             // проверка статуса транзита сферы
             if( $this->openLeads['statusesNames'][ $transit->status_id ]['type'] != 1 ){
-                // добавляем в билдер предыдущий статус к выборке
-                $userTransitionsCount->where(  'previous_status_id', $transit->previous_status_id );
+
+                // проверка это сборный статус или обычный
+                if( $this->openLeads['statusesNames'][ $transit->previous_status_id ]['type'] == 6 ){
+
+                    // выбираем id всех статусов по сфере с соответствующим типом
+                    $previous_statuses_id = SphereStatuses::
+                          where('sphere_id', $transit->sphere_id)
+                        ->where( 'type', $this->openLeads['statusesNames'][ $transit->previous_status_id ]['additional_type'])
+                        ->lists('id');
+
+                    // добавляем в билдер предыдущий статус к выборке
+                    $userTransitionsCount->whereIn(  'previous_status_id', $previous_statuses_id );
+
+                }else{
+                    // добавляем в билдер предыдущий статус к выборке
+                    $userTransitionsCount->where(  'previous_status_id', $transit->previous_status_id );
+                }
             }
 
-            // добавление статуса на который пользователь перешол и подсчет
-            $userTransitionsCount = $userTransitionsCount
-                ->where( 'status_id', $transit->status_id )
-                ->count();
+
+            // проверка это сборный статус или обычный
+            if( $this->openLeads['statusesNames'][ $transit->status_id ]['type'] == 6 ){
+
+                // выбираем id всех статусов по сфере с соответствующим типом
+                $statuses_id = SphereStatuses::
+                      where('sphere_id', $transit->sphere_id)
+                    ->where( 'type', $this->openLeads['statusesNames'][ $transit->status_id ]['additional_type'])
+                    ->lists('id');
+
+                // добавление статуса на который пользователь перешол и подсчет
+                $userTransitionsCount = $userTransitionsCount
+                    ->whereIn( 'status_id', $statuses_id )
+                    ->count();
+
+            }else{
+                // добавление статуса на который пользователь перешол и подсчет
+                $userTransitionsCount = $userTransitionsCount
+                    ->where( 'status_id', $transit->status_id )
+                    ->count();
+            }
+
 
 
             /** Получаем количество транзитов из истории пользователя за период */
@@ -778,13 +826,45 @@ class Statistics
             // проверка статуса транзита сферы
             if( $this->openLeads['statusesNames'][ $transit->status_id ]['type'] != 1 ){
                 // добавляем в билдер предыдущий статус к выборке
-                $userPeriodTransitionsCount->where(  'previous_status_id', $transit->previous_status_id );
+
+                // проверка это сборный статус или обычный
+                if( $this->openLeads['statusesNames'][ $transit->previous_status_id ]['type'] == 6 ){
+
+                    // выбираем id всех статусов по сфере с соответствующим типом
+                    $previous_statuses_id = SphereStatuses::
+                          where('sphere_id', $transit->sphere_id)
+                        ->where( 'type', $this->openLeads['statusesNames'][ $transit->previous_status_id ]['additional_type'])
+                        ->lists('id');
+
+                    // добавляем в билдер предыдущий статус к выборке
+                    $userPeriodTransitionsCount->whereIn(  'previous_status_id', $previous_statuses_id );
+
+                }else{
+                    // добавляем в билдер предыдущий статус к выборке
+                    $userPeriodTransitionsCount->where(  'previous_status_id', $transit->previous_status_id );
+                }
             }
 
-            // добавление статуса на который пользователь перешол и подсчет количества
-            $userPeriodTransitionsCount = $userPeriodTransitionsCount
-                ->where( 'status_id', $transit->status_id )
-                ->count();
+            // проверка это сборный статус или обычный
+            if( $this->openLeads['statusesNames'][ $transit->status_id ]['type'] == 6 ){
+
+                // выбираем id всех статусов по сфере с соответствующим типом
+                $statuses_id = SphereStatuses::
+                      where('sphere_id', $transit->sphere_id)
+                    ->where( 'type', $this->openLeads['statusesNames'][ $transit->status_id ]['additional_type'])
+                    ->lists('id');
+
+                // добавление статуса на который пользователь перешол и подсчет
+                $userPeriodTransitionsCount = $userPeriodTransitionsCount
+                    ->whereIn( 'status_id', $statuses_id )
+                    ->count();
+
+            }else{
+                // добавление статуса на который пользователь перешол и подсчет количества
+                $userPeriodTransitionsCount = $userPeriodTransitionsCount
+                    ->where( 'status_id', $transit->status_id )
+                    ->count();
+            }
 
             // вычисление процента за весь период
             $allPercent = $this->openLeads['allCount'] != 0 ? round($userTransitionsCount * 100 / $this->openLeads['allCount'], 2) : 0;

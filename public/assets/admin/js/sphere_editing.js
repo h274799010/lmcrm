@@ -1567,8 +1567,8 @@ var app = angular.module('app', ['angular-sortable-view'])
 
             });
 
-            console.log( $scope.data );
-            console.log( $scope.data.currentStatusTransition );
+            // console.log( $scope.data );
+            // console.log( $scope.data.currentStatusTransition );
         }
 
 
@@ -1656,16 +1656,6 @@ var app = angular.module('app', ['angular-sortable-view'])
                 item.position = i+1;
             });
 
-
-            //list.forEach(function(item, i) {
-            //    // проставляем позицию
-            //    console.log('позиционирование: ' + item.id);
-            //    console.log('до: ' + item.position);
-            //
-            //    item.position = i+1;
-            //    console.log('после: ' + item.position);
-            //    console.log('---------------');
-            //});
         };
 
 
@@ -1738,8 +1728,47 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 // преобразовываем статус в строку (иначе выпадающее меню на него не реагирует
                 data.opt.variables.status.values = String( data.opt.variables.status.values );
+    
+                data.collectingStatuses =
+                {
+                    process: 0,
+                    uncertain: 0,
+                    refuseniks: 0,
+                    bad: 0,
+                    deal: 0,
+    
+                };
 
-
+                angular.forEach( data.threshold.values[0], function( status ){
+                    
+                    switch(status.additional_type){
+                        
+                        case 1:
+                            data.collectingStatuses.process = status;
+                            break;
+    
+                        case 2:
+                            data.collectingStatuses.uncertain = status;
+                            break;
+    
+                        case 3:
+                            data.collectingStatuses.refuseniks = status;
+                            break;
+    
+                        case 4:
+                            data.collectingStatuses.bad = status;
+                            break;
+    
+                        case 5:
+                            data.collectingStatuses.deal = status;
+                            break;
+                    }
+                });
+                
+                
+                console.log( data.collectingStatuses );
+                
+                
                 // отдаем модель
                 $scope.data = data;
 

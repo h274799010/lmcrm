@@ -477,6 +477,7 @@ class SphereController extends AdminController {
 
             "values"=>
             [
+                0 => [],
                 1 => [],
                 2 => [],
                 3 => [],
@@ -622,6 +623,8 @@ class SphereController extends AdminController {
                 $threshold['values'][ $arr['type'] ][]=$arr;
             }
             $threshold['settings']['stat']['minLead']=$group->minLead;
+
+            $threshold['values'][0] = SphereStatuses::where('type', 6)->get();
 
             // добавление заметок в массив данных сферы
             foreach($group->additionalNotes()->get() as $dbNote) {

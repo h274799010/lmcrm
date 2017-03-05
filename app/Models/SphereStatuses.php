@@ -18,18 +18,44 @@ class SphereStatuses extends Model
      */
     private $statusType =
         [
+            0 => 'no_status',
             1 => 'process',
             2 => 'uncertain',
             3 => 'refuseniks',
-            4 => 'bad'
+            4 => 'bad',
+            5 => 'closed_deal',
+            6 => 'collect_status'
         ];
 
+
+    /**
+     * Номера типов статусов в БД
+     *
+     */
     const STATUS_TYPE_PROCESS = 1;
     const STATUS_TYPE_UNCERTAIN = 2;
     const STATUS_TYPE_REFUSENIKS = 3;
     const STATUS_TYPE_BAD = 4;
     const STATUS_TYPE_CLOSED_DEAL = 5;
 
+
+    /**
+     * id сборных статусов в таблице статусов
+     *
+     */
+    const STATUS_COLLECTING_PROCESS = 70;
+    const STATUS_COLLECTING_UNCERTAIN = 71;
+    const STATUS_COLLECTING_REFUSENIKS = 72;
+    const STATUS_COLLECTING_BAD = 73;
+    const STATUS_COLLECTING_CLOSED_DEAL = 74;
+
+
+    /** todo раскоментировать при обновлении миграций по системе, а верхнее удалить */
+//    const STATUS_COLLECTING_PROCESS = 1;
+//    const STATUS_COLLECTING_UNCERTAIN = 2;
+//    const STATUS_COLLECTING_REFUSENIKS = 3;
+//    const STATUS_COLLECTING_BAD = 4;
+//    const STATUS_COLLECTING_CLOSED_DEAL = 5;
 
     /**
      * Получение сфер по статусу
@@ -40,6 +66,7 @@ class SphereStatuses extends Model
     public function sphere() {
         return $this->belongsTo('App\Models\Sphere','id','sphere_id');
     }
+
 
     /**
      * Ф-ция возвращает имена типов статусов сферы
