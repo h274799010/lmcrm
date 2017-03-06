@@ -1184,15 +1184,28 @@ class LeadController extends AgentController {
         $check = CheckClosedDeals::find($request->input('id'));
 
         if(isset($check->id)) {
+            // Если админ запретил удалять файл
+            if($check->block_deleting == true) {
+                return response()->json([
+                    'status' => 'fail',
+                    'message' => 'Administrator has blocked the ability to delete files'
+                ]);
+            }
             $file = $check->url . $check->file_name;
             if(File::exists($file)) {
                 File::delete($file);
             }
             $check->delete();
-            return response()->json(true);
+            return response()->json([
+                'status' => 'success',
+                'message' => ''
+            ]);
         }
         else {
-            return response()->json(false);
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Server error!'
+            ]);
         }
     }
 

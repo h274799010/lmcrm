@@ -301,10 +301,13 @@
             };
 
             $.post('{{ route('agent.lead.checkDelete') }}', params, function (data) {
-                if(data == true) {
+                if(data.status == 'success') {
                     $this.closest('.file-item').remove();
                 } else {
-                    alert('server error!')
+                    bootbox.dialog({
+                        message: data.message,
+                        show: true
+                    });
                 }
                 if($('#filesListGroup').find('.file-item').length <= 0) {
                     $('#filesListGroup').html('<div class="col-xs-12 empty-check-item"><div class="alert alert-warning">You have not downloaded documents</div></div>');
