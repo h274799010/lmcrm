@@ -190,4 +190,10 @@ class OpenLeadsStatusDetails extends Model
         //
     }
 
+
+    public function openLeads()
+    {
+        return $this->hasOne('App\Models\OpenLeads', 'id', 'open_lead_id');
+    }
+
 }

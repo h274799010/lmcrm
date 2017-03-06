@@ -1,10 +1,14 @@
 <div class="statusWrap">
         @if(isset($openLead->statusInfo->type) && $openLead->statusInfo->type == \App\Models\SphereStatuses::STATUS_TYPE_CLOSED_DEAL)
-            @if(isset($openLead->closeDealInfo) && $openLead->closeDealInfo->status == \App\Models\ClosedDeals::DEAL_STATUS_REJECTED)
-    <span class="statusLabel rejected" id="statusLabel_{{ $openLead->id }}">
+            @if(isset($openLead->closeDealInfo) && $openLead->closeDealInfo->status == \App\Models\ClosedDeals::DEAL_STATUS_CONFIRMED)
+                <span class="statusLabel confirm" id="statusLabel_{{ $openLead->id }}">
                 <i class="fa fa-check-square-o" aria-hidden="true"></i>
+
+            @elseif(isset($openLead->closeDealInfo) && $openLead->closeDealInfo->status == \App\Models\ClosedDeals::DEAL_STATUS_REJECTED)
+                <span class="statusLabel rejected" id="statusLabel_{{ $openLead->id }}">
+                <i class="fa fa-times" aria-hidden="true"></i>
             @else
-    <span class="statusLabel waiting" id="statusLabel_{{ $openLead->id }}">
+                <span class="statusLabel waiting" id="statusLabel_{{ $openLead->id }}">
                 <i class="fa fa-clock-o" aria-hidden="true"></i>
             @endif
         @else

@@ -2,6 +2,12 @@
 
 @section('content')
 <!-- Page Content -->
+
+<ol class="breadcrumb">
+    <li><a href="/">LM CRM</a></li>
+    <li  class="active">Open Leads</li>
+</ol>
+
 <div class="row">
     <div class="col-md-12" id="openedLeadsFilters">
         <label class="obtain-label-period">
@@ -487,9 +493,14 @@
         .statusLabel.waiting {
             color: #D9A502;
         }
-        .statusLabel.rejected {
+        .statusLabel.confirm {
             color: green;
         }
+
+        .statusLabel.rejected {
+            color: red;
+        }
+
         .list-group {
             margin-bottom: 0;
         }

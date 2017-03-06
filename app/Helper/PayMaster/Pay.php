@@ -155,7 +155,7 @@ class Pay
     public static function closingDeal( $lead, $agent, $mask_id, $price )
     {
 
-        // получаем цену за закрытие сделки по лиду
+        // определяем роль пользователя
         if($agent->inRole('salesman')) {
             $salesmanInfo = SalesmanInfo::where('salesman_id', '=', $agent->id)->first();
             $agentParent = Agent::find($salesmanInfo->agent_id);
@@ -172,6 +172,7 @@ class Pay
                 // отмена платежа из-за низкого баланса
                 return [ 'status' => false, 'description' => trans('lead/lead.closingDeal.low_balance')];
             }
+
         } else {
             // раньше расчитывался процент от сделки 
 //            $amount = Price::closeDeal( $agent->id, $lead->sphere_id, $price );

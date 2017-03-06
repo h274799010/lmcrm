@@ -30,91 +30,93 @@ class Statistics
     private $openLeads =
     [
 
-        'allLeadsId' => false,           // массив с открытыми лидами за все время
-        'periodLeadsId' => false,        // массив с открытыми лидами за определенный период
+        'allLeadsId' => false,               // массив с открытыми лидами за все время
+        'periodLeadsId' => false,            // массив с открытыми лидами за определенный период
 
-        'allCount' => false,             // количество лидов всего
-        'periodCount' => false,          // количество лидов за заданный период
+        'allCount' => false,                 // количество лидов всего
+        'periodCount' => false,              // количество лидов за заданный период
 
-        'allLeadsAddedId' => false,      // всего добавленных лидов
-        'periodLeadsAddedId' => false,   // лиды добавленные за период
+        'allLeadsAddedId' => false,          // всего добавленных лидов
+        'periodLeadsAddedId' => false,       // лиды добавленные за период
 
-        'allLeadsAddedCount' => false,   // количество всех добавленных лидов
-        'periodLeadsAddedCount' => false,// количество лидов добавленных за период
+        'allLeadsAddedCount' => false,       // количество всех добавленных лидов
+        'periodLeadsAddedCount' => false,    // количество лидов добавленных за период
 
-        'allAuctionCount' => false,      // количество просмотренных лидов за все время
-        'periodAuctionCount' => false,   // количество просмотренных лидов за период
+        'allAuctionCount' => false,          // количество просмотренных лидов за все время
+        'periodAuctionCount' => false,       // количество просмотренных лидов за период
 
-        'givenDateFrom' => false,        // переданное в метод начальное время периода
-        'givenDateTo' => false,          // переданное в метод конечное время периода
+        'allOperatorBadCount' => false,      // лиды добавленные пользователем забаненные оператором за все время
+        'periodOperatorBadCount' => false,   // лиды добавленные пользователем забаненные оператором за период
 
-        'dateFrom' => false,             // начальное время периода
-        'dateTo' => false,               // конечное время периода
+        'allUserBadCount' => false,          // лиды добавленные пользователем забаненные пользователями за все время
+        'periodUserBadCount' => false,       // лиды добавленные пользователем забаненные пользователями за период
 
-        'sphere' => false,               // модель сферы
-        'sphere_id' => false,            // id сферы
-        'sphereName' => false,           // имя сферы
-        'sphereMinOpen' => false,        // минимальное количество лидов по сфере для статистики
-        'sphereStatus' => false,         // статус по сфере (вклюена/выключенна)
+        'givenDateFrom' => false,            // переданное в метод начальное время периода
+        'givenDateTo' => false,              // переданное в метод конечное время периода
 
-        'accManagers' => false,          // данные аккаунт менеджеров по сфере
+        'dateFrom' => false,                 // начальное время периода
+        'dateTo' => false,                   // конечное время периода
 
-        'allLeadsInSphere' => false,     // количество лидов в сфере за все время
-        'periodLeadsInSphere' => false,  // количество лидов в сфере за период
+        'sphere' => false,                   // модель сферы
+        'sphere_id' => false,                // id сферы
+        'sphereName' => false,               // имя сферы
+        'sphereMinOpen' => false,            // минимальное количество лидов по сфере для статистики
+        'sphereStatus' => false,             // статус по сфере (вклюена/выключенна)
 
-        'allAgentsInSphere' => false,    // количество агентов в сфере за все время
-        'periodAgentsInSphere' => false, // количество агентов в сфере за период
+        'accManagers' => false,              // данные аккаунт менеджеров по сфере
 
-        'user_id' => false,              // id пользователя
-        'userRole' => false,             // роль пользователя
-        'userSubRole' => false,          // суб роль пользователя
-        'userModel' => false,            // модель пользователя
-        'userCreated' => false,          // время когда пользователь был зарегистрирован в системе
+        'allLeadsInSphere' => false,         // количество лидов в сфере за все время
+        'periodLeadsInSphere' => false,      // количество лидов в сфере за период
 
-        'userPermissions' => false,      // права пользователя
-        'userActive' => false,           // забаннен пользователь или нет. true - на забаннен, false - забаннен
+        'allAgentsInSphere' => false,        // количество агентов в сфере за все время
+        'periodAgentsInSphere' => false,     // количество агентов в сфере за период
 
-        'usersForStatistic'=> false,     // массив с id пользователей по которым нужно выбрать статистику
+        'user_id' => false,                  // id пользователя
+        'userRole' => false,                 // роль пользователя
+        'userSubRole' => false,              // суб роль пользователя
+        'userModel' => false,                // модель пользователя
+        'userCreated' => false,              // время когда пользователь был зарегистрирован в системе
 
-        'agentsCount' => false,          // количество агентов акк. менеджера
-        'agentsBlocked' => false,        // количество заблокированных агентов
+        'userPermissions' => false,          // права пользователя
+        'userActive' => false,               // забаннен пользователь или нет. true - на забаннен, false - забаннен
+
+        'usersForStatistic'=> false,         // массив с id пользователей по которым нужно выбрать статистику
+
+        'agentsCount' => false,              // количество агентов акк. менеджера
+        'agentsBlocked' => false,            // количество заблокированных агентов
 
 
-        'addUserToSphere' => false,      // время, когда пользователь был добавлен в сферу
+        'addUserToSphere' => false,          // время, когда пользователь был добавлен в сферу
 
-        'salesman' => false,             // id продавцов пользователя
-        'salesmanSwitch' => false,       // переключатель который указывает включать данные салесмана в статистику агента или нет
-        'salesmenData' => false,         // продавцы пользователя с дынными
-        'salesmanCount' => false,        // количество продавцов пользователя
+        'salesman' => false,                 // id продавцов пользователя
+        'salesmanSwitch' => false,           // переключатель который указывает включать данные салесмана в статистику агента или нет
+        'salesmenData' => false,             // продавцы пользователя с дынными
+        'salesmanCount' => false,            // количество продавцов пользователя
 
-        'salesmanBannedCount' => 0,  // количество забаненных продавцов пользователя
+        'salesmanBannedCount' => 0,          // количество забаненных продавцов пользователя
 
-        'statusesNames' =>               // массив с именами статусов
+        'statusesNames' =>                   // массив с именами статусов
             [
                 // индекс отсутствующего статуса
                 0 => [ 'name' => 'No status', 'type'=> 0 ],
-                // индекс статуса по закрытию сделки
-                -2 => [ 'name' => 'Close Deal', 'type'=> 0 ]
                 // дальше добавляются имена статусов по заданной сфере
             ],
 
-        'statuses' =>
+        'statuses' =>                         // все статусы по сфере
             [
-                'type' =>
+                'type' =>                     // статусы разобранные по типу
                 [
-                    '1' => false,
-                    '2' => false,
-                    '3' => false,
-                    '4' => false,
-                    '5' => false,
+                    '1' => false,             // bad leads
+                    '2' => false,             // Process
+                    '3' => false,             // Uncertain
+                    '4' => false,             // Refuseniks
+                    '5' => false,             // close deal
                 ],
 
-                'noStatus' => false,
-
-                'closeDeal' => false
+                'noStatus' => false,           // лиды с отсутствующим статусом
             ],
 
-        'transitions' => false,
+        'transitions' => false,                // транзиты по сфере
     ];
 
 
@@ -563,6 +565,23 @@ class Statistics
 
         // подсчитываем сумарные данные по каждому типу статусов
         $this->sphereStatusesCalculateSummary();
+
+        // выбираем собранные статусы
+        $collectiveStatuses = SphereStatuses::where('type', 6)->get();
+
+        // перебираем все собранные статусы
+        $collectiveStatuses->each(function( $status )
+            use( &$statusesNames )
+        {
+
+            // добавляем имя статуса в коллекцию
+            $statusesNames[ $status->id ] =
+            [
+                'name' => $status->stepname,
+                'type'=> $status->type,
+                'additional_type'=> $status->additional_type
+            ];
+        });
     }
 
 
@@ -755,14 +774,47 @@ class Statistics
 
             // проверка статуса транзита сферы
             if( $this->openLeads['statusesNames'][ $transit->status_id ]['type'] != 1 ){
-                // добавляем в билдер предыдущий статус к выборке
-                $userTransitionsCount->where(  'previous_status_id', $transit->previous_status_id );
+
+                // проверка это сборный статус или обычный
+                if( $this->openLeads['statusesNames'][ $transit->previous_status_id ]['type'] == 6 ){
+
+                    // выбираем id всех статусов по сфере с соответствующим типом
+                    $previous_statuses_id = SphereStatuses::
+                          where('sphere_id', $transit->sphere_id)
+                        ->where( 'type', $this->openLeads['statusesNames'][ $transit->previous_status_id ]['additional_type'])
+                        ->lists('id');
+
+                    // добавляем в билдер предыдущий статус к выборке
+                    $userTransitionsCount->whereIn(  'previous_status_id', $previous_statuses_id );
+
+                }else{
+                    // добавляем в билдер предыдущий статус к выборке
+                    $userTransitionsCount->where(  'previous_status_id', $transit->previous_status_id );
+                }
             }
 
-            // добавление статуса на который пользователь перешол и подсчет
-            $userTransitionsCount = $userTransitionsCount
-                ->where( 'status_id', $transit->status_id )
-                ->count();
+
+            // проверка это сборный статус или обычный
+            if( $this->openLeads['statusesNames'][ $transit->status_id ]['type'] == 6 ){
+
+                // выбираем id всех статусов по сфере с соответствующим типом
+                $statuses_id = SphereStatuses::
+                      where('sphere_id', $transit->sphere_id)
+                    ->where( 'type', $this->openLeads['statusesNames'][ $transit->status_id ]['additional_type'])
+                    ->lists('id');
+
+                // добавление статуса на который пользователь перешол и подсчет
+                $userTransitionsCount = $userTransitionsCount
+                    ->whereIn( 'status_id', $statuses_id )
+                    ->count();
+
+            }else{
+                // добавление статуса на который пользователь перешол и подсчет
+                $userTransitionsCount = $userTransitionsCount
+                    ->where( 'status_id', $transit->status_id )
+                    ->count();
+            }
+
 
 
             /** Получаем количество транзитов из истории пользователя за период */
@@ -774,13 +826,45 @@ class Statistics
             // проверка статуса транзита сферы
             if( $this->openLeads['statusesNames'][ $transit->status_id ]['type'] != 1 ){
                 // добавляем в билдер предыдущий статус к выборке
-                $userPeriodTransitionsCount->where(  'previous_status_id', $transit->previous_status_id );
+
+                // проверка это сборный статус или обычный
+                if( $this->openLeads['statusesNames'][ $transit->previous_status_id ]['type'] == 6 ){
+
+                    // выбираем id всех статусов по сфере с соответствующим типом
+                    $previous_statuses_id = SphereStatuses::
+                          where('sphere_id', $transit->sphere_id)
+                        ->where( 'type', $this->openLeads['statusesNames'][ $transit->previous_status_id ]['additional_type'])
+                        ->lists('id');
+
+                    // добавляем в билдер предыдущий статус к выборке
+                    $userPeriodTransitionsCount->whereIn(  'previous_status_id', $previous_statuses_id );
+
+                }else{
+                    // добавляем в билдер предыдущий статус к выборке
+                    $userPeriodTransitionsCount->where(  'previous_status_id', $transit->previous_status_id );
+                }
             }
 
-            // добавление статуса на который пользователь перешол и подсчет количества
-            $userPeriodTransitionsCount = $userPeriodTransitionsCount
-                ->where( 'status_id', $transit->status_id )
-                ->count();
+            // проверка это сборный статус или обычный
+            if( $this->openLeads['statusesNames'][ $transit->status_id ]['type'] == 6 ){
+
+                // выбираем id всех статусов по сфере с соответствующим типом
+                $statuses_id = SphereStatuses::
+                      where('sphere_id', $transit->sphere_id)
+                    ->where( 'type', $this->openLeads['statusesNames'][ $transit->status_id ]['additional_type'])
+                    ->lists('id');
+
+                // добавление статуса на который пользователь перешол и подсчет
+                $userPeriodTransitionsCount = $userPeriodTransitionsCount
+                    ->whereIn( 'status_id', $statuses_id )
+                    ->count();
+
+            }else{
+                // добавление статуса на который пользователь перешол и подсчет количества
+                $userPeriodTransitionsCount = $userPeriodTransitionsCount
+                    ->where( 'status_id', $transit->status_id )
+                    ->count();
+            }
 
             // вычисление процента за весь период
             $allPercent = $this->openLeads['allCount'] != 0 ? round($userTransitionsCount * 100 / $this->openLeads['allCount'], 2) : 0;
@@ -795,9 +879,9 @@ class Statistics
                 'fromStatus' => $this->openLeads['statusesNames'][ $transit->previous_status_id ]['name'],
                 'toStatus' => $this->openLeads['statusesNames'][ $transit->status_id ]['name'],
                 'percentAll' => $allPercent,
-                'ratingAll' => SphereStatusTransitions::getRating($transit->previous_status_id, $transit->status_id, $allPercent),
+                'ratingAll' => $transit->getRating( $allPercent ),
                 'percentPeriod' => $periodPercent,
-                'ratingPeriod' => SphereStatusTransitions::getRating($transit->previous_status_id, $transit->status_id, $periodPercent)
+                'ratingPeriod' => $transit->getRating( $periodPercent ),
             ];
         });
     }
@@ -1247,6 +1331,47 @@ class Statistics
 
 
     /**
+     * Получение лидов помеченных как bad
+     *
+     */
+    private function getUserAddedBadLeads()
+    {
+
+        // проверка наличия массива с id добавленных лидов за все время
+        if( $this->openLeads['allLeadsAddedId'] ){
+
+            // bad лиды агента за все время, которые были помеченны оператором
+            $this->openLeads['allOperatorBadCount'] = Lead::
+                  whereIn('id', $this->openLeads['allLeadsAddedId'])
+                ->where('status', 1)
+                ->count();
+
+            // bad лиды агента за все время, которые были помеченны пользователями
+            $this->openLeads['allUserBadCount'] = Lead::
+                  whereIn('id', $this->openLeads['allLeadsAddedId'])
+                ->where('status', 5)
+                ->count();
+
+            // проверка наличия массива с id добавленных лидов за заданный период
+            if( $this->openLeads['periodLeadsAddedId'] ){
+
+                // bad лиды агента за заданный перидо, которые были помеченны оператором
+                $this->openLeads['periodOperatorBadCount'] = Lead::
+                      whereIn('id', $this->openLeads['periodLeadsAddedId'])
+                    ->where('status', 1)
+                    ->count();
+
+                // bad лиды агента за заданный период, которые были помеченны пользователями
+                $this->openLeads['periodUserBadCount'] = Lead::
+                      whereIn('id', $this->openLeads['periodLeadsAddedId'])
+                    ->where('status', 5)
+                    ->count();
+            }
+        }
+    }
+
+
+    /**
      * Получение статистики агента по сфере
      *
      *
@@ -1336,6 +1461,9 @@ class Statistics
         // подсчет лидов, добавленных пользователем
         $this->getAddedLeads();
 
+        // подсчет количества добавленных лидов агента помеченных как бэд
+        $this->getUserAddedBadLeads();
+
         // добавление количества просмотренных лидов
         $this->getAuctionLeads();
 
@@ -1385,6 +1513,18 @@ class Statistics
                 [
                     'all' => $this->openLeads['allLeadsAddedCount'],
                     'period' => $this->openLeads['periodLeadsAddedCount'],
+                ],
+
+                'operatorBad' =>
+                [
+                    'all' => $this->openLeads['allOperatorBadCount'],
+                    'period' => $this->openLeads['periodOperatorBadCount'],
+                ],
+
+                'agentBad' =>
+                [
+                    'all' => $this->openLeads['allUserBadCount'],
+                    'period' => $this->openLeads['periodUserBadCount'],
                 ],
 
                 'auction' =>
@@ -1510,6 +1650,9 @@ class Statistics
         // подсчет лидов, добавленных пользователем
         $this->getAddedLeads();
 
+        // подсчет количества добавленных лидов агента помеченных как бэд
+        $this->getUserAddedBadLeads();
+
         // формирование массива статусов по статусам сферы
         // и подсчет статистики по открытым лидам
         $this->getSphereStatuses();
@@ -1525,6 +1668,7 @@ class Statistics
 
         // получение данных по всем салесманам
         $this->getSalesmenData();
+
 
         // формирование основного массива данных
         $statistics =
@@ -1575,6 +1719,18 @@ class Statistics
                     'period' => $this->openLeads['periodLeadsAddedCount'],
                 ],
 
+            'operatorBad' =>
+                [
+                    'all' => $this->openLeads['allOperatorBadCount'],
+                    'period' => $this->openLeads['periodOperatorBadCount'],
+                ],
+
+            'agentBad' =>
+                [
+                    'all' => $this->openLeads['allUserBadCount'],
+                    'period' => $this->openLeads['periodUserBadCount'],
+                ],
+
             'auction' =>
                 [
                     'all' => $this->openLeads['allAuctionCount'],
@@ -1618,6 +1774,12 @@ class Statistics
                   where('user_id', $this->openLeads['user_id'])
                 ->where('sphere_id', $this->openLeads['sphere_id'])
                 ->lists('id');
+
+        }elseif( $this->openLeads['userRole'] == 'agent' ){
+
+            $justAgent = new Statistics();
+
+            $statistics['user']['justAgent'] = $justAgent->agentBySphereShort($userId, $sphereId, false, $dateFrom=false, $dateTo=false);
 
         }
 
@@ -1797,7 +1959,7 @@ class Statistics
      * @param  string|boolean  $dateFrom
      * @param  string|boolean  $dateTo
      *
-     * @return object
+     * @return array
      */
     public function bySphere( $sphereId, $dateFrom=false, $dateTo=false )
     {

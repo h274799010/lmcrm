@@ -4,9 +4,16 @@
     <!-- Page Content -->
     <div class="row">
         <div class="col-xs-12">
-            <div class="page-header">
-                <h3>Deal info</h3>
-            </div>
+
+            <ol class="breadcrumb">
+                <li><a href="/">LM CRM</a></li>
+                <li><a href="{{ route('agent.lead.opened')  }}">Open Leads</a></li>
+                <li class="active">Deal: {{ $leadData[0][1] }}</li>
+            </ol>
+
+            {{--<div class="page-header">--}}
+                {{--<h3>Deal info</h3>--}}
+            {{--</div>--}}
         </div>
     </div>
     <div class="row">
@@ -20,6 +27,28 @@
                         <td>{{ $data[1] }}</td>
                     </tr>
                 @endforeach
+                </tbody>
+            </table>
+
+            <h4>Transactions</h4>
+            <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
+                <thead>
+                    <tr>
+                        <th class="center">amount</th>
+                        <th class="center">date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($transactions as $transaction)
+                        <tr>
+                            <td class="center">{{ $transaction['amount'] * -1 }}</td>
+                            <td class="center">{{ $transaction['transaction']['created_at']->format('d/m/Y') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="center">No transactions</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
 
@@ -39,10 +68,19 @@
                         <th>Deal price</th>
                         <td>{{ $openLead->closeDealInfo->price }}</td>
                     </tr>
+
                     <tr>
-                        <th>To pay</th>
+                        <th>Percent</th>
                         <td>{{ $openLead->closeDealInfo->percent }}</td>
                     </tr>
+
+                    @if( $dealType['few_payments'] )
+                        <tr>
+                            <th>To pay</th>
+                            <td>{{ $amountLeft }}</td>
+                        </tr>
+                    @endif
+
                     <tr>
                         <th>Date</th>
                         <td>{{ date('Y-m-d H:i', $openLead->closeDealInfo->created_at->timestamp) }}</td>
@@ -60,16 +98,25 @@
                 @endif
                 </tbody>
             </table>
-            @if(isset($openLead->closeDealInfo) && empty($openLead->closeDealInfo->purchase_transaction_id))
+            {{--@if(isset($openLead->closeDealInfo) && empty($openLead->closeDealInfo->purchase_transaction_id))--}}
+            @if(isset($openLead->closeDealInfo) && $openLead->closeDealInfo->status == 1 )
+
                 <div id="paymentBtnWrap">
                     <h2>Pay out:</h2>
-                    <a href="#" class="btn btn-sm btn-primary" id="btnPayWallet">Wallet</a>
-                    <a href="#" class="btn btn-sm btn-primary">Other</a>
+                    @if( $dealType['few_payments'] )
+                        <input id="amount" class="amountInput" type="text">
+                    @endif
+                    <span class="btn btn-sm btn-primary" id="btnPayWallet">Wallet</span>
+                    <span class="btn btn-sm btn-primary">Other</span>
                 </div>
             @else
                 <div class="alert alert-success" role="alert">Paid</div>
             @endif
+
         </div>
+
+
+
         <!-- /.col-lg-10 -->
     </div>
     <div class="row">
@@ -288,6 +335,13 @@
         .file-item {
             margin-bottom: 20px;
         }
+
+        .amountInput{
+            background: white;
+            color: black;
+            width: 100px;
+        }
+
     </style>
 @endsection
 
@@ -356,10 +410,31 @@
                     id: '{{ $openLead->id }}'
                 };
 
+
+                @if( $dealType['few_payments'] )
+
+                    // todo добалвение суммы к сделке
+
+                    params.amount = $('input#amount').val();
+
+//                    return false;
+                @endif
+
                 $.post('{{ route('agent.lead.paymentDealWallet') }}', params, function (data) {
                     if(data === true) {
-                        $('#paymentBtnWrap').after('<div class="alert alert-success" role="alert">Paid</div>');
-                        $('#paymentBtnWrap').remove();
+
+                        @if( $dealType['few_payments'] )
+
+                            bootbox.dialog({
+                                message: 'payment success',
+                                show: true
+                            });
+
+                        @else
+                            $('#paymentBtnWrap').after('<div class="alert alert-success" role="alert">Paid</div>');
+                            $('#paymentBtnWrap').remove();
+                        @endif
+
                     } else {
                         bootbox.dialog({
                             message: data.description,

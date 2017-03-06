@@ -13,17 +13,14 @@ class CreateSphereStatus extends Migration
     public function up()
     {
         Schema::create('sphere_statuses', function (Blueprint $table) {
-            $table->increments('id');         // id статуса сферы
-            $table->integer('sphere_id');     // id сферы к которой относится статус
-            $table->integer('type');          // тип статуса (статусы описаны в моделе статусов сфер)
-            $table->string('stepname');       // имя статуса сферы
-            $table->string('comment');        // комментарий к статусу
-
-//            $table->boolean('minmax');
-//            $table->float('percent');
-
-            $table->integer('position');      // позиция статуса
-            $table->timestamps();             // временные метки
+            $table->increments('id');                          // id статуса сферы
+            $table->integer('sphere_id');                      // id сферы к которой относится статус
+            $table->integer('type');                           // тип статуса (статусы описаны в моделе статусов сфер)
+            $table->integer('additional_type')->nullable();    // дополнительный тип (тип сделки и др...)
+            $table->string('stepname');                        // имя статуса сферы
+            $table->string('comment');                         // комментарий к статусу
+            $table->integer('position');                       // позиция статуса
+            $table->timestamps();                              // временные метки
         });
     }
 

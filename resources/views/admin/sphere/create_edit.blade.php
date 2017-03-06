@@ -1195,6 +1195,16 @@
                                                             <input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >
                                                         </div>
 
+                                                        {{-- селектбокс с типами сделок --}}
+                                                        <div class="col-xs-3">
+
+                                                            {{--<input ng-model="status.stepname" class="form-control pull-left flip select" type="text" value="" placeholder="Status name" >--}}
+                                                            <select ng-model="status.additional_type" class="selectbox deals_types_selectbox">
+                                                                <option ng-repeat="dealType in data.dealsTypes" value="@{{ dealType.id }}">@{{ dealType.name }}</option>
+                                                            </select>
+
+                                                        </div>
+
                                                         {{-- смена позиции статуса --}}
                                                         <div sv-handle class="col-xs-1">
                                                             <button class="btn btn-primary btn-duplicate-remove pull-right flip" type="button">
@@ -1274,13 +1284,12 @@
                                         <th>Action</th>
                                     </tr>
 
-                                    {{--| orderBy: 'position'--}}
-
                                     <tr ng-repeat="transition in data.statusTransitions" sv-element ng-class="transition.delete ? 'hidden' : ''" class="status_transition_row">
                                 <td class="selectbox_cell">
                                     <select name="repeatSelect" id="repeatSelect" data-placeholder="-" ng-model="transition.outer_previous_status_id" class="selectbox transition_selectbox">
                                         <option value=""></option>
                                         <option value="0">No status</option>
+                                        <option value="@{{ data.collectingStatuses.process.outerId }}">@{{ data.collectingStatuses.process.stepname }}</option>
                                         <option ng-repeat="option in data.threshold.values[1]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                         {{--<option ng-if="statusSeparator(2)" disabled>----------</option>--}}
                                         {{--<option ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>--}}
@@ -1293,14 +1302,19 @@
                                 <td class="selectbox_cell">
                                     <select data-placeholder="-" ng-model="transition.outer_status_id" class="selectbox transition_selectbox" ng-disabled="toStatusDisabled(transition)">
                                         <option value=""></option>
+                                        <option value="@{{ data.collectingStatuses.process.outerId }}">@{{ data.collectingStatuses.process.stepname }}</option>
                                         <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[1]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                         <option ng-if="statusSeparator(2)" disabled>----------</option>
+                                        <option value="@{{ data.collectingStatuses.uncertain.outerId }}">@{{ data.collectingStatuses.uncertain.stepname }}</option>
                                         <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[2]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                         <option ng-if="statusSeparator(3)" disabled>----------</option>
+                                        <option value="@{{ data.collectingStatuses.refuseniks.outerId }}">@{{ data.collectingStatuses.refuseniks.stepname }}</option>
                                         <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[3]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                         <option ng-if="statusSeparator(4)" disabled>----------</option>
+                                        <option value="@{{ data.collectingStatuses.bad.outerId }}">@{{ data.collectingStatuses.bad.stepname }}</option>
                                         <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[4]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                         <option ng-if="statusSeparator(4)" disabled>----------</option>
+                                        <option value="@{{ data.collectingStatuses.deal.outerId }}">@{{ data.collectingStatuses.deal.stepname }}</option>
                                         <option ng-if="toStatusOptionShow(transition, option)" ng-repeat="option in data.threshold.values[5]" ng-if="!option.delete" value="@{{option.outerId}}">@{{ option.stepname }}</option>
                                         {{--<option value="-2">Close Deal</option>--}}
                                     </select>
@@ -2099,6 +2113,10 @@
 
         tr.status_transition_row{
             background: #FFFFFF;
+        }
+
+        .deals_types_selectbox{
+            width: 200px;
         }
 
     </style>

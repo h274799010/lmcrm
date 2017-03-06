@@ -38,5 +38,65 @@ class DatabaseSeeder extends Seeder
             'id' => '1',
             'user_id' => '1'
         ]);
+
+
+        /** --- Добавление сборных статусов в таблицу статусов по сферам --- */
+
+        DB::table('sphere_statuses')->insert([
+            'id' => '1',
+            'sphere_id' => '0',
+            'type' => '6',
+            'additional_type' => '1',
+            'stepname' => 'PROCESS',
+            'position' => '0',
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        DB::table('sphere_statuses')->insert([
+            'id' => '2',
+            'sphere_id' => '0',
+            'type' => '6',
+            'additional_type' => '2',
+            'stepname' => 'UNCERTAIN',
+            'position' => '0',
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        DB::table('sphere_statuses')->insert([
+            'id' => '3',
+            'sphere_id' => '0',
+            'type' => '6',
+            'additional_type' => '3',
+            'stepname' => 'REFUSENIKS',
+            'position' => '0',
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        DB::table('sphere_statuses')->insert([
+            'id' => '4',
+            'sphere_id' => '0',
+            'type' => '6',
+            'additional_type' => '4',
+            'stepname' => 'BAD',
+            'position' => '0',
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        DB::table('sphere_statuses')->insert([
+            'id' => '5',
+            'sphere_id' => '0',
+            'type' => '6',
+            'additional_type' => '5',
+            'stepname' => 'CLOSED DEAL',
+            'position' => '0',
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+
     }
 }

@@ -874,9 +874,25 @@ var app = angular.module('app', ['angular-sortable-view'])
                 position: $scope.data.threshold.values[type].length + 1 // позиция
             };
 
+            // проверка типа статуса
+            if( type == 5 ){
+                // если сделка, добавляем первое значение из типов сделки
+                newStatus['additional_type'] = String( $scope.data.dealsTypes[0].id );
+            }
+            
             // добавляем статус в модель
             $scope.data.threshold.values[type].push( newStatus );
-
+    
+            // инициализация селектбоксов
+            setTimeout(function(){
+        
+                // селектбоксы типов сделок
+                $('.deals_types_selectbox').select2({
+                    // allowClear: true
+                });
+        
+            }, 500);
+            
             // перестройка транзитов статусов (уже ненужно)
             //makeStatusTransitions();
         };
@@ -1567,8 +1583,8 @@ var app = angular.module('app', ['angular-sortable-view'])
 
             });
 
-            console.log( $scope.data );
-            console.log( $scope.data.currentStatusTransition );
+            // console.log( $scope.data );
+            // console.log( $scope.data.currentStatusTransition );
         }
 
 
@@ -1656,16 +1672,6 @@ var app = angular.module('app', ['angular-sortable-view'])
                 item.position = i+1;
             });
 
-
-            //list.forEach(function(item, i) {
-            //    // проставляем позицию
-            //    console.log('позиционирование: ' + item.id);
-            //    console.log('до: ' + item.position);
-            //
-            //    item.position = i+1;
-            //    console.log('после: ' + item.position);
-            //    console.log('---------------');
-            //});
         };
 
 
@@ -1738,8 +1744,51 @@ var app = angular.module('app', ['angular-sortable-view'])
 
                 // преобразовываем статус в строку (иначе выпадающее меню на него не реагирует
                 data.opt.variables.status.values = String( data.opt.variables.status.values );
+    
+                // пореборазование дополнительного статуса сделки в строку
+                angular.forEach( data.threshold.values[5], function( status ){
+                    
+                    status.additional_type = String( status.additional_type );
+                });
+                
+                // объект с собранными статусами
+                data.collectingStatuses =
+                {
+                    process: false,
+                    uncertain: false,
+                    refuseniks: false,
+                    bad: false,
+                    deal: false,
+                };
 
-
+                // выбираем собирательные статусы по типу
+                angular.forEach( data.threshold.values[6], function( status ){
+                    
+                    switch(status.additional_type){
+                        
+                        case 1:
+                            data.collectingStatuses.process = status;
+                            break;
+    
+                        case 2:
+                            data.collectingStatuses.uncertain = status;
+                            break;
+    
+                        case 3:
+                            data.collectingStatuses.refuseniks = status;
+                            break;
+    
+                        case 4:
+                            data.collectingStatuses.bad = status;
+                            break;
+    
+                        case 5:
+                            data.collectingStatuses.deal = status;
+                            break;
+                    }
+                });
+                
+                
                 // отдаем модель
                 $scope.data = data;
 
@@ -1759,18 +1808,22 @@ var app = angular.module('app', ['angular-sortable-view'])
                         dbStatusTransitions[val.previous_status_id] ={};
                     }
 
-                    //dbStatusTransitions[val.previous_status_id].push(val);
-
-                    //console.log( val);
-
                     dbStatusTransitions[val.previous_status_id][val.status_id] = val;
                 });
 
+                // инициализация селектбоксов
                 setTimeout(function(){
 
+                    // селектбоксы транзитов
                     $('.transition_selectbox').select2({
                         allowClear: true
                     });
+                    
+                    // селектбоксы типов сделок
+                    $('.deals_types_selectbox').select2({
+                        // allowClear: true
+                    });
+                    
                 }, 500);
 
             })

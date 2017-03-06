@@ -1283,12 +1283,12 @@ textarea.tab_notes{
 
 .statistics_uncertain_statuses th{
     color: #ffffff !important;
-    background: #5A8230;
+    background: #D9A502;
 }
 
 .statistics_refuseniks_statuses th{
     color: #ffffff !important;
-    background: #D9A502;
+    background: #7F3300;
 }
 
 .statistics_bad_statuses th{
@@ -1298,7 +1298,7 @@ textarea.tab_notes{
 
 .statistics_closeDeal_statuses th{
     color: #ffffff !important;
-    background: #1C6C6D;
+    background: #3F51B5;
 }
 
 .statistics_transitions_statuses th{
@@ -1325,6 +1325,21 @@ textarea.tab_notes{
     background: #3F51B5;
     text-align: center;
     font-size: 14px !important;
+}
+
+.just_agent_table_head th{
+    color: #ffffff !important;
+    background: #3F51B5;
+    text-align: center;
+    font-size: 14px !important;
+}
+
+table.just_agent_table th{
+    color: grey;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px !important;
+    width: 10%;
 }
 
 .salesmen_table_head th{
@@ -1519,7 +1534,7 @@ h4.statistic-sphere-name{
 }
 
 table.user_leads_info tr td{
-    width: 16%;
+    width: 10%;
 }
 
 .acc_manager_block{
@@ -1600,8 +1615,8 @@ table.user_leads_info tr td{
 
 }
 
-.width-prc-20{
-    width: 20% !important;
+.operator_count_col{
+    width: 10% !important;
 }
 
 .transitionDetail{
@@ -1615,15 +1630,27 @@ table.user_leads_info tr td{
     margin-bottom: 15px;
 }
 
+.modal_current_user_table{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 .modal_current_user_table th{
     color: darkgray;
     font-size: 12px;
-    text-align: center;
+    text-align: right;
 }
 
 .modal_current_user_table td{
     /*color: darkgray;*/
     /*font-size: 12px;*/
+    text-align: left;
+    padding-left: 10px;
+}
+
+.modal_leads_table th{
+    color: darkgray;
+    font-size: 12px;
     text-align: center;
 }
 
@@ -1631,4 +1658,43 @@ table.user_leads_info tr td{
     text-align: left !important;
 }
 
+ul.list-group.permissions_group{
+    margin-bottom: 4px;
+}
 
+.permissions_change{
+    color: #2D9FB0;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.permissions_change:hover{
+    color: #3F51B5;
+    font-weight: 500;
+}
+
+.modal-dialog.permission-modal-dialog{
+    max-width: 400px;
+}
+
+tbody tr.count_summary td:first-child{
+    border-top: 3px solid white;
+}
+
+tbody tr.count_summary {
+    border-top: 3px solid #A2A2A2;
+}
+
+.groups-statuses{
+
+}
+
+.statistics_groups_statuses th{
+    color: #505050;
+    background: #92D050;
+}
+
+.groups-statuses th{
+    font-size: 13px;
+    padding: 5px 0 !important;
+}

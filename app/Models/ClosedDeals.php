@@ -33,6 +33,7 @@ class ClosedDeals extends Model
     const DEAL_STATUS_WAITING = 1;
     const DEAL_STATUS_CONFIRMED = 2;
     const DEAL_STATUS_REJECTED = 3;
+    const DEAL_STATUS_ON_CONFIRMATION = 4;
 
 
     /**
@@ -96,9 +97,9 @@ class ClosedDeals extends Model
             [
                 self::DEAL_STATUS_WAITING => 'waiting for payment',
                 self::DEAL_STATUS_CONFIRMED => 'deal confirmed',
-                self::DEAL_STATUS_REJECTED => 'rejected'
+                self::DEAL_STATUS_REJECTED => 'rejected',
+                self::DEAL_STATUS_ON_CONFIRMATION => 'on confirmation'
             ]
         );
-
     }
 }

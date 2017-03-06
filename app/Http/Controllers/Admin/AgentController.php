@@ -361,6 +361,7 @@ class AgentController extends AdminController
         return response()->json([ 'error'=>true, 'message'=>trans('admin/agent.revenue_not_update') ]);
     }
 
+
     /**
      * Метод обновляет agent_range агента в табл. agent_sphere
      *
@@ -392,9 +393,6 @@ class AgentController extends AdminController
     }
 
 
-
-
-
     /**
      * Remove the specified resource from storage.
      *
@@ -406,6 +404,7 @@ class AgentController extends AdminController
         Agent::findOrFail($id)->delete();
         return redirect()->route('admin.agent.index');
     }
+
 
     /**
      * Show a list of all the languages posts formatted for Datatables.
@@ -519,6 +518,7 @@ class AgentController extends AdminController
             ->make();
     }
 
+
     public function ban(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -578,6 +578,7 @@ class AgentController extends AdminController
         ));
     }
 
+
     public function unbanData(Request $request)
     {
         $user = Sentinel::findById($request->input('user_id'));
@@ -595,6 +596,7 @@ class AgentController extends AdminController
 
         return response()->json($permissions);
     }
+
 
     public function unban(Request $request)
     {
@@ -652,6 +654,7 @@ class AgentController extends AdminController
         ));
     }
 
+
     /**
      * Список самостоятельно зарегестрированных (новых, не активированых) агентов
      *
@@ -667,6 +670,8 @@ class AgentController extends AdminController
 
         return view('admin.agent.new')->with([ 'agents' => $agents ]);
     }
+
+
     public function agentActivatedPage($id)
     {
         // данные агента
@@ -711,6 +716,7 @@ class AgentController extends AdminController
             'agentMasks' => $agentMasks
         ]);
     }
+
 
     /**
      * Активация агента
@@ -897,7 +903,7 @@ class AgentController extends AdminController
     public function switchPermission( Request $request )
     {
 
-        $userId = $request['agent_id'];
+        $userId = (int)$request['agent_id'];
         $permission = $request['permission'];
 
         // получение всех правил системы по пользователям
@@ -936,4 +942,87 @@ class AgentController extends AdminController
         return response()->json([ 'status' => true, 'permissions' => $permissions ]);
     }
 
+
+    /**
+     * Обновление прав пользователя по заданному массиву
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Response
+     */
+    public function permissionsUpdate( Request $request )
+    {
+
+        /** Проверка данных */
+
+        // получение и привидение id пользователя к integer
+        $userId = (int)$request['agent_id'];
+        // получение прав пользователя переданных с фронтенда
+        $permissions = collect($request['permissions']);
+
+        // получение всех правил системы по пользователям
+        $systemPermissions = collect(User::$bannedPermissions);
+
+        // проверка правил полученных с фронтенда
+        $permissions = $permissions->map(function( $permission ) use ($systemPermissions){
+
+            // проверка правила на существование
+            if( !isset($systemPermissions[$permission['name']]) ){
+                // если заданного правила нет, возвращается ошибка
+                abort(403, 'Wrong permission name "' .$permission['name'] .'""' );
+            }
+
+            // переводим статус правила в булев тип
+            if( $permission['status'] === 'true'){
+                // если true
+                $permission['status'] = true;
+
+            }elseif( $permission['status'] === 'false'){
+                // если false
+                $permission['status'] = false;
+
+            }else{
+                // если неподходит ни один вариант
+                abort(403, 'Wrong permission status' );
+            }
+
+            // добавление имени разрешения
+            $permission['title'] = trans('admin/users.permissions.' .$permission['name']);
+
+            // возвращаем правило
+            return $permission;
+        });
+
+
+
+        /** Смена прав пользователя */
+
+        // пользователь которому нужно поменять права
+        $user = Sentinel::findById($userId);
+
+        // получаем права пользователя
+        $userPermissions = $user->permissions;
+
+        // проверка на наличие прав у пользователя
+        if( $userPermissions == []){
+            // если прав нет
+
+            // записываем их
+            $userPermissions = $systemPermissions;
+        }
+
+        // перебираем все правила полученные с фронтенда
+        $permissions->each(function($permission) use( &$userPermissions) {
+            // выставляем заданный статус
+            $userPermissions[ $permission['name'] ] = $permission['status'];
+        });
+
+        // заносим правила в модель
+        $user->permissions = $userPermissions;
+        // сохраняем
+        $user->save();
+
+        return response()->json([ 'status' => true, 'permissions' => $permissions ]);
+    }
 }

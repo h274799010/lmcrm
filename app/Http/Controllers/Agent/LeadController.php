@@ -16,6 +16,8 @@ use App\Models\Organizer;
 use App\Models\SphereStatuses;
 use App\Models\AgentsPrivateGroups;
 use App\Models\OpenLeadsStatusDetails;
+use App\Models\TransactionsDetails;
+use App\Models\TransactionsLeadInfo;
 use App\Transformers\ObtainedLeadsTransformer;
 use App\Transformers\OpenedLeadsTransformer;
 use Carbon\Carbon;
@@ -677,6 +679,7 @@ class LeadController extends AgentController {
         return view('agent.lead.create', $data);
     }
 
+
     /**
      * Store a newly created resource in storage.
      *
@@ -932,7 +935,7 @@ class LeadController extends AgentController {
 
 
     /**
-     * метод устанавливает статус
+     * Метод устанавливает статус
      *
      *
      * @param  Request  $request
@@ -986,14 +989,14 @@ class LeadController extends AgentController {
             }
 
             // закрываем сделку
-            $closeDealResult = $openedLead->closeDeal($request->input('price'), $request->input('comments'));
+            $closeDealResult = $openedLead->closeDeal($request->input('price'), $request->input('comments'), $status->sphere_id, $status->additional_type);
 
             /** Проверка статуса закрытия сделки */
             if( $closeDealResult === true ){
                 // сделка закрыта нормально
 
                 // сохраняем историю статусов
-                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -2);
+//                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -2);
 
                 // сохраняем старый статус
                 $previous_status = $openedLead->status;
@@ -1504,6 +1507,7 @@ class LeadController extends AgentController {
         return $openResult;
     }
 
+
     /**
      * Получение списка статусов для открытого лида
      *
@@ -1589,6 +1593,8 @@ class LeadController extends AgentController {
 
         return response()->json($res);
     }
+
+
     public function getOpenLeadStatusesOld(Request $request)
     {
         $res = array(
@@ -1662,6 +1668,7 @@ class LeadController extends AgentController {
         return response()->json($res);
     }
 
+
     /**
      * Страница подробной информации о лиде
      *
@@ -1681,6 +1688,22 @@ class LeadController extends AgentController {
                 ]);
             }
         ])->find($lead_id);
+
+
+        $leadsTransactions = TransactionsLeadInfo::
+              where( 'lead_id', $openLead->lead_id )
+            ->lists('transaction_id');
+
+        $transactions = TransactionsDetails::
+              whereIn('transaction_id', $leadsTransactions)
+            ->with('transaction')
+            ->where('user_id', $openLead->agent_id)
+            ->where('type', 'closingDeal')
+            ->get();
+
+//        dd( $transactions );
+
+//        dd($openLead);
 
         $user = Sentinel::getUser();
 
@@ -1772,12 +1795,35 @@ class LeadController extends AgentController {
             $leadData[] = [ $attr->label, $str ];
         }
 
+//        dd( $openLead );
+
+        $leadsTransactions = TransactionsLeadInfo::
+              where( 'lead_id', $openLead->lead_id )
+            ->lists('transaction_id');
+
+        $sum = TransactionsDetails::
+              whereIn('transaction_id', $leadsTransactions)
+            ->with('transaction')
+            ->where('user_id', $openLead->agent_id)
+            ->where('type', 'closingDeal')
+            ->sum('amount');
+
         $dealStatuses = ClosedDeals::getDealStatuses();
+
+        $amountLeft = $openLead->closeDealInfo->percent - ($sum * -1);
+
+        $dealType['few_payments'] = $openLead->closeDealInfo->deal_type == SphereStatuses::DEAL_TYPE_FEW_PAYMENTS;
+
+//        dd($leadData);
 
         return view('agent.lead.aboutDeal', [
             'leadData' => $leadData,
             'openLead' => $openLead,
-            'dealStatuses' => $dealStatuses
+            'dealStatuses' => $dealStatuses,
+            'transactions' => $transactions,
+            'dealType' => $dealType,
+            'amountLeft' => $amountLeft
+
         ]);
     }
 
@@ -1795,36 +1841,97 @@ class LeadController extends AgentController {
         $closedDeal = ClosedDeals::where('open_lead_id', '=', $openLead->id)->first();
         $agent = Agent::find( $openLead->agent_id );
 
-        if($closedDeal->lead_source == 2) {
-            $owner = Agent::find( $lead->agent_id );
+        // обработка в зависимости от типа статуса
+        if( $closedDeal->deal_type == SphereStatuses::DEAL_TYPE_ONE_PAYMENT ){
+            // один платеж по сделке
 
-            $paymentStatus =
-                Pay::closingDealInGroup(
-                    $lead,
-                    $agent,
-                    $owner,
-                    $closedDeal->percent
-                );
-        } else {
-            $paymentStatus =
-                Pay::closingDeal(
-                    $lead,
-                    $agent,
-                    $openLead->mask_id,
-                    $closedDeal->percent
-                );
-        }
-        if(isset($paymentStatus['transaction'])) {
-            $closedDeal->purchase_transaction_id = $paymentStatus['transaction'];
-            $closedDeal->purchase_date = Carbon::now();
-            $closedDeal->status = ClosedDeals::DEAL_STATUS_CONFIRMED;
-            $closedDeal->save();
+            if($closedDeal->lead_source == 2) {
+                $owner = Agent::find( $lead->agent_id );
 
-            return response()->json(true);
-        } else {
-            return response()->json($paymentStatus);
+                $paymentStatus =
+                    Pay::closingDealInGroup(
+                        $lead,
+                        $agent,
+                        $owner,
+                        $closedDeal->percent
+                    );
+
+            } else {
+                $paymentStatus =
+                    Pay::closingDeal(
+                        $lead,
+                        $agent,
+                        $openLead->mask_id,
+                        $closedDeal->percent
+                    );
+            }
+            if(isset($paymentStatus['transaction'])) {
+                $closedDeal->purchase_transaction_id = $paymentStatus['transaction'];
+                $closedDeal->purchase_date = Carbon::now();
+                $closedDeal->status = ClosedDeals::DEAL_STATUS_ON_CONFIRMATION;
+                $closedDeal->save();
+
+                return response()->json(true);
+            } else {
+                return response()->json($paymentStatus);
+            }
+
+        }elseif( $closedDeal->deal_type == SphereStatuses::DEAL_TYPE_FEW_PAYMENTS ){
+            // если несколько платежей
+
+            if($closedDeal->lead_source == 2) {
+                $owner = Agent::find( $lead->agent_id );
+
+                $paymentStatus =
+                    Pay::closingDealInGroup(
+                        $lead,
+                        $agent,
+                        $owner,
+                        $request->amount
+                    );
+
+            } else {
+                $paymentStatus =
+                    Pay::closingDeal(
+                        $lead,
+                        $agent,
+                        $openLead->mask_id,
+                        $request->amount
+                    );
+            }
+            if(isset($paymentStatus['transaction'])) {
+                $closedDeal->purchase_transaction_id = $paymentStatus['transaction'];
+                $closedDeal->purchase_date = Carbon::now();
+
+
+                $leadsTransactions = TransactionsLeadInfo::
+                      where( 'lead_id', $openLead->lead_id )
+                    ->lists('transaction_id');
+
+                $sum = TransactionsDetails::
+                      whereIn('transaction_id', $leadsTransactions)
+                    ->with('transaction')
+                    ->where('user_id', $openLead->agent_id)
+                    ->where('type', 'closingDeal')
+                    ->sum('amount');
+
+                if( $closedDeal->percent <= ($sum * -1 )){
+                    $closedDeal->status = ClosedDeals::DEAL_STATUS_ON_CONFIRMATION;
+                }
+
+                $closedDeal->save();
+
+                return response()->json(true);
+            } else {
+                return response()->json($paymentStatus);
+            }
+
+        }else{
+            return response()->json('error');
         }
+
     }
+
 
     public function sendMessageDeal(Request $request)
     {

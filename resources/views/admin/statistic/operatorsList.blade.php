@@ -28,6 +28,7 @@
             <th class="center">Name</th>
             <th class="center">Leads added</th>
             <th class="center">Leads for processing</th>
+            <th class="center">Marked bad</th>
             <th class="center">Processed leads</th>
 
             <th class="center">Spheres</th>
@@ -42,6 +43,7 @@
                     <td class="middle">{{ $operator['email'] }}</td>
                     <td class="center middle">{{ $operator['leadsAddedCount'] }}</td>
                     <td class="center middle">{{ $operator['leadsToEdit'] }}</td>
+                    <td class="center middle">{{ $operator['marked_bad'] }}</td>
                     <td class="center middle">{{ $operator['leadsEdited'] }}</td>
 
                     <td class="middle">
