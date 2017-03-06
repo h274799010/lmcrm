@@ -30,49 +30,6 @@
         </div>
 
     </div>
-    <div class="row">
-        <div class="col-xs-12 documents-block">
-            <h4>Uploaded documents</h4>
-            <div class="row" id="filesListGroup">
-                @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
-                    @foreach($openLead->uploadedCheques as $key => $check)
-                        <div class="col-xs-6 col-md-3 file-item">
-                            <a href="/{{ $check->url }}{{ $check->file_name }}" target="_blank" class="thumbnail @if($check->type != 'image') other @endif ">
-                                @if($check->type == 'image')
-                                    <img src="/{{ $check->url }}{{ $check->file_name }}" alt="{{ $check->name }}">
-                                @elseif($check->type == 'word')
-                                    <i class="fa fa-file-word-o" aria-hidden="true"></i>
-                                @elseif($check->type == 'pdf')
-                                    <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-                                @elseif($check->type == 'archive')
-                                    <i class="fa fa-file-archive-o" aria-hidden="true"></i>
-                                @elseif($check->type == 'text')
-                                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                                @else
-                                    <i class="fa fa-file" aria-hidden="true"></i>
-                                @endif
-                            </a>
-                            <div class="doc-links">
-                                <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" target="_blank">
-                                    {{ $check->name }}
-                                </a>
-                                <a href="#" class="btn btn-xs @if($check->block_deleting == true) btn-success @else btn-danger @endif delete-document" title="@if($check->block_deleting == true) Do you want to unblock the deletion of this document? @else Do you want to block the deletion of this document? @endif " data-id="{{ $check->id }}">
-                                    <i class="fa fa-ban" aria-hidden="true"></i>
-                                </a>
-                            </div>
-                        </div>
-                        @if( ($key + 1) % 2 == 0 )
-                            <div class="clearfix @if( ($key + 1) % 4 != 0 ) visible-sm visible-xs @endif "></div>
-                        @endif
-                    @endforeach
-                @else
-                    <div class="col-xs-12 empty-check-item"><div class="alert alert-warning">You have not downloaded documents</div></div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-
             {{--<div>--}}
                 {{--<div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">--}}
                     {{--<div id="uploadProgress"></div>--}}
@@ -168,26 +125,43 @@
                 Approve
             </span>
 
-
             <h4>Uploaded documents</h4>
-            <ul class="list-group" id="filesListGroup">
-                @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
-                    @foreach($openLead->uploadedCheques as $check)
-                        <li class="list-group-item">
-                            <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" download="{{ $check->name }}">{{ $check->name }}</a>
-                            <a href="#" class="btn btn-xs btn-danger delete-document" title="Delete this document?" data-id="{{ $check->id }}">
-                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            <div class="row" id="filesListGroup">
+            @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
+                @foreach($openLead->uploadedCheques as $key => $check)
+                    <div class="col-xs-6 col-md-3 file-item">
+                        <a href="/{{ $check->url }}{{ $check->file_name }}" target="_blank" class="thumbnail @if($check->type != 'image') other @endif ">
+                            @if($check->type == 'image')
+                                <img src="/{{ $check->url }}{{ $check->file_name }}" alt="{{ $check->name }}">
+                            @elseif($check->type == 'word')
+                                <i class="fa fa-file-word-o" aria-hidden="true"></i>
+                            @elseif($check->type == 'pdf')
+                                <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                            @elseif($check->type == 'archive')
+                                <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+                            @elseif($check->type == 'text')
+                                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                            @else
+                                <i class="fa fa-file" aria-hidden="true"></i>
+                            @endif
+                        </a>
+                        <div class="doc-links">
+                            <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" target="_blank">
+                                {{ $check->name }}
                             </a>
-                        </li>
-                    @endforeach
-                @else
-                    <li class="list-group-item list-group-item-warning empty-check-item">No uploaded documents</li>
-                @endif
-            </ul>
-
+                            <a href="#" class="btn btn-xs @if($check->block_deleting == true) btn-success @else btn-danger @endif delete-document" title="@if($check->block_deleting == true) Do you want to unblock the deletion of this document? @else Do you want to block the deletion of this document? @endif " data-id="{{ $check->id }}">
+                                <i class="fa fa-ban" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    @if( ($key + 1) % 2 == 0 )
+                        <div class="clearfix @if( ($key + 1) % 4 != 0 ) visible-sm visible-xs @endif "></div>
+                    @endif
+                @endforeach
+            @else
+                <div class="col-xs-12 empty-check-item"><div class="list-group-item list-group-item-warning">No uploaded documents</div></div>
+            @endif
         </div>
-        <!-- /.col-lg-10 -->
-    </div>
     <div class="row">
         <div class="col-xs-12">
             <div class="messages-block">
@@ -226,6 +200,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+        </div>
+        <!-- /.col-lg-10 -->
     </div>
     <!-- /.row -->
     <!-- /.container -->
@@ -375,6 +353,15 @@
         }
         .popover.confirmation .popover-content {
             background-color: #ffffff;
+        }
+        .empty-check-item .list-group-item-warning {
+            background-color: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0 16px;
+        }
+        .empty-check-item {
+            margin-bottom: 20px;
         }
     </style>
 @endsection
