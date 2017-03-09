@@ -10,6 +10,10 @@
 
 <div class="row">
     <div class="col-md-12" id="openedLeadsFilters">
+        <label class="obtain-label-period" for="reportrange">
+            Period:
+            <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter" value="" id="reportrange" />
+        </label>
         <label class="obtain-label-period">
             Sphere:
             <select data-name="sphere" class="selectbox dataTables_filter" id="spheresFilter">
@@ -800,7 +804,7 @@
                         var filter = {};
 
                         // перебираем фильтры и выбираем данные по ним
-                        $container.find('select.dataTables_filter').each(function () {
+                        $container.find(':input.dataTables_filter').each(function () {
 
                             // если есть name и нет js
                             if ($(this).data('name') && $(this).data('js') != 1) {
@@ -831,7 +835,7 @@
 
 
             // обработка фильтров таблицы при изменении селекта
-            $container.find('select.dataTables_filter').change(function () {
+            $container.find(':input.dataTables_filter').change(function () {
 
                 // проверяем параметр data-js
                 if ($(this).data('js') == '1') {
@@ -874,6 +878,41 @@
                 }
                 $statusesFilter.data("selectBox-selectBoxIt").refresh();
             });
+        });
+
+        $(function() {
+
+            var start = moment().startOf('month');
+            var end = moment().endOf('month');
+
+            function cb(start, end) {
+                $('#reportrange').val(start.format('YYYY-MM-DD') + ' / ' + end.format('YYYY-MM-DD')).trigger('change');
+            }
+
+            $('#reportrange').daterangepicker({
+                autoUpdateInput: false,
+                startDate: start,
+                endDate: end,
+                opens: "right",
+                locale: {
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'This week': [moment().startOf('week'), moment()],
+                    'Previous week': [moment().subtract(1, 'weeks').startOf('week'), moment().subtract(1, 'weeks').endOf('week')],
+                    'This month': [moment().startOf('month'), moment().endOf('month')],
+                    'Previous month': [moment().subtract(1, 'months').startOf('month'), moment().subtract(1, 'months').endOf('month')]
+                }
+            }, cb);
+
+            cb(start, end);
+
+            $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('').trigger('change');
+            });
+
         });
 
         /** загрузка дополнительной таблицы с подробной информацией лида */

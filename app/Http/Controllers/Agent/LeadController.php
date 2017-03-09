@@ -768,6 +768,17 @@ class LeadController extends AgentController {
                             }
 
                             break;
+                        case 'date':
+                            if($eFVal != 'empty' && $eFVal != '') {
+                                $eFVal = explode('/', $eFVal);
+
+                                $start = trim($eFVal[0]);
+                                $end = trim($eFVal[1]);
+
+                                $openLeads = $openLeads->where('created_at', '>=', $start . ' 00:00:00')
+                                    ->where('created_at', '<=', $end . ' 23:59:59');
+                            }
+                            break;
                         default: ;
                     }
                 }
