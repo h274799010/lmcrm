@@ -302,7 +302,7 @@ $(function(){
                     var filter = {};
 
                     // перебираем фильтры и выбираем данные по ним
-                    $container.find('select.dataTables_filter').each(function () {
+                    $container.find(':input.dataTables_filter').each(function () {
 
                         // если есть name и нет js
                         if ($(this).data('name') && $(this).data('js') != 1) {
@@ -324,7 +324,7 @@ $(function(){
 
 
         // обработка фильтров таблицы при изменении селекта
-        $container.find('select.dataTables_filter').change(function () {
+        $container.find(':input.dataTables_filter').change(function () {
 
             // проверяем параметр data-js
             if ($(this).data('js') == '1') {

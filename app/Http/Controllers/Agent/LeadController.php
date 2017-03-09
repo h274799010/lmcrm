@@ -170,8 +170,7 @@ class LeadController extends AgentController {
         $auctionData = Auction::where('status', 0)
             ->where( 'user_id', $user_id )
             ->where( 'sphere_id', $sphere->id )
-            ->whereNotIn('lead_id', $salesmansOpenedLeads)
-            ->with('lead')->with('maskName')->get();
+            ->whereNotIn('lead_id', $salesmansOpenedLeads);
 
 
         /** Проверяем наличие фильтра */
@@ -186,54 +185,29 @@ class LeadController extends AgentController {
                 // перебираем данные и проверяем на соответствие
                 foreach ($eFilter as $eFKey => $eFVal) {
 
-                    // проверяем ключ
-                    switch($eFKey) {
+                    if($eFVal != 'empty' && $eFVal != '') {
+                        // проверяем ключ
+                        switch($eFKey) {
 
-                        // если фильтр по дате
-                        case 'date':
+                            // если фильтр по дате
+                            case 'date':
+                                $eFVal = explode('/', $eFVal);
 
-                            // проверяем значение фильтра
+                                $start = trim($eFVal[0]);
+                                $end = trim($eFVal[1]);
 
-                            if($eFVal=='2d') {
-                                // два последних дня
-
-                                // находим время
-                                $date = new \DateTime();
-                                // выбираем интервал
-                                $date->sub(new \DateInterval('P2D'));
-
-                                // отфильтровуем с аукционе только то, что соответсвтует интервалу
-                                $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
-                                    return $auction['lead']['created_at'] >= $date->format('Y-m-d');
-                                });
-
-
-                            } elseif($eFVal=='1m') {
-                                // последний месяц
-
-                                // находим время
-                                $date = new \DateTime();
-                                // выбираем интервал
-                                $date->sub(new \DateInterval('P1M'));
-
-                                // отфильтровуем с аукционе только то, что соответсвтует интервалу
-                                $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
-                                    return $auction['lead']['created_at'] >= $date->format('Y-m-d');
-                                });
-
-
-                            } else {
-                                // если значения фильтра нет
-
-                                // ничего не делаем
-                            }
-
-                            break;
-                        default: ;
+                                $auctionData = $auctionData->where('created_at', '>=', $start . ' 00:00:00')
+                                    ->where('created_at', '<=', $end . ' 23:59:59');
+                                break;
+                            default:
+                                ;
+                        }
                     }
                 }
             }
         }
+
+        $auctionData = $auctionData->with('lead')->with('maskName')->get();
 
         $auctionData = $auctionData->filter(function ($auction) {
             return $auction['maskName']['active'] == 1;
