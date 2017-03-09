@@ -756,7 +756,11 @@ class LeadController extends AgentController {
         // получаем данные агента
         $user = $this->user;
 
-        $agent = Agent::find($user->id);
+        if($this->user->inRole('salesman')) {
+            $agent = Salesman::find($user->id);
+        } else {
+            $agent = Agent::find($user->id);
+        }
         // Получаем сферы вместе со статусами для фильтра
         $spheres = $agent->onlySpheres()
             ->select('spheres.id', 'spheres.name')
@@ -781,12 +785,14 @@ class LeadController extends AgentController {
     {
         $user = $this->user;
 
-        $salesmans = $user->salesmen()->get()->lists('id')->toArray();
-
         $userIds = array($user->id);
 
-        if(count($salesmans) > 0) {
-            $userIds = array_merge($userIds, $salesmans);
+        if($this->user->inRole('agent')) {
+            $salesmans = $user->salesmen()->get()->lists('id')->toArray();
+
+            if(count($salesmans) > 0) {
+                $userIds = array_merge($userIds, $salesmans);
+            }
         }
 
         $openLeads = OpenLeads::select([
@@ -836,8 +842,8 @@ class LeadController extends AgentController {
                                 $start = trim($eFVal[0]);
                                 $end = trim($eFVal[1]);
 
-                                $openLeads = $openLeads->where('created_at', '>=', $start . ' 00:00:00')
-                                    ->where('created_at', '<=', $end . ' 23:59:59');
+                                $openLeads = $openLeads->where('open_leads.created_at', '>=', $start . ' 00:00:00')
+                                    ->where('open_leads.created_at', '<=', $end . ' 23:59:59');
                             }
                             break;
                         default: ;

@@ -61,6 +61,19 @@ class Salesman extends EloquentUser implements AuthenticatableContract, CanReset
     }
 
     /**
+     * Сферы к которым прикреплен агент
+     * не учитывая "status transitions"
+     *
+     * @return mixed
+     */
+    public function onlySpheres(){
+        $spheresId = $this->spheres()->get()->lists('id')->toArray();
+        $relation = Sphere::whereIn('id', $spheresId);
+
+        return $relation;
+    }
+
+    /**
      * Все маски по всем сферам salesman
      *
      *
