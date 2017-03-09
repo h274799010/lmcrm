@@ -829,6 +829,9 @@ h4.statistic-sphere-name{
 	font-size: 13px;
 }
 
-
+.permissions-dropdown .description {
+	font-size: 12px;
+	color: darkgray;
+}
 
 

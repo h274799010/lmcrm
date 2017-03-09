@@ -31,7 +31,7 @@
                             <i class="fa fa-check" aria-hidden="true"></i> Active
                     @endif
                             </a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu permissions-dropdown">
                                 @foreach($permissions as $permission => $value)
                                     @if($value == false)
                                         <li class="text-danger">
@@ -41,6 +41,9 @@
                                             <i class="fa fa-check" aria-hidden="true"></i>
                                     @endif
                                             {{ trans('admin/users.permissions.'.$permission) }}
+                                            <div class="description">
+                                                {{ trans('admin/users.permissions.'.$permission.'_description') }}
+                                            </div>
                                         </li>
                                 @endforeach
                             </ul>

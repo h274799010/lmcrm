@@ -32,8 +32,11 @@ return [
 
     'permissions' => array(
         'create_leads' => 'Create leads',
+        'create_leads_description' => 'Create leads description',
         'opening_leads' => 'Opening leads',
-        'working_leads' => 'Working with open leads'
+        'opening_leads_description' => 'Opening leads description',
+        'working_leads' => 'Working with open leads',
+        'working_leads_description' => 'Working with open leads description'
     ),
 
 ];
