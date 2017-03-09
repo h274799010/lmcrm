@@ -13,6 +13,8 @@ return [
     'lowBalance' => 'Error: low balance',
     'Lead.not_at_auction' => 'Lead withdrawn from auction',
 
+    'there_is_open_leads_no_status' => 'There is open leads no status',
+
 
     'openlead.successfully_opened' => 'Lead successfully opened',
     'openlead.AllLead_successfully_opened' => 'All lead successfully opened',

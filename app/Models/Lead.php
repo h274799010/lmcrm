@@ -547,6 +547,16 @@ class Lead extends EloquentUser {
             );
         }
 
+        // Если у агента есть открытые лиды без проставленного статуса
+        // возвращаем ошибку
+        $countOpenLeadNoStatus = OpenLeads::where('agent_id', '=', $agent->id)
+            ->where('status', '=', 0)->count();
+        if($countOpenLeadNoStatus > 0) {
+            return array(
+                'error' => trans('lead/lead.there_is_open_leads_no_status')
+            );
+        }
+
 
 
         // снимаем оплату за открытие лида
@@ -659,6 +669,16 @@ class Lead extends EloquentUser {
         if( $lead->status != 3 ){
             return array(
                 'error' => trans('lead/lead.Lead.not_at_auction')
+            );
+        }
+
+        // Если у агента есть открытые лиды без проставленного статуса
+        // возвращаем ошибку
+        $countOpenLeadNoStatus = OpenLeads::where('agent_id', '=', $agent->id)
+            ->where('status', '=', 0)->count();
+        if($countOpenLeadNoStatus > 0) {
+            return array(
+                'error' => trans('lead/lead.there_is_open_leads_no_status')
             );
         }
 
