@@ -11,9 +11,11 @@ use App\Models\Customer;
 use App\Models\HistoryBadLeads;
 use App\Models\LeadBitmask;
 use App\Models\OpenLeads;
+use App\Models\OpenLeadsStatusDetails;
 use App\Models\Organizer;
 use App\Models\Salesman;
 use App\Models\Sphere;
+use App\Models\SphereStatuses;
 use App\Models\User;
 use App\Transformers\DepositedLeadsTransformer;
 use App\Transformers\ObtainedLeadsTransformer;
@@ -431,9 +433,20 @@ class AgentSalesmanLeadController extends LeadController
                         case 'status':
 
                             if($eFVal != '') {
-                                $openLeads->where('open_leads.status', '=', $eFVal);
+                                $openLeads = $openLeads->where('open_leads.status', '=', $eFVal);
                             }
 
+                            break;
+                        case 'date':
+                            if($eFVal != 'empty' && $eFVal != '') {
+                                $eFVal = explode('/', $eFVal);
+
+                                $start = trim($eFVal[0]);
+                                $end = trim($eFVal[1]);
+
+                                $openLeads = $openLeads->where('open_leads.created_at', '>=', $start . ' 00:00:00')
+                                    ->where('open_leads.created_at', '<=', $end . ' 23:59:59');
+                            }
                             break;
                         default: ;
                     }
@@ -529,5 +542,166 @@ class AgentSalesmanLeadController extends LeadController
         $result = CreateLead::store($request, $this->salesman->id);
 
         return $result;
+    }
+
+
+    /**
+     * Метод устанавливает статус
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return object
+     */
+    public function setOpenLeadStatus( Request $request )
+    {
+        $res = array(
+            'status' => '',
+            'message' => '',
+            'stepname' => ''
+        );
+        $user = $this->salesman;
+        if( ($user->banned_at != null || $user->banned_at != '0000-00-00 00:00:00') && !$user->hasAccess('working_leads') ) {
+            $res['status'] = 'fail';
+            $res['message'] = trans('site/lead.user_banned');
+
+            return response()->json($res);
+        }
+
+        $openedLeadId  = $request->openedLeadId;
+
+        // находим данные открытого лида по id лида и id агента
+        $openedLead = OpenLeads::with('statusInfo')->find( $openedLeadId );
+        $status = SphereStatuses::find($request->input('status'));
+
+        $lead = $openedLead->lead()->first();
+        $interval = 0;
+        if(isset($lead->id)) {
+            $sphere = $lead->sphere()->first();
+            if(isset($sphere->id)) {
+                $interval = $sphere->lead_uncertain_status_interval;
+            }
+        }
+
+        if(!isset($status->id)) {
+            $res['status'] = 'fail';
+            $res['message'] = 'Status not found';
+
+            return response()->json($res);
+        }
+
+        // Если сделка отмечается закрытой
+        if($status->type == SphereStatuses::STATUS_TYPE_CLOSED_DEAL) {
+            if(empty($request->input('price'))) {
+                $res['status'] = 'fail';
+                $res['message'] = 'priceRequired'; // todo доделать вывод ошибки
+
+                return response()->json($res);
+            }
+
+            // закрываем сделку
+            $closeDealResult = $openedLead->closeDeal($request->input('price'), $request->input('comments'), $status->sphere_id, $status->additional_type);
+
+            /** Проверка статуса закрытия сделки */
+            if( $closeDealResult === true ){
+                // сделка закрыта нормально
+
+                // сохраняем историю статусов
+//                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $openedLead->status, -2);
+
+                // сохраняем старый статус
+                $previous_status = $openedLead->status;
+
+                $openedLead->status = $status->id;
+                $openedLead->save();
+
+                // сохраняем историю статусов
+                OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
+
+                // сообщаем что сделка закрыта нормально
+                $res['status'] = 'success';
+                $res['message'] = trans('site/lead.deal_closed');
+                $res['stepname'] = $status->stepname;
+
+                return response()->json($res);
+
+            }else{
+                // ошибка в закрытии сделки
+
+                // todo доделать вывод ошибки
+                return response()->json($closeDealResult);
+            }
+        }
+        else {
+            // если открытый лид отмечен как плохой
+            if(isset($status->type) && $status->type == SphereStatuses::STATUS_TYPE_BAD) {
+
+                if(time() < strtotime($openedLead->expiration_time)) {
+                    // если время открытого лида еще не вышло
+
+                    // помечаем его как плохой
+                    $openedLead->setBadLead();
+
+                    // сохраняем старый статус
+                    $previous_status = $openedLead->status;
+
+                    $openedLead->status = $status->id;
+                    $openedLead->save();
+
+                    OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
+
+                    $res['status'] = 'success';
+                    $res['message'] = ''; // todo какое-то сообщение об успешной смене статуса
+                    $res['stepname'] = $status->stepname;
+
+                    return response()->json($res);
+
+                } else {
+                    // если время открытого лида уже вышло
+
+                    // отменяем всю ничего не делаем, выходим
+                    $res['status'] = 'fail';
+                    $res['message'] = trans('site/lead.opened.pending_time_expired');
+
+                    return response()->json($res);
+                }
+            }
+
+            // если новый статус меньше уже установленного, выходим из метода
+            // или лид отмечен как плохой
+            if( isset($openedLead->statusInfo->type) ) {
+                if($openedLead->statusInfo->type == SphereStatuses::STATUS_TYPE_BAD) {
+                    return response()->json(FALSE); // todo вывести сообщение о том что лид уже помечен как плохой и изменение статуса не возможно
+                }
+                if($openedLead->statusInfo->type  > $status->type && $openedLead->statusInfo->type != SphereStatuses::STATUS_TYPE_UNCERTAIN && $openedLead->statusInfo->type != SphereStatuses::STATUS_TYPE_REFUSENIKS) {
+                    return response()->json(FALSE); // todo вывести какое-то сообщение об ошибке
+                }
+            }
+
+            // если статус больше - изменяем статус открытого лида
+
+            // сохраняем старый статус
+            $previous_status = $openedLead->status;
+
+            $openedLead->status = $status->id;
+            $openedLead->save();
+
+            // сохраняем историю статусов
+            OpenLeadsStatusDetails::setStatus($openedLead->id, $openedLead->agent_id, $previous_status, $status->id);
+
+            // Если новый статус типа Uncertain и перед ним не было никакого статуса
+            // - продляем время на установку статуса bad_lead
+            if(!isset($openedLead->statusInfo->id) && $status->type == SphereStatuses::STATUS_TYPE_UNCERTAIN) {
+                $openedLead->expiration_time = date('Y-m-d H:i:s', time()+$interval);
+                $openedLead->save();
+            }
+
+            // присылаем подтверждение что статус изменен
+            $res['status'] = 'success';
+            $res['message'] = ''; // todo какое-то сообщение об успешной смене статуса
+            $res['stepname'] = $status->stepname;
+
+            return response()->json($res);
+        }
     }
 }

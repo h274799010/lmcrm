@@ -186,6 +186,9 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         Route::get('salesman/depositedLead/{salesman_id}', ['as' => 'agent.salesman.depositedLead', 'uses' => 'Agent\AgentSalesmanLeadController@deposited']);
         Route::get('salesman/depositedLead/data/{salesman_id}', ['as' => 'agent.salesman.depositedLead.data', 'uses' => 'Agent\AgentSalesmanLeadController@depositedData']);
 
+        // установка статуса лида
+        Route::post('salesman/lead/setOpenLeadStatus/{salesman_id}',['as'=>'agent.salesman.lead.setOpenLeadStatus', 'uses' => 'Agent\AgentSalesmanLeadController@setOpenLeadStatus']);
+
         // форма добавление комментария
         Route::get('salesman/addСomment/{lead_id}/{salesman_id}',['as'=>'agent.salesman.addСomment', 'uses' => 'Agent\AgentSalesmanLeadController@addСomment']);
 

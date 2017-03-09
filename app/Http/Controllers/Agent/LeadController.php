@@ -831,7 +831,7 @@ class LeadController extends AgentController {
                         case 'status':
 
                             if($eFVal != '') {
-                                $openLeads->where('open_leads.status', '=', $eFVal);
+                                $openLeads = $openLeads->where('open_leads.status', '=', $eFVal);
                             }
 
                             break;
