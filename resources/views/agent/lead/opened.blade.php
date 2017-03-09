@@ -213,7 +213,7 @@
             </div>
             <div class="modal-body"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans("site/lead.opened.modal.button.Cancel") }}</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">{{ trans("site/lead.opened.modal.button.Cancel") }}</button>
                 <button type="button" class="btn btn-primary disabled" id="btnSetStatus">{{ trans("site/lead.opened.modal.button.OK") }}</button>
             </div>
         </div>
