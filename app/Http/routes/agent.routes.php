@@ -184,6 +184,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         Route::get('salesman/{id}/unblock', ['as'=>'agent.salesman.unblock', 'uses' => 'Agent\SalesmanController@unban']);
 
         Route::get('salesman/depositedLead/{salesman_id}', ['as' => 'agent.salesman.depositedLead', 'uses' => 'Agent\AgentSalesmanLeadController@deposited']);
+        Route::get('salesman/depositedLead/data/{salesman_id}', ['as' => 'agent.salesman.depositedLead.data', 'uses' => 'Agent\AgentSalesmanLeadController@depositedData']);
 
         // форма добавление комментария
         Route::get('salesman/addСomment/{lead_id}/{salesman_id}',['as'=>'agent.salesman.addСomment', 'uses' => 'Agent\AgentSalesmanLeadController@addСomment']);

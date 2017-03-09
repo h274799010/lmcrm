@@ -15,6 +15,7 @@ use App\Models\Organizer;
 use App\Models\Salesman;
 use App\Models\Sphere;
 use App\Models\User;
+use App\Transformers\DepositedLeadsTransformer;
 use App\Transformers\ObtainedLeadsTransformer;
 use App\Transformers\OpenedLeadsTransformer;
 use Carbon\Carbon;
@@ -286,17 +287,78 @@ class AgentSalesmanLeadController extends LeadController
      * @return object
      */
     public function deposited(){
+        $spheres = $this->salesman->onlySpheres()
+            ->select('spheres.id', 'spheres.name')
+            ->get();
 
-        // находим данные продавца
-        $salesman = $this->salesman;
-
-        // находим все лиды с телефоном и сферой
-        $leads = $salesman->leads()->with('phone', 'sphere')->get();
+        $statuses = \App\Facades\Lead::getStatuses('status');
 
         // задаем имя вьюшки
-        $view = 'agent.salesman.login.deposited';
 
-        return view($view)->with('leads', $leads);
+        return view('agent.salesman.login.deposited', [
+            'spheres' => $spheres,
+            'statuses' => $statuses
+        ]);
+    }
+
+    public function depositedData(Request $request)
+    {
+        $leads = $this->salesman->leads();
+
+
+
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
+
+                    // проверяем ключ
+                    switch($eFKey) {
+
+                        // если фильтр по дате
+                        case 'sphere':
+
+                            if($eFVal != '') {
+                                $leads = $leads->where('sphere_id', '=', $eFVal);
+                            }
+
+                            break;
+                        case 'status':
+
+                            if($eFVal != '') {
+                                $leads = $leads->where('status', '=', $eFVal);
+                            }
+
+                            break;
+                        case 'date':
+                            if($eFVal != 'empty' && $eFVal != '') {
+                                $eFVal = explode('/', $eFVal);
+
+                                $start = trim($eFVal[0]);
+                                $end = trim($eFVal[1]);
+
+                                $leads = $leads->where(function ($query) use ($start, $end) {
+                                    $query->where('created_at', '>=', $start . ' 00:00:00')
+                                        ->where('created_at', '<=', $end . ' 23:59:59');
+                                });
+                            }
+                            break;
+                        default: ;
+                    }
+                }
+            }
+        }
+
+        $leads = $leads->with('phone', 'sphere');
+
+        return Datatables::of( $leads )
+            ->setTransformer(new DepositedLeadsTransformer())
+            ->make();
     }
 
     /**
