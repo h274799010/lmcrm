@@ -31,6 +31,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         /** страница отданых лидов агентом */
         // страница с отданными лидами
         Route::get('lead/depostited', ['as' => 'agent.lead.deposited', 'uses' => 'Agent\LeadController@deposited']);
+        Route::get('lead/depostited/data', ['as' => 'agent.lead.depostited.data', 'uses' => 'Agent\LeadController@depositedData']);
         // форма создания нового лида
         Route::get('lead/create', ['as' => 'agent.lead.create', 'middleware' => ['redirectIfNotActive'], 'uses' => 'Agent\LeadController@create']);
         Route::get('salesman/lead/create/{salesman_id}', ['as' => 'agent.salesman.lead.create', 'middleware' => ['redirectIfNotActive'], 'uses' => 'Agent\AgentSalesmanLeadController@create']);

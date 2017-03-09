@@ -18,6 +18,7 @@ use App\Models\AgentsPrivateGroups;
 use App\Models\OpenLeadsStatusDetails;
 use App\Models\TransactionsDetails;
 use App\Models\TransactionsLeadInfo;
+use App\Transformers\DepositedLeadsTransformer;
 use App\Transformers\ObtainedLeadsTransformer;
 use App\Transformers\OpenedLeadsTransformer;
 use Carbon\Carbon;
@@ -69,16 +70,76 @@ class LeadController extends AgentController {
      * @return object
      */
     public function deposited(){
+        $spheres = $this->user->onlySpheres()
+            ->select('spheres.id', 'spheres.name')
+            ->get();
 
-        // определение пользователя
+        $statuses = \App\Facades\Lead::getStatuses('status');
 
-        // находим все лиды с телефоном и сферой
-        $leads = $this->user->leads()->with('phone', 'sphere')->get();
+        return view('agent.lead.deposited', [
+            'spheres' => $spheres,
+            'statuses' => $statuses
+        ]);
+    }
 
-        // задаем имя вьюшки
-        $view = 'agent.lead.deposited';
+    public function depositedData(Request $request)
+    {
+        $leads = $this->user->leads();
 
-        return view($view)->with('leads', $leads);
+
+
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
+
+                    // проверяем ключ
+                    switch($eFKey) {
+
+                        // если фильтр по дате
+                        case 'sphere':
+
+                            if($eFVal != '') {
+                                $leads = $leads->where('sphere_id', '=', $eFVal);
+                            }
+
+                            break;
+                        case 'status':
+
+                            if($eFVal != '') {
+                                $leads = $leads->where('status', '=', $eFVal);
+                            }
+
+                            break;
+                        case 'date':
+                            if($eFVal != 'empty' && $eFVal != '') {
+                                $eFVal = explode('/', $eFVal);
+
+                                $start = trim($eFVal[0]);
+                                $end = trim($eFVal[1]);
+
+                                $leads = $leads->where(function ($query) use ($start, $end) {
+                                    $query->where('created_at', '>=', $start . ' 00:00:00')
+                                        ->where('created_at', '<=', $end . ' 23:59:59');
+                                });
+                            }
+                            break;
+                        default: ;
+                    }
+                }
+            }
+        }
+
+        $leads = $leads->with('phone', 'sphere');
+
+        return Datatables::of( $leads )
+            ->setTransformer(new DepositedLeadsTransformer())
+            ->make();
     }
 
 
@@ -1580,6 +1641,7 @@ class LeadController extends AgentController {
     }
 
 
+    // todo Удалить, так как уже не используется (ф-ция више вмето это теперь)
     public function getOpenLeadStatusesOld(Request $request)
     {
         $res = array(

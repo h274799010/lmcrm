@@ -1,0 +1,1 @@
+<td>{{ $statusName }} @if( $lead->status == 8 ) <a href="{{ route('agent.lead.deposited.details', ['lead_id'=>$lead->id]) }}"><img src="/assets/web/icons/list-edit.png"></a> @endif</td>
