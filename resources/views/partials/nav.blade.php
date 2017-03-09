@@ -142,6 +142,13 @@
                                 </li>
                                 <hr>
                             @endif
+                            @if(Sentinel::inRole('dealmaker'))
+                                {{-- страница для создания групп агентов --}}
+                                <li>
+                                    <a href="{{ route('agent.privateGroup.index') }}"> {{ trans('navbar.agent_private_group') }} </a>
+                                </li>
+                                <hr>
+                            @endif
 
                             <li>
                                 <a href="{{ URL::to('auth/logout')}}"><i class="fa fa-sign-out"></i> {{ trans('navbar.logout') }} </a>

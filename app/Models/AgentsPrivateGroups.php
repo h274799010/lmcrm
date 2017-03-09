@@ -15,6 +15,10 @@ class AgentsPrivateGroups extends Model
      */
     protected $table="agents_private_groups";
 
+    const AGENT_WAITING_FOR_CONFIRMATION = 0;
+    const AGENT_ACTIVE = 1;
+    const AGENT_REJECTED = 2;
+
 
     /**
      * Связь с таблицей пользователей
@@ -43,5 +47,14 @@ class AgentsPrivateGroups extends Model
 
         return $openLead;
 
+    }
+
+    public static function getStatusTypeName()
+    {
+        return array(
+            self::AGENT_WAITING_FOR_CONFIRMATION => 'Waiting for confirmation',
+            self::AGENT_ACTIVE => 'Active',
+            self::AGENT_REJECTED => 'Rejected'
+        );
     }
 }

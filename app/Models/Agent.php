@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Cartalyst\Sentinel\Users\EloquentUser;
 
 use Illuminate\Auth\Authenticatable;
@@ -132,6 +133,40 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     public function agentsPrivetGroups()
     {
         return $this->belongsToMany('\App\Models\Agent', 'agents_private_groups', 'agent_owner_id', 'agent_member_id');
+    }
+
+    /**
+     * Поиск агентов по имени, почте, телефону
+     *
+     * @param $query
+     * @param $keyword
+     * @return mixed
+     */
+    public function scopeSearchByKeyword($query, $keyword)
+    {
+        if($keyword != '') {
+            // Поиск агентов с подходящим телефоном
+            $phoneAgents = UserPhones::where('phone', '=', $keyword)
+                ->select('user_id')
+                ->get()
+                ->pluck('user_id')
+                ->toArray();
+
+            $role = Sentinel::findRoleBySlug('agent');
+
+            // Поиск по другим полям
+            $query->where(function ($query) use ($keyword, $phoneAgents) {
+                $query->where('users.email', '=', "$keyword")
+                    ->orWhere('users.first_name', 'LIKE', "%$keyword%")
+                    ->orWhere('users.last_name', 'LIKE', "%$keyword%")
+                    ->orWhereIn('users.id', $phoneAgents);
+            })->join('role_users', function ($join) use ($role) {
+                $join->on('users.id', '=', 'role_users.user_id')
+                    ->where('role_users.role_id', '=', $role->id);
+            });
+        }
+
+        return $query;
     }
 
     public function openLeadsInSphere($sphere_id)

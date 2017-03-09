@@ -178,4 +178,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('settings/roles', ['as' => 'admin.settings.roles', 'uses' => 'Admin\SettingsController@roles']);
     Route::match(['put','post'], 'settings/role/update', ['as' => 'admin.settings.roleUpdate', 'uses' => 'Admin\SettingsController@roleUpdate']);
 
+    // Работа с групами агентов
+    Route::get('groups/to/confirmation', ['as' => 'admin.groups.to.confirmation', 'uses' => 'Admin\AgentPrivateGroupsController@ToConfirmationAgentInGroup']);
+    Route::get('groups/all', ['as' => 'admin.groups.all', 'uses' => 'Admin\AgentPrivateGroupsController@allAgentsPrivateGroups']);
+    Route::get('groups/detail/{id}', ['as' => 'admin.groups.detail', 'uses' => 'Admin\AgentPrivateGroupsController@detail']);
+    Route::get('groups/allDetail/{id}', ['as' => 'admin.groups.allDetail', 'uses' => 'Admin\AgentPrivateGroupsController@allDetail']);
+    Route::post('groups/agent/confirm', ['as'=>'admin.groups.agent.confirm', 'uses' => 'Admin\AgentPrivateGroupsController@confirmAgent']);
+    Route::post('groups/agent/reject', ['as'=>'admin.groups.agent.reject', 'uses' => 'Admin\AgentPrivateGroupsController@rejectAgent']);
+
 });

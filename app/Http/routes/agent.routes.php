@@ -122,6 +122,11 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
 
     Route::post('getAgentPrivateGroup', ['as' => 'agent.privateGroup.getAgentPrivateGroup', 'uses' => 'AgentController@getAgentPrivateGroup']);
 
+    Route::get('privateGroup/index', ['as' => 'agent.privateGroup.index', 'uses' => 'AgentController@agentPrivateGroup']);
+    Route::post('privateGroup/search', ['as' => 'agent.privateGroup.search', 'uses' => 'AgentController@searchPrivateGroup']);
+    Route::post('privateGroup/addAgent', ['as' => 'agent.privateGroup.addAgent', 'uses' => 'AgentController@addAgentInPrivateGroup']);
+    Route::post('privateGroup/deleteAgent', ['as' => 'agent.privateGroup.deleteAgent', 'uses' => 'AgentController@deleteAgentInPrivateGroup']);
+
     // Получение статусов для открытого лида
     Route::post('getOpenLeadStatuses', ['as' => 'agent.lead.getOpenLeadStatuses', 'uses' => 'Agent\LeadController@getOpenLeadStatuses']);
 

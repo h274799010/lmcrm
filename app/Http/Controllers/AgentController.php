@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AgentsPrivateGroups;
+use Illuminate\Http\Request;
 use App\Models\Agent;
 use App\Models\HistoryBadLeads;
 use App\Models\Salesman;
@@ -14,6 +16,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Sentinel;
 use Cookie;
 use Illuminate\Http\Response;
+use Validator;
 
 class AgentController extends BaseController
 {
@@ -228,8 +231,108 @@ class AgentController extends BaseController
     public function getAgentPrivateGroup()
     {
         $agent = Agent::find(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::getUser()->id);
-        $agents = $agent->agentsPrivetGroups()->select('users.id', 'users.email')->get()->pluck('email', 'id');
+        $agents = $agent->agentsPrivetGroups()->where('agents_private_groups.status', '=', AgentsPrivateGroups::AGENT_ACTIVE)->select('users.id', 'users.email')->get()->pluck('email', 'id');
 
         return response()->json($agents);
+    }
+
+    /**
+     * Получение списка агентов в группе на странице управления приватной группой
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function agentPrivateGroup()
+    {
+        $agent = Agent::find(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::getUser()->id);
+        $agents = $agent->agentsPrivetGroups()->select('users.id', 'users.email', 'agents_private_groups.status', 'agents_private_groups.revenue_share')
+            ->orderBy('agents_private_groups.status', 'desc')->get();
+
+        $statuses = AgentsPrivateGroups::getStatusTypeName();
+
+        return view('agent.privateGroup.index', [
+            'agents' => $agents,
+            'statuses' => $statuses
+        ]);
+    }
+
+    /**
+     * Поиск агентов для группы
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function searchPrivateGroup(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'keyword' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(array(
+                'errors' => $validator->errors()
+            ));
+        }
+        $keyword = $request->input('keyword');
+
+        $agent = Agent::find(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::getUser()->id);
+        $agentsInPrivateGroup = $agent->agentsPrivetGroups()->select('users.id')->get()->lists('id')->toArray();
+
+        $agentsInPrivateGroup[] = $agent->id;
+
+        $agents = Agent::SearchByKeyword($keyword)->whereNotIn('id', $agentsInPrivateGroup)->get();
+
+        return response()->json($agents);
+    }
+
+    /**
+     * Добавление агента в группу
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function addAgentInPrivateGroup(Request $request)
+    {
+        $agent_id = (int)$request['id'];
+
+        if( !$agent_id ) {
+            abort(403, 'Wrong agent id');
+        }
+
+        $agent = Sentinel::getUser();
+        $attachAgent = Agent::find($agent_id);
+
+        $privateGroup = new AgentsPrivateGroups();
+        $privateGroup->agent_owner_id = $agent->id;
+        $privateGroup->agent_member_id = $attachAgent->id;
+        $privateGroup->status = 0;
+        $privateGroup->save();
+
+        return response()->json([
+            'status' => 'success',
+            'agent' => $attachAgent
+        ]);
+    }
+
+    /**
+     * Удаление агента из группы
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function deleteAgentInPrivateGroup(Request $request)
+    {
+        $agent_id = (int)$request['id'];
+
+        if( !$agent_id ) {
+            abort(403, 'Wrong agent id');
+        }
+
+        $agent = Sentinel::getUser();
+        $attachedAgent = Agent::find($agent_id);
+
+        AgentsPrivateGroups::where('agent_owner_id', '=', $agent->id)
+            ->where('agent_member_id', '=', $attachedAgent->id)->delete();
+
+        return response()->json(true);
     }
 }

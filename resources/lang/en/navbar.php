@@ -11,6 +11,7 @@ return [
     'operator_edited_leads' => 'Edited leads',
     'logout' => 'Logout',
     'operator_leads_marked_for_call' => 'Marked on alert',
-    'new_leads_in_system' => 'New lead in system'
+    'new_leads_in_system' => 'New lead in system',
+    'agent_private_group' => 'Private group'
 
 ];

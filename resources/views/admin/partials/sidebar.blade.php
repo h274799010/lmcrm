@@ -54,6 +54,25 @@
             </li>
 
             <li>
+                <a href="#">
+                    <i class="fa fa-users" aria-hidden="true"></i> Agents private groups
+                    <span class="fa arrow"></span>
+                </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('admin.groups.to.confirmation') }}">
+                            <i class="fa fa-file-o "></i> To confirmation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.groups.all') }}">
+                            <i class="fa fa-file-text-o"></i> All groups
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
                 <a href="{{ route('admin.statistic.agents') }}">
                     <i class="fa fa-bar-chart"></i> {{ trans('admin/sidebar.statistic') }}
                     <span class="fa arrow"></span>
