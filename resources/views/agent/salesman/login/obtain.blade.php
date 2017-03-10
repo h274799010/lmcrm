@@ -15,17 +15,19 @@
 
         <div class="dataTables_container_{{ $sphere->id }}">
             <div class="col-md-12">
-                <select data-name="date" class="selectbox dataTables_filter">
-                    <option></option>
-                    <option value="2d">last 2 days</option>
-                    <option value="1m">last month</option>
-                </select>
-                <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
-                    <option></option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                </select>
+                <label class="obtain-label-period" for="reportrange">
+                    Period:
+                    <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter reportrange" id="reportrange_{{ $sphere->id }}" value="" />
+                </label>
+                <label>
+                    Show
+                    <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
+                        <option></option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select> entries
+                </label>
             </div>
 
             <div class="col-md-12">
@@ -78,6 +80,43 @@
             "ajax": {
                 "url": "{{ route('agent.salesman.obtain.data', ['salesman_id' => $salesman_id]) }}"
             }
+        });
+        $(window).on('load', function () {
+            var $ranges = $('.reportrange');
+
+            $ranges.each(function (i, el) {
+
+                var start = moment().startOf('month');
+                var end = moment().endOf('month');
+
+                function cb(start, end) {
+                    $(el).val(start.format('YYYY-MM-DD') + ' / ' + end.format('YYYY-MM-DD')).trigger('change');
+                }
+
+                $(el).daterangepicker({
+                    autoUpdateInput: false,
+                    startDate: start,
+                    endDate: end,
+                    opens: "right",
+                    locale: {
+                        cancelLabel: 'Clear'
+                    },
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'This week': [moment().startOf('week'), moment()],
+                        'Previous week': [moment().subtract(1, 'weeks').startOf('week'), moment().subtract(1, 'weeks').endOf('week')],
+                        'This month': [moment().startOf('month'), moment().endOf('month')],
+                        'Previous month': [moment().subtract(1, 'months').startOf('month'), moment().subtract(1, 'months').endOf('month')]
+                    }
+                }, cb);
+
+                cb(start, end);
+
+                $(el).on('cancel.daterangepicker', function(ev, picker) {
+                    $(this).val('').trigger('change');
+                });
+            });
         });
     </script>
 @stop

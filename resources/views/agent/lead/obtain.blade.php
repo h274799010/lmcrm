@@ -22,12 +22,7 @@
             <div class="col-md-12">
                 <label class="obtain-label-period" for="reportrange">
                     Period:
-                    {{--<select data-name="date" class="selectbox dataTables_filter">
-                        <option></option>
-                        <option value="2d">last 2 days</option>
-                        <option value="1m">last month</option>
-                    </select>--}}
-                    <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter" value="" id="reportrange" />
+                    <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter reportrange" id="reportrange_{{ $sphere->id }}" value="" />
                 </label>
                 <label>
                     Show
@@ -90,39 +85,42 @@
             "url": "{{ route('agent.lead.obtain.data') }}"
         }
     });
-    $(function() {
+    $(window).on('load', function () {
+        var $ranges = $('.reportrange');
 
-        var start = moment().startOf('month');
-        var end = moment().endOf('month');
+        $ranges.each(function (i, el) {
 
-        function cb(start, end) {
-            $('#reportrange').val(start.format('YYYY-MM-DD') + ' / ' + end.format('YYYY-MM-DD')).trigger('change');
-        }
+            var start = moment().startOf('month');
+            var end = moment().endOf('month');
 
-        $('#reportrange').daterangepicker({
-            autoUpdateInput: false,
-            startDate: start,
-            endDate: end,
-            opens: "right",
-            locale: {
-                cancelLabel: 'Clear'
-            },
-            ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'This week': [moment().startOf('week'), moment()],
-                'Previous week': [moment().subtract(1, 'weeks').startOf('week'), moment().subtract(1, 'weeks').endOf('week')],
-                'This month': [moment().startOf('month'), moment().endOf('month')],
-                'Previous month': [moment().subtract(1, 'months').startOf('month'), moment().subtract(1, 'months').endOf('month')]
+            function cb(start, end) {
+                $(el).val(start.format('YYYY-MM-DD') + ' / ' + end.format('YYYY-MM-DD')).trigger('change');
             }
-        }, cb);
 
-        cb(start, end);
+            $(el).daterangepicker({
+                autoUpdateInput: false,
+                startDate: start,
+                endDate: end,
+                opens: "right",
+                locale: {
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'This week': [moment().startOf('week'), moment()],
+                    'Previous week': [moment().subtract(1, 'weeks').startOf('week'), moment().subtract(1, 'weeks').endOf('week')],
+                    'This month': [moment().startOf('month'), moment().endOf('month')],
+                    'Previous month': [moment().subtract(1, 'months').startOf('month'), moment().subtract(1, 'months').endOf('month')]
+                }
+            }, cb);
 
-        $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('').trigger('change');
+            cb(start, end);
+
+            $(el).on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('').trigger('change');
+            });
         });
-
     });
 </script>
 @stop
