@@ -18,6 +18,7 @@ use App\Models\SphereFormFilters;
 use App\Models\SphereStatuses;
 use App\Models\User;
 use App\Models\Salesman;
+use App\Transformers\Operator\EditedLeadsTransformer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
@@ -40,6 +41,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Queue;
+use Datatables;
 
 use Log;
 
@@ -118,18 +120,80 @@ class SphereController extends Controller {
     public function editedLids()
     {
         // получаем данные пользователя (оператора)
+        $operator = OperatorSphere::find(Sentinel::getUser()->id);
+
+        $spheres = $operator->spheres()->get();
+        $statuses = \App\Facades\Lead::getStatuses('status');
+
+        return view('sphere.lead.editedList', [
+            'spheres' => $spheres,
+            'statuses' => $statuses
+        ]);
+    }
+
+    public function editedLidsData(Request $request)
+    {
+        // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
         // получаем id всех лидов, которые редактировал оператор
         $leadsId = Operator::where('operator_id', '=', $operator->id)->with('editedLeads')->get()->lists('lead_id');
 
         // получаем все лиды оператора
-        $leads = Lead::
-              whereNotIn( 'status', [0, 1] )
-            ->whereIn( 'id', $leadsId )
-            ->with([ 'sphere', 'user2' ])
-            ->get();
+        $leads = Lead::whereNotIn( 'status', [0, 1] )
+            ->whereIn( 'id', $leadsId );
 
-        return view('sphere.lead.editedList')->with( 'leads', $leads );
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
+
+                    // проверяем ключ
+                    switch($eFKey) {
+
+                        // если фильтр по дате
+                        case 'sphere':
+
+                            if($eFVal != '') {
+                                $leads = $leads->where('sphere_id', '=', $eFVal);
+                            }
+
+                            break;
+                        case 'status':
+
+                            if($eFVal != '') {
+                                $leads = $leads->where('status', '=', $eFVal);
+                            }
+
+                            break;
+                        case 'date':
+                            if($eFVal != 'empty' && $eFVal != '') {
+                                $eFVal = explode('/', $eFVal);
+
+                                $start = trim($eFVal[0]);
+                                $end = trim($eFVal[1]);
+
+                                $leads = $leads->where(function ($query) use ($start, $end) {
+                                    $query->where('updated_at', '>=', $start . ' 00:00:00')
+                                        ->where('updated_at', '<=', $end . ' 23:59:59');
+                                });
+                            }
+                            break;
+                        default: ;
+                    }
+                }
+            }
+        }
+
+        $leads = $leads->with([ 'sphere', 'user2' ]);
+
+        return Datatables::of( $leads )
+            ->setTransformer(new EditedLeadsTransformer())
+            ->make();
     }
 
 

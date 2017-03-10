@@ -8,6 +8,7 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
 
     // лиды которые обрабатывал этот оператор (история обработки лидов оператором)
     Route::get('sphereEdited', ['as' => 'operator.sphere.edited', 'uses' => 'Operator\SphereController@editedLids']);
+    Route::get('sphereEditedData', ['as' => 'operator.sphere.editedData', 'uses' => 'Operator\SphereController@editedLidsData']);
 
     // все лиды помеченные к перезвону на определенное время
     Route::get('leadsMarkedForCall', ['as' => 'leads.marked.for.call', 'uses' => 'Operator\SphereController@leadsMarkedForCall']);

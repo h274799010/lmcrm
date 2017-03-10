@@ -9,40 +9,66 @@
             <div id="alertContent">{{$errors->first()}}</div>
         </div>
     @endif
+    <div class="row">
+        <div class="col-md-12" id="editedLeadsFilters">
+            <label class="obtain-label-period" for="reportrange">
+                Period:
+                <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter" value="" id="reportrange" />
+            </label>
+            @if( isset($spheres) && count($spheres) > 0 )
+                <label class="obtain-label-period">
+                    Sphere:
+                    <select data-name="sphere" class="selectbox dataTables_filter" id="spheresFilter">
+                        <option selected="selected" value=""></option>
+                        @foreach($spheres as $sphere)
+                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            @endif
+            @if( isset($statuses) && count($statuses) > 0 )
+                <label class="obtain-label-period">
+                    Status:
+                    <select data-name="status" class="selectbox dataTables_filter" id="statusesFilter">
+                        <option selected="selected" value=""></option>
+                        @foreach($statuses as $status => $name)
+                            <option value="{{ $status }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            @endif
+            <label>
+                Show
+                <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
+                    <option></option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select> entries
+            </label>
+        </div>
+    </div>
 
-    <table class="table table-bordered table-striped table-hover dataTableOperatorLeads">
-        <thead>
-        <tr>
-            <th>{{ trans("operator/editedList.name") }}</th>
-            <th>{{ trans("operator/editedList.status") }}</th>
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table table-bordered table-striped table-hover dataTableOperatorLeads" id="editedLeadsTable">
+                <thead>
+                <tr>
+                    <th>{{ trans("operator/editedList.name") }}</th>
+                    <th>{{ trans("operator/editedList.status") }}</th>
 
-            <th>{{ trans("operator/editedList.updated_at") }}</th>
+                    <th>{{ trans("operator/editedList.updated_at") }}</th>
 
-            <th>{{ trans("operator/editedList.sphere") }}</th>
-            <th>{{ trans("operator/editedList.depositor") }}</th>
+                    <th>{{ trans("operator/editedList.sphere") }}</th>
+                    <th>{{ trans("operator/editedList.depositor") }}</th>
 
-            <th>{{ trans("operator/editedList.action") }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        @forelse($leads as $lead)
-            <tr>
-                <td>{{ $lead->name }}</td>
-                <td>{{ $lead->statusName() }}</td>
-
-                <td>{{ $lead->updated_at }}</td>
-
-                <td>{{ $lead->sphere->name }}</td>
-                <td>@if($lead->leadDepositorData->depositor_company == 'system_company_name') LM CRM @else {{ $lead->leadDepositorData->depositor_company }} @endif</td>
-                {{--<td></td>--}}
-                <td>
-                    <a href="{{ route('operator.sphere.lead.edit',['sphere'=>$lead->sphere_id,'id'=>$lead->id]) }}" class="btn btn-sm checkLead" data-id="{{ $lead->id }}"><img src="/assets/web/icons/list-edit.png" class="_icon pull-left flip"></a>
-                </td>
-            </tr>
-        @empty
-        @endforelse
-        </tbody>
-    </table>
+                    <th>{{ trans("operator/editedList.action") }}</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
     <div id="statusModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
         <div class="modal-dialog modal-sm" role="document">
@@ -114,6 +140,104 @@
                 }
             });
             $('#statusModalChange').unbind('click');
+        });
+
+        $(window).on('load', function () {
+            var $table = $('#editedLeadsTable');
+            var $container = $('#editedLeadsFilters');
+
+            var dTable = $table.DataTable({
+                "destroy": true,
+                "searching": false,
+                "lengthChange": false,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url" : '{{ route('operator.sphere.editedData') }}',
+                    "data": function (d) {
+
+                        // переменная с данными по фильтру
+                        var filter = {};
+
+                        // перебираем фильтры и выбираем данные по ним
+                        $container.find(':input.dataTables_filter').each(function () {
+
+                            // если есть name и нет js
+                            if ($(this).data('name') && $(this).data('js') != 1) {
+
+                                // заносим в фильтр данные с именем name и значением опции
+                                filter[$(this).data('name')] = $(this).val();
+                            }
+                        });
+
+                        // данные фильтра
+                        d['filter'] = filter;
+                    }
+                },
+
+                "responsive": true
+            });
+
+
+            // обработка фильтров таблицы при изменении селекта
+            $container.find(':input.dataTables_filter').change(function () {
+
+                // проверяем параметр data-js
+                if ($(this).data('js') == '1') {
+                    // если js равен 1
+
+                    // перечисляем имена
+                    switch ($(this).data('name')) {
+
+                        // если у селекта имя pageLength
+                        case 'pageLength':
+                            // перерисовываем таблицу с нужным количеством строк
+                            if ($(this).val()) dTable.page.len($(this).val()).draw();
+                            break;
+                        default:
+                            ;
+                    }
+                } else {
+                    // если js НЕ равен 1
+                    // просто перезагружаем таблицу
+                    dTable.ajax.reload();
+                }
+            });
+        });
+
+        $(function() {
+
+            var start = moment().startOf('month');
+            var end = moment().endOf('month');
+
+            function cb(start, end) {
+                $('#reportrange').val(start.format('YYYY-MM-DD') + ' / ' + end.format('YYYY-MM-DD')).trigger('change');
+            }
+
+            $('#reportrange').daterangepicker({
+                autoUpdateInput: false,
+                startDate: start,
+                endDate: end,
+                opens: "right",
+                locale: {
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'This week': [moment().startOf('week'), moment()],
+                    'Previous week': [moment().subtract(1, 'weeks').startOf('week'), moment().subtract(1, 'weeks').endOf('week')],
+                    'This month': [moment().startOf('month'), moment().endOf('month')],
+                    'Previous month': [moment().subtract(1, 'months').startOf('month'), moment().subtract(1, 'months').endOf('month')]
+                }
+            }, cb);
+
+            cb(start, end);
+
+            $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('').trigger('change');
+            });
+
         });
     </script>
 @endsection
