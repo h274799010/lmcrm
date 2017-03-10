@@ -291,6 +291,12 @@ class DealController extends Controller
         }
     }
 
+    /**
+     * Блокировка удаления файлов по сделке для агента
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function blockCheckDelete(Request $request)
     {
         $check = CheckClosedDeals::find($request->input('id'));
@@ -342,5 +348,83 @@ class DealController extends Controller
 
 
         return response()->json([ 'actionStatus'=>'true', 'statusName'=>$statusName[ $status ], 'snackbar'=>$snackbar]);
+    }
+
+    public function checkUpload(Request $request)
+    {
+        $open_lead_id = $request->input('open_lead_id');
+
+        return \Plupload::file('file', function($file) use ($open_lead_id) {
+
+            $openLead = OpenLeads::find($open_lead_id);
+
+            $original_name = $file->getClientOriginalName();
+            $extension = File::extension( $original_name );
+            $file_name = md5( microtime() . rand(0, 9999) ) . '.' . $extension;
+            $directory = 'uploads/agent/'.$openLead->agent_id.'/';
+
+            if(!File::exists($directory)) {
+                File::makeDirectory($directory, $mode = 0777, true, true);
+            }
+
+            if(File::exists($directory.$file_name)) {
+                $extension = $extension ? '.' . $extension : '';
+                do {
+                    $file_name = md5(microtime() . rand(0, 9999)) . '.' . $extension;
+                } while (File::exists($directory.$file_name));
+            }
+
+            if(!File::exists($directory.$file_name)) {
+
+                // Store the uploaded file
+                $file->move(public_path($directory), $file_name);
+
+                $check = new CheckClosedDeals();
+                $check->open_lead_id = $open_lead_id;
+                $check->url = $directory;
+                $check->name = $original_name;
+                $check->file_name = $file_name;
+                $check->save();
+
+                $extension = strtolower(File::extension( $check->file_name ));
+
+                if(in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
+                    $type = 'image';
+                }
+                elseif (in_array($extension, array('doc', 'docx', 'rtf'))) {
+                    $type = 'word';
+                }
+                elseif (in_array($extension, array('pdf'))) {
+                    $type = 'pdf';
+                }
+                elseif (in_array($extension, array('zip', 'rar'))) {
+                    $type = 'archive';
+                }
+                elseif (in_array($extension, array('txt'))) {
+                    $type = 'text';
+                }
+                else {
+                    $type = 'undefined';
+                }
+
+                // This will be included in JSON response result
+                return [
+                    'success'   => true,
+                    'message'   => 'Upload successful.',
+                    'name'      => $check->name,
+                    'file_name' => $check->file_name,
+                    'url'       => $check->url,
+                    'id'        => $check->id,
+                    'type'      => $type,
+                    // 'url'       => $photo->getImageUrl($filename, 'medium'),
+                    // 'deleteUrl' => action('MediaController@deleteDelete', [$photo->id])
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'The file already exists!'
+                ];
+            }
+        });
     }
 }

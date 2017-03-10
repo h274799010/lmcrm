@@ -30,12 +30,6 @@
         </div>
 
     </div>
-            {{--<div>--}}
-                {{--<div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">--}}
-                    {{--<div id="uploadProgress"></div>--}}
-                {{--</div>--}}
-                {{--<a href="#" class="btn btn-sm btn-success" id="addCheckBtn">Add document</a>--}}
-            {{--</div>--}}
             <h2>Deal info</h2>
             <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
                 <tbody>
@@ -127,41 +121,49 @@
 
             <h4>Uploaded documents</h4>
             <div class="row" id="filesListGroup">
-            @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
-                @foreach($openLead->uploadedCheques as $key => $check)
-                    <div class="col-xs-6 col-md-3 file-item">
-                        <a href="/{{ $check->url }}{{ $check->file_name }}" target="_blank" class="thumbnail @if($check->type != 'image') other @endif ">
-                            @if($check->type == 'image')
-                                <img src="/{{ $check->url }}{{ $check->file_name }}" alt="{{ $check->name }}">
-                            @elseif($check->type == 'word')
-                                <i class="fa fa-file-word-o" aria-hidden="true"></i>
-                            @elseif($check->type == 'pdf')
-                                <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-                            @elseif($check->type == 'archive')
-                                <i class="fa fa-file-archive-o" aria-hidden="true"></i>
-                            @elseif($check->type == 'text')
-                                <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                            @else
-                                <i class="fa fa-file" aria-hidden="true"></i>
-                            @endif
-                        </a>
-                        <div class="doc-links">
-                            <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" target="_blank">
-                                {{ $check->name }}
+                @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
+                    @foreach($openLead->uploadedCheques as $key => $check)
+                        <div class="col-xs-6 col-md-3 file-item">
+                            <a href="/{{ $check->url }}{{ $check->file_name }}" target="_blank" class="thumbnail @if($check->type != 'image') other @endif ">
+                                @if($check->type == 'image')
+                                    <img src="/{{ $check->url }}{{ $check->file_name }}" alt="{{ $check->name }}">
+                                @elseif($check->type == 'word')
+                                    <i class="fa fa-file-word-o" aria-hidden="true"></i>
+                                @elseif($check->type == 'pdf')
+                                    <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                @elseif($check->type == 'archive')
+                                    <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+                                @elseif($check->type == 'text')
+                                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                @else
+                                    <i class="fa fa-file" aria-hidden="true"></i>
+                                @endif
                             </a>
-                            <a href="#" class="btn btn-xs @if($check->block_deleting == true) btn-success @else btn-danger @endif delete-document" title="@if($check->block_deleting == true) Do you want to unblock the deletion of this document? @else Do you want to block the deletion of this document? @endif " data-id="{{ $check->id }}">
-                                <i class="fa fa-ban" aria-hidden="true"></i>
-                            </a>
+                            <div class="doc-links">
+                                <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" target="_blank">
+                                    {{ $check->name }}
+                                </a>
+                                <a href="#" class="btn btn-xs @if($check->block_deleting == true) btn-success @else btn-danger @endif delete-document" title="@if($check->block_deleting == true) Do you want to unblock the deletion of this document? @else Do you want to block the deletion of this document? @endif " data-id="{{ $check->id }}">
+                                    <i class="fa fa-ban" aria-hidden="true"></i>
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    @if( ($key + 1) % 2 == 0 )
-                        <div class="clearfix @if( ($key + 1) % 4 != 0 ) visible-sm visible-xs @endif "></div>
-                    @endif
-                @endforeach
-            @else
-                <div class="col-xs-12 empty-check-item"><div class="list-group-item list-group-item-warning">No uploaded documents</div></div>
-            @endif
+                        @if( ($key + 1) % 2 == 0 )
+                            <div class="clearfix @if( ($key + 1) % 4 != 0 ) visible-sm visible-xs @endif "></div>
+                        @endif
+                    @endforeach
+                @else
+                    <div class="col-xs-12 empty-check-item"><div class="list-group-item list-group-item-warning">No uploaded documents</div></div>
+                @endif
+            </div>
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
+                <div id="uploadProgress"></div>
+            </div>
+            <a href="javascript:;" class="btn btn-sm btn-success" id="addCheckBtn">Add document</a>
         </div>
+    </div>
     <div class="row">
         <div class="col-xs-12">
             <div class="messages-block">
@@ -368,6 +370,7 @@
 
 @section('scripts')
     <script type="text/javascript" src="{{ asset('assets/web/js/bootstrap-confirmation.min.js') }}"> </script>
+    <script src="{{ asset('components/plupload/js/plupload.full.min.js') }}"></script>
     <script type="text/javascript">
         function deleteCheck($this) {
             var params = {
@@ -390,6 +393,30 @@
                     alert('server error!')
                 }
             });
+        }
+
+        function fileListClearfix() {
+            var $filelist = $('#filesListGroup');
+
+            var $fileItems = $filelist.find('.file-item');
+
+            if($fileItems.length > 2) {
+                $filelist.find('.clearfix').remove();
+
+                $fileItems.each(function (i, item) {
+                    var num = i + 1;
+
+                    var classes = '';
+                    if(num % 4 != 0) {
+                        classes = ' visible-sm visible-xs';
+                    }
+
+                    var clearfix = '<div class="clearfix'+classes+'"></div>';
+                    if(num % 2 == 0) {
+                        $(item).after(clearfix);
+                    }
+                });
+            }
         }
         $(document).ready(function () {
 
@@ -499,6 +526,119 @@
 
             });
 
+        });
+
+        $(window).on('load', function () {
+            var uploaderImages = new plupload.Uploader({
+                runtimes : 'html5',
+
+                browse_button : 'addCheckBtn',
+                multi_selection: true,
+                url : "{{ route('admin.deal.checkUpload') }}",
+
+                multipart_params: {
+                    _token: '{{ csrf_token() }}',
+                    open_lead_id: '{{ $openLead->id }}'
+                },
+
+                filters : {
+                    max_file_size : '15mb',
+                    mime_types: [
+                        {title : "Image files", extensions : "jpg,jpeg,png"},
+                        {title : "Documents", extensions : "pdf,docx,doc,txt"},
+                        {title : "Archive", extensions : "zip,rar"}
+                    ]
+                },
+
+                init: {
+                    FilesAdded: function(up, files) {
+                        $('#jsAjaxPreloader').show();
+
+                        $.each(files, function (i, file) {
+                            var data = '';
+
+                            data += '<div class="controls file-container">';
+                            data += '<div id="checkName" class="file-name">'+file.name+'</div>';
+                            data += '<div class="upload-progress">';
+                            data += '<div id="uploadStatus_'+file.id+'" class="upload-status"></div>';
+                            data += '<div id="uploadStatusPercent_'+file.id+'" class="upload-status-percent">Pleas wait...</div>';
+                            data += '</div>';
+                            data += '</div>';
+
+                            $('#uploadProgress').append(data);
+
+                            uploaderImages.start();
+                        });
+                    },
+
+                    UploadProgress: function(up, file) {
+                        $('#uploadStatus_'+file.id).css('width', file.percent + '%');
+                        $('#uploadStatusPercent_'+file.id).html(file.percent + '%');
+                    },
+
+                    FileUploaded: function (up, file, res) {
+                        $('#checkModalChange').removeClass('disabled').prop('disabled', false);
+
+                        var data = $.parseJSON(res.response);
+                        data = data.result;
+
+                        $('#uploadProgress').empty();
+
+                        var thumbClass = ' other';
+                        var thumbHtml = '';
+                        switch (data.type) {
+                            case 'image':
+                                thumbClass = '';
+                                thumbHtml = '<img src="/'+data.url+data.file_name+'" alt="'+data.name+'">';
+                                break;
+                            case 'word':
+                                thumbHtml = '<i class="fa fa-file-word-o" aria-hidden="true"></i>';
+                                break;
+                            case 'pdf':
+                                thumbHtml = '<i class="fa fa-file-pdf-o" aria-hidden="true"></i>';
+                                break;
+                            case 'archive':
+                                thumbHtml = '<i class="fa fa-file-archive-o" aria-hidden="true"></i>';
+                                break;
+                            case 'text':
+                                thumbHtml = '<i class="fa fa-file-text-o" aria-hidden="true"></i>';
+                                break;
+                            default:
+                                thumbHtml = '<i class="fa fa-file" aria-hidden="true"></i>';
+                                break;
+                        }
+
+                        var html = '';
+                        html += '<div class="col-xs-6 col-md-3 file-item">';
+                        html += '<a href="/'+data.url+data.file_name+'" target="_blank" class="thumbnail'+thumbClass+'">';
+                        html += thumbHtml;
+                        html += '</a>';
+                        html += '<div class="doc-links">';
+                        html += '<a href="/'+data.url+data.file_name+'" class="document-link" target="_blank">'+data.name+'</a>';
+                        html += '<a href="#" class="btn btn-xs btn-danger delete-document" title="Delete this document?" data-id="'+data.id+'"><i class="fa fa-trash-o" aria-hidden="true"></i></a>';
+                        html += '</div>';
+                        html += '</div>';
+
+                        $('#filesListGroup').append(html);
+
+                        if($(document).find('.empty-check-item').length > 0) {
+                            $(document).find('.empty-check-item').remove();
+                        }
+                        $('.delete-document').confirmation({
+                            onConfirm: function() {
+                                deleteCheck($(this));
+                            }
+                        });
+                        fileListClearfix();
+                    },
+
+                    Error: function(up, err) {
+                        alert("\nError #" + err.code + ": " + err.message);
+                    }
+                }
+            });
+
+            uploaderImages.init();
         });
     </script>
 @endsection
