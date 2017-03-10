@@ -179,6 +179,11 @@
 
                         $('#listAgentsInGroup').append(html);
                         $this.closest('li').remove();
+                        $('.btnDeleteAgent').confirmation({
+                            onConfirm: function() {
+                                deleteAgent($(this));
+                            }
+                        });
                     }
 
                     if( $('#searchResult').find('li').length == 0 ) {

@@ -145,7 +145,7 @@
                                 </li>
                                 <hr>
                             @endif
-                            @if(Sentinel::inRole('dealmaker'))
+                            @if(Sentinel::inRole('agent'))
                                 {{-- страница для создания групп агентов --}}
                                 <li>
                                     <a href="{{ route('agent.privateGroup.index') }}"> {{ trans('navbar.agent_private_group') }} </a>
