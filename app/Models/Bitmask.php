@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use Cartalyst\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 
@@ -124,6 +125,7 @@ class Bitmask extends Model
             DB::statement('CREATE TABLE IF NOT EXISTS `' . $leadBitmaskTable .'`' .$leadBitmaskFields , []);
         }
     }
+
 
     /**
      * Создание новой таблицы
@@ -358,6 +360,50 @@ class Bitmask extends Model
     }
 
 
+    /**
+     * Получение массива с данными полей фильтра
+     *
+     * возвращает только значения полей фильтра
+     *
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getFilterFields(){
+
+        // возвращает свойства объекта в массив
+        $mask = collect( $this->toArray() );
+
+        // фильтруем поля маски
+        $mask = $mask->filter(function( $item, $key ){
+            // возвращаем только поля фильтра
+            return stripos($key,'fb_') === 0;
+        });
+
+        return $mask;
+    }
+
+
+    /**
+     * Получение массива с данными полей дополнительных данных данных
+     *
+     * возвращает только значения полей дополнительных данных
+     *
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAdditionalFields(){
+
+        // возвращает свойства объекта в массив
+        $mask = collect( $this->toArray() );
+
+        // фильтруем поля маски
+        $mask = $mask->filter(function( $item, $key ){
+            // возвращаем только поля фильтра
+            return stripos($key,'ad_') === 0;
+        });
+
+        return $mask;
+    }
 
 
     /**

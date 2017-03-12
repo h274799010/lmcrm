@@ -9,7 +9,6 @@ use Illuminate\Http\Response;
 use Sentinel;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-
 /**
  * Аутентификация по токену
  *
@@ -50,14 +49,30 @@ class JWTController extends Controller
 
         // todo "выкинуть" пользователя если пользователь админ или оператор
 
+//        $user = JWTAuth::parseToken()->authenticate($token);
 
-//        $user = JWTAuth::parseToken()->toUser();
+        $user = JWTAuth::toUser( $token );
 
-//        $a = $user->id;
+        $role = false;
 
-//        return response()->json( [ 'token' => $a ] );
+        $user->roles->each(function( $userRole ) use(&$role){
 
-//        return response()->json( $token );
+            if( $userRole['slug'] == 'agent' || $userRole['slug'] == 'salesman' ){
+                $role = $userRole['slug'];
+            }
+
+        });
+
+        if( !$role ){
+            return response()->json( 'invalid_credentials' );
+        }
+
+
+//        $user = Sentinel::findUserById(6);
+//
+//        dd( $user->roles );
+
+
 
         return response()->json( [ 'status' => 'Ok', 'token' => $token ] );
     }

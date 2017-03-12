@@ -21,12 +21,19 @@ use MongoDB\Driver\Query;
 use PhpParser\Builder;
 use App\Helper\PayMaster\Pay;
 use App\Helper\PayMaster\Price;
+use App\Models\LeadBitmask;
 
 #class Lead extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
 #    use Authenticatable, CanResetPassword;
 class Lead extends EloquentUser {
 
+
+    /**
+     * Таблица модели
+     *
+     */
     protected $table="leads";
+
 
     /**
      * The attributes that are mass assignable.
@@ -37,11 +44,13 @@ class Lead extends EloquentUser {
         'agent_id','sphere_id','name', 'customer_id', 'comment', 'bad'
     ];
 
+
     /**
      * Поля БД с датой
      *
      */
     protected $dates = ['operator_processing_time'];
+
 
     /**
      * The attributes that should be hidden for arrays.
@@ -147,6 +156,173 @@ class Lead extends EloquentUser {
         $lead->save();
 
         return $lead;
+    }
+
+
+    /**
+     * Выбор маски лида
+     *
+     * Возвращает лид
+     * с добавленной переменной с маской лида
+     *
+     * @return Lead
+     */
+    public function getMask()
+    {
+
+        // id сферы
+        $sphere_id = $this->sphere_id;
+
+        // id лида
+        $lead_id = $this->id;
+
+        // маска лида
+        $mask = new LeadBitmask( $sphere_id );
+        $this->mask = $mask->where( 'user_id', $lead_id )->first();
+
+        return $this->mask;
+    }
+
+
+    /**
+     * Выбор фильтра
+     *
+     * Возвращает лид
+     * с добавленной переменной с атрибутами фильтра
+     */
+    public function getFilter()
+    {
+        // проверка маски на существование
+        if( !$this->mask ){
+            // если маски нет
+            // создаем ее
+            $this->getMask();
+        }
+
+        $mask = $this->mask;
+
+        $formFilter = [];
+
+        // перебирание атрибутов фильтра
+        $this->SphereFormFilters->each(function( $attr, $key ) use( &$lead, &$formFilter, $mask  ){
+
+            // данные опций фильтра
+            $options = '';
+
+            // перебирание опций фильтра
+            $attr->options->each(function( $opt ) use( &$options, $attr, $mask ){
+
+                // переменная с адресом фильтра
+                $fb_attr_opt = 'fb_' .$attr->id .'_' .$opt->id;
+
+                // если поле равняется 1
+                if( $mask[$fb_attr_opt] == 1 ){
+                    // заносим опцию в данные
+
+                    // проверка содержания поля
+                    if( $options == '' ){
+                        // если в поле уже есть данные
+
+                        // заносим имя в переменную
+                        $options = $opt->name;
+
+                    }else{
+                        // если в поле уже есть данные
+
+                        // добавляем имя в переменную через запятую
+                        $options .= ', ' .$opt->name;
+                    }
+                }
+            });
+
+            // добавляем данные имени поля и его значения в массив
+            $formFilter[] =
+                [
+                    'label' => $attr->label,
+                    'value' => $options
+                ];
+        });
+
+        // сохраняем данные фильтра в лиде акциона
+        $this->filter = $formFilter;
+    }
+
+
+    /**
+     * Выбор фильтра
+     *
+     * Возвращает лид
+     * с добавленной переменной с атрибутами фильтра
+     */
+    public function getAdditional()
+    {
+        // проверка маски на существование
+        if( !$this->mask ){
+            // если маски нет
+            // создаем ее
+            $this->getMask();
+        }
+
+        $mask = $this->mask;
+
+        $additionalData = [];
+
+        // перебирание атрибутов фильтра
+        $this->SphereAdditionForms->each(function( $attr, $key ) use( &$lead, &$additionalData, $mask  ){
+
+            // данные опций фильтра
+            $options = '';
+
+            // обработка атрибута в зависимости от типа
+            if( $attr->_type=='radio' || $attr->_type=='checkbox' || $attr->_type=='select' ){
+                // если тип 'radio', 'checkbox' и 'select'
+
+                // перебирание опций фильтра
+                $attr->options->each(function( $opt ) use( &$options, $attr, $mask ){
+
+                    // переменная с адресом фильтра
+                    $ad_attr_opt = 'ad_' .$attr->id .'_' .$opt->id;
+
+                    // если поле равняется 1
+                    if( $mask[$ad_attr_opt] == 1 ){
+                        // заносим опцию в данные
+
+                        // проверка содержания поля
+                        if( $options == '' ){
+                            // если в поле уже есть данные
+
+                            // заносим имя в переменную
+                            $options = $opt->name;
+
+                        }else{
+                            // если в поле уже есть данные
+
+                            // добавляем имя в переменную через запятую
+                            $options .= ', ' .$opt->name;
+                        }
+                    }
+                });
+
+            }else{
+                // если другой тип (email, date...)
+
+                // переменная с адресом фильтра
+                $ad_attr_opt = 'ad_' .$attr->id .'_0';
+                // просто присваиваем опции значение поля
+                $options = $mask[$ad_attr_opt];
+            }
+
+
+            // добавляем данные имени поля и его значения в массив
+            $additionalData[] =
+                [
+                    'label' => $attr->label,
+                    'value' => $options
+                ];
+        });
+
+        // сохраняем данные дополнительных данных в лиде акциона
+        $this->additional = $additionalData;
     }
 
 
