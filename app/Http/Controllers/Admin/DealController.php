@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Facades\Messages;
 use App\Models\AccountManager;
 use App\Models\Agent;
+use App\Models\CheckClosedDeals;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\OpenLeads;
@@ -24,6 +25,7 @@ use App\Models\ClosedDeals;
 use App\Models\LeadBitmask;
 use App\Models\AgentBitmask;
 use Validator;
+use Illuminate\Support\Facades\File;
 use App\Models\TransactionsLeadInfo;
 use App\Models\TransactionsDetails;
 
@@ -135,6 +137,31 @@ class DealController extends Controller
             }
         ])->find($deal->open_lead_id);
         $user = User::find( $openLead->agent_id );
+
+        if(isset($openLead->uploadedCheques)) {
+            foreach ($openLead->uploadedCheques as $key => $cheque) {
+                $extension = strtolower(File::extension( $cheque->file_name ));
+
+                if(in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
+                    $openLead->uploadedCheques[$key]->type = 'image';
+                }
+                elseif (in_array($extension, array('doc', 'docx', 'rtf'))) {
+                    $openLead->uploadedCheques[$key]->type = 'word';
+                }
+                elseif (in_array($extension, array('pdf'))) {
+                    $openLead->uploadedCheques[$key]->type = 'pdf';
+                }
+                elseif (in_array($extension, array('zip', 'rar'))) {
+                    $openLead->uploadedCheques[$key]->type = 'archive';
+                }
+                elseif (in_array($extension, array('txt'))) {
+                    $openLead->uploadedCheques[$key]->type = 'text';
+                }
+                else {
+                    $openLead->uploadedCheques[$key]->type = 'undefined';
+                }
+            }
+        }
 
 
         $leadsTransactions = TransactionsLeadInfo::
@@ -261,6 +288,20 @@ class DealController extends Controller
                 'status' => 'fail',
                 'errors' => 'An error occurred while sending a message! Try later!'
             ]);
+        }
+    }
+
+    public function blockCheckDelete(Request $request)
+    {
+        $check = CheckClosedDeals::find($request->input('id'));
+
+        if(isset($check->id)) {
+            $check->block_deleting = $check->block_deleting == true ? false : true;
+            $check->save();
+            return response()->json(true);
+        }
+        else {
+            return response()->json(false);
         }
     }
 

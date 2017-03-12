@@ -418,19 +418,12 @@
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">
-                                Block:
+                                Permissions:
                             </h4>
                         </div>
                         <div class="modal-body clearfix">
-                            <div class="form-group banned-form-group col-xs-12">
-                                @foreach($permissions as $permission => $status)
-                                    <div class="checkbox">
-                                        <input id="perm_{{ $permission }}" type="checkbox" name="permissions[]" value="{{ $permission }}">
-                                        <label for="perm_{{ $permission }}">
-                                            {{ trans('admin/users.permissions.'.$permission) }}
-                                        </label>
-                                    </div>
-                                @endforeach
+                            <div class="row">
+                                <div class="form-group banned-form-group col-xs-12" id="banFormGroup"></div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -438,37 +431,7 @@
                                 Cancel
                             </button>
                             <button class="btn btn-danger btnBanForm" type="submit">
-                                Ban
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="modalUnBanUser" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-sm" role="document">
-                <div class="modal-content">
-                    <form id="unBanForm" method="post">
-                        <input type="hidden" name="user_id" value="">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">
-                                Unblock:
-                            </h4>
-                        </div>
-                        <div class="modal-body clearfix">
-                            <div class="form-group banned-form-group col-xs-12" id="unBanFormGroup">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-default modal-cancel" type="button">
-                                Cancel
-                            </button>
-                            <button class="btn btn-success btnBanForm" type="submit">
-                                Unblock
+                                Save
                             </button>
                         </div>
                     </form>
@@ -596,6 +559,118 @@
         .popover.confirmation .popover-content {
             background-color: #ffffff;
         }
+
+        .togglebutton {
+            vertical-align: middle;
+        }
+        .togglebutton, .togglebutton label, .togglebutton input, .togglebutton .toggle {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .togglebutton label {
+            cursor: pointer;
+            color: rgba(0,0,0, 0.26);
+        }
+        .form-group .checkbox label, .form-group .radio label, .form-group label {
+            font-size: 16px;
+            line-height: 1.42857143;
+            color: #BDBDBD;
+            font-weight: 400;
+        }
+        .togglebutton label input[type=checkbox] {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .togglebutton label input[type=checkbox] {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .togglebutton label .toggle {
+            text-align: left;
+        }
+        .togglebutton label .toggle, .togglebutton label input[type=checkbox][disabled] + .toggle {
+            content: "";
+            display: inline-block;
+            width: 30px;
+            height: 15px;
+            background-color: rgba(80, 80, 80, 0.7);
+            border-radius: 15px;
+            margin-right: 15px;
+            -webkit-transition: background 0.3s ease;
+            -o-transition: background 0.3s ease;
+            transition: background 0.3s ease;
+            vertical-align: middle;
+        }
+        .togglebutton label .toggle {
+            text-align: left;
+        }
+        .togglebutton label .toggle, .togglebutton label input[type=checkbox][disabled] + .toggle {
+            content: "";
+            display: inline-block;
+            width: 30px;
+            height: 15px;
+            background-color: rgba(80, 80, 80, 0.7);
+            border-radius: 15px;
+            margin-right: 15px;
+            -webkit-transition: background 0.3s ease;
+            -o-transition: background 0.3s ease;
+            transition: background 0.3s ease;
+            vertical-align: middle;
+        }
+        .togglebutton label input[type=checkbox]:checked + .toggle {
+            background-color: rgba(0, 150, 136, 0.5);
+        }
+        .togglebutton label input[type=checkbox]:checked + .toggle {
+            background-color: rgba(0, 150, 136, 0.5);
+        }
+        .togglebutton label .toggle:after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #F1F1F1;
+            border-radius: 20px;
+            position: relative;
+            -webkit-box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.4);
+            left: -5px;
+            top: -2px;
+            -webkit-transition: left 0.3s ease, background 0.3s ease, -webkit-box-shadow 0.1s ease;
+            -o-transition: left 0.3s ease, background 0.3s ease, box-shadow 0.1s ease;
+            transition: left 0.3s ease, background 0.3s ease, box-shadow 0.1s ease;
+        }
+        .togglebutton label .toggle:after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #F1F1F1;
+            border-radius: 20px;
+            position: relative;
+            -webkit-box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.4);
+            left: -5px;
+            top: -2px;
+            -webkit-transition: left 0.3s ease, background 0.3s ease, -webkit-box-shadow 0.1s ease;
+            -o-transition: left 0.3s ease, background 0.3s ease, box-shadow 0.1s ease;
+            transition: left 0.3s ease, background 0.3s ease, box-shadow 0.1s ease;
+        }
+        .togglebutton label input[type=checkbox]:checked + .toggle:after {
+            left: 15px;
+        }
+        .togglebutton label input[type=checkbox]:checked + .toggle:after {
+            background-color: #009688;
+        }
+        .togglebutton label input[type=checkbox]:checked + .toggle:after {
+            left: 15px;
+        }
+        .togglebutton label input[type=checkbox]:checked + .toggle:after {
+            background-color: #009688;
+        }
     </style>
 @stop
 
@@ -603,6 +678,7 @@
 
 @section('scripts')
     <script type="text/javascript" src="{{ asset('assets/web/js/bootstrap-confirmation.min.js') }}"> </script>
+    <script type="text/javascript" src="{{ asset('components/bootstrap/js/material.min.js') }}"></script>
     <script type="text/javascript">
 
         @if (isset($agent))
@@ -639,11 +715,35 @@
                 $(this).closest('.modal').modal('hide');
             });
 
-            $(document).on('click', '.btnBanUser', function (e) {
+            $(document).on('click', '.btnBanUser, .btnUnBanUser', function (e) {
                 e.preventDefault();
 
                 $('#banForm').find('input[name=user_id]').val( $(this).data('user') );
-                $('#modalBanUser').modal('show');
+
+                var params = 'user_id='+$(this).data('user')+'&_token={{ csrf_token() }}';
+                var $wrapper = $('#banFormGroup');
+
+                $.post('{{ route('accountManager.agent.unblockData') }}', params, function (permissions) {
+                    $wrapper.empty();
+                    var html = '';
+                    $.each(permissions, function (i, permission) {
+                        var checkProp = '';
+                        if(permission.value == true) {
+                            checkProp = ' checked="checked"';
+                        }
+                        html += '<div class="togglebutton">';
+                        html += '<label>';
+                        html += '<input name="permissions[]" type="checkbox" value="'+i+'"'+checkProp+'>';
+                        html += '<span class="status">'+permission.name+'</span>';
+                        html += '</label>';
+                        html += '</div>';
+
+                    });
+
+                    $wrapper.html(html);
+                    $.material.init('.togglebutton');
+                    $('#modalBanUser').modal('show');
+                });
             });
 
             $(document).on('submit', '#banForm', function (e) {
@@ -652,48 +752,6 @@
                 var params = $(this).serialize();
 
                 $.post('{{ route('accountManager.agent.block') }}', params, function (data) {
-                    if(Object.keys(data.errors).length > 0) {
-                        console.log(data.errors);
-                    } else if(data.status == 'success') {
-                        window.location.reload();
-                    }
-                });
-            });
-
-            $(document).on('click', '.btnUnBanUser', function (e) {
-                e.preventDefault();
-
-                var params = 'user_id='+$(this).data('user')+'&_token={{ csrf_token() }}';
-                var $wrapper = $('#unBanFormGroup');
-
-                $('#unBanForm').find('input[name=user_id]').val( $(this).data('user') );
-
-                $.post('{{ route('accountManager.agent.unblockData') }}', params, function (permissions) {
-                    $wrapper.empty();
-                    var html = '';
-                    $.each(permissions, function (i, permission) {
-                        var checkProp = '';
-                        if(permission.value == false) {
-                            checkProp = ' checked="checked"';
-                        }
-
-                        html += '<div class="checkbox">';
-                        html += '<input id="uperm_'+i+'" type="checkbox" name="permissions[]" value="'+i+'"'+checkProp+'> ';
-                        html += '<label for="uperm_'+i+'">'+permission.name+'</label>';
-                        html += '</div>';
-                    });
-
-                    $wrapper.html(html);
-                    $('#modalUnBanUser').modal('show');
-                });
-            });
-
-            $(document).on('submit', '#unBanForm', function (e) {
-                e.preventDefault();
-
-                var params = $(this).serialize();
-
-                $.post('{{ route('accountManager.agent.unblock') }}', params, function (data) {
                     if(Object.keys(data.errors).length > 0) {
                         console.log(data.errors);
                     } else if(data.status == 'success') {

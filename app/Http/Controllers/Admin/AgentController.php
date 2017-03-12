@@ -85,14 +85,12 @@ class AgentController extends AdminController
             $role = Sentinel::findRoleBySlug('account_manager');
             $accountManagers = $role->users()->get();
         }
-        $permissions = User::$bannedPermissions;
 
         // Show the page
         return view('admin.agent.index', [
             'spheres' => $spheres,
             'accountManagers' => $accountManagers,
-            'selectedFilters' => $selectedFilters,
-            'permissions' => $permissions
+            'selectedFilters' => $selectedFilters
         ]);
     }
 
@@ -252,7 +250,6 @@ class AgentController extends AdminController
         foreach ($agentMasks as $key => $agentMask) {
             $agentMasks[$key]['masks'] = $agent->bitmaskAllWithNames($agentMask->id);
         }
-        $permissions = User::$bannedPermissions;
 
         return view('admin.agent.create_edit', [
             'agent'=>$agent,
@@ -263,7 +260,6 @@ class AgentController extends AdminController
             'accountManagers'=>$accountManagers,
             'agentMasks' => $agentMasks,
             'statistic' => $openLeadsStatistic,
-            'permissions' => $permissions,
             'attachedAccManagers' => $attachedAccManagers
         ]);
     }
@@ -526,8 +522,7 @@ class AgentController extends AdminController
     public function ban(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-            'permissions' => 'required'
+            'user_id' => 'required'
         ]);
 
         if($validator->fails()) {
@@ -539,13 +534,26 @@ class AgentController extends AdminController
         $user = Sentinel::findById($request->input('user_id'));
         $permissions = User::$bannedPermissions;
 
-        foreach ($request->input('permissions') as $permission) {
+        foreach ($permissions as $permission => $value) {
             $permissions[$permission] = false;
+        }
+
+        if(!empty($request->input('permissions'))) {
+            foreach ($request->input('permissions') as $permission) {
+                $permissions[$permission] = true;
+            }
+        }
+        $banned_at = null;
+        foreach ($permissions as $permission) {
+            if($permission === false) {
+                $banned_at = Carbon::now();
+                break;
+            }
         }
 
         if($user->inRole('agent')) {
             $agent = Agent::findOrFail($user->id);
-            $agent->banned_at = Carbon::now();
+            $agent->banned_at = $banned_at;
             $agent->permissions = $permissions;
             $agent->save();
 
@@ -553,13 +561,13 @@ class AgentController extends AdminController
 
             if(count($salesmans)) {
                 foreach ($salesmans as $salesman) {
-                    $salesman->banned_at = Carbon::now();
+                    $salesman->banned_at = $banned_at;
                     $salesman->permissions = $permissions;
                     $salesman->save();
                 }
             }
         } else {
-            $user->banned_at = Carbon::now();
+            $user->banned_at = $banned_at;
             $user->permissions = $permissions;
             $user->save();
         }

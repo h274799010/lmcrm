@@ -30,12 +30,13 @@
         </div>
 
     </div>
-
-    <div class="row">
-
-        <div class="col-md-6 col-sm-6 col-xs-12 documents-block">
-
-            <h4>Deal info</h4>
+            {{--<div>--}}
+                {{--<div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">--}}
+                    {{--<div id="uploadProgress"></div>--}}
+                {{--</div>--}}
+                {{--<a href="#" class="btn btn-sm btn-success" id="addCheckBtn">Add document</a>--}}
+            {{--</div>--}}
+            <h2>Deal info</h2>
             <table class="table table-bordered table-striped table-hover" id="openLeadsTable">
                 <tbody>
                 @if(isset($openLead->statusInfo))
@@ -124,26 +125,43 @@
                 Approve
             </span>
 
-
             <h4>Uploaded documents</h4>
-            <ul class="list-group" id="filesListGroup">
-                @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
-                    @foreach($openLead->uploadedCheques as $check)
-                        <li class="list-group-item">
-                            <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" download="{{ $check->name }}">{{ $check->name }}</a>
-                            <a href="#" class="btn btn-xs btn-danger delete-document" title="Delete this document?" data-id="{{ $check->id }}">
-                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            <div class="row" id="filesListGroup">
+            @if(isset($openLead->uploadedCheques) && count($openLead->uploadedCheques) > 0)
+                @foreach($openLead->uploadedCheques as $key => $check)
+                    <div class="col-xs-6 col-md-3 file-item">
+                        <a href="/{{ $check->url }}{{ $check->file_name }}" target="_blank" class="thumbnail @if($check->type != 'image') other @endif ">
+                            @if($check->type == 'image')
+                                <img src="/{{ $check->url }}{{ $check->file_name }}" alt="{{ $check->name }}">
+                            @elseif($check->type == 'word')
+                                <i class="fa fa-file-word-o" aria-hidden="true"></i>
+                            @elseif($check->type == 'pdf')
+                                <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                            @elseif($check->type == 'archive')
+                                <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+                            @elseif($check->type == 'text')
+                                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                            @else
+                                <i class="fa fa-file" aria-hidden="true"></i>
+                            @endif
+                        </a>
+                        <div class="doc-links">
+                            <a href="/{{ $check->url }}{{ $check->file_name }}" class="document-link" target="_blank">
+                                {{ $check->name }}
                             </a>
-                        </li>
-                    @endforeach
-                @else
-                    <li class="list-group-item list-group-item-warning empty-check-item">No uploaded documents</li>
-                @endif
-            </ul>
-
+                            <a href="#" class="btn btn-xs @if($check->block_deleting == true) btn-success @else btn-danger @endif delete-document" title="@if($check->block_deleting == true) Do you want to unblock the deletion of this document? @else Do you want to block the deletion of this document? @endif " data-id="{{ $check->id }}">
+                                <i class="fa fa-ban" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    @if( ($key + 1) % 2 == 0 )
+                        <div class="clearfix @if( ($key + 1) % 4 != 0 ) visible-sm visible-xs @endif "></div>
+                    @endif
+                @endforeach
+            @else
+                <div class="col-xs-12 empty-check-item"><div class="list-group-item list-group-item-warning">No uploaded documents</div></div>
+            @endif
         </div>
-        <!-- /.col-lg-10 -->
-    </div>
     <div class="row">
         <div class="col-xs-12">
             <div class="messages-block">
@@ -182,6 +200,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+        </div>
+        <!-- /.col-lg-10 -->
     </div>
     <!-- /.row -->
     <!-- /.container -->
@@ -263,13 +285,119 @@
             color: white;
         }
 
+
+        .delete-document {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            margin-top: -11px;
+        }
+        .upload-progress {
+            width: 100%;
+            margin-top: 6px;
+            background-color: #777777;
+            padding: 3px 0;
+            position: relative;
+        }
+        .upload-progress .upload-status {
+            display: block;
+            width: 0;
+            background-color: #5cb85c;
+            border: 1px solid #4cae4c;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 1;
+        }
+        .upload-progress.danger .upload-status {
+            background-color: #d9534f;
+            border: 1px solid #d43f3a;
+        }
+        .upload-progress .upload-status-percent {
+            color: #ffffff;
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+        .file-container {
+            margin-top: 16px;
+        }
+        .file-container:first-child {
+            margin-top: 0;
+        }
+        .popover {
+            min-width: 186px;
+        }
+        .doc-links {
+            position: relative;
+            padding-right: 44px;
+        }
+        .thumbnail.other {
+            font-size: 80px;
+            text-align: center;
+        }
+        .file-item {
+            margin-bottom: 20px;
+        }
+        .popover.confirmation .popover-content,
+        .popover.confirmation .popover-title {
+            padding-left: 8px;
+            padding-right: 8px;
+            min-width: 140px;
+        }
+        .popover.confirmation .popover-title {
+            color: #333333;
+        }
+        .popover.confirmation .popover-content {
+            background-color: #ffffff;
+        }
+        .empty-check-item .list-group-item-warning {
+            background-color: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0 16px;
+        }
+        .empty-check-item {
+            margin-bottom: 20px;
+        }
     </style>
 @endsection
 
 @section('scripts')
+    <script type="text/javascript" src="{{ asset('assets/web/js/bootstrap-confirmation.min.js') }}"> </script>
     <script type="text/javascript">
+        function deleteCheck($this) {
+            var params = {
+                _token: '{{ csrf_token() }}',
+                id: $this.data('id')
+            };
+
+            $.post('{{ route('admin.lead.blockCheckDelete') }}', params, function (data) {
+                if(data == true) {
+                    var title = 'Do you want to block the deletion of this document?';
+                    if($this.hasClass('btn-danger')) {
+                        $this.removeClass('btn-danger').addClass('btn-success');
+                        title = 'Do you want to unblock the deletion of this document?';
+                    } else {
+                        $this.addClass('btn-danger').removeClass('btn-success');
+                    }
+                    $this.attr('title', title);
+                    $this.attr('data-original-title', title);
+                } else {
+                    alert('server error!')
+                }
+            });
+        }
         $(document).ready(function () {
 
+            $('.delete-document').confirmation({
+                onConfirm: function() {
+                    deleteCheck($(this));
+                }
+            });
             $(document).on('click', '#sendMessage', function (e) {
                 e.preventDefault();
 

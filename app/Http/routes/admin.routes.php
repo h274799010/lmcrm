@@ -165,6 +165,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('deal/{id}', ['as' => 'admin.deal', 'uses' => 'Admin\DealController@deal']);
     Route::post('dealData', ['as' => 'admin.dealData', 'uses' => 'Admin\DealController@dealData']);
     Route::post('lead/sendMessageDeal',['as'=>'admin.lead.sendMessageDeal', 'uses' => 'Admin\DealController@sendMessageDeal']);
+    Route::post('lead/blockCheckDelete',['as'=>'admin.lead.blockCheckDelete', 'uses' => 'Admin\DealController@blockCheckDelete']);
 
     // подробности по транзиту
     Route::post('statistic/transitionDetails', ['as' => 'admin.statistic.transition.details', 'uses' => 'Admin\StatisticController@transitionDetails']);
