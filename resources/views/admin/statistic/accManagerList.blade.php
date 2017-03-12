@@ -11,16 +11,18 @@
             Spheres
         </h3>
     </div>
-    <div class="col-md-6 col-xs-12" id="accManagerListFilter">
-        <div class="col-xs-4">
-            <div class="form-group">
-                <label class="control-label _col-sm-3">@lang('statistic.spheres')</label>
-                <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
-                    <option value=""></option>
-                    @foreach($spheres as $sphere)
-                        <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
-                    @endforeach
-                </select>
+    <div class="row">
+        <div class="col-md-6 col-xs-12" id="accManagerListFilter">
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="control-label _col-sm-3">@lang('statistic.spheres')</label>
+                    <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
+                        <option value=""></option>
+                        @foreach($spheres as $sphere)
+                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -34,30 +36,7 @@
             <th class="center">{!! trans("admin/admin.action") !!}</th>
         </tr>
         </thead>
-        <tbody>
-        {{--@forelse($accountManagers as $manager)
-            <tr>
-                <td>{{ $manager['email'] }}</td>
-                <td class="center">
-                    @forelse( $manager['spheres'] as $sphere )
-                        {{ $sphere['sphere']['name'] }},
-                    @empty
-                    @endforelse
-                </td>
-                <td class="center">{{ $manager['agents'] }}</td>
-                <td class="center">{{ $manager['created_at'] }}</td>
-                <td>
-                    <a class="btn btn-sm btn-success" title="Statistic" href="{{ route('admin.statistic.accManager', ['id'=>$manager['id']]) }}">
-                        Statistic
-                    </a>
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="2"></td>
-            </tr>
-        @endforelse--}}
-        </tbody>
+        <tbody></tbody>
     </table>
 @stop
 

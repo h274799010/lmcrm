@@ -158,7 +158,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // статистика оператора
     Route::get('statistic/operators', ['as' => 'admin.statistic.operators', 'uses' => 'Admin\StatisticController@operatorsList']);
     Route::get('statistic/operator/{id}', ['as' => 'admin.statistic.operator', 'uses' => 'Admin\StatisticController@operatorStatistic']);
+    Route::get('statistic/operatorsData', ['as' => 'admin.statistic.accManagerData', 'uses' => 'Admin\StatisticController@operatorsData']);
     Route::post('statistic/operatorData/', ['as' => 'admin.statistic.operatorData', 'uses' => 'Admin\StatisticController@operatorStatisticData']);
+    Route::post('statistic/getFilterOperator',['as'=>'admin.statistic.getFilterOperator', 'uses' => 'Admin\StatisticController@getFilterOperator']);
 
 
     // данные по сделкам

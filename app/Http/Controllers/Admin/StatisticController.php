@@ -17,6 +17,7 @@ use App\Models\SphereStatusTransitions;
 use App\Models\User;
 use App\Models\UserMasks;
 use App\Transformers\Admin\StatisticAccManagersTransformer;
+use App\Transformers\Admin\StatisticOperatorsTransformer;
 use App\Transformers\Admin\StatisticSpheresTransformer;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use GuzzleHttp\Psr7\Response;
@@ -736,52 +737,131 @@ class StatisticController extends Controller
      */
     public function operatorsList()
     {
+        $spheres = Sphere::active()->get();
 
+        $role = Sentinel::findRoleBySlug('account_manager');
+        $accountManagers = $role->users()->get();
+
+        return view('admin.statistic.operatorsList', [
+            'spheres' => $spheres,
+            'accountManagers' => $accountManagers
+        ]);
+    }
+
+    public function operatorsData(Request $request)
+    {
         // находим роль
         $role = Sentinel::findRoleBySlug('operator');
         // находим id всех пользователей по роли
         $operatorsId = $role->users()->lists('id');
 
+        // Если есть параметры фильтра
+        if (count($request->only('filter'))) {
+            // Получаем параметры
+            $eFilter = $request->only('filter')['filter'];
+
+            $filteredIds = array();
+
+            $operatorsSphereIds = array();
+            $operatorsAccIds = array();
+
+            // Пробегаемся по параметрам из фильтра
+            //
+            foreach ($eFilter as $eFKey => $eFVal) {
+                switch($eFKey) {
+                    case 'sphere':
+                        $operatorsSphereIds = array();
+                        if($eFVal) {
+                            $sphere = Sphere::find($eFVal);
+                            $operatorsSphereIds = $sphere->operators()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    case 'accountManager':
+                        $operatorsAccIds = array();
+                        if($eFVal) {
+                            $accountManager = AccountManager::find($eFVal);
+                            $operatorsAccIds = $accountManager->operators()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Обьеденяем id агентов по всем фильтрам
+            $tmp = array_merge($operatorsSphereIds, $operatorsAccIds);
+            // Убираем повторяющиеся записи (оставляем только уникальные)
+            $tmp = array_unique($tmp);
+
+            // Ишем обшие id по всем фильтрам
+            foreach ($tmp as $val) {
+                $flag = 0;
+                if(empty($eFilter['sphere']) || in_array($val, $operatorsSphereIds)) {
+                    $flag++;
+                }
+                if(empty($eFilter['accountManager']) || in_array($val, $operatorsAccIds)) {
+                    $flag++;
+                }
+                if( $flag == 2 ) {
+                    $filteredIds[] = $val;
+                }
+            }
+            // Если фильтры не пустые - то применяем их
+            if( !empty($eFilter['sphere']) || !empty($eFilter['accountManager']) ) {
+                $operatorsId = $filteredIds;
+            }
+        }
+
         // находим всех операторов
         $operators = OperatorSphere::
-              whereIn('id', $operatorsId)
-            ->select('id', 'email', 'first_name', 'last_name', 'updated_at', 'created_at')
-            ->get();
+        whereIn('id', $operatorsId)
+            ->select('id', 'email', 'first_name', 'last_name', 'updated_at', 'created_at');
 
+        return Datatables::of($operators)
+            ->setTransformer(new StatisticOperatorsTransformer())
+            ->make();
+    }
 
-        // перебираем всех операторов и добавляем ему нужные данные
-        $operators->map(function( $operator ){
+    /**
+     * Подгрузка данных для фильтра в списке операторов
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFilterOperator(Request $request)
+    {
+        $type = $request->input('type');
+        $id = $request->input('id');
 
-            // количество лидов которые добавил оператор
-            $operator->leadsAddedCount = Lead::where('agent_id', $operator->id)->count();
+        $sphere_id = $request->input('sphere_id');
+        $accountManager_id = $request->input('accountManager_id');
 
-            // сферы оператора
-            $operator->sphere = $operator->spheres;
+        $result = array();
+        if($id) {
+            switch ($type) {
+                case 'sphere':
+                    $sphere = Sphere::find($id);
+                    $result['accountManagers'] = $sphere->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
+                    break;
+                case 'accountManager':
+                    $accountManager = AccountManager::find($id);
+                    $result['spheres'] = $accountManager->spheres()->select('spheres.id', 'spheres.name')->get();
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            if(!$sphere_id) {
+                $role = Sentinel::findRoleBySlug('account_manager');
+                $result['accountManagers'] = $role->users()->select('users.id', \DB::raw('users.email AS name'))->get();
+            }
 
-            // все лиды которые еще нужно отредактировать
-            $operator->leadsToEdit = Lead::
-                  whereIn('sphere_id', $operator->sphere->pluck('id'))
-                ->where('status', 0)
-                ->count();
+            if(!$accountManager_id) {
+                $result['spheres'] = Sphere::active()->get();
+            }
+        }
 
-            // лиды которые оператор уже отредактировал
-            $operator->leadsEdited = Operator::where('operator_id', $operator->id)->count();
-
-            // лиды которые обработал оператор
-            $operatorLeadsId = Operator::where('operator_id', $operator->id)->lists('lead_id');
-            // лиды которые забанил оператор
-            $operator->marked_bad = Lead::
-                  whereIn('id', $operatorLeadsId)
-                ->where('status', 2)
-                ->count();
-
-
-        });
-
-
-//        dd( $operators );
-
-        return view('admin.statistic.operatorsList', ['operators' => $operators]);
+        return response()->json($result);
     }
 
 

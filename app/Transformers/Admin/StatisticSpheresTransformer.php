@@ -14,7 +14,7 @@ class StatisticSpheresTransformer extends TransformerAbstract
             1 => $sphere->leads,
             2 => $sphere->agents,
             3 => $sphere->activeAgents,
-            4 => $sphere->created_at->toDateTimeString(),
+            4 => $sphere->created_at->format('d/m/Y'),
             5 => view('admin.statistic.datatables.sphereControls', [
                 'sphere' => $sphere
             ])->render()

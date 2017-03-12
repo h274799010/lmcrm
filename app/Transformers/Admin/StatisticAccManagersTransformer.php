@@ -33,7 +33,7 @@ class StatisticAccManagersTransformer extends TransformerAbstract
             0 => $user->email,
             1 => $spheres,
             2 => $agents,
-            3 => $user->created_at->toDateTimeString(),
+            3 => $user->created_at->format('d/m/Y'),
             4 => view('admin.statistic.datatables.accManagerControls', [
                 'manager' => $user
             ])->render()
