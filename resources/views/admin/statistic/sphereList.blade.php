@@ -22,32 +22,43 @@
             <th class="center">{!! trans("admin/admin.action") !!}</th>
         </tr>
         </thead>
-        <tbody>
-            @forelse($spheres as $sphere)
-                <tr>
-                    <td>{{ $sphere['name'] }}</td>
-                    <td class="center">{{ $sphere['leads'] }}</td>
-                    <td class="center">{{ $sphere['agents'] }}</td>
-                    <td class="center">{{ $sphere['activeAgents'] }}</td>
-                    <td class="center">{{ $sphere['created_at'] }}</td>
-                    <td>
-                        <a class="btn btn-sm btn-success" title="Statistic" href="{{ route('admin.statistic.sphere', ['id'=>$sphere['id']]) }}">
-                            Statistic
-                        </a>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-            @endforelse
-        </tbody>
+        <tbody></tbody>
     </table>
 @stop
 
 {{-- Scripts --}}
 @section('scripts')
     <script type="text/javascript">
+        $(document).ready(function () {
+            var oTable;
 
+            oTable = $('#statisticSphereTable').DataTable({
+                "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-6'i><'col-md-6'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sProcessing": "{{ trans('table.processing') }}",
+                    "sLengthMenu": "{{ trans('table.showmenu') }}",
+                    "sZeroRecords": "{{ trans('table.noresult') }}",
+                    "sInfo": "{{ trans('table.show') }}",
+                    "sEmptyTable": "{{ trans('table.emptytable') }}",
+                    "sInfoEmpty": "{{ trans('table.view') }}",
+                    "sInfoFiltered": "{{ trans('table.filter') }}",
+                    "sInfoPostFix": "",
+                    "sSearch": "{{ trans('table.search') }}:",
+                    "sUrl": "",
+                    "oPaginate": {
+                        "sFirst": "{{ trans('table.start') }}",
+                        "sPrevious": "{{ trans('table.prev') }}",
+                        "sNext": "{{ trans('table.next') }}",
+                        "sLast": "{{ trans('table.last') }}"
+                    }
+                },
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "/admin/statistic/spheresData"
+                }
+            });
+        });
     </script>
 @stop

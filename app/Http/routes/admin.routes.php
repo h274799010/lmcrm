@@ -146,6 +146,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // статистика по сфере
     Route::get('statistic/spheres', ['as' => 'admin.statistic.spheres', 'uses' => 'Admin\StatisticController@spheresList']);
     Route::get('statistic/sphere/{id}', ['as' => 'admin.statistic.sphere', 'uses' => 'Admin\StatisticController@sphereStatistic']);
+    Route::get('statistic/spheresData', ['as' => 'admin.statistic.spheresData', 'uses' => 'Admin\StatisticController@spheresData']);
     Route::post('statistic/sphereData/', ['as' => 'admin.statistic.sphereData', 'uses' => 'Admin\StatisticController@sphereStatisticData']);
 
     // статистика аккаунт менеджера

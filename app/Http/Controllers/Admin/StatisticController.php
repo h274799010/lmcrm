@@ -16,6 +16,7 @@ use App\Models\SphereStatuses;
 use App\Models\SphereStatusTransitions;
 use App\Models\User;
 use App\Models\UserMasks;
+use App\Transformers\Admin\StatisticSpheresTransformer;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Contracts\View\View;
@@ -177,13 +178,25 @@ class StatisticController extends Controller
      *
      * @return View
      */
-    public function spheresList(){
+    public function spheresList()
+    {
+        return view('admin.statistic.sphereList');
 
+    }
+
+    /**
+     * Получение списка сфер
+     * Datatables
+     *
+     * @return mixed
+     */
+    public function spheresData()
+    {
         // выбираем все сферы
         $spheres = Sphere::
-                      where('status', 1)
-                    ->select('id', 'name', 'created_at')
-                    ->get();
+        where('status', 1)
+            ->select('id', 'name', 'created_at')
+            ->get();
 
         // перебираем все сферы и добавляем дополнительные данные
         $spheres = $spheres->map(function( $sphere ){
@@ -203,10 +216,9 @@ class StatisticController extends Controller
 
         });
 
-        return view('admin.statistic.sphereList', [
-            'spheres' => $spheres,
-        ]);
-
+        return Datatables::of( $spheres )
+            ->setTransformer(new StatisticSpheresTransformer())
+            ->make();
     }
 
 
