@@ -152,6 +152,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // статистика аккаунт менеджера
     Route::get('statistic/accManagers', ['as' => 'admin.statistic.accManagers', 'uses' => 'Admin\StatisticController@accManagerList']);
     Route::get('statistic/accManager/{id}', ['as' => 'admin.statistic.accManager', 'uses' => 'Admin\StatisticController@accManagerStatistic']);
+    Route::get('statistic/accManagerData', ['as' => 'admin.statistic.accManagerData', 'uses' => 'Admin\StatisticController@accManagerData']);
     Route::post('statistic/accManagerData/', ['as' => 'admin.statistic.accManagerData', 'uses' => 'Admin\StatisticController@accManagerStatisticData']);
 
     // статистика оператора

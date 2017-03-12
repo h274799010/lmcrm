@@ -16,6 +16,7 @@ use App\Models\SphereStatuses;
 use App\Models\SphereStatusTransitions;
 use App\Models\User;
 use App\Models\UserMasks;
+use App\Transformers\Admin\StatisticAccManagersTransformer;
 use App\Transformers\Admin\StatisticSpheresTransformer;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use GuzzleHttp\Psr7\Response;
@@ -486,38 +487,59 @@ class StatisticController extends Controller
      */
     public function accManagerList()
     {
+        $spheres = Sphere::active()->get();
 
-        $accManagersData = [];
+        return view('admin.statistic.accManagerList', [
+            'spheres' => $spheres
+        ]);
+    }
 
+    /**
+     * Получение списка аккаунт менеджеров
+     * Datatables
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function accManagerData(Request $request)
+    {
         $accManagersId = \Sentinel::findRoleBySlug('account_manager')->users()->lists('id');
+
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
+
+                    // проверяем ключ
+                    switch($eFKey) {
+
+                        // если фильтр по дате
+                        case 'sphere':
+
+                            if($eFVal != '') {
+                                $accManagersId = AccountManagerSphere::where('sphere_id', '=', $eFVal)
+                                    ->get()->lists('account_manager_id')->toArray();
+                            }
+
+                            break;
+                        default: ;
+                    }
+                }
+            }
+        }
 
         $accManagers = User::whereIn( 'id', $accManagersId )->with(['accManagerSpheres' => function( $query ){
             $query->with('sphere');
         }])->get();
 
-        $accManagers->each(function( $manager ) use( &$accManagersData ){
-
-            $agents = AccountManagersAgents::
-                  where( 'account_manager_id', $manager['id'] )
-                ->lists('agent_id');
-
-            $agents = $agents->unique()->count();
-
-            $accManagersData[] =
-            [
-                'id' => $manager['id'],
-                'email' => $manager['email'],
-                'created_at' => $manager['created_at'],
-                'spheres' => $manager['accManagerSpheres'],
-                'agents' => $agents,
-
-            ];
-
-        });
-
-        return view('admin.statistic.accManagerList', [
-            'accountManagers' => $accManagersData
-        ]);
+        return Datatables::of( $accManagers )
+            ->setTransformer(new StatisticAccManagersTransformer())
+            ->make();
     }
 
 
