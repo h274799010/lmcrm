@@ -130,6 +130,7 @@ class RegisterController extends Controller
             $slug = $request->input('role');
         }
 
+        $permissions = User::$bannedPermissions;
 
         $role = Sentinel::findRoleBySlug( $slug );
 
@@ -138,6 +139,7 @@ class RegisterController extends Controller
 
         $user->first_name = $request->input('first_name');
         $user->last_name = $request->input('last_name');
+        $user->permissions = $permissions;
         $user->save();
 
         $user = Agent::find($user->id);
