@@ -44,50 +44,143 @@ Route::get('transitionTest/{status}', function($status){
 
 });
 
-Route::get('stat/{user}/{sphere}', function( $user, $sphere ){
-
-//    $masks = \App\Models\UserMasks::all();
-
-    $openLeadsId = \App\Models\OpenLeads::
-                          where('agent_id', 3)
-                        ->lists('lead_id');
-
-    $leadsId = \App\Models\Lead::
-                          whereIn( 'id', $openLeadsId )
-                        ->where( 'sphere_id', 1 )
-                        ->lists('id');
-
-//    $openLeads = \App\Models\OpenLeads::
-//                      whereIn( 'lead_id', $leadsId )
-//                    ->where('agent_id', 6 )
-//                    ->update( [ 'mask_name_id'=>33 ] );
-
-    $openLeads = \App\Models\OpenLeads::
-                          whereIn( 'lead_id', $leadsId )
-                        ->where('agent_id', 3 )
-                        ->get();
-
-    dd( $openLeads );
+Route::get('stat', function(){
 
 
-    $aaaa = \App\Helper\Statistics::openLeads( $user, $sphere );
+    $user = Sentinel::findUserById(6);
 
-//    $aaaa = \App\Helper\Statistics::openLeads( 6, 1, '2017-01-10', '2017-01-24' );
-
-
-    dd($aaaa);
-
-    $agent = \App\Models\Agent::find(6);
-//    $agent = \App\Models\Agent::find(3);
+    dd( $user->roles );
 
 
-    $agent->statistics();
+    $u = \App\Models\User::find(6);
 
-//    dd($agent->sphereTransitions);
-//    dd($agent->history);
-    dd($agent->statistics);
 
-    dd($agent);
+    dd($u->roles);
+
+
+
+//    dd(
+//
+////        \App\Models\Lead::find(108)
+//        \App\Models\OpenLeads::where('lead_id', 108)->get()
+//
+//
+//    );
+//
+//
+//    $offset = 0;
+//
+//    $a = \App\Models\Auction::
+//          where( 'status', 0 )
+//        ->where( 'user_id', 6 )
+//        ->orderBy( 'created_at', 'desc' )
+//        ->skip( $offset )
+//        ->take( PHP_INT_MAX )
+//        ->lists( 'id' )
+//    ;
+//
+//
+//    $b = $a->splice( 0, 30 );
+//
+//
+//
+////    dd( $b );
+//
+//
+//
+//    $auctionData = \App\Models\Auction::
+//          whereIn('id', $b)
+////        ->where( 'user_id', 6 )
+//        ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+//        ->with(
+//            [
+//                'lead' => function($query)
+//                {
+//                    $query
+//                        ->select('id', 'opened', 'email', 'sphere_id', 'name', 'created_at')
+//                    ;
+//                },
+////                'sphere' => function($query){
+////                    $query
+////                        ->select('id', 'name')
+////                    ;
+////                },
+////                'maskName' => function($query){
+////                    $query
+////                        ->select('id', 'name')
+////                    ;
+////                }
+//            ])
+//        ->orderBy('created_at', 'desc')
+////        ->orderBy('id')
+////        ->latest()
+////        ->skip(10)
+////        ->take(PHP_INT_MAX)
+////        ->take(10)
+////        ->offset(1)
+////        ->take(10)
+////        ->limit(3)
+////        ->paginate(10)
+////        ->statement()
+////        ->select(DB::raw('LIMIT 10,10'))
+////                ->offset($offset)
+//        ->get()
+////        ->lists('id')
+//        ->toArray()
+//    ;
+//
+//
+//    dd($auctionData);
+
+
+
+
+
+    $auctionData = \App\Models\Auction::
+          where('status', 0)
+        ->where( 'user_id', 6 )
+        ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+        ->with(
+            [
+                'lead' => function($query)
+                {
+                    $query
+                        ->select('id', 'opened', 'email', 'sphere_id', 'name', 'created_at')
+                    ;
+                },
+                'sphere' => function($query){
+                    $query
+                        ->select('id', 'name')
+                    ;
+                },
+                'maskName' => function($query){
+                    $query
+                        ->select('id', 'name')
+                    ;
+                }
+            ])
+        ->orderBy('created_at', 'desc')
+        ->orderBy('id')
+//        ->latest()
+        ->skip(5)
+//        ->take(PHP_INT_MAX)
+        ->take(10)
+//        ->offset(1)
+//        ->take(10)
+//        ->limit(3)
+//        ->paginate(10)
+//        ->statement()
+//        ->select(DB::raw('LIMIT 10,10'))
+//                ->offset($offset)
+        ->get()
+//        ->lists('id')
+    ;
+
+
+
+    dd($auctionData);
+
+
 
     return 'ok';
 

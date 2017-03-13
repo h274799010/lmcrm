@@ -36,12 +36,69 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class ApiController extends Controller
 {
 
+    /**
+     * Данные пользователя
+     *
+     */
+    private $user;
+
+
+    /**
+     * Данные по кошельку пользователя
+     *
+     */
+    private $wallet;
+
+
+    /**
+     * Данные пользователя для отправки на апилкацию
+     *
+     */
+    private $userData;
+
+
+    /**
+     * Конструктор
+     *
+     * выбирается пользователь и его основные данные
+     */
     public function __construct()
     {
         // получаем пользователя
         $this->user = JWTAuth::parseToken()->authenticate();
+        // кошелек пользователя
         $this->wallet = Wallet::where( 'user_id', $this->user->id )->first();
 
+        // переменная с ролями пользователя
+        $roles = [];
+        // перебираем все роли апользователя
+        $this->user->roles->each(function( $role ) use( &$roles ){
+            // заносим роль в массив
+
+            // проверка типа роли
+            if( $role['slug'] == 'agent' || $role['slug'] == 'salesman' ){
+                // если главная роль
+
+                // добавляем по ключу role
+                $roles['role'] = $role['slug'];
+
+            }else{
+                // если дополнительная роль
+
+                // добавляем с ключом subRole
+                $roles['subRole'] = $role['slug'];
+            }
+        });
+
+        // формирование переменной с данными пользователя
+        $this->userData =
+        [
+            'id' => $this->user->id,
+            'email' => $this->user->email,
+            'roles' => $roles,
+            'wallet' => $this->wallet->earned + $this->wallet->buyed,
+            'wasted' => $this->wallet->wasted,
+        ];
     }
 
 
@@ -72,57 +129,90 @@ class ApiController extends Controller
     }
 
 
-    // страница фильтра лидов
-    public function obtain()
+    /**
+     * Страница фильтра лидов
+     *
+     */
+    public function obtain( Request $request )
     {
 
-//        $auctionData = Auction::
-//                              where('status', 0)
-//                            ->where( 'user_id', $this->user->id )
-//                            ->with('lead')
-//                            /*->with('maskName') */
-//                            ->get();
+        // лиды которые нужно пропустить
+        $offset = (int)$request->offset;
+
+        // id пользователя
+        $userId = $this->user->id;
+
+        // выборка лидов и данных для аукциона
+        $auctionList = Auction::
+              where( 'status', 0 )
+            ->where( 'user_id', $userId )
+            ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+            ->with(
+                [
+                    'lead' => function($query)
+                    {
+                        $query
+                            ->select('id', 'opened', 'email', 'sphere_id', 'name', 'created_at')
+                        ;
+                    },
+                    'sphere' => function($query){
+                        $query
+                            ->select('id', 'name')
+                        ;
+                    },
+                    'maskName' => function($query){
+                        $query
+                            ->select('id', 'name')
+                        ;
+                    }
+                ])
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id')
+            ->skip( $offset )
+            ->take(10)
+            ->get()
+        ;
 
 
-        $auctionData = Auction::
-            where('status', 0)
-                ->where( 'user_id', 6 )
-                ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id')
-                ->with(
-                    [
-                        'lead' => function($query)
-                        {
-                            $query
-                                ->select('id', 'opened', 'email', 'name', 'created_at')
-                            ;
-                        },
-                        'sphere' => function($query){
-                            $query
-                                ->select('id', 'name')
-                            ;
-                        },
-                        'maskName' => function($query){
-                            $query
-                                ->select('id', 'name')
-                            ;
-                        }
-                    ])
-                ->get()
-                ->toArray()
-            ;
+        // добавляем лиду данные по маскам
+        $auctionData = [];
+        $auctionList->each(function( $auction ) use(&$auctionData, $userId){
+
+            $openLead = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', $userId )->first();
+            $openLeadOther = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', '<>', $userId )->first();
+
+            if(!$openLead || !$openLeadOther) {
+
+                // добавляем лиду атрибуты фильтра
+                $auction->lead->getFilter();
+
+                // добавляем лиду атрибуты фильтра
+                $auction->lead->getAdditional();
+
+                $auctionData[] = $auction;
+
+                return true;
+            }
+
+            return false;
+        });
 
 
-        $data =
-        [
-            'id' => $this->user->id,
-            'email' => $this->user->email,
-            'wallet' => $this->wallet->earned + $this->wallet->buyed,
-            'wasted' => $this->wallet->wasted,
-            'auctionData' => $auctionData,
+//        $data =
+//        [
+//            'id' => $this->user->id,
+//            'email' => $this->user->email,
+//            'wallet' => $this->wallet->earned + $this->wallet->buyed,
+//            'wasted' => $this->wallet->wasted,
+//            'auctionData' => $auctionData,
+//
+//        ];
 
-        ];
+        $this->userData['auctionData'] = $auctionData;
 
-        return response()->json($data);
+//        return response()->json($data);
+        return response()->json( $this->userData );
+
     }
 
 
