@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Requests\AdminUsersEditFormRequest;
 use App\Http\Requests\OperatorFormRequest;
+use App\Models\AccountManager;
 use App\Models\Operator;
 use App\Models\OperatorSphere;
 use App\Models\Sphere;
@@ -21,20 +22,83 @@ class OperatorController extends AdminController {
 
     public function index()
     {
+        $spheres = Sphere::active()->get();
+
+        $role = Sentinel::findRoleBySlug('account_manager');
+        $accountManagers = $role->users()->get();
+
         // Show the page
-        return view('admin.operator.index');
+        return view('admin.operator.index', [
+            'spheres' => $spheres,
+            'accountManagers' => $accountManagers
+        ]);
     }
 
-    public function data()
+    public function data(Request $request)
     {
-        $operatorRole = Sentinel::findRoleBySlug('operator');
-        $operators = $operatorRole->users()->select(
-            'users.id as id',
-            'users.first_name as first_name',
-            'users.last_name as last_name',
-            'users.email as email',
-            'users.created_at as created_at'
-        );
+        // находим роль
+        $role = Sentinel::findRoleBySlug('operator');
+        $operatorsId = $role->users()->lists('id');
+
+        // Если есть параметры фильтра
+        if (count($request->only('filter'))) {
+            // Получаем параметры
+            $eFilter = $request->only('filter')['filter'];
+
+            $filteredIds = array();
+
+            $operatorsSphereIds = array();
+            $operatorsAccIds = array();
+
+            // Пробегаемся по параметрам из фильтра
+            //
+            foreach ($eFilter as $eFKey => $eFVal) {
+                switch($eFKey) {
+                    case 'sphere':
+                        $operatorsSphereIds = array();
+                        if($eFVal) {
+                            $sphere = Sphere::find($eFVal);
+                            $operatorsSphereIds = $sphere->operators()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    case 'accountManager':
+                        $operatorsAccIds = array();
+                        if($eFVal) {
+                            $accountManager = AccountManager::find($eFVal);
+                            $operatorsAccIds = $accountManager->operators()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Обьеденяем id агентов по всем фильтрам
+            $tmp = array_merge($operatorsSphereIds, $operatorsAccIds);
+            // Убираем повторяющиеся записи (оставляем только уникальные)
+            $tmp = array_unique($tmp);
+
+            // Ишем обшие id по всем фильтрам
+            foreach ($tmp as $val) {
+                $flag = 0;
+                if(empty($eFilter['sphere']) || in_array($val, $operatorsSphereIds)) {
+                    $flag++;
+                }
+                if(empty($eFilter['accountManager']) || in_array($val, $operatorsAccIds)) {
+                    $flag++;
+                }
+                if( $flag == 2 ) {
+                    $filteredIds[] = $val;
+                }
+            }
+            // Если фильтры не пустые - то применяем их
+            if( !empty($eFilter['sphere']) || !empty($eFilter['accountManager']) ) {
+                $operatorsId = $filteredIds;
+            }
+        }
+
+        $operators = OperatorSphere::whereIn('id', $operatorsId)
+            ->select('id', 'email', 'first_name', 'last_name', 'created_at');
 
         return Datatables::of($operators)
             ->remove_column('first_name')
@@ -49,6 +113,48 @@ class OperatorController extends AdminController {
             ->add_column('actions', function($model) { return view('admin.operator.datatables.control',['id'=>$model->id]); })
             ->remove_column('id')
             ->make();
+    }
+
+    /**
+     * Подгрузка данных для фильтра в списке операторов
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFilterOperator(Request $request)
+    {
+        $type = $request->input('type');
+        $id = $request->input('id');
+
+        $sphere_id = $request->input('sphere_id');
+        $accountManager_id = $request->input('accountManager_id');
+
+        $result = array();
+        if($id) {
+            switch ($type) {
+                case 'sphere':
+                    $sphere = Sphere::find($id);
+                    $result['accountManagers'] = $sphere->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
+                    break;
+                case 'accountManager':
+                    $accountManager = AccountManager::find($id);
+                    $result['spheres'] = $accountManager->spheres()->select('spheres.id', 'spheres.name')->get();
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            if(!$sphere_id) {
+                $role = Sentinel::findRoleBySlug('account_manager');
+                $result['accountManagers'] = $role->users()->select('users.id', \DB::raw('users.email AS name'))->get();
+            }
+
+            if(!$accountManager_id) {
+                $result['spheres'] = Sphere::active()->get();
+            }
+        }
+
+        return response()->json($result);
     }
 
     public function create()

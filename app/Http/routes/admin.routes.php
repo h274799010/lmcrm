@@ -84,6 +84,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     Route::get('operator', ['as' => 'admin.operator.index', 'uses' => 'Admin\OperatorController@index']);
     Route::get('operator/data', 'Admin\OperatorController@data');
+    Route::post('operator/getFilterOperator',['as'=>'admin.operator.getFilterOperator', 'uses' => 'Admin\OperatorController@getFilterOperator']);
     Route::get('operator/create',['as'=>'admin.operator.create', 'uses' => 'Admin\OperatorController@create']);
     Route::post('operator/store',['as'=>'admin.operator.store', 'uses' => 'Admin\OperatorController@store']);
     Route::get('operator/{id}/edit',['as'=>'admin.operator.edit', 'uses' => 'Admin\OperatorController@edit']);
