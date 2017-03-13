@@ -1741,6 +1741,11 @@ var app = angular.module('app', ['angular-sortable-view'])
                 data.opt.variables.range_show_lead_interval_days.values = String( data.opt.variables.range_show_lead_interval_days.values );
                 data.opt.variables.range_show_lead_interval_hours.values = String( data.opt.variables.range_show_lead_interval_hours.values );
                 data.opt.variables.range_show_lead_interval_minutes.values = String( data.opt.variables.range_show_lead_interval_minutes.values );
+                // срок по статусу uncertian
+                data.opt.variables.lead_uncertain_status_interval_month.values = String( data.opt.variables.lead_uncertain_status_interval_month.values );
+                data.opt.variables.lead_uncertain_status_interval_days.values = String( data.opt.variables.lead_uncertain_status_interval_days.values );
+                data.opt.variables.lead_uncertain_status_interval_hours.values = String( data.opt.variables.lead_uncertain_status_interval_hours.values );
+                data.opt.variables.lead_uncertain_status_interval_minutes.values = String( data.opt.variables.lead_uncertain_status_interval_minutes.values );
 
                 // преобразовываем статус в строку (иначе выпадающее меню на него не реагирует
                 data.opt.variables.status.values = String( data.opt.variables.status.values );
