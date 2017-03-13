@@ -6,6 +6,8 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // все лиды на обработку оператору (новые лиды, либо недообработанные)
     Route::get('sphere', ['as' => 'operator.sphere.index', 'uses' => 'Operator\SphereController@index']);
 
+    Route::post('sphere/filter', ['as' => 'operator.sphere.filter', 'uses' => 'Operator\SphereController@filterLeads']);
+
     // лиды которые обрабатывал этот оператор (история обработки лидов оператором)
     Route::get('sphereEdited', ['as' => 'operator.sphere.edited', 'uses' => 'Operator\SphereController@editedLids']);
     Route::get('sphereEditedData', ['as' => 'operator.sphere.editedData', 'uses' => 'Operator\SphereController@editedLidsData']);

@@ -2,6 +2,7 @@
 <html>
 <head>
     @include('partials.head')
+    @yield('styles')
 </head>
 <body>
 <div id="wrapper">

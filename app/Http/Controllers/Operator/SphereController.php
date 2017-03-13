@@ -76,11 +76,12 @@ class SphereController extends Controller {
         // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
         // получаем все сферы оператора
-        $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
+        $spheres = OperatorSphere::find($operator->id)->spheres()->get();
+        $spheresId = $spheres->lists('id');
 
 
         // Новые лиды и лиды помеченные к перезвону
-        $leadsTop = Lead::whereIn('sphere_id', $spheres)
+        $leadsTop = Lead::whereIn('sphere_id', $spheresId)
             ->where(function ($query) {
                 $query->where(function ($query) {
                     $query->where('status', '=', 1)
@@ -99,7 +100,7 @@ class SphereController extends Controller {
         // лиды уже обработанные оператором
         $operagorLeads = Lead::
               where('status', 1)
-            ->whereIn('sphere_id', $spheres)
+            ->whereIn('sphere_id', $spheresId)
             ->where('operator_processing_time', '=', NULL)
             ->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
             ->orderBy('updated_at', 'desc')
@@ -108,7 +109,131 @@ class SphereController extends Controller {
         // соединяем новые лиды и лиды к перезвону с отредактированными лидами
         $leads = $leadsTop->merge( $operagorLeads );
 
-        return view('sphere.lead.list')->with( 'leads', $leads );
+        $statuses = \App\Facades\Lead::getStatuses('status');
+
+        return view('sphere.lead.list', [
+            'leads' => $leads,
+            'spheres' => $spheres,
+            'statuses' => $statuses
+        ]);
+    }
+
+    public function filterLeads(Request $request)
+    {
+        // получаем данные пользователя (оператора)
+        $operator = Sentinel::getUser();
+        // получаем все сферы оператора
+        $spheresId = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
+
+        $filters = $request['filters'];
+
+        $leadStatus = null;
+        $period = null;
+        if(isset($filters) && count($filters) > 0) {
+            foreach ($filters as $filter => $val) {
+                if($val == '')
+                    continue;
+
+                switch ($filter) {
+                    case 'sphere':
+                        $spheresId = array(0=>$val);
+                        break;
+                    case 'status':
+                        $leadStatus = $val;
+                        break;
+                    case 'period':
+                        $val = explode('/', $filters['period']);
+
+                        $period['start'] = trim($val[0]);
+                        $period['end'] = trim($val[1]);
+                        break;
+                    default:
+                        //
+                        break;
+                }
+            }
+        }
+
+
+        // Новые лиды и лиды помеченные к перезвону
+        if(isset($leadStatus)) {
+            $leads = Lead::whereIn('sphere_id', $spheresId)
+                ->where('status', '=', $leadStatus);
+
+            if(!empty($period)) {
+                $leads = $leads->where('created_at', '>=', $period['start'].' 00:00:00')
+                    ->where('created_at', '<=', $period['end'].' 23:59:59');
+            }
+
+            $leads = $leads->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
+                ->orderBy('updated_at', 'desc')
+                ->get();
+        }
+        else {
+            $leadsTop = Lead::whereIn('sphere_id', $spheresId)
+                ->where(function ($query) {
+                    $query->where(function ($query) {
+                        $query->where('status', '=', 1)
+                            ->where('operator_processing_time', '<', date("Y-m-d H:i:s"));
+                    })
+                        ->orWhere(function ($query) {
+                            $query->where('status', '=', 0)
+                                ->where('operator_processing_time', '=', NULL);
+                        });
+                });
+
+            if(!empty($period)) {
+                $leadsTop = $leadsTop->where('created_at', '>=', $period['start'].' 00:00:00')
+                    ->where('created_at', '<=', $period['end'].' 23:59:59');
+            }
+
+            $leadsTop = $leadsTop->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
+                ->orderBy('updated_at', 'desc')
+                ->get();
+            //dd($leadsTop);
+
+            // лиды уже обработанные оператором
+            $operagorLeads = Lead::where('status', 1)
+                ->whereIn('sphere_id', $spheresId)
+                ->where('operator_processing_time', '=', NULL);
+
+            if(!empty($period)) {
+                $operagorLeads = $operagorLeads->where('created_at', '>=', $period['start'].' 00:00:00')
+                    ->where('created_at', '<=', $period['end'].' 23:59:59');
+            }
+
+            $operagorLeads = $operagorLeads->with([ 'sphere', 'user', 'operatorOrganizer', 'leadDepositorData' ])
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            // соединяем новые лиды и лиды к перезвону с отредактированными лидами
+            $leads = $leadsTop->merge( $operagorLeads );
+        }
+
+        $res = array();
+        foreach ($leads as $lead) {
+            $tmp = [
+                'id' => $lead->id,
+                'sphere_id' => $lead->sphere_id,
+                'name' => $lead->name,
+                'statusName' => $lead->statusName(),
+                'processing' => $lead->operator_processing_time ? true : false,
+                'state' => $lead->operator_processing_time ? 'Make phone call' : 'Created',
+                'created' => $lead->created_at->format( trans('operator/list.date_format')),
+                'date' => \Lang::has('operator/list.date_format') ? ( $lead->operator_processing_time ? $lead->operator_processing_time->format( trans('operator/list.date_format') ) : $lead->created_at->format( trans('operator/list.date_format')) ) : 'operator/list.date_format',
+                'updated' => \Lang::has('operator/list.date_format') ?  $lead->updated_at->format( trans('operator/list.date_format') ) : 'operator/list.date_format',
+                'sphere' => $lead->sphere->name,
+                'depositorData' => [
+                    'name' => $lead->leadDepositorData->depositor_name,
+                    'company' => $lead->leadDepositorData->depositor_company,
+                    'roles' => $lead->leadDepositorData->roles('string'),
+                    'status' => $lead->leadDepositorData->depositor_status
+                ]
+            ];
+            $res[] = $tmp;
+        }
+
+        return response()->json($res);
     }
 
 

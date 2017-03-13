@@ -13,6 +13,7 @@ return [
     'active' => 'Active',
     'action' => 'Action',
     'state' => 'State',
+    'created' => 'Created',
     'time' => 'Time',
     'sphere' => 'Sphere',
     'depositor' => 'Depositor data',
