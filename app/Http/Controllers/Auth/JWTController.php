@@ -47,17 +47,19 @@ class JWTController extends Controller
             return response()->json( 'could_not_create_token' );
         }
 
-
-//        $user = JWTAuth::parseToken()->authenticate($token);
-
+        // получение пользователя по токену
         $user = JWTAuth::toUser( $token );
 
+        // переменная доступа (если true - проходим дальше)
         $admission = false;
 
+        // переменная с ролями
         $roles = [];
 
+        // перебираем роли агента
         $user->roles->each(function( $userRole ) use( &$admission, &$roles ){
 
+            // если есть роль агента, либо салесмана - открываем доступ
             if( $userRole['slug'] == 'agent' || $userRole['slug'] == 'salesman' ){
                 $admission = $userRole['slug'];
             }
@@ -78,16 +80,10 @@ class JWTController extends Controller
 
         });
 
-
+        // если доступа нет - выходим
         if( !$admission ){
             return response()->json( 'invalid_credentials' );
         }
-
-
-//        $user = Sentinel::findUserById(6);
-//
-//        dd( $user->roles );
-
 
 
         return response()->json( [ 'status' => 'Ok', 'token' => $token, 'roles' => $roles ] );
