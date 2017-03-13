@@ -21,20 +21,52 @@ class AccountManagerController extends AdminController {
 
     public function index()
     {
+        $spheres = Sphere::active()->get();
         // Show the page
-        return view('admin.accountManager.index');
+        return view('admin.accountManager.index', [
+            'spheres' => $spheres
+        ]);
     }
 
-    public function data()
+    public function data(Request $request)
     {
-        $accountManagerRole = Sentinel::findRoleBySlug('account_manager');
-        $accountManagers = $accountManagerRole->users()->select(
+        $accManagersId = \Sentinel::findRoleBySlug('account_manager')->users()->lists('id');
+
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
+
+                    // проверяем ключ
+                    switch($eFKey) {
+
+                        // если фильтр по дате
+                        case 'sphere':
+
+                            if($eFVal != '') {
+                                $accManagersId = AccountManagerSphere::where('sphere_id', '=', $eFVal)
+                                    ->get()->lists('account_manager_id')->toArray();
+                            }
+
+                            break;
+                        default: ;
+                    }
+                }
+            }
+        }
+
+        $accountManagers = User::whereIn( 'id', $accManagersId )->select(
             'users.id as id',
             'users.first_name as first_name',
             'users.last_name as last_name',
             'users.email as email',
             'users.created_at as created_at'
-        );
+        )->get();
 
         return Datatables::of($accountManagers)
             ->remove_column('first_name')
