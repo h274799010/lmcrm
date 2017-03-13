@@ -47,23 +47,39 @@ class JWTController extends Controller
             return response()->json( 'could_not_create_token' );
         }
 
-        // todo "выкинуть" пользователя если пользователь админ или оператор
 
 //        $user = JWTAuth::parseToken()->authenticate($token);
 
         $user = JWTAuth::toUser( $token );
 
-        $role = false;
+        $admission = false;
 
-        $user->roles->each(function( $userRole ) use(&$role){
+        $roles = [];
+
+        $user->roles->each(function( $userRole ) use( &$admission, &$roles ){
 
             if( $userRole['slug'] == 'agent' || $userRole['slug'] == 'salesman' ){
-                $role = $userRole['slug'];
+                $admission = $userRole['slug'];
+            }
+
+            // проверка типа роли
+            if( $userRole['slug'] == 'agent' || $userRole['slug'] == 'salesman' ){
+                // если главная роль
+
+                // добавляем по ключу role
+                $roles['role'] = $userRole['slug'];
+
+            }else{
+                // если дополнительная роль
+
+                // добавляем с ключом subRole
+                $roles['subRole'] = $userRole['slug'];
             }
 
         });
 
-        if( !$role ){
+
+        if( !$admission ){
             return response()->json( 'invalid_credentials' );
         }
 
@@ -74,7 +90,7 @@ class JWTController extends Controller
 
 
 
-        return response()->json( [ 'status' => 'Ok', 'token' => $token ] );
+        return response()->json( [ 'status' => 'Ok', 'token' => $token, 'roles' => $roles ] );
     }
 
 

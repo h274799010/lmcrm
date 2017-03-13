@@ -552,6 +552,20 @@ class SphereController extends AdminController {
             $settings['variables']['range_show_lead_interval_minutes']['values'] = $minutes;
 
 
+            $now = Carbon::now();
+            $lead_uncertain_status = Carbon::createFromTimestamp(time() + $group->lead_uncertain_status_interval);
+
+            $month = $lead_uncertain_status->diffInMonths($now);
+            $days = $lead_uncertain_status->subMonth($month)->diffInDays($now);
+            $hours = $lead_uncertain_status->subDays($days)->diffInHours($now);
+            $minutes = $lead_uncertain_status->subHours($hours)->diffInMinutes($now);
+
+            $settings['variables']['lead_uncertain_status_interval_month']['values'] = $month;
+            $settings['variables']['lead_uncertain_status_interval_days']['values'] = $days;
+            $settings['variables']['lead_uncertain_status_interval_hours']['values'] = $hours;
+            $settings['variables']['lead_uncertain_status_interval_minutes']['values'] = $minutes;
+
+
             //$settings['variables']['pending_time']['values'] = $group->pending_time;
             //$settings['variables']['pending_type']['values'] = $group->pending_type;
 
@@ -1055,6 +1069,18 @@ class SphereController extends AdminController {
         $interval_range = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
         $interval_range = $interval_range->timestamp - $timestamp;
 
+
+        $months = $sphereData['variables']['lead_uncertain_status_interval_month']['values'];
+        $days = $sphereData['variables']['lead_uncertain_status_interval_days']['values'];
+        $hours = $sphereData['variables']['lead_uncertain_status_interval_hours']['values'];
+        $minutes = $sphereData['variables']['lead_uncertain_status_interval_minutes']['values'];
+
+        $now = Carbon::now();
+        $timestamp = $now->timestamp;
+        $uncertain_interval = $now->addMinutes($minutes)->addHours($hours)->addDays($days)->addMonths($months);
+        $uncertain_interval = $uncertain_interval->timestamp - $timestamp;
+
+
         /**
          * Выбираем сферу по id, либо, создаем новую
          *
@@ -1068,6 +1094,7 @@ class SphereController extends AdminController {
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
             $sphere->range_show_lead_interval = $interval_range;
+            $sphere->lead_uncertain_status_interval = $uncertain_interval;
             $sphere->price_call_center = $sphereData['variables']['price_call_center']['values'];
             $sphere->max_range = $sphereData['variables']['max_range']['values'];
         } else {
@@ -1079,6 +1106,7 @@ class SphereController extends AdminController {
             $sphere->lead_auction_expiration_interval = $interval_auction;
             $sphere->lead_bad_status_interval = $interval_bad;
             $sphere->range_show_lead_interval = $interval_range;
+            $sphere->lead_uncertain_status_interval = $uncertain_interval;
             $sphere->price_call_center = $sphereData['variables']['price_call_center']['values'];
             $sphere->max_range = $sphereData['variables']['max_range']['values'];
         }
