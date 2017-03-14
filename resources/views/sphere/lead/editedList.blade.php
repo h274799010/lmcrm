@@ -9,13 +9,15 @@
             <div id="alertContent">{{$errors->first()}}</div>
         </div>
     @endif
-    <div class="row">
-        <div class="col-md-12" id="editedLeadsFilters">
+    <div id="editedLeadsFilters">
+        <div class="filter-item-wrap">
             <label class="obtain-label-period" for="reportrange">
                 Period:
                 <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter" value="" id="reportrange" />
             </label>
-            @if( isset($spheres) && count($spheres) > 0 )
+        </div>
+        @if( isset($spheres) && count($spheres) > 0 )
+            <div class="filter-item-wrap">
                 <label class="obtain-label-period">
                     Sphere:
                     <select data-name="sphere" class="selectbox dataTables_filter" id="spheresFilter">
@@ -25,8 +27,11 @@
                         @endforeach
                     </select>
                 </label>
-            @endif
-            @if( isset($statuses) && count($statuses) > 0 )
+            </div>
+
+        @endif
+        @if( isset($statuses) && count($statuses) > 0 )
+            <div class="filter-item-wrap">
                 <label class="obtain-label-period">
                     Status:
                     <select data-name="status" class="selectbox dataTables_filter" id="statusesFilter">
@@ -36,7 +41,9 @@
                         @endforeach
                     </select>
                 </label>
-            @endif
+            </div>
+        @endif
+        <div class="filter-item-wrap">
             <label>
                 Show
                 <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
@@ -117,6 +124,13 @@
 
 @stop
 
+@section('styles')
+    <style type="text/css">
+        #editedLeadsFilters {
+            padding: 12px 0;
+        }
+    </style>
+@endsection
 @section('scripts')
     <script type="text/javascript">
         $(document).on('click', '.checkLead', function (e) {
