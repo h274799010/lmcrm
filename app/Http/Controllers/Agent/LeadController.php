@@ -657,7 +657,7 @@ class LeadController extends AgentController {
      *
      * @return Response
      */
-    public function openLead( $lead_id, $mask_id, $salesman_id=false ){
+    public function openLead( Request $request, $lead_id, $mask_id, $salesman_id=false ){
 
         // находим лид
         $lead = Lead::find( $lead_id );
@@ -679,19 +679,45 @@ class LeadController extends AgentController {
         $openResult = $lead->open( $user, $mask_id );
 
         if(isset($openResult['error'])) {
-            return redirect()->back()->withErrors($openResult['error']);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'fail',
+                    'error' => $openResult['error']
+                ] );
+            } else {
+                return redirect()->back()->withErrors($openResult['error']);
+            }
         }
 
         //return response()->json( $openResult );
         if($salesman_id) {
-            return redirect()->route('agent.salesman.openedLeads', [
-                'salesman_id' => $salesman_id,
-                'lead_id' => $lead->id
-            ]);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'success',
+                    'route' => route('agent.salesman.openedLeads', [
+                        'salesman_id' => $salesman_id,
+                        'lead_id' => $lead->id
+                    ])
+                ] );
+            } else {
+                return redirect()->route('agent.salesman.openedLeads', [
+                    'salesman_id' => $salesman_id,
+                    'lead_id' => $lead->id
+                ]);
+            }
         } else {
-            return redirect()->route('agent.lead.opened', [
-                'lead_id' => $lead->id
-            ]);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'success',
+                    'route' => route('agent.lead.opened', [
+                        'lead_id' => $lead->id
+                    ])
+                ] );
+            } else {
+                return redirect()->route('agent.lead.opened', [
+                    'lead_id' => $lead->id
+                ]);
+            }
         }
     }
 
@@ -706,7 +732,7 @@ class LeadController extends AgentController {
      *
      * @return Response
      */
-    public function openAllLeads( $lead_id, $mask_id, $salesman_id=false ){
+    public function openAllLeads( Request $request, $lead_id, $mask_id, $salesman_id=false ){
 
         // находим лид
         $lead = Lead::find( $lead_id );
@@ -728,19 +754,45 @@ class LeadController extends AgentController {
         $openResult = $lead->openAll( $user, $mask_id );
 
         if(isset($openResult['error'])) {
-            return redirect()->back()->withErrors($openResult['error']);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'fail',
+                    'error' => $openResult['error']
+                ] );
+            } else {
+                return redirect()->back()->withErrors($openResult['error']);
+            }
         }
 
         //return response()->json( $openResult );
         if($salesman_id) {
-            return redirect()->route('agent.salesman.openedLeads', [
-                'salesman_id' => $salesman_id,
-                'lead_id' => $lead->id
-            ]);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'success',
+                    'route' => route('agent.salesman.openedLeads', [
+                        'salesman_id' => $salesman_id,
+                        'lead_id' => $lead->id
+                    ])
+                ] );
+            } else {
+                return redirect()->route('agent.salesman.openedLeads', [
+                    'salesman_id' => $salesman_id,
+                    'lead_id' => $lead->id
+                ]);
+            }
         } else {
-            return redirect()->route('agent.lead.opened', [
-                'lead_id' => $lead->id
-            ]);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'success',
+                    'route' => route('agent.lead.opened', [
+                        'lead_id' => $lead->id
+                    ])
+                ] );
+            } else {
+                return redirect()->route('agent.lead.opened', [
+                    'lead_id' => $lead->id
+                ]);
+            }
         }
 
     }

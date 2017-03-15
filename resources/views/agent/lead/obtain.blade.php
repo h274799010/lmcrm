@@ -101,6 +101,15 @@
 
 @section('script')
 <script type="text/javascript">
+    function prepareErrorsHTML(error) {
+        var html = '';
+        html += '<div class="alert alert-warning alert-dismissible fade in" role="alert">';
+        html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>';
+        html += '<div>'+error+'</div>';
+        html += '</div>';
+
+        return html;
+    }
     $(document).ready(function () {
         $(document).on('click', '.btn-info-lead', function (e) {
             e.preventDefault();
@@ -163,7 +172,28 @@
                 $('#leadInfoModal').find('.modal-body').html(html);
                 $('#leadInfoModal').modal('show');
             });
-        })
+        });
+
+        $(document).on('click', '.btnOpenLead', function (e) {
+            e.preventDefault();
+
+            var url = $(this).attr('href');
+
+            $.get(url, {}, function (data) {
+                if(data.status == 'fail') {
+                    var error = prepareErrorsHTML(data.error);
+
+                    $('#obtainedLeadsFilters').before(error);
+                } else if (data.status == 'success') {
+                    window.location = data.route;
+                } else {
+                    bootbox.dialog({
+                        message: 'Server error!',
+                        show: true
+                    });
+                }
+            })
+        });
     });
 
 
