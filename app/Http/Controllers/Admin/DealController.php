@@ -11,6 +11,8 @@ use App\Models\Customer;
 use App\Models\OpenLeads;
 use App\Models\OperatorSphere;
 use App\Models\Sphere;
+use App\Transformers\Admin\AllDealsTransformer;
+use App\Transformers\Admin\ConfirmationDealsTransformer;
 use App\Transformers\LeadTransformer;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use GuzzleHttp\Psr7\Response;
@@ -19,7 +21,6 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Datatables;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\ClosedDeals;
 use App\Models\LeadBitmask;
@@ -28,6 +29,7 @@ use Validator;
 use Illuminate\Support\Facades\File;
 use App\Models\TransactionsLeadInfo;
 use App\Models\TransactionsDetails;
+use Yajra\Datatables\Facades\Datatables;
 
 class DealController extends Controller
 {
@@ -44,38 +46,35 @@ class DealController extends Controller
 
     /**
      * Вывод всех сделок
-     * todo выборку потом переделать под dataTables
      *
      */
     public function AllDeals()
     {
+        return view('admin.deal.all_deals');
+    }
 
+    /**
+     * Данные по всем сделкам
+     * Datatables
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function AllDealsData(Request $request)
+    {
         // выбираем все сделки вместе с открытыми лидами и данными агентов
-        $allDeals = ClosedDeals::
-            with(
+        $allDeals = ClosedDeals::with(
                 [
                     'openLeads'=>function( $query ){
                         $query->with('lead');
                     },
                     'userData'
                 ]
-            )
-            ->get();
+            );
 
-        // коллекция с именами источников лида (с аукциона, либо с группы)
-        $leadSources = ClosedDeals::getLeadSources();
-
-        // коллекция с именами статусов лида
-        $dealStatuses = ClosedDeals::getDealStatuses();
-
-        return view(
-            'admin.deal.all_deals',
-            [
-                'deals' => $allDeals,
-                'leadSources' => $leadSources,
-                'dealStatuses' => $dealStatuses,
-            ]
-        );
+        return Datatables::of( $allDeals )
+            ->setTransformer(new AllDealsTransformer())
+            ->make();
     }
 
 
@@ -86,10 +85,13 @@ class DealController extends Controller
      */
     public function ToConfirmationDeals()
     {
+        return view('admin.deal.to_confirmation_deals');
+    }
 
+    public function ToConfirmationDealsData(Request $request)
+    {
         // выбираем все сделки вместе с открытыми лидами и данными агентов
-        $allDeals = ClosedDeals::
-              where('status', 4)
+        $allDeals = ClosedDeals::where('status', 4)
             ->with(
                 [
                     'openLeads'=>function( $query ){
@@ -97,23 +99,11 @@ class DealController extends Controller
                     },
                     'userData'
                 ]
-            )
-            ->get();
+            );
 
-        // коллекция с именами источников лида (с аукциона, либо с группы)
-        $leadSources = ClosedDeals::getLeadSources();
-
-        // коллекция с именами статусов лида
-        $dealStatuses = ClosedDeals::getDealStatuses();
-
-        return view(
-            'admin.deal.to_confirmation_deals',
-            [
-                'deals' => $allDeals,
-                'leadSources' => $leadSources,
-                'dealStatuses' => $dealStatuses,
-            ]
-        );
+        return Datatables::of( $allDeals )
+            ->setTransformer(new ConfirmationDealsTransformer())
+            ->make();
     }
 
 

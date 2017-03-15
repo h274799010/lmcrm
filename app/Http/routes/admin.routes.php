@@ -166,7 +166,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     // данные по сделкам
     Route::get('deals/all', ['as' => 'admin.deals.all', 'uses' => 'Admin\DealController@AllDeals']);
+    Route::get('deals/allData', ['as' => 'admin.deals.allData', 'uses' => 'Admin\DealController@AllDealsData']);
     Route::get('deals/to/confirmation', ['as' => 'admin.deals.to.confirmation', 'uses' => 'Admin\DealController@ToConfirmationDeals']);
+    Route::get('deals/to/confirmationData', ['as' => 'admin.deals.to.confirmationData', 'uses' => 'Admin\DealController@ToConfirmationDealsData']);
     Route::get('deal/{id}', ['as' => 'admin.deal', 'uses' => 'Admin\DealController@deal']);
     Route::post('dealData', ['as' => 'admin.dealData', 'uses' => 'Admin\DealController@dealData']);
     Route::post('lead/sendMessageDeal',['as'=>'admin.lead.sendMessageDeal', 'uses' => 'Admin\DealController@sendMessageDeal']);

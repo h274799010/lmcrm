@@ -11,7 +11,7 @@
             Deals to confirmation
         </h3>
     </div>
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover" id="dealsTable">
         <thead>
         <tr>
             <th class="center">Name</th>
@@ -26,30 +26,7 @@
             <th class="center">{!! trans("admin/admin.action") !!}</th>
         </tr>
         </thead>
-        <tbody>
-        @forelse($deals as $deal)
-            <tr>
-                <td class="middle">{{ $deal['openLeads']['lead']['name'] }}</td>
-                <td class="middle">{{ $deal['userData']['email'] }}</td>
-                <td class="center middle">{{ $leadSources[ $deal['lead_source'] ] }}</td>
-                <td class="center middle">{{ $dealStatuses[ $deal['status'] ] }}</td>
-                <td class="middle">{{ $deal['price'] }}</td>
-                <td class="middle">{{ $deal['percent'] }}</td>
-                <td class="center middle"> @if( $deal['purchase_date'] ) {{ $deal['purchase_date']->format('d/m/Y') }} @else - @endif</td>
-                <td class="center middle"> @if( $deal['created_at'] ) {{ $deal['created_at']->format('d/m/Y') }} @else - @endif</td>
-                <td class="middle middle">{{ $deal['comments'] }}</td>
-                <td class="center middle">
-                    <a class="btn btn-sm btn-success" title="dealDetail" href="{{ route('admin.deal', ['id'=>$deal['id']]) }}">
-                        detail
-                    </a>
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="10" class="center"> No deals </td>
-            </tr>
-        @endforelse
-        </tbody>
+        <tbody></tbody>
     </table>
 
 @stop
@@ -64,8 +41,67 @@
 
 {{-- Scripts --}}
 @section('scripts')
-    <script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('select').select2({
+                allowClear: true
+            });
 
+            var oTable;
+            var $container = $('#accManagerListFilter');
 
+            oTable = $('#dealsTable').DataTable({
+                "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-6'i><'col-md-6'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sProcessing": "{{ trans('table.processing') }}",
+                    "sLengthMenu": "{{ trans('table.showmenu') }}",
+                    "sZeroRecords": "{{ trans('table.noresult') }}",
+                    "sInfo": "{{ trans('table.show') }}",
+                    "sEmptyTable": "{{ trans('table.emptytable') }}",
+                    "sInfoEmpty": "{{ trans('table.view') }}",
+                    "sInfoFiltered": "{{ trans('table.filter') }}",
+                    "sInfoPostFix": "",
+                    "sSearch": "{{ trans('table.search') }}:",
+                    "sUrl": "",
+                    "oPaginate": {
+                        "sFirst": "{{ trans('table.start') }}",
+                        "sPrevious": "{{ trans('table.prev') }}",
+                        "sNext": "{{ trans('table.next') }}",
+                        "sLast": "{{ trans('table.last') }}"
+                    }
+                },
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "{{ route('admin.deals.to.confirmationData') }}",
+                    "data": function (d) {
+
+                        // переменная с данными по фильтру
+                        var filter = {};
+
+                        // перебираем фильтры и выбираем данные по ним
+                        $container.find('select.dataTables_filter').each(function () {
+
+                            // если есть name и нет js
+                            if ($(this).data('name') && $(this).data('js') != 1) {
+
+                                // заносим в фильтр данные с именем name и значением опции
+                                filter[$(this).data('name')] = $(this).val();
+                            }
+                        });
+
+                        // данные фильтра
+                        d['filter'] = filter;
+                    }
+                }
+            });
+
+            // обработка фильтров таблицы при изменении селекта
+            $container.find('select.dataTables_filter').change(function () {
+                // просто перезагружаем таблицу
+                oTable.ajax.reload();
+            });
+        });
     </script>
 @stop
