@@ -65,6 +65,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
 
     // получение данных для таблицы на странице фильтра лидов
     Route::get('lead/obtain/data', ['as' => 'agent.lead.obtain.data', 'uses' => 'Agent\LeadController@obtainData']);
+    Route::post('lead/obtain/info', ['as' => 'agent.lead.obtain.info', 'uses' => 'Agent\LeadController@obtainInfo']);
 
 
     Route::get('lead/showOpenedLead/{id}',['as'=>'agent.lead.showOpenedLead', 'uses' => 'Agent\LeadController@showOpenedLead']);
@@ -175,6 +176,7 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
 
             Route::get('salesman/obtainedLead/{salesman_id}', ['as' => 'agent.salesman.obtainedLead', 'uses' => 'Agent\AgentSalesmanLeadController@obtain']);
             Route::get('salesman/obtain/data/{salesman_id}', ['as' => 'agent.salesman.obtain.data', 'uses' => 'Agent\AgentSalesmanLeadController@obtainData']);
+            Route::post('salesman/obtain/info/{salesman_id}', ['as' => 'agent.salesman.obtain.info', 'uses' => 'Agent\AgentSalesmanLeadController@obtainInfo']);
 
             Route::get('salesman/openedLeads/{salesman_id}/{lead_id?}', ['as' => 'agent.salesman.openedLeads', 'uses' => 'Agent\AgentSalesmanLeadController@openedLeads']);
             Route::get('salesman/openedLeadsData/{salesman_id}', ['as'=>'agent.salesman.openedData', 'uses'=>'Agent\AgentSalesmanLeadController@openedLeadsData']);
