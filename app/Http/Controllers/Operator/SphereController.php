@@ -1033,7 +1033,7 @@ class SphereController extends Controller {
                 ));
             }
 
-            $lead = CreateLead::storeOperator(Sentinel::getUser()->id, $request->data['name'], $request->data['phone'], $request->data['comments'], $request->data['email'], $sphere_id);
+            $lead = CreateLead::storeOperator(Sentinel::getUser()->id, $request->data['name'], $request->data['phone'], $request->data['comments'], $request->data['email'], $sphere_id, $request->data['surname']);
             if(is_array($lead) && isset($lead['error'])) {
                 return response()->json($lead);
             }
@@ -1133,6 +1133,7 @@ class SphereController extends Controller {
         /** --  П О Л Я  лида  -- */
 
         $lead->name=$request->data['name'];
+        $lead->surname=$request->data['surname'];
         $lead->email=$request->data['email'];
         $lead->comment=$request->data['comments'];
 

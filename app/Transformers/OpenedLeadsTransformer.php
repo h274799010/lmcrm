@@ -28,7 +28,7 @@ class OpenedLeadsTransformer extends TransformerAbstract
             1 => '',
             2 => view('agent.lead.datatables.openedLeads_status', ['openLead' => $openLead])->render(),
             3 => $buyer,
-            4 => $openLead->lead->name,
+            4 => $openLead->lead->name . ' ' . $openLead->lead->surname,
             5 => $openLead->lead->phone->phone,
             6 => $openLead->lead->email,
             7 => view('agent.lead.datatables.openedLeads_mask', ['openLead' => $openLead])->render(),

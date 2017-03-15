@@ -2,6 +2,7 @@
 
 return [
     'name' => 'Name',
+    'surname' => 'Surname',
     'phone' => 'Phone',
     'email' => 'E-mail',
     'comments' => 'Comments',
