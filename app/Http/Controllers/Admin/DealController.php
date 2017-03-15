@@ -80,7 +80,6 @@ class DealController extends Controller
 
     /**
      * Вывод сделок на утверждение
-     * todo выборку потом переделать под dataTables
      *
      */
     public function ToConfirmationDeals()
@@ -88,6 +87,13 @@ class DealController extends Controller
         return view('admin.deal.to_confirmation_deals');
     }
 
+    /**
+     * Данные по всем сделкам на подтверждение
+     * Datatables
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function ToConfirmationDealsData(Request $request)
     {
         // выбираем все сделки вместе с открытыми лидами и данными агентов

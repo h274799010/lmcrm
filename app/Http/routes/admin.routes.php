@@ -190,7 +190,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     // Работа с групами агентов
     Route::get('groups/to/confirmation', ['as' => 'admin.groups.to.confirmation', 'uses' => 'Admin\AgentPrivateGroupsController@ToConfirmationAgentInGroup']);
+    Route::get('groups/to/confirmationData', ['as' => 'admin.groups.to.confirmationData', 'uses' => 'Admin\AgentPrivateGroupsController@ToConfirmationAgentInGroupData']);
     Route::get('groups/all', ['as' => 'admin.groups.all', 'uses' => 'Admin\AgentPrivateGroupsController@allAgentsPrivateGroups']);
+    Route::get('groups/allData', ['as' => 'admin.groups.allData', 'uses' => 'Admin\AgentPrivateGroupsController@allAgentsPrivateGroupsData']);
     Route::get('groups/detail/{id}', ['as' => 'admin.groups.detail', 'uses' => 'Admin\AgentPrivateGroupsController@detail']);
     Route::get('groups/allDetail/{id}', ['as' => 'admin.groups.allDetail', 'uses' => 'Admin\AgentPrivateGroupsController@allDetail']);
     Route::post('groups/agent/confirm', ['as'=>'admin.groups.agent.confirm', 'uses' => 'Admin\AgentPrivateGroupsController@confirmAgent']);
