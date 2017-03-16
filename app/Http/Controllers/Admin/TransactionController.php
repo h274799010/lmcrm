@@ -8,6 +8,8 @@ use App\Helper\PayMaster;
 use App\Models\Lead;
 use Datatables;
 use Illuminate\Support\Facades\Cookie;
+use Psy\Util\Json;
+use App\Helper\PayMaster\PayInfo;
 
 class TransactionController extends AdminController {
 
@@ -45,7 +47,7 @@ class TransactionController extends AdminController {
 
 
     /**
-     * Изменение кредитов пользователя
+     * Данные по системному кошельку
      *
      * todo доработать
      *
@@ -58,12 +60,11 @@ class TransactionController extends AdminController {
         $system = PayMaster::systemInfo();
 
         return view('admin.system.wallet', [ 'system'=>$system ]);
-
     }
 
     
     /**
-     * Изменение кредитов пользователя
+     * Получение всех транзакций по системе
      *
      * todo доработать
      *
@@ -75,12 +76,11 @@ class TransactionController extends AdminController {
         $allTransactions = PayMaster::allTransactions();
 
         return view('admin.system.transactions', [ 'allTransactions'=>$allTransactions ]);
-
     }
 
 
     /**
-     * Изменение кредитов пользователя
+     * Данные по всем лидам
      *
      * todo доработать
      *
@@ -119,6 +119,15 @@ class TransactionController extends AdminController {
         ]);
     }
 
+
+    /**
+     * Данные для таблицы информации по лидам
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Json
+     */
     public function allLeadsInfoData(Request $request)
     {
         //$leads = Lead::where( 'status', '>', 1 )->select(['name', 'opened', 'expiry_time', 'open_lead_expired', 'auction_status', 'payment_status', 'id', 'sphere_id', 'agent_id', 'status', 'auction_status', 'payment_status'])->get();
@@ -239,4 +248,70 @@ class TransactionController extends AdminController {
             ->make();
     }
 
+
+    /**
+     * Отчеты по всем ручным транзакциям
+     *
+     *
+     */
+    public function allTransactionReport()
+    {
+
+        $allTransactions = PayInfo::getAllTransactions( ['manual'] );
+
+//        dd($allTransactions[0]);
+
+        return view('admin.transactionReport.allTransactionReport', [
+            'transactions' => $allTransactions
+//            'statuses' => \App\Facades\Lead::getStatuses('status'),
+//            'auctionStatuses' => \App\Facades\Lead::getStatuses('auctionStatus'),
+//            'paymentStatuses' => \App\Facades\Lead::getStatuses('paymentStatus'),
+//            'selectedFilters' => $selectedFilters
+        ]);
+
+
+//        dd($allTransactions);
+
+//        dd('allTransactionReport');
+//        return 'true';
+    }
+
+
+    /**
+     * Отчеты по системным ручным транзакциям
+     * (сборные отчеты по админам)
+     *
+     */
+    public function systemTransactionReport()
+    {
+
+        return 'true';
+    }
+
+
+    /**
+     * Список акк. менеджеров и минимальные данные по отчетам для них
+     *
+     *
+     */
+    public function accManagersToTransactionReport()
+    {
+
+        return 'true';
+    }
+
+
+    /**
+     * Отчет ручных транзакция по аккаунт менеджеру
+     *
+     *
+     * @param  integer  $id
+     *
+     * @return string
+     */
+    public function accManagerTransactionReport( $id )
+    {
+
+        return 'true';
+    }
 }

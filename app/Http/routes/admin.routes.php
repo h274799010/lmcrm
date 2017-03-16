@@ -194,4 +194,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::post('groups/agent/confirm', ['as'=>'admin.groups.agent.confirm', 'uses' => 'Admin\AgentPrivateGroupsController@confirmAgent']);
     Route::post('groups/agent/reject', ['as'=>'admin.groups.agent.reject', 'uses' => 'Admin\AgentPrivateGroupsController@rejectAgent']);
 
+
+    /**
+     * Отчеты по ручным транзакциям
+     *
+     */
+    // По всем ручным транзитам
+    Route::get('report/all', ['as' => 'admin.report.all', 'uses' => 'Admin\TransactionController@allTransactionReport']);
+    // По транзитам системы (админов)
+    Route::get('report/system', ['as' => 'admin.report.system', 'uses' => 'Admin\TransactionController@systemTransactionReport']);
+
 });
