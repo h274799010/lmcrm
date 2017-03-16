@@ -210,10 +210,6 @@ class LeadController extends AgentController {
      */
     public function obtainData(Request $request)
     {
-
-        // находим заданную сферу
-        $sphere = Sphere::find( $request['sphere_id'] );
-
         // данные агента
         $agent = $this->user;
 
@@ -228,11 +224,9 @@ class LeadController extends AgentController {
         }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where('status', 0)
+        $auctionData = Auction::where( 'status', 0 )
             ->where( 'user_id', $user_id )
-            ->where( 'sphere_id', $sphere->id )
             ->whereNotIn('lead_id', $salesmansOpenedLeads);
-
 
         /** Проверяем наличие фильтра */
 
@@ -268,24 +262,74 @@ class LeadController extends AgentController {
             }
         }
 
-        $auctionData = $auctionData->with('lead')->with('maskName')->get();
-
-        $auctionData = $auctionData->filter(function ($auction) {
-            return $auction['maskName']['active'] == 1;
-        });
-
-        $auctionData = $auctionData->filter(function ($auction) use ($agent) {
-            $openLead = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', $agent->id )->first();
-            $openLeadOther = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
-
-            if(!$openLead || !$openLeadOther) {
-                return $auction;
-            }
-        });
+        $auctionData = $auctionData->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at', 'updated_at')
+            ->with(
+            [
+                'lead' => function($query)
+                {
+                    $query->select('id', 'opened', 'email', 'sphere_id', 'name', 'customer_id', 'created_at', 'updated_at')
+                        ->with('phone');
+                },
+                'sphere' => function($query){
+                    $query->select('id', 'name');
+                },
+                'maskName' => function($query){
+                    $query->select('id', 'name');
+                }
+            ])
+            ->orderBy('created_at', 'desc');
 
         return Datatables::of( $auctionData )
-            ->setTransformer(new ObtainedLeadsTransformer($sphere))
+            ->setTransformer(new ObtainedLeadsTransformer($user_id))
             ->make();
+    }
+
+    /**
+     * Получение подробной информации по лиду
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function obtainInfo(Request $request)
+    {
+        $auction_id = $request->input('id');
+        $agent = Agent::find( Sentinel::getUser()->id );
+
+        if( !$auction_id ) {
+            abort(403, 'Wrong deal id');
+        }
+
+        $auction = Auction::select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at', 'updated_at')
+            ->with(
+                [
+                    'lead' => function($query)
+                    {
+                        $query->select('id', 'opened', 'email', 'sphere_id', 'name', 'customer_id', 'created_at', 'updated_at')
+                            ->with('phone');
+                    },
+                    'sphere' => function($query){
+                        $query->select('id', 'name');
+                    },
+                    'maskName' => function($query){
+                        $query->select('id', 'name');
+                    }
+                ])
+            ->find($auction_id);
+
+        $auction->lead->getFilter();
+        $auction->lead->getAdditional();
+
+        $result = array(
+            'name' => $auction->lead->name,
+            'phone' => ( $auction->lead->obtainedBy($agent->id)->count() ) ? $auction->lead->phone->phone : trans('site/lead.hidden'),
+            'email' => ( $auction->lead->obtainedBy($agent->id)->count() ) ? $auction->lead->email : trans('site/lead.hidden'),
+            'additional' => $auction->lead->additional,
+            'filter' => $auction->lead->filter,
+            'sphere' => isset($auction->sphere->name) ? $auction->sphere->name : 'Deleted',
+            'mask' => isset($auction->maskName->name) ? $auction->maskName->name : 'Deleted'
+        );
+
+        return response()->json($result);
     }
 
 
@@ -613,7 +657,7 @@ class LeadController extends AgentController {
      *
      * @return Response
      */
-    public function openLead( $lead_id, $mask_id, $salesman_id=false ){
+    public function openLead( Request $request, $lead_id, $mask_id, $salesman_id=false ){
 
         // находим лид
         $lead = Lead::find( $lead_id );
@@ -635,19 +679,45 @@ class LeadController extends AgentController {
         $openResult = $lead->open( $user, $mask_id );
 
         if(isset($openResult['error'])) {
-            return redirect()->back()->withErrors($openResult['error']);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'fail',
+                    'error' => $openResult['error']
+                ] );
+            } else {
+                return redirect()->back()->withErrors($openResult['error']);
+            }
         }
 
         //return response()->json( $openResult );
         if($salesman_id) {
-            return redirect()->route('agent.salesman.openedLeads', [
-                'salesman_id' => $salesman_id,
-                'lead_id' => $lead->id
-            ]);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'success',
+                    'route' => route('agent.salesman.openedLeads', [
+                        'salesman_id' => $salesman_id,
+                        'lead_id' => $lead->id
+                    ])
+                ] );
+            } else {
+                return redirect()->route('agent.salesman.openedLeads', [
+                    'salesman_id' => $salesman_id,
+                    'lead_id' => $lead->id
+                ]);
+            }
         } else {
-            return redirect()->route('agent.lead.opened', [
-                'lead_id' => $lead->id
-            ]);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'success',
+                    'route' => route('agent.lead.opened', [
+                        'lead_id' => $lead->id
+                    ])
+                ] );
+            } else {
+                return redirect()->route('agent.lead.opened', [
+                    'lead_id' => $lead->id
+                ]);
+            }
         }
     }
 
@@ -662,7 +732,7 @@ class LeadController extends AgentController {
      *
      * @return Response
      */
-    public function openAllLeads( $lead_id, $mask_id, $salesman_id=false ){
+    public function openAllLeads( Request $request, $lead_id, $mask_id, $salesman_id=false ){
 
         // находим лид
         $lead = Lead::find( $lead_id );
@@ -684,19 +754,45 @@ class LeadController extends AgentController {
         $openResult = $lead->openAll( $user, $mask_id );
 
         if(isset($openResult['error'])) {
-            return redirect()->back()->withErrors($openResult['error']);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'fail',
+                    'error' => $openResult['error']
+                ] );
+            } else {
+                return redirect()->back()->withErrors($openResult['error']);
+            }
         }
 
         //return response()->json( $openResult );
         if($salesman_id) {
-            return redirect()->route('agent.salesman.openedLeads', [
-                'salesman_id' => $salesman_id,
-                'lead_id' => $lead->id
-            ]);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'success',
+                    'route' => route('agent.salesman.openedLeads', [
+                        'salesman_id' => $salesman_id,
+                        'lead_id' => $lead->id
+                    ])
+                ] );
+            } else {
+                return redirect()->route('agent.salesman.openedLeads', [
+                    'salesman_id' => $salesman_id,
+                    'lead_id' => $lead->id
+                ]);
+            }
         } else {
-            return redirect()->route('agent.lead.opened', [
-                'lead_id' => $lead->id
-            ]);
+            if($request->ajax()){
+                return response()->json( [
+                    'status' => 'success',
+                    'route' => route('agent.lead.opened', [
+                        'lead_id' => $lead->id
+                    ])
+                ] );
+            } else {
+                return redirect()->route('agent.lead.opened', [
+                    'lead_id' => $lead->id
+                ]);
+            }
         }
 
     }

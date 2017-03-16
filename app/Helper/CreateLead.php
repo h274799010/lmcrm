@@ -196,7 +196,7 @@ class CreateLead
         }
     }
 
-    public function storeOperator($user_id, $name, $phone, $comment, $email, $sphere_id)
+    public function storeOperator($user_id, $name, $phone, $comment, $email, $sphere_id, $surname)
     {
         $agent = OperatorSphere::find($user_id);
         $user = $agent;
@@ -214,6 +214,7 @@ class CreateLead
 
         $lead = new Lead();
         $lead->name = $name;
+        $lead->surname = $surname;
         $lead->comment = $comment;
         $lead->customer_id=$customer->id;
         $lead->sphere_id = $sphere_id;

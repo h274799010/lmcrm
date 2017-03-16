@@ -166,7 +166,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     // данные по сделкам
     Route::get('deals/all', ['as' => 'admin.deals.all', 'uses' => 'Admin\DealController@AllDeals']);
+    Route::get('deals/allData', ['as' => 'admin.deals.allData', 'uses' => 'Admin\DealController@AllDealsData']);
     Route::get('deals/to/confirmation', ['as' => 'admin.deals.to.confirmation', 'uses' => 'Admin\DealController@ToConfirmationDeals']);
+    Route::get('deals/to/confirmationData', ['as' => 'admin.deals.to.confirmationData', 'uses' => 'Admin\DealController@ToConfirmationDealsData']);
     Route::get('deal/{id}', ['as' => 'admin.deal', 'uses' => 'Admin\DealController@deal']);
     Route::post('dealData', ['as' => 'admin.dealData', 'uses' => 'Admin\DealController@dealData']);
     Route::post('lead/sendMessageDeal',['as'=>'admin.lead.sendMessageDeal', 'uses' => 'Admin\DealController@sendMessageDeal']);
@@ -188,7 +190,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     // Работа с групами агентов
     Route::get('groups/to/confirmation', ['as' => 'admin.groups.to.confirmation', 'uses' => 'Admin\AgentPrivateGroupsController@ToConfirmationAgentInGroup']);
+    Route::get('groups/to/confirmationData', ['as' => 'admin.groups.to.confirmationData', 'uses' => 'Admin\AgentPrivateGroupsController@ToConfirmationAgentInGroupData']);
     Route::get('groups/all', ['as' => 'admin.groups.all', 'uses' => 'Admin\AgentPrivateGroupsController@allAgentsPrivateGroups']);
+    Route::get('groups/allData', ['as' => 'admin.groups.allData', 'uses' => 'Admin\AgentPrivateGroupsController@allAgentsPrivateGroupsData']);
     Route::get('groups/detail/{id}', ['as' => 'admin.groups.detail', 'uses' => 'Admin\AgentPrivateGroupsController@detail']);
     Route::get('groups/allDetail/{id}', ['as' => 'admin.groups.allDetail', 'uses' => 'Admin\AgentPrivateGroupsController@allDetail']);
     Route::post('groups/agent/confirm', ['as'=>'admin.groups.agent.confirm', 'uses' => 'Admin\AgentPrivateGroupsController@confirmAgent']);

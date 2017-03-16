@@ -184,27 +184,22 @@ class AgentSalesmanLeadController extends LeadController
      */
     public function obtainData(Request $request)
     {
-
-        // находим заданную сферу
-        $sphere = Sphere::find( $request['sphere_id'] );
-
         $agent = $this->salesman;
 
         $user_id = $agent->id;
 
-        $agentOpenedLeads = OpenLeads::where('agent_id', '=', $this->user->id)->select('lead_id')->get();
-        $agentOpenedLeads = $agentOpenedLeads->lists('lead_id')->toArray();
+        if($agent->inRole('agent')) {
+            $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
+            $salesmansOpenedLeads = OpenLeads::whereIn('agent_id', $salesmans)->select('lead_id')->get()->lists('lead_id')->toArray();
+        } else {
+            $salesmans = $agent->agent()->first();
+            $salesmansOpenedLeads = OpenLeads::where('agent_id', '=', $salesmans->id)->select('lead_id')->get()->lists('lead_id')->toArray();
+        }
 
         // выборка всех лидов агента
-        $auctionData = Auction::where('status', 0)
+        $auctionData = Auction::where( 'status', 0 )
             ->where( 'user_id', $user_id )
-            ->where( 'sphere_id', $sphere->id )
-            ->whereNotIn('lead_id', $agentOpenedLeads)
-            ->with('lead') /*->with('maskName') */ ->get();
-
-        // маска лида
-        $leadBitmask = new LeadBitmask( $sphere->id );
-
+            ->whereNotIn('lead_id', $salesmansOpenedLeads);
 
         /** Проверяем наличие фильтра */
 
@@ -218,68 +213,97 @@ class AgentSalesmanLeadController extends LeadController
                 // перебираем данные и проверяем на соответствие
                 foreach ($eFilter as $eFKey => $eFVal) {
 
-                    // проверяем ключ
-                    switch($eFKey) {
+                    if($eFVal != 'empty' && $eFVal != '') {
+                        // проверяем ключ
+                        switch($eFKey) {
 
-                        // если фильтр по дате
-                        case 'date':
+                            // если фильтр по дате
+                            case 'date':
+                                $eFVal = explode('/', $eFVal);
 
-                            // проверяем значение фильтра
+                                $start = trim($eFVal[0]);
+                                $end = trim($eFVal[1]);
 
-                            if($eFVal=='2d') {
-                                // два последних дня
-
-                                // находим время
-                                $date = new \DateTime();
-                                // выбираем интервал
-                                $date->sub(new \DateInterval('P2D'));
-
-                                // отфильтровуем с аукционе только то, что соответсвтует интервалу
-                                $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
-                                    return $auction['lead']['created_at'] >= $date->format('Y-m-d');
-                                });
-
-
-                            } elseif($eFVal=='1m') {
-                                // последний месяц
-
-                                // находим время
-                                $date = new \DateTime();
-                                // выбираем интервал
-                                $date->sub(new \DateInterval('P1M'));
-
-                                // отфильтровуем с аукционе только то, что соответсвтует интервалу
-                                $auctionData = $auctionData->filter( function( $auction ) use ( $date ){
-                                    return $auction['lead']['created_at'] >= $date->format('Y-m-d');
-                                });
-
-
-                            } else {
-                                // если значения фильтра нет
-
-                                // ничего не делаем
-                            }
-
-                            break;
-                        default: ;
+                                $auctionData = $auctionData->where('created_at', '>=', $start . ' 00:00:00')
+                                    ->where('created_at', '<=', $end . ' 23:59:59');
+                                break;
+                            default:
+                                ;
+                        }
                     }
                 }
             }
         }
 
-        $auctionData = $auctionData->filter(function ($auction) use ($agent) {
-            $openLead = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', $agent->id )->first();
-            $openLeadOther = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', '<>', $agent->id )->first();
-
-            if(!$openLead || !$openLeadOther) {
-                return $auction;
-            }
-        });
+        $auctionData = $auctionData->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at', 'updated_at')
+            ->with(
+                [
+                    'lead' => function($query)
+                    {
+                        $query->select('id', 'opened', 'email', 'sphere_id', 'name', 'customer_id', 'created_at', 'updated_at')
+                            ->with('phone');
+                    },
+                    'sphere' => function($query){
+                        $query->select('id', 'name');
+                    },
+                    'maskName' => function($query){
+                        $query->select('id', 'name');
+                    }
+                ])
+            ->orderBy('created_at', 'desc');
 
 
         return Datatables::of( $auctionData )
-            ->setTransformer(new ObtainedLeadsTransformer($sphere))
+            ->setTransformer(new ObtainedLeadsTransformer($this->salesman->id))
             ->make();
+    }
+
+    /**
+     * Получение подробной информации по лиду
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function obtainInfo(Request $request)
+    {
+        $auction_id = $request->input('id');
+        $agent = $this->salesman;
+
+        if( !$auction_id ) {
+            abort(403, 'Wrong deal id');
+        }
+
+        $auction = Auction::select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at', 'updated_at')
+            ->with(
+                [
+                    'lead' => function($query)
+                    {
+                        $query->select('id', 'opened', 'email', 'sphere_id', 'name', 'customer_id', 'created_at', 'updated_at')
+                            ->with('phone');
+                    },
+                    'sphere' => function($query){
+                        $query->select('id', 'name');
+                    },
+                    'maskName' => function($query){
+                        $query->select('id', 'name');
+                    }
+                ])
+            ->find($auction_id);
+
+        $auction->lead->getFilter();
+        $auction->lead->getAdditional();
+
+        $result = array(
+            'name' => $auction->lead->name,
+            'phone' => ( $auction->lead->obtainedBy($agent->id)->count() ) ? $auction->lead->phone->phone : trans('site/lead.hidden'),
+            'email' => ( $auction->lead->obtainedBy($agent->id)->count() ) ? $auction->lead->email : trans('site/lead.hidden'),
+            'additional' => $auction->lead->additional,
+            'filter' => $auction->lead->filter,
+            'sphere' => isset($auction->sphere->name) ? $auction->sphere->name : 'Deleted',
+            'mask' => isset($auction->maskName->name) ? $auction->maskName->name : 'Deleted'
+        );
+
+        return response()->json($result);
     }
 
     /**

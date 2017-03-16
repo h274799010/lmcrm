@@ -28,6 +28,10 @@
                             <div class="form-group">
                                 {{ Form::text('name',isset($lead) ? $lead->name : null, array('class' => 'form-control','data-rule-minLength'=>'2')) }}
                             </div>
+                            <h4 class="page_header">@lang('lead/lead.surname')</h4>
+                            <div class="form-group">
+                                {{ Form::text('surname',isset($lead) ? $lead->surname : null, array('class' => 'form-control','data-rule-minLength'=>'2')) }}
+                            </div>
                             <h4 class="page_header">@lang('lead/lead.phone')</h4>
                             <div class="form-group">
                                 {{ Form::text('phone',isset($lead) && isset($lead->phone) ? $lead->phone->phone : null, array('class' => 'form-control', 'data-rule-phone'=>true)) }}
@@ -1059,6 +1063,7 @@
                     sphereId: $('select[name=sphere]').val(),
                     leadId: 'new',
                     name: $('input[name=name]').val(),
+                    surname: $('input[name=surname]').val(),
                     phone: $('input[name=phone]').val(),
                     email: $('input[name=email]').val(),
                     comments: $('textarea[name=comment]').val(),
@@ -1310,6 +1315,7 @@
                     sphereId: $('select[name=sphere]').val(),
                     leadId: 'new',
                     name: $('input[name=name]').val(),
+                    surname: $('input[name=surname]').val(),
                     phone: $('input[name=phone]').val(),
                     email: $('input[name=email]').val(),
                     comments: $('textarea[name=comment]').val(),

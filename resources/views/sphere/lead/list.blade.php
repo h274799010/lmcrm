@@ -11,48 +11,46 @@
         </div>
     @endif
 
-    <div class="row">
-        <div class="col-md-7 col-xs-12" id="agentsListFilter">
-            <div class="col-xs-4">
-                <div class="form-group">
-                    <label class="control-label _col-sm-3">@lang('statistic.spheres')</label>
-                    <select data-name="sphere" class="selectbox dataTables_filter form-control" data-placeholder="-">
-                        <option value=""></option>
-                        @foreach($spheres as $sphere)
-                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+    <div id="agentsListFilter">
+        <div class="filter-item-wrap">
+            <div class="form-group">
+                <label class="control-label _col-sm-3">@lang('statistic.spheres')</label>
+                <select data-name="sphere" class="selectbox dataTables_filter form-control" data-placeholder="-">
+                    <option value=""></option>
+                    @foreach($spheres as $sphere)
+                        <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                    @endforeach
+                </select>
             </div>
-            <div class="col-xs-3">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">Status</label>
-                    <select data-name="status" class="selectbox dataTables_filter form-control" data-placeholder="-">
-                        <option value=""></option>
-                        @foreach($statuses as $status => $name)
-                            <option value="{{ $status }}">{{ $name }}</option>
-                            @if($status >= 1)
-                                @break;
-                            @endif
-                        @endforeach
-                    </select>
-                </div>
+        </div>
+        <div class="filter-item-wrap">
+            <div class="form-group">
+                <label class="control-label _col-sm-2">Status</label>
+                <select data-name="status" class="selectbox dataTables_filter form-control" data-placeholder="-">
+                    <option value=""></option>
+                    @foreach($statuses as $status => $name)
+                        <option value="{{ $status }}">{{ $name }}</option>
+                        @if($status >= 1)
+                            @break;
+                        @endif
+                    @endforeach
+                </select>
             </div>
-            {{--<div class="col-xs-3">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">State</label>
-                    <select data-name="state" class="selectbox dataTables_filter form-control" data-placeholder="-">
-                        <option value=""></option>
-                        <option value="dealmaker">Dealmaker</option>
-                        <option value="leadbayer">Leadbayer</option>
-                    </select>
-                </div>
-            </div>--}}
-            <div class="col-xs-5">
-                <div class="form-group">
-                    <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.period') }}</label>
-                    <input type="text" name="reportrange" data-name="period" class="mdl-textfield__input dataTables_filter" value="" id="reportrange" />
-                </div>
+        </div>
+        {{--<div class="col-xs-3">
+            <div class="form-group">
+                <label class="control-label _col-sm-2">State</label>
+                <select data-name="state" class="selectbox dataTables_filter form-control" data-placeholder="-">
+                    <option value=""></option>
+                    <option value="dealmaker">Dealmaker</option>
+                    <option value="leadbayer">Leadbayer</option>
+                </select>
+            </div>
+        </div>--}}
+        <div class="filter-item-wrap">
+            <div class="form-group">
+                <label class="control-label _col-sm-2">{{ trans('admin/openLeads.filter.period') }}</label>
+                <input type="text" name="reportrange" data-name="period" class="mdl-textfield__input dataTables_filter" value="" id="reportrange" />
             </div>
         </div>
     </div>

@@ -106,6 +106,10 @@
                             <div class="form-group">
                                 {{ Form::text('name',null, array('class' => 'form-control','data-rule-minLength'=>'2')) }}
                             </div>
+                            <h4 class="page_header">@lang('lead/lead.surname')</h4>
+                            <div class="form-group">
+                                {{ Form::text('surname',null, array('class' => 'form-control','data-rule-minLength'=>'2')) }}
+                            </div>
                             <h4 class="page_header">@lang('lead/lead.phone')</h4>
                             <div class="form-group">
                                 {{ Form::text('phone',$lead->phone->phone, array('class' => 'form-control', 'data-rule-phone'=>true)) }}
@@ -1612,6 +1616,7 @@
                 sphereId: $('#content').data('sphere_id'),
                 leadId: $('#content').data('lead_id'),
                 name: $('input[name=name]').val(),
+                surname: $('input[name=surname]').val(),
                 phone: $('input[name=phone]').val(),
                 email: $('input[name=email]').val(),
                 comments: $('textarea[name=comment]').val(),
@@ -1850,6 +1855,7 @@
                 sphereId: $('#content').data('sphere_id'),
                 leadId: $('#content').data('lead_id'),
                 name: $('input[name=name]').val(),
+                surname: $('input[name=surname]').val(),
                 phone: $('input[name=phone]').val(),
                 email: $('input[name=email]').val(),
                 comments: $('textarea[name=comment]').val(),

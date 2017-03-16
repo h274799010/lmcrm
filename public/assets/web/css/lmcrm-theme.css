@@ -835,3 +835,10 @@ h4.statistic-sphere-name{
 }
 
 
+.filter-item-wrap {
+	display: inline-block;
+	margin-right: 16px;
+}
+.filter-item-wrap:last-child {
+	margin-right: 0;
+}

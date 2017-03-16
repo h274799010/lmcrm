@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\AdminController;
 use App\Models\Agent;
 use App\Models\AgentsPrivateGroups;
+use App\Transformers\Admin\AllPrivateGroupsTransformer;
+use App\Transformers\Admin\ConfirmationPrivateGroupsTransformer;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Validator;
+use Yajra\Datatables\Facades\Datatables;
 
 class AgentPrivateGroupsController extends AdminController
 {
@@ -25,27 +28,54 @@ class AgentPrivateGroupsController extends AdminController
      */
     public function ToConfirmationAgentInGroup()
     {
+        return view('admin.agentsPrivateGroups.to_confirmations_groups');
+    }
+
+    /**
+     * Список групп, в которых есть агенты для подтверждения
+     * Datatable
+     *
+     * @return mixed
+     */
+    public function ToConfirmationAgentInGroupData()
+    {
         $groups = AgentsPrivateGroups::where('status', '=', AgentsPrivateGroups::AGENT_WAITING_FOR_CONFIRMATION)
             ->groupBy('agent_owner_id')
             ->get()->lists('agent_owner_id')->toArray();
 
-        $groups = Agent::whereIn('id', $groups)->get();
+        $groups = Agent::whereIn('id', $groups);
 
-        return view('admin.agentsPrivateGroups.to_confirmations_groups', [
-            'groups' => $groups
-        ]);
+        return Datatables::of( $groups )
+            ->setTransformer(new ConfirmationPrivateGroupsTransformer())
+            ->make();
     }
 
+    /**
+     * Список всех приватных групп агентов
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function allAgentsPrivateGroups()
+    {
+        return view('admin.agentsPrivateGroups.all_groups');
+    }
+
+    /**
+     * Список всех приватных групп агентов
+     * Datatable
+     *
+     * @return mixed
+     */
+    public function allAgentsPrivateGroupsData()
     {
         $groups = AgentsPrivateGroups::groupBy('agent_owner_id')
             ->get()->lists('agent_owner_id')->toArray();
 
-        $groups = Agent::whereIn('id', $groups)->get();
+        $groups = Agent::whereIn('id', $groups);
 
-        return view('admin.agentsPrivateGroups.all_groups', [
-            'groups' => $groups
-        ]);
+        return Datatables::of( $groups )
+            ->setTransformer(new AllPrivateGroupsTransformer())
+            ->make();
     }
 
     /**
