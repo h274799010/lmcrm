@@ -206,4 +206,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::post('credits/sendMessage',['as'=>'admin.credits.sendMessage', 'uses' => 'Admin\RequestsPaymentsController@sendMessage']);
     Route::post('credits/blockCheckDelete',['as'=>'admin.credits.blockCheckDelete', 'uses' => 'Admin\RequestsPaymentsController@blockCheckDelete']);
     Route::post('credits/changeStatus',['as'=>'admin.credits.changeStatus', 'uses' => 'Admin\RequestsPaymentsController@changeStatus']);
+
+    /**
+     * Отчеты по ручным транзакциям
+     *
+     */
+    // По всем ручным транзитам
+    Route::get('report/all', ['as' => 'admin.report.all', 'uses' => 'Admin\TransactionController@allTransactionReport']);
+    // По транзитам системы (админов)
+    Route::get('report/system', ['as' => 'admin.report.system', 'uses' => 'Admin\TransactionController@systemTransactionReport']);
+
 });

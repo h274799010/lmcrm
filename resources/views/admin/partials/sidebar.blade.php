@@ -34,6 +34,32 @@
                 </ul>
             </li>
 
+            {{-- Отчеты по вводу/выводу денег --}}
+            <li>
+                <a href="#">
+                    <i class="fa fa-file-text "></i> Credits reports
+                    <span class="fa arrow"></span>
+                </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('admin.report.all') }}">
+                            <i class="fa fa-file-o "></i> All
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.report.system') }}">
+                            <i class="fa fa-file-o "></i> System
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.deals.all') }}">
+                            <i class="fa fa-file-text-o"></i> Account managers
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- Сделки --}}
             <li>
                 <a href="#">
                     <i class="fa fa-file-text "></i> Deals

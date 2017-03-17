@@ -267,7 +267,54 @@ class PayInfo
             self::SystemRevenueFromLeadDetails( $lead_id, $type );
 
         return $systemRevenue->sum('amount');
+    }
 
+
+    /**
+     * Все транзакции системы
+     *
+     *
+     * @param  string|array|boolean  $type
+     *
+     * @return string
+     */
+    public static function getAllTransactions( $type = false )
+    {
+
+        // поверка на тип
+        if( $type ){
+            // если тип задан
+
+            // если тип задан в виде строки
+            if( gettype($type) == 'string' ){
+                // преобразовываем в массив
+                $type = [$type];
+            }
+
+            // выбираем id всех деталей транзакций с заданным типом
+            $details = TransactionsDetails::
+                  whereIn( 'type', $type)
+                ->groupBy('transaction_id')
+                ->lists('transaction_id');
+
+            // выибраем транзакции
+            $transactions = Transactions::
+                  whereIn('id', $details)
+                ->with('details', 'initiator')
+                ->orderBy('id', 'desc');
+
+        }else{
+            // если тип не задан
+
+            $transactions = Transactions::
+                  with('details', 'initiator')
+                ->orderBy('id', 'desc');
+
+        }
+
+        $transactions = $transactions->get();
+
+        return $transactions;
     }
 
 }
