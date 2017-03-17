@@ -198,4 +198,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::post('groups/agent/confirm', ['as'=>'admin.groups.agent.confirm', 'uses' => 'Admin\AgentPrivateGroupsController@confirmAgent']);
     Route::post('groups/agent/reject', ['as'=>'admin.groups.agent.reject', 'uses' => 'Admin\AgentPrivateGroupsController@rejectAgent']);
 
+    // Работа с заявками по пополнению/снятию средств со счета агента
+    Route::get('credits/to/confirmation', ['as' => 'admin.credits.to.confirmation', 'uses' => 'Admin\RequestsPaymentsController@confirmationList']);
+    Route::get('credits/all', ['as' => 'admin.credits.all', 'uses' => 'Admin\RequestsPaymentsController@allList']);
+    Route::get('credits/detail/{id}', ['as' => 'admin.credits.detail', 'uses' => 'Admin\RequestsPaymentsController@detail']);
+    Route::post('credits/checkUpload',['as'=>'admin.credits.checkUpload', 'uses' => 'Admin\RequestsPaymentsController@checkUpload']);
+    Route::post('credits/sendMessage',['as'=>'admin.credits.sendMessage', 'uses' => 'Admin\RequestsPaymentsController@sendMessage']);
+    Route::post('credits/blockCheckDelete',['as'=>'admin.credits.blockCheckDelete', 'uses' => 'Admin\RequestsPaymentsController@blockCheckDelete']);
+    Route::post('credits/changeStatus',['as'=>'admin.credits.changeStatus', 'uses' => 'Admin\RequestsPaymentsController@changeStatus']);
 });

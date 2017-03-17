@@ -8,6 +8,7 @@ use App\Models\ClosedDeals;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Notification_users;
+use App\Models\RequestPayment;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Support\Facades\Queue;
 
@@ -67,6 +68,35 @@ class Messages
         if($deal->agent_id != $sender_id) {
             $notice = Notification::make($sender_id, 'closed_deal_message', 'Closed deal', 0);
             Notification_users::make($deal->agent_id, $notice->id);
+        }
+
+        return $message;
+    }
+
+    public function sendRequestPayment($request_payment_id, $sender_id, $mess)
+    {
+        $requestPayment = RequestPayment::find($request_payment_id);
+
+        $firstMessage = Message::where('parent', '=', 0)
+            ->where('detail', '=', $requestPayment->id)->first();
+
+        if(isset($firstMessage->id)) {
+            $parent = $firstMessage->id;
+        } else {
+            $parent = 0;
+        }
+
+        $message = new Message();
+        $message->parent = $parent;
+        $message->sender_id = $sender_id;
+        $message->message = $mess;
+        $message->detail = $requestPayment->id;
+        $message->type = 'request_payment';
+        $message->save();
+
+        if($requestPayment->initiator_id != $sender_id) {
+            $notice = Notification::make($sender_id, 'request_payment_message', 'Request payment message', 0);
+            Notification_users::make($requestPayment->initiator_id, $notice->id);
         }
 
         return $message;

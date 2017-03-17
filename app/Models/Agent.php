@@ -136,6 +136,16 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     }
 
     /**
+     * Получаем список заявок на пополнение/выплату агента
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function requestsPayments()
+    {
+        return $this->hasMany('\App\Models\RequestPayment', 'initiator_id', 'id');
+    }
+
+    /**
      * Поиск агентов по имени, почте, телефону
      *
      * @param $query

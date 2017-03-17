@@ -56,6 +56,16 @@ class User extends EloquentUser implements AuthenticatableContract, CanResetPass
     }
 
     /**
+     * Получаем список заявок которые обрабатывает или обрабатывал админ или акк. менеджер
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function requestsPayments()
+    {
+        return $this->hasMany('App\Models\RequestPayment', 'handler_id', 'id');
+    }
+
+    /**
      * Исключенные пользователи из выборки лидов в Obtained leads
      * (например продавци агента)
      *

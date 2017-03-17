@@ -151,6 +151,12 @@
                                     <a href="{{ route('agent.privateGroup.index') }}"> {{ trans('navbar.agent_private_group') }} </a>
                                 </li>
                                 <hr>
+                                @if(Sentinel::hasAccess(['agent.credits.index']))
+                                    <li>
+                                        <a href="{{ route('agent.credits.index') }}"> {{ trans('navbar.nav_credits') }} </a>
+                                    </li>
+                                    <hr>
+                                @endif
                             @endif
 
                             <li>
