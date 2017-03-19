@@ -125,18 +125,8 @@ class AgentPrivateGroupsController extends AdminController
      */
     public function confirmAgent(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'revenue_share' => 'required|numeric|min:1|max:100'
-        ]);
-
-        if($validator->fails()) {
-            return response()->json(array(
-                'errors' => $validator->errors()
-            ));
-        }
         $owner_id = (int)$request->input('owner');
         $agent_id = (int)$request->input('id');
-        $revenue_share = (float)$request->input('revenue_share');
 
         if( !$owner_id ) {
             abort(403, 'Wrong owner id');
@@ -151,7 +141,6 @@ class AgentPrivateGroupsController extends AdminController
 
         if(isset($group->id)) {
             $group->status = AgentsPrivateGroups::AGENT_ACTIVE;
-            $group->revenue_share = $revenue_share;
             $group->save();
         } else {
             return response()->json(false);
