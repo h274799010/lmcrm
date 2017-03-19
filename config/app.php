@@ -190,6 +190,7 @@ return [
         App\Providers\NoticeServiceProvider::class,
         App\Providers\UserServiceProvider::class,
         App\Providers\MessageServiceProvider::class,
+        App\Providers\RequestsPaymentsServiceProvider::class,
 
         /*
          * Статистика
@@ -262,6 +263,7 @@ return [
         'Notice' => App\Facades\Notice::class,
         'Statistic' => App\Facades\Statistic::class,
         'Messages' => App\Facades\Messages::class,
+        'RequestsPayments' => App\Facades\RequestsPayments::class,
     ],
 
 ];

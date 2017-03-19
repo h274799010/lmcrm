@@ -227,6 +227,9 @@ class AgentSalesmanLeadController extends LeadController
                                 $auctionData = $auctionData->where('created_at', '>=', $start . ' 00:00:00')
                                     ->where('created_at', '<=', $end . ' 23:59:59');
                                 break;
+                            case 'spheres':
+                                $auctionData = $auctionData->where('sphere_id', '=', $eFVal);
+                                break;
                             default:
                                 ;
                         }

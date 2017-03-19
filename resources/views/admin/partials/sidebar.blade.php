@@ -99,6 +99,25 @@
             </li>
 
             <li>
+                <a href="#">
+                    <i class="fa fa-money" aria-hidden="true"></i> Credits
+                    <span class="fa arrow"></span>
+                </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('admin.credits.to.confirmation') }}">
+                            <i class="fa fa-file-o "></i> To confirmation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.credits.all') }}">
+                            <i class="fa fa-file-text-o"></i> All credits
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
                 <a href="{{ route('admin.statistic.agents') }}">
                     <i class="fa fa-bar-chart"></i> {{ trans('admin/sidebar.statistic') }}
                     <span class="fa arrow"></span>

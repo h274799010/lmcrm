@@ -292,6 +292,17 @@ class AgentController extends BaseController
      */
     public function addAgentInPrivateGroup(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'revenue_share' => 'required|numeric|min:1|max:100'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(array(
+                'status' => 'fail',
+                'errors' => $validator->errors()
+            ));
+        }
+
         $agent_id = (int)$request['id'];
 
         if( !$agent_id ) {
@@ -300,11 +311,13 @@ class AgentController extends BaseController
 
         $agent = Sentinel::getUser();
         $attachAgent = Agent::find($agent_id);
+        $revenue_share = (float)$request->input('revenue_share');
 
         $privateGroup = new AgentsPrivateGroups();
         $privateGroup->agent_owner_id = $agent->id;
         $privateGroup->agent_member_id = $attachAgent->id;
         $privateGroup->status = 0;
+        $privateGroup->revenue_share = $revenue_share;
         $privateGroup->save();
 
         return response()->json([

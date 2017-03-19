@@ -11,6 +11,21 @@
             Deals to confirmation
         </h3>
     </div>
+    <div class="row">
+        <div class="col-md-6 col-xs-12" id="accManagerListFilter">
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="control-label _col-sm-3">@lang('statistic.spheres')</label>
+                    <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
+                        <option value=""></option>
+                        @foreach($spheres as $sphere)
+                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
     <table class="table table-striped table-hover" id="dealsTable">
         <thead>
         <tr>

@@ -58,6 +58,14 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
         // передача лида агентом другому агенту группы
         Route::post('lead/member/open', ['as' => 'agent.lead.member.open', 'uses' => 'Agent\LeadController@openForMember']);
 
+        Route::get('credits/index', ['as' => 'agent.credits.index', 'uses' => 'Agent\RequestsPaymentsController@index']);
+        Route::post('credits/replenishment/create', ['as' => 'agent.credits.replenishment.create', 'uses' => 'Agent\RequestsPaymentsController@replenishmentCreate']);
+        Route::post('credits/withdrawal/create', ['as' => 'agent.credits.withdrawal.create', 'uses' => 'Agent\RequestsPaymentsController@withdrawalCreate']);
+        Route::get('credits/detail/{id}', ['as' => 'agent.credits.detail', 'uses' => 'Agent\RequestsPaymentsController@detail']);
+        Route::post('credits/checkUpload',['as'=>'agent.credits.checkUpload', 'uses' => 'Agent\RequestsPaymentsController@checkUpload']);
+        Route::post('credits/sendMessage',['as'=>'agent.credits.sendMessage', 'uses' => 'Agent\RequestsPaymentsController@sendMessage']);
+        Route::post('credits/checkDelete',['as'=>'agent.credits.checkDelete', 'uses' => 'Agent\RequestsPaymentsController@checkDelete']);
+        Route::post('credits/changeStatus',['as'=>'agent.credits.changeStatus', 'uses' => 'Agent\RequestsPaymentsController@changeStatus']);
     });
 
 

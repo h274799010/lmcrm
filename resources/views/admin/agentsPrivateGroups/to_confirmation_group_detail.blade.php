@@ -56,42 +56,6 @@
         </tbody>
     </table>
 
-    {{-- Модальное окно для указания revenue для агента в группе --}}
-    <div class="modal fade" id="modalRevenueUser" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
-                <form id="revenueUserForm" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">
-                            Owner revenue share:
-                        </h4>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="agentMember">
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <div class="controls">
-                                    {{ Form::text('revenue_share', NULL, array('class' => 'form-control', 'id' => 'ownerRevenueShare')) }}
-                                    <span class="help-block" id="errorsRevenueShare">{{ $errors->first('revenue_share', ':message') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default modal-cancel" data-dismiss="modal">
-                            Cancel
-                        </button>
-                        <button class="btn btn-success btnConfirmAgentApply" type="submit">
-                            Confirm
-                        </button>
-                    </div>
-                </form>
-
-            </div>
-        </div>
-    </div>
-
 @stop
 
 {{-- Styles --}}
@@ -141,57 +105,45 @@
             });
         }
 
-        $(document).ready(function () {
-            $(document).on('click', '.btnConfirmAgent', function (e) {
-                e.preventDefault();
+        function confirmAgent($this) {
+            var params = {
+                _token: _token,
+                owner: owner,
+                id: $this.data('id')
+            };
 
-                $('#modalRevenueUser').find(':input').val('');
-                $('#agentMember').val( $(this).data('id') );
-                $('#modalRevenueUser').modal('show');
-            });
+            $.post('{{ route('admin.groups.agent.confirm') }}', params, function (data) {
+                var errors = data.errors;
 
-            $(document).on('keyup change', '#ownerRevenueShare', function (e) {
-                e.preventDefault();
-
-                $(this).closest('.controls').removeClass('has-error');
-                $('#errorsRevenueShare').empty();
-            });
-
-            $(document).on('click', '.btnConfirmAgentApply', function (e) {
-                e.preventDefault();
-
-                var params = {
-                    _token: _token,
-                    owner: owner,
-                    id: $('#agentMember').val(),
-                    revenue_share: $('#ownerRevenueShare').val()
-                };
-
-                $.post('{{ route('admin.groups.agent.confirm') }}', params, function (data) {
-                    var errors = data.errors;
-
-                    if(errors != undefined && Object.keys(errors).length > 0) {
-                        var html = '';
-                        $.each(errors, function (field, error) {
-                            if(error.length > 0) {
-                                $.each(error, function (i, msg) {
-                                    html += '<span>'+msg+'</span>';
-                                });
-                            }
-                        });
-                        $('#errorsRevenueShare').html(html);
-                        $('#errorsRevenueShare').closest('.controls').addClass('has-error');
-                    } else {
-                        if(data == true) {
-                            window.location.reload();
-                        } else {
-                            bootbox.dialog({
-                                message: 'Group not found',
-                                show: true
+                if(errors != undefined && Object.keys(errors).length > 0) {
+                    var html = '';
+                    $.each(errors, function (field, error) {
+                        if(error.length > 0) {
+                            $.each(error, function (i, msg) {
+                                html += '<span>'+msg+'</span>';
                             });
                         }
+                    });
+                    $('#errorsRevenueShare').html(html);
+                    $('#errorsRevenueShare').closest('.controls').addClass('has-error');
+                } else {
+                    if(data == true) {
+                        window.location.reload();
+                    } else {
+                        bootbox.dialog({
+                            message: 'Group not found',
+                            show: true
+                        });
                     }
-                });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('.btnConfirmAgent').confirmation({
+                onConfirm: function() {
+                    confirmAgent($(this));
+                }
             });
             $('.btnRejectAgent').confirmation({
                 onConfirm: function() {
