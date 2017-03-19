@@ -27,10 +27,20 @@
                 Period:
                 <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter reportrange" id="reportrange" value="" />
             </label>
+            @if(count($spheres) > 0)
+                <label>
+                    Sphere
+                    <select data-name="spheres" class="selectbox dataTables_filter">
+                        <option></option>
+                        @foreach($spheres as $sphere)
+                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            @endif
             <label>
                 Show
                 <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
-                    <option></option>
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>

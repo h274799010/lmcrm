@@ -150,52 +150,11 @@ class LeadController extends AgentController {
      *
      * @return object
      */
-    public function obtain(){
+    public function obtain()
+    {
+        $spheres = $this->spheres;
 
-
-        $auctionData = Auction::
-                              where('status', 0)
-                            ->where( 'user_id', 6 )
-                            ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id')
-                            ->with(
-                                [
-                                    'lead' => function($query)
-                                    {
-                                        $query
-                                            ->select('id', 'opened', 'customer_id', 'name', 'comment')
-
-                                        ;
-                                    },
-                                    'sphere' => function($query){
-                                        $query
-                                            ->select('id', 'name')
-                                        ;
-                                    },
-                                    'maskName' => function($query){
-                                        $query
-                                            ->select('id', 'name')
-                                        ;
-                                    }
-                                ])
-                            ->get()
-//                            ->toJson()
-                            ->toArray()
-        ;
-
-
-        if( $this->spheres ){
-//                $attr['lead_attr'] = $this->sphere->leadAttr;
-//                $attr['agent_attr'] = $this->sphere->attributes;
-            $spheres = $this->spheres->load('filterAttr', 'leadAttr');
-
-        }else{
-            $attr = false;
-        }
-
-        $view = 'agent.lead.obtain';
-
-        return view($view)
-//            ->with('attr', $attr)
+        return view('agent.lead.obtain')
             ->with('spheres', $spheres);
     }
 
@@ -253,6 +212,9 @@ class LeadController extends AgentController {
 
                                 $auctionData = $auctionData->where('created_at', '>=', $start . ' 00:00:00')
                                     ->where('created_at', '<=', $end . ' 23:59:59');
+                                break;
+                            case 'spheres':
+                                $auctionData = $auctionData->where('sphere_id', '=', $eFVal);
                                 break;
                             default:
                                 ;
