@@ -44,6 +44,21 @@
         </div>
     </div>
 
+    @if($requestPayment->type == \App\Models\RequestPayment::TYPE_WITHDRAWAL)
+        <span data-status="{{ \App\Models\RequestPayment::STATUS_REJECTED }}" class="btn btn-raised btn-danger btnStatusChange
+            @if( $requestPayment->status != \App\Models\RequestPayment::STATUS_PROCESS )
+                    disabled
+                @endif">
+            Reject
+        </span>
+        <span data-status="{{ \App\Models\RequestPayment::STATUS_CONFIRMED }}" class="btn btn-raised btn-success btnStatusChange
+            @if( $requestPayment->status != \App\Models\RequestPayment::STATUS_PROCESS )
+                    disabled
+                @endif">
+            Approve
+        </span>
+    @endif
+
     <h4>Uploaded documents</h4>
     <div class="row" id="filesListGroup">
         @if(isset($requestPayment->files) && count($requestPayment->files) > 0)
@@ -125,6 +140,40 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalStatus" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <form id="requestPaymentStatusForm" method="post">
+                    {{ csrf_field() }}
+                    <input type="hidden" id="statusValue" name="status">
+                    <input type="hidden" id="statusValue" name="request_payment_id" value="{{ $requestPayment->id }}">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">
+                            Withdrawal:
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                Do you really want to replenish an agent account for <strong>{{ $requestPayment->amount }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default modal-cancel" data-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button class="btn btn-success" type="submit">
+                            OK
+                        </button>
+                    </div>
+                </form>
+
             </div>
         </div>
     </div>
@@ -393,6 +442,40 @@
                         });
                         bootbox.dialog({
                             message: html,
+                            show: true
+                        });
+                    }
+                });
+            });
+
+            $(document).on('click', '.btnStatusChange', function (e) {
+                e.preventDefault();
+
+                if($(this).hasClass('disabled')) {
+                    return false;
+                }
+
+                var html = 'Do you confirm the withdrawal of <strong>{{ $requestPayment->amount }}</strong> credits from your account?';
+                if($(this).data('status') == '{{ \App\Models\RequestPayment::STATUS_REJECTED }}') {
+                    html = 'Do you really want to cancel the withdrawal of money from the account?';
+                }
+
+                $('#statusValue').val($(this).data('status'));
+                $('#modalStatus').find('.modal-body').html(html);
+                $('#modalStatus').modal('show');
+            });
+
+            $(document).on('submit', '#requestPaymentStatusForm', function (e) {
+                e.preventDefault();
+
+                var params = $(this).serialize();
+
+                $.post('{{ route('agent.credits.changeStatus') }}', params, function (data) {
+                    if(data == true) {
+                        window.location.reload();
+                    } else {
+                        bootbox.dialog({
+                            message: 'Server error!',
                             show: true
                         });
                     }

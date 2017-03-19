@@ -15,7 +15,12 @@ use Validator;
 
 class RequestsPayments
 {
-    // Создание запроса
+    /**
+     * Создание запроса на пополнение
+     *
+     * @param Request $request
+     * @return array
+     */
     public function createReplenishmentRequestPayment(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -44,7 +49,58 @@ class RequestsPayments
         );
     }
 
-    // Смена статуса запроса
+    /**
+     * Создание запроса на снятие
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function createWithdrawalCreateRequestPayment(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'withdrawal' => 'required|numeric|min:' . RequestPayment::MINIMUM_AMOUNT,
+            'requisites' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return array(
+                'status' => 'errors',
+                'errors' => $validator->errors()
+            );
+        }
+
+        $user = Agent::with('wallet')->find(Sentinel::getUser()->id);
+        if(!$user->wallet->isPossible($request->input('withdrawal'))) {
+            // Если у агента недостаточно средств на счету - выводим сообщение об ошибке
+            return array(
+                'status' => 'errors',
+                'errors' => [
+                    'withdrawal' => [
+                        0 => 'Insufficient funds on account'
+                    ]
+                ]
+            );
+        }
+
+        $requestPayment = new RequestPayment();
+        $requestPayment->amount = $request->input('withdrawal');
+        $requestPayment->initiator_id = $user->id;
+        $requestPayment->status = RequestPayment::STATUS_WAITING;
+        $requestPayment->type = RequestPayment::TYPE_WITHDRAWAL;
+        $requestPayment->save();
+
+        return array(
+            'status' => 'success',
+            'result' => $requestPayment
+        );
+    }
+
+    /**
+     * Смена статуса запроса
+     *
+     * @param Request $request
+     * @return bool
+     */
     public function setStatusRequestPayment(Request $request)
     {
         $request_payment_id = (int)$request->input('request_payment_id');
@@ -66,13 +122,23 @@ class RequestsPayments
         if($status == RequestPayment::STATUS_CONFIRMED) {
             $requestPayment->status = RequestPayment::STATUS_CONFIRMED;
 
-            $transactionInfo =
-                PayMaster::changeManual(
-                    Sentinel::getUser()->id,  // пользователь которыз инициирует транзакцию
-                    $initiator->id,           // пользователь с кошельком которого происходят изменения
-                    'buyed',    // тип кошелька агента ( buyed, earned, wasted )
-                    $requestPayment->amount          // величина на которую изменяется сумма кошелька
-                );
+            if($requestPayment->type == RequestPayment::TYPE_WITHDRAWAL) {
+                $transaction = PayMaster::transaction($initiator->id);
+                $transactionInfo = PayMaster::pay([
+                    'transaction' => $transaction->id,
+                    'user_id' => $initiator->id,
+                    'type' => 'withdrawal',
+                    'amount' => $requestPayment->amount
+                ]);
+            } else {
+                $transactionInfo =
+                    PayMaster::changeManual(
+                        Sentinel::getUser()->id,  // пользователь которыз инициирует транзакцию
+                        $initiator->id,           // пользователь с кошельком которого происходят изменения
+                        'buyed',    // тип кошелька агента ( buyed, earned, wasted )
+                        $requestPayment->amount          // величина на которую изменяется сумма кошелька
+                    );
+            }
         }
         else {
             $requestPayment->status = RequestPayment::STATUS_REJECTED;
@@ -82,7 +148,11 @@ class RequestsPayments
         return true;
     }
 
-    // Получение списка отправленных запросов агентом
+    /**
+     * Получение списка отправленных запросов агентом
+     *
+     * @return array
+     */
     public function getFiledRequestsPayment()
     {
         $user = Agent::find(Sentinel::getUser()->id);
@@ -106,7 +176,11 @@ class RequestsPayments
         );
     }
 
-    // Получение списка обработанных запросов для акк. менеджера / админа
+    /**
+     * Получение списка обработанных запросов для акк. менеджера / админа
+     *
+     * @return array
+     */
     public function getWaitingRequestsPayment()
     {
         $user = Sentinel::getUser();
@@ -132,7 +206,11 @@ class RequestsPayments
         );
     }
 
-    // Получение списка обработанных запросов для акк. менеджера / админа
+    /**
+     * Получение списка обработанных запросов для акк. менеджера / админа
+     *
+     * @return array
+     */
     public function getAllRequestsPayment()
     {
         $user = Sentinel::getUser();
@@ -168,18 +246,19 @@ class RequestsPayments
         );
     }
 
-    // Получение деталей для агента
-    public function getAgentDetail()
-    {}
-
-    // Получение деталей для админа акк. менеджера
+    /**
+     * Получение деталей по запросу
+     *
+     * @param $id
+     * @return array
+     */
     public function getDetail($id)
     {
         $requestPayment = RequestPayment::find($id);
 
         $user = Sentinel::getUser();
 
-        if(empty($requestPayment->handler_id)) {
+        if(empty($requestPayment->handler_id) && !$user->inRole('agent')) {
             $requestPayment->handler_id = $user->id;
             $requestPayment->status = RequestPayment::STATUS_PROCESS;
             $requestPayment->save();
@@ -222,6 +301,12 @@ class RequestsPayments
         );
     }
 
+    /**
+     * Загрузка чека
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function checkUpload(Request $request)
     {
         $request_payment_id = $request->input('request_payment_id');
@@ -300,6 +385,12 @@ class RequestsPayments
         });
     }
 
+    /**
+     * Отправка сообщений
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -337,6 +428,12 @@ class RequestsPayments
         }
     }
 
+    /**
+     * Блокирование удаления чека
+     *
+     * @param $id
+     * @return bool
+     */
     public function blockCheckDelete($id)
     {
         $check = CheckRequestPayment::find($id);
@@ -351,6 +448,12 @@ class RequestsPayments
         }
     }
 
+    /**
+     * Удаление чека
+     *
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function checkDelete($id)
     {
         $check = CheckRequestPayment::find($id);

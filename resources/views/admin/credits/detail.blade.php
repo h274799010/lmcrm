@@ -45,18 +45,20 @@
     </div>
 
 
-    <span data-status="{{ \App\Models\RequestPayment::STATUS_REJECTED }}" class="btn btn-raised btn-danger btnStatusChange
-        @if( $requestPayment->status != \App\Models\RequestPayment::STATUS_PROCESS )
-            disabled
-        @endif">
-        Reject
-    </span>
-    <span data-status="{{ \App\Models\RequestPayment::STATUS_CONFIRMED }}" class="btn btn-raised btn-success btnStatusChange
-        @if( $requestPayment->status != \App\Models\RequestPayment::STATUS_PROCESS )
-            disabled
-        @endif">
-        Approve
-    </span>
+    @if($requestPayment->type == \App\Models\RequestPayment::TYPE_REPLENISHMENT)
+        <span data-status="{{ \App\Models\RequestPayment::STATUS_REJECTED }}" class="btn btn-raised btn-danger btnStatusChange
+            @if( $requestPayment->status != \App\Models\RequestPayment::STATUS_PROCESS )
+                disabled
+            @endif">
+            Reject
+        </span>
+        <span data-status="{{ \App\Models\RequestPayment::STATUS_CONFIRMED }}" class="btn btn-raised btn-success btnStatusChange
+            @if( $requestPayment->status != \App\Models\RequestPayment::STATUS_PROCESS )
+                disabled
+            @endif">
+            Approve
+        </span>
+    @endif
 
     <h4>Uploaded documents</h4>
     <div class="row" id="filesListGroup">

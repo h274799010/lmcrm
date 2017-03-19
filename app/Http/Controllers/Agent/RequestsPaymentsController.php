@@ -37,6 +37,17 @@ class RequestsPaymentsController extends AgentController
         }
     }
 
+    public function withdrawalCreate(Request $request)
+    {
+        $result = RequestsPayments::createWithdrawalCreateRequestPayment($request);
+
+        if($request->ajax()){
+            return response()->json($result);
+        } else {
+            return redirect()->back();
+        }
+    }
+
     public function detail($id)
     {
         $requestPayment = RequestsPayments::getDetail($id);
@@ -63,5 +74,12 @@ class RequestsPaymentsController extends AgentController
         $result = RequestsPayments::checkDelete($request->input('id'));
 
         return $result;
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $result = RequestsPayments::setStatusRequestPayment($request);
+
+        return response()->json($result);
     }
 }

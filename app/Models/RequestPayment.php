@@ -23,6 +23,11 @@ class RequestPayment extends Model
     const STATUS_REJECTED = 4;  // Отвергнуто
 
     /**
+     * Минимальная сумма для снятия
+     */
+    const MINIMUM_AMOUNT = 1000;
+
+    /**
      * Пользователь который обработал (обрабатывает) заявку
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne

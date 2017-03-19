@@ -55,7 +55,7 @@
                             <td>{{ $requestsPayment->created_at->format('d/m/Y H:i') }}</td>
                             <td>{{ $requestsPayment->updated_at->format('d/m/Y H:i') }}</td>
                             <td>
-                                @if($requestsPayment->status == \App\Models\RequestPayment::STATUS_WAITING)
+                                @if($requestsPayment->status == \App\Models\RequestPayment::STATUS_WAITING && $requestsPayment->type == \App\Models\RequestPayment::TYPE_REPLENISHMENT)
                                     -
                                 @else
                                     <a href="{{ route('agent.credits.detail', [ 'id'=>$requestsPayment->id ]) }}" class="btn-info-request"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
@@ -112,7 +112,7 @@
     <div class="modal fade" id="modalWithdrawal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-sm" role="document">
             <div class="modal-content">
-                <form id="revenueUserForm" method="post">
+                <form id="withdrawalForm" method="post">
                     {{ csrf_field() }}
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -125,8 +125,15 @@
                             <div class="col-xs-12">
                                 <div class="controls">
                                     {{ Form::label('withdrawal', 'Amount', array('class' => 'control-label')) }}
-                                    {{ Form::text('withdrawal', NULL, array('class' => 'form-control', 'id' => 'ownerRevenueShare')) }}
-                                    <span class="help-block" id="errorsRevenueShare">{{ $errors->first('revenue_share', ':message') }}</span>
+                                    {{ Form::text('withdrawal', NULL, array('class' => 'form-control', 'id' => 'withdrawal')) }}
+                                    <span class="help-block" id="withdrawalErrors">{{ $errors->first('withdrawal', ':message') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="controls">
+                                    {{ Form::label('requisites', 'Requisites', array('class' => 'control-label')) }}
+                                    {{ Form::textarea('requisites', NULL, array('class' => 'form-control', 'id' => 'requisites')) }}
+                                    <span class="help-block" id="requisitesErrors">{{ $errors->first('requisites', ':message') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -200,8 +207,8 @@
             $('#modalWithdrawal').modal('show');
         });
 
-        $(document).on('change keyup', '#inpReplenishment', function () {
-            $('#errorsInpReplenishment').empty();
+        $(document).on('change keyup', '.modal :input', function () {
+            $(this).siblings('.help-block').empty();
             $(this).closest('.controls').removeClass('has-error');
         });
 
@@ -228,6 +235,35 @@
                     });
                     $('#errorsInpReplenishment').html(html);
                     $('#errorsInpReplenishment').closest('.controls').addClass('has-error');
+                }
+            });
+        });
+
+        $(document).on('submit', '#withdrawalForm', function (e) {
+            e.preventDefault();
+
+            var params = $(this).serialize();
+
+            $.post('{{ route('agent.credits.withdrawal.create') }}', params, function (data) {
+                if(data.status == 'success') {
+                    window.location.reload();
+                }
+                else if(data.status == 'fail') {
+                    bootbox.dialog({
+                        message: data.errors,
+                        show: true
+                    });
+                }
+                else if (data.status == 'errors') {
+                    $.each(data.errors, function (i, error) {
+                        var html = '';
+                        $.each(error, function (ind, mess) {
+                            if(ind > 0) html += '<br>';
+                            html += mess;
+                        });
+                        $('#'+i+'Errors').html(html);
+                        $('#'+i+'Errors').closest('.controls').addClass('has-error');
+                    });
                 }
             });
         });
