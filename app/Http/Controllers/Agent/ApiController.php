@@ -163,7 +163,7 @@ class ApiController extends Controller
                         'lead' => function($query)
                         {
                             $query
-                                ->select('id', 'opened', 'email', 'sphere_id', 'name', 'created_at')
+                                ->select('id', 'opened', 'email', 'sphere_id', 'name', 'operator_processing_time', 'created_at')
                             ;
                         },
                         'sphere' => function($query){
@@ -199,8 +199,6 @@ class ApiController extends Controller
 
             $lastItem = Auction::find( $lastItemId );
 
-//            Log::info($lastItem);
-
             // выборка лидов и данных для аукциона
             $auctionList = Auction::
                   where( 'status', 0 )
@@ -233,7 +231,6 @@ class ApiController extends Controller
                 ->get()
             ;
 
-//            dd(0);
         }
 
 
@@ -266,21 +263,10 @@ class ApiController extends Controller
         });
 
 
-//        $data =
-//        [
-//            'id' => $this->user->id,
-//            'email' => $this->user->email,
-//            'wallet' => $this->wallet->earned + $this->wallet->buyed,
-//            'wasted' => $this->wallet->wasted,
-//            'auctionData' => $auctionData,
-//
-//        ];
-
         $this->userData['auctionData'] = $auctionData;
         $this->userData['lastItemId'] = $lastItemId;
 
 
-//        return response()->json($data);
         return response()->json( $this->userData );
 
     }
@@ -362,34 +348,135 @@ class ApiController extends Controller
 
 
 
-    // страница открытых лидов
-    public function openedLeads()
+    /**
+     * Данные открытых лидов
+     *
+     *
+     * @param  Request  $request
+     *
+     * $return JSON
+     */
+    public function openedLeads( Request $request )
     {
+
+        // лиды которые нужно пропустить
+        $offset = (int)$request->offset;
+
+        // id последнего итема на апликации
+        $lastItemId = (int)$request->lastItemId;
+
+        // id пользователя
+        $userId = $this->user->id;
+
+//        Log::info($offset);
 
         // Выбираем все открытые лиды агента с дополнительными данными
         $openLeads = OpenLeads::
-              where( 'agent_id', $this->user->id )
+              where( 'agent_id', $userId )
             ->with('maskName2')
-            ->with( ['lead' => function( $query ){
-                $query
-                    ->with('sphereStatuses')
-                    ->with('phone');
-            }])
+            ->with(
+                [
+                    'lead' => function( $query ){
+                        $query
+                            ->with('sphereStatuses', 'sphere', 'phone');
+                    },
+                    'statusInfo',
+                    'closeDealInfo'
+                ]
+            )
             ->orderBy('created_at', 'desc')
+            ->skip( $offset )
+            ->take(10)
             ->get();
 
+//        Log::info($openLeads[3]);
 
-        $data =
-            [
-                'id' => $this->user->id,
-                'email' => $this->user->email,
-                'wallet' => $this->wallet->earned + $this->wallet->buyed,
-                'wasted' => $this->wallet->wasted,
-                'openLeads' => $openLeads,
-                'statuses' => $openLeads[0]['lead']['sphereStatuses']['statuses'],
-            ];
 
-        return response()->json($data);
+        // добавляем лиду данные по маскам
+        $openLeadsData = [];
+        $openLeads->each(function( $openLead ) use(&$openLeadsData, $userId){
+
+            // добавляем лиду атрибуты фильтра
+            $openLead->lead->getFilter();
+
+            // добавляем лиду атрибуты фильтра
+            $openLead->lead->getAdditional();
+
+//            Log::info( $openLead->lead->sphereStatuses );
+
+
+            $statusInfo = $openLead->statusInfo;
+
+            // данные по статусу
+            $statusesData =
+                [
+                    1 => [],
+                    2 => [],
+                    3 => [],
+                    4 => [],
+                    5 => [],
+                ];
+
+            // обработка статусов
+            $openLead->lead->sphereStatuses->statuses->each( function($status) use( &$statusesData, $statusInfo ){
+
+                $statusData =
+                    [
+                        'id' => $status->id,
+                        'name' => $status->stepname,
+                        'comment' => $status->comment,
+                        'additional_type' => $status->additional_type,
+//                        'lock' => 'true',
+                    ];
+
+
+
+
+
+                // проверка текущего статуса
+                if( $statusInfo && $status->id == $statusInfo->id){
+                    // если текущий статус
+
+                    // ставим true
+                    $statusData['lock'] = 'true';
+
+                }else{
+                    // если это не текущий статус
+
+                    // ставим false
+                    $statusData['lock'] = 'false';
+                }
+
+
+                if( $status->type == 1){
+
+                    if( $statusInfo && $statusInfo->position > $status->position ){
+                        // ставим true
+                        $statusData['lock'] = 'true';
+                    }
+                }
+
+
+                $statusesData[ $status->type ][ $status->position - 1 ] = $statusData;
+
+            });
+
+            $openLead->statuses = $statusesData;
+
+            $openLeadsData[] = $openLead;
+
+            return true;
+        });
+
+
+        Log::info($openLeadsData[3]->statuses);
+
+
+        $this->userData['openedLeads'] = $openLeadsData;
+        $this->userData['lastItemId'] = $lastItemId;
+        $this->userData['statuses'] = $openLeads->count() ? $openLeads[0]['lead']['sphereStatuses']['statuses'] : 'false';
+
+        return response()->json( $this->userData );
     }
 
 
@@ -404,7 +491,7 @@ class ApiController extends Controller
     public function openLead( Request $request )
     {
 
-        Log::info('open start');
+//        Log::info('open start');
 
         $lead_id = (int)$request->lead_id;
 
