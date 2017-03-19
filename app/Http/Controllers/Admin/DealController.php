@@ -50,7 +50,11 @@ class DealController extends Controller
      */
     public function AllDeals()
     {
-        return view('admin.deal.all_deals');
+        $spheres = Sphere::where('status', '=', 1)->get();
+
+        return view('admin.deal.all_deals', [
+            'spheres' => $spheres
+        ]);
     }
 
     /**
@@ -62,15 +66,41 @@ class DealController extends Controller
      */
     public function AllDealsData(Request $request)
     {
+        $allDeals = ClosedDeals::query();
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
+
+                    if($eFVal != 'empty' && $eFVal != '') {
+                        // проверяем ключ
+                        switch($eFKey) {
+                            case 'sphere':
+                                $leadIds = Lead::where('sphere_id', '=', $eFVal)->get()->lists('id')->toArray();
+                                $openLeadIds = OpenLeads::whereIn('lead_id', $leadIds)->get()->lists('id')->toArray();
+                                $allDeals = $allDeals->whereIn('open_lead_id', $openLeadIds);
+                                break;
+                            default:
+                                ;
+                        }
+                    }
+                }
+            }
+        }
         // выбираем все сделки вместе с открытыми лидами и данными агентов
-        $allDeals = ClosedDeals::with(
-                [
-                    'openLeads'=>function( $query ){
-                        $query->with('lead');
-                    },
-                    'userData'
-                ]
-            );
+        $allDeals = $allDeals->with(
+            [
+                'openLeads'=>function( $query ){
+                    $query->with('lead');
+                },
+                'userData'
+            ]
+        );
 
         return Datatables::of( $allDeals )
             ->setTransformer(new AllDealsTransformer())
@@ -84,7 +114,11 @@ class DealController extends Controller
      */
     public function ToConfirmationDeals()
     {
-        return view('admin.deal.to_confirmation_deals');
+        $spheres = Sphere::where('status', '=', 1)->get();
+
+        return view('admin.deal.to_confirmation_deals', [
+            'spheres' => $spheres
+        ]);
     }
 
     /**
@@ -97,8 +131,33 @@ class DealController extends Controller
     public function ToConfirmationDealsData(Request $request)
     {
         // выбираем все сделки вместе с открытыми лидами и данными агентов
-        $allDeals = ClosedDeals::where('status', 4)
-            ->with(
+        $allDeals = ClosedDeals::where('status', 4);
+        if (count($request->only('filter'))) {
+            // если фильтр есть
+
+            // получаем данные фильтра
+            $eFilter = $request->only('filter')['filter'];
+
+            if(!empty($eFilter)) {
+                // перебираем данные и проверяем на соответствие
+                foreach ($eFilter as $eFKey => $eFVal) {
+
+                    if($eFVal != 'empty' && $eFVal != '') {
+                        // проверяем ключ
+                        switch($eFKey) {
+                            case 'sphere':
+                                $leadIds = Lead::where('sphere_id', '=', $eFVal)->get()->lists('id')->toArray();
+                                $openLeadIds = OpenLeads::whereIn('lead_id', $leadIds)->get()->lists('id')->toArray();
+                                $allDeals = $allDeals->whereIn('open_lead_id', $openLeadIds);
+                                break;
+                            default:
+                                ;
+                        }
+                    }
+                }
+            }
+        }
+        $allDeals = $allDeals->with(
                 [
                     'openLeads'=>function( $query ){
                         $query->with('lead');
