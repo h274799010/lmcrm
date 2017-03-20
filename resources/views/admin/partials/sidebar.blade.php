@@ -41,21 +41,21 @@
                     <span class="fa arrow"></span>
                 </a>
                 <ul class="nav collapse">
+                    {{--<li>--}}
+                        {{--<a href="{{ route('admin.report.all') }}">--}}
+                            {{--<i class="fa fa-file-o "></i> All--}}
+                        {{--</a>--}}
+                    {{--</li>--}}
                     <li>
-                        <a href="{{ route('admin.report.all') }}">
-                            <i class="fa fa-file-o "></i> All
+                        <a href="{{ route('admin.report.agents') }}">
+                            <i class="fa fa-file-o "></i> Agents
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ route('admin.report.system') }}">
-                            <i class="fa fa-file-o "></i> System
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.deals.all') }}">
-                            <i class="fa fa-file-text-o"></i> Account managers
-                        </a>
-                    </li>
+                    {{--<li>--}}
+                        {{--<a href="{{ route('admin.deals.all') }}">--}}
+                            {{--<i class="fa fa-file-text-o"></i> Account managers--}}
+                        {{--</a>--}}
+                    {{--</li>--}}
                 </ul>
             </li>
 

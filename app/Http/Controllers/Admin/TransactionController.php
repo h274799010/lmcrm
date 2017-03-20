@@ -1,6 +1,8 @@
 <?php namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
+use App\Models\Agent;
+use App\Models\RequestPayment;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
@@ -275,6 +277,76 @@ class TransactionController extends AdminController {
 //        dd('allTransactionReport');
 //        return 'true';
     }
+
+
+    /**
+     * Отчеты по всем ручным транзакциям
+     *
+     *
+     */
+    public function agentTransactionReport()
+    {
+
+        $role = Sentinel::findRoleById(2);
+
+        $users = $role->users()->with('roles')->lists('id');
+
+
+        $agents = Agent::whereIn( 'id', $users )->get();
+
+
+        $agents = $agents->map(function( $agent ){
+
+            $withdrew = RequestPayment::
+                  where('initiator_id', $agent->id)
+                ->where('status', 3)
+                ->where('type', 2)
+                ->sum('amount');
+
+            $agent->withdrew = $withdrew ? $withdrew : 0;
+
+
+            $replenishment = RequestPayment::
+                  where('initiator_id', $agent->id)
+                ->where('status', 3)
+                ->where('type', 1)
+                ->sum('amount');
+
+            $agent->replenishment = $replenishment ? $replenishment : 0;
+
+
+            return $agent;
+
+        });
+
+
+
+//        dd($agents[2]);
+
+//        return 'true';
+
+//        $allTransactions = PayInfo::getAllTransactions( ['manual'] );
+
+//        dd($allTransactions[0]);
+
+        return view('admin.transactionReport.agentsTransactionReports', [
+
+            'agents' => $agents
+
+//            'transactions' => $allTransactions
+//            'statuses' => \App\Facades\Lead::getStatuses('status'),
+//            'auctionStatuses' => \App\Facades\Lead::getStatuses('auctionStatus'),
+//            'paymentStatuses' => \App\Facades\Lead::getStatuses('paymentStatus'),
+//            'selectedFilters' => $selectedFilters
+        ]);
+
+
+//        dd($allTransactions);
+
+//        dd('allTransactionReport');
+//        return 'true';
+    }
+
 
 
     /**
