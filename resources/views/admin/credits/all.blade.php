@@ -27,7 +27,6 @@
             <th>Type</th>
             <th>Status</th>
             <th>Created</th>
-            <th>Updated</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -50,9 +49,8 @@
                                 </span>
                     </td>
                     <td>{{ $requestsPayment->created_at->format('d/m/Y H:i') }}</td>
-                    <td>{{ $requestsPayment->updated_at->format('d/m/Y H:i') }}</td>
                     <td>
-                        <a href="{{ route('admin.credits.detail', [ 'id'=>$requestsPayment->id ]) }}" class="btn-info-request"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        <a href="{{ route('admin.credits.detail', [ 'id'=>$requestsPayment->id ]) }}" class="btn btn-default">Detail</a>
                     </td>
                 </tr>
             @endforeach

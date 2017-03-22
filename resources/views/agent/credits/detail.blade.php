@@ -16,10 +16,6 @@
             <table class="table table-bordered table-striped table-hover table-requests">
                 <tbody>
                 <tr>
-                    <th>Initiator</th>
-                    <td>{{ $requestPayment->initiator->email }}</td>
-                </tr>
-                <tr>
                     <th>Amount</th>
                     <td><strong>{{ $requestPayment->amount }}</strong></td>
                 </tr>
@@ -34,10 +30,6 @@
                 <tr>
                     <th>Created</th>
                     <td>{{ $requestPayment->created_at->format('d/m/Y H:i') }}</td>
-                </tr>
-                <tr>
-                    <th>Updated</th>
-                    <td>{{ $requestPayment->updated_at->format('d/m/Y H:i') }}</td>
                 </tr>
                 </tbody>
             </table>

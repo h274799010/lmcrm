@@ -26,11 +26,9 @@
                 <thead>
                 <tr>
                     <th>Amount</th>
-                    <th>Handler</th>
                     <th>Type</th>
                     <th>Status</th>
                     <th>Created</th>
-                    <th>Updated</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -39,13 +37,6 @@
                     @foreach($requestsPayments as $requestsPayment)
                         <tr class="@if($requestsPayment->type == \App\Models\RequestPayment::TYPE_REPLENISHMENT) replenishment @else withdrawal @endif">
                             <td>{{ $requestsPayment->amount }}</td>
-                            <td>
-                                @if(isset($requestsPayment->handler))
-                                    {{ $requestsPayment->handler->email }}
-                                @else
-                                    -
-                                @endif
-                            </td>
                             <td><span class="badge badge-type">{{ $types[ $requestsPayment->type ] }}</span></td>
                             <td>
                                 <span class="badge badge-status-{{ $requestsPayment->status }}">
@@ -53,12 +44,11 @@
                                 </span>
                             </td>
                             <td>{{ $requestsPayment->created_at->format('d/m/Y H:i') }}</td>
-                            <td>{{ $requestsPayment->updated_at->format('d/m/Y H:i') }}</td>
                             <td>
                                 @if($requestsPayment->status == \App\Models\RequestPayment::STATUS_WAITING && $requestsPayment->type == \App\Models\RequestPayment::TYPE_REPLENISHMENT)
                                     -
                                 @else
-                                    <a href="{{ route('agent.credits.detail', [ 'id'=>$requestsPayment->id ]) }}" class="btn-info-request"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                    <a href="{{ route('agent.credits.detail', [ 'id'=>$requestsPayment->id ]) }}" class="btn btn-default">Detail</a>
                                 @endif
                             </td>
                         </tr>

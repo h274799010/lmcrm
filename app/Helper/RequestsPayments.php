@@ -158,7 +158,6 @@ class RequestsPayments
         $user = Agent::find(Sentinel::getUser()->id);
 
         $requestsPayments = $user->requestsPayments()
-            ->with('handler')
             ->orderBy('requests_payments.status', 'asc')
             ->orderBy('requests_payments.created_at', 'desc')
             ->get();
