@@ -889,8 +889,17 @@ class SphereController extends Controller {
         // находим всех агентов которым подходит этот лид по фильтру
         // исключаем агента добавившего лид
         $agents = $agentBitmasks
-            ->filterAgentsByMask( $prepareFields, $request->depositor )
-            ->get();
+            ->filterAgentsByMask( $prepareFields, $request->depositor );
+
+        // Если лид помечен как "Только для дилмейкеров" - убираем всех лидбаеров
+        $lead = Lead::find($request->leadId);
+        if(isset($lead->id) && $lead->specification == Lead::SPECIFICATION_FOR_DEALMAKER) {
+            $role = Sentinel::findRoleBySlug('leadbayer');
+            $excludedLeadbauers = $role->users()->lists('id')->toArray();
+            $agents = $agents->whereNotIn('user_id', $excludedLeadbauers);
+        }
+
+        $agents = $agents->get();
 
         // выбираем только id агентов
         $agentsId = $agents->pluck('user_id');
@@ -1277,8 +1286,15 @@ class SphereController extends Controller {
             // исключаем агента добавившего лид
             // + и его продавцов
             $agents = $agentBitmasks
-                ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id, $sphere_id, null, 1 )
-                ->orderBy('lead_price', 'desc')
+                ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id, $sphere_id, null, 1 );
+
+            if(isset($lead->id) && $lead->specification == Lead::SPECIFICATION_FOR_DEALMAKER) {
+                $role = Sentinel::findRoleBySlug('leadbayer');
+                $excludedLeadbauers = $role->users()->lists('id')->toArray();
+                $agents = $agents->whereNotIn('user_id', $excludedLeadbauers);
+            }
+
+            $agents = $agents->orderBy('lead_price', 'desc')
                 ->groupBy('user_id')
                 ->get();
 

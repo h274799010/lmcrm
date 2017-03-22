@@ -30,6 +30,16 @@
         </div>
     </div>
 
+    <div class="form-group {{ $errors->has('specification') ? 'has-error' : '' }}">
+        <div class="col-xs-10 group_checkbox">
+            <div class="checkbox">
+                {{ Form::checkbox('specification', 'specification', false, array('class' => '', 'id'=>'specification') ) }} <label for="specification">for dealmaker</label>
+                <span class="help-block">{{ $errors->first('specification', ':message') }}</span>
+            </div>
+
+        </div>
+    </div>
+
     <div class="form-group  {{ $errors->has('name') ? 'has-error' : '' }}">
         <div class="col-xs-10">
             {{ Form::text('name', null, array('class' => 'form-control','placeholder'=>trans('lead/form.name'),'required'=>'required','data-rule-minLength'=>'2')) }}
@@ -89,6 +99,10 @@
                 var $groupSelectWrap = $(document).find('#groupSelectWrap');
                 var $this = $(this);
 
+                if( $this.prop('checked') === true ) {
+                    $('#specification').prop('checked', false).trigger('change');
+                }
+
                 if($this.prop('checked') == true) {
                     var _token = '{{ csrf_token() }}';
 
@@ -111,7 +125,15 @@
                     $groupSelectWrap.hide().find('.wrap').empty();
                     $this.prop('disabled', false);
                 }
-            })
+            });
+            $(document).on('change', '#specification', function (e) {
+                e.preventDefault();
+                var $this = $(this);
+
+                if( $this.prop('checked') === true ) {
+                    $('#group').prop('checked', false).trigger('change');
+                }
+            });
         });
     </script>
 @endsection

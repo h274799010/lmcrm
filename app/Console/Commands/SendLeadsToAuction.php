@@ -9,6 +9,7 @@ use App\Models\Auction;
 use App\Models\Lead;
 use App\Models\LeadBitmask;
 use Illuminate\Console\Command;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 
 class SendLeadsToAuction extends Command
 {
@@ -49,8 +50,15 @@ class SendLeadsToAuction extends Command
         // исключаем агента добавившего лид
         // + и его продавцов
         $agents = $agentBitmasks
-            ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id, $lead->sphere_id, $lead->id, $lead->current_range )
-            ->orderBy('lead_price', 'desc')
+            ->filterAgentsByMask( $leadBitmaskData, $lead->agent_id, $lead->sphere_id, $lead->id, $lead->current_range );
+
+        if(isset($lead->id) && $lead->specification == Lead::SPECIFICATION_FOR_DEALMAKER) {
+            $role = Sentinel::findRoleBySlug('leadbayer');
+            $excludedLeadbauers = $role->users()->lists('id')->toArray();
+            $agents = $agents->whereNotIn('user_id', $excludedLeadbauers);
+        }
+
+        $agents = $agents->orderBy('lead_price', 'desc')
             ->groupBy('user_id')
             ->get();
 
