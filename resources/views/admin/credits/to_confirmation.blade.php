@@ -49,7 +49,6 @@
                                 </span>
                     </td>
                     <td>{{ $requestsPayment->created_at->format('d/m/Y H:i') }}</td>
-                    <td>{{ $requestsPayment->updated_at->format('d/m/Y H:i') }}</td>
                     <td>
                         <a href="{{ route('admin.credits.detail', [ 'id'=>$requestsPayment->id ]) }}" class="btn btn-default">Detail</a>
                     </td>
@@ -71,13 +70,11 @@
             background-color: #d9edf7;
             color: #31708f;
         }
-        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING }} {
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_PROCESSING }},
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_CONFIRMED }},
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_PAYMENT }} {
             background-color: #fcf8e3;
             color: #8a6d3b;
-        }
-        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_PROCESS }} {
-            background-color: #d9edf7;
-            color: #31708f;
         }
         .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_CONFIRMED }} {
             background-color: #dff0d8;

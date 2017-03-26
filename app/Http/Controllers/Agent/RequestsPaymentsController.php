@@ -48,11 +48,12 @@ class RequestsPaymentsController extends AgentController
         }
     }
 
-    public function detail($id)
+    public function detail(Request $request)
     {
+        $id = (int)$request->input('id');
         $requestPayment = RequestsPayments::getDetail($id);
 
-        return view('agent.credits.detail', $requestPayment);
+        return response()->json($requestPayment);
     }
 
     public function checkUpload(Request $request)

@@ -25,7 +25,7 @@ class AlterLeadsTableSurname extends Migration
      */
     public function down()
     {
-        Schema::table('surname', function (Blueprint $table) {
+        Schema::table('leads', function (Blueprint $table) {
             $table->dropColumn('surname');
         });
     }

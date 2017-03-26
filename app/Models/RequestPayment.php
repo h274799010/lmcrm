@@ -17,10 +17,11 @@ class RequestPayment extends Model
     /**
      * Статусы заявки
      */
-    const STATUS_WAITING = 1;   // Ждет обработки
-    const STATUS_PROCESS = 2;   // В процессе обработки
-    const STATUS_CONFIRMED = 3; // Подтверждено
-    const STATUS_REJECTED = 4;  // Отвергнуто
+    const STATUS_WAITING_PROCESSING = 1; // Ждет обработки
+    const STATUS_WAITING_PAYMENT = 2;    // Ждет оплаты
+    const STATUS_WAITING_CONFIRMED = 3;  // Оплачено
+    const STATUS_CONFIRMED = 4;          // Подтверждено
+    const STATUS_REJECTED = 5;           // Отвергнуто
 
     /**
      * Минимальная сумма для снятия
@@ -91,8 +92,9 @@ class RequestPayment extends Model
     {
         return collect(
             [
-                self::STATUS_WAITING => 'Waiting',
-                self::STATUS_PROCESS => 'Process',
+                self::STATUS_WAITING_PROCESSING => 'Waiting processing',
+                self::STATUS_WAITING_PAYMENT => 'Waiting payment',
+                self::STATUS_WAITING_CONFIRMED => 'Waiting confirmed',
                 self::STATUS_CONFIRMED => 'Confirmed',
                 self::STATUS_REJECTED => 'Rejected'
             ]
