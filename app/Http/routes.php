@@ -46,141 +46,98 @@ Route::get('transitionTest/{status}', function($status){
 
 Route::get('stat', function(){
 
+    $userId = 6;
 
-    $user = Sentinel::findUserById(6);
-
-    dd( $user->roles );
-
-
-    $u = \App\Models\User::find(6);
+    $user = \App\Models\User::find( $userId );
 
 
-    dd($u->roles);
+//    $user = \App\Models\Agent::find(6);
+
+    $userIds = [$user->id];
+
+    if($user->inRole('agent')) {
+
+        $agent = \App\Models\Agent::find( $user->id );
+
+        $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
+
+//        dd($salesmans);
+
+        if(count($salesmans) > 0) {
+            $userIds = array_merge($userIds, $salesmans);
+        }
+
+    }
 
 
+    $openLeads = \App\Models\OpenLeads::
+          whereIn('agent_id', $userIds);
 
-//    dd(
+//    if (count($request->only('filter'))) {
+//        // если фильтр есть
 //
-////        \App\Models\Lead::find(108)
-//        \App\Models\OpenLeads::where('lead_id', 108)->get()
+//        // получаем данные фильтра
+//        $eFilter = $request->only('filter')['filter'];
 //
+//        if(!empty($eFilter)) {
+//            // перебираем данные и проверяем на соответствие
+//            foreach ($eFilter as $eFKey => $eFVal) {
 //
-//    );
+//                // проверяем ключ
+//                switch($eFKey) {
 //
+//                    // если фильтр по дате
+//                    case 'sphere':
 //
-//    $offset = 0;
+//                        if($eFVal != '') {
+//                            $openLeads = $openLeads->join('leads', function ($join) use ($eFVal) {
+//                                $join->on('open_leads.lead_id', '=', 'leads.id')
+//                                    ->where('leads.sphere_id', '=', $eFVal);
+//                            });
+//                        }
 //
-//    $a = \App\Models\Auction::
-//          where( 'status', 0 )
-//        ->where( 'user_id', 6 )
-//        ->orderBy( 'created_at', 'desc' )
-//        ->skip( $offset )
-//        ->take( PHP_INT_MAX )
-//        ->lists( 'id' )
-//    ;
+//                        break;
+//                    case 'status':
 //
+//                        if($eFVal != '') {
+//                            $openLeads = $openLeads->where('open_leads.status', '=', $eFVal);
+//                        }
 //
-//    $b = $a->splice( 0, 30 );
+//                        break;
+//                    case 'date':
+//                        if($eFVal != 'empty' && $eFVal != '') {
+//                            $eFVal = explode('/', $eFVal);
 //
+//                            $start = trim($eFVal[0]);
+//                            $end = trim($eFVal[1]);
 //
-//
-////    dd( $b );
-//
-//
-//
-//    $auctionData = \App\Models\Auction::
-//          whereIn('id', $b)
-////        ->where( 'user_id', 6 )
-//        ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
-//        ->with(
-//            [
-//                'lead' => function($query)
-//                {
-//                    $query
-//                        ->select('id', 'opened', 'email', 'sphere_id', 'name', 'created_at')
-//                    ;
-//                },
-////                'sphere' => function($query){
-////                    $query
-////                        ->select('id', 'name')
-////                    ;
-////                },
-////                'maskName' => function($query){
-////                    $query
-////                        ->select('id', 'name')
-////                    ;
-////                }
-//            ])
-//        ->orderBy('created_at', 'desc')
-////        ->orderBy('id')
-////        ->latest()
-////        ->skip(10)
-////        ->take(PHP_INT_MAX)
-////        ->take(10)
-////        ->offset(1)
-////        ->take(10)
-////        ->limit(3)
-////        ->paginate(10)
-////        ->statement()
-////        ->select(DB::raw('LIMIT 10,10'))
-////                ->offset($offset)
-//        ->get()
-////        ->lists('id')
-//        ->toArray()
-//    ;
-//
-//
-//    dd($auctionData);
+//                            $openLeads = $openLeads->where('open_leads.created_at', '>=', $start . ' 00:00:00')
+//                                ->where('open_leads.created_at', '<=', $end . ' 23:59:59');
+//                        }
+//                        break;
+//                    default: ;
+//                }
+//            }
+//        }
+//    }
 
-
-
-
-
-    $auctionData = \App\Models\Auction::
-          where('status', 0)
-        ->where( 'user_id', 6 )
-        ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+    $openLeads = $openLeads
         ->with(
             [
-                'lead' => function($query)
-                {
-                    $query
-                        ->select('id', 'opened', 'email', 'sphere_id', 'name', 'created_at')
-                    ;
+                'lead' => function ($query) {
+                    $query->with('sphereStatuses', 'sphere');
                 },
-                'sphere' => function($query){
-                    $query
-                        ->select('id', 'name')
-                    ;
-                },
-                'maskName' => function($query){
-                    $query
-                        ->select('id', 'name')
-                    ;
-                }
-            ])
+                'maskName2',
+                'statusInfo',
+                'closeDealInfo'
+            ]
+        )
         ->orderBy('created_at', 'desc')
-        ->orderBy('id')
-//        ->latest()
-        ->skip(5)
-//        ->take(PHP_INT_MAX)
         ->take(10)
-//        ->offset(1)
-//        ->take(10)
-//        ->limit(3)
-//        ->paginate(10)
-//        ->statement()
-//        ->select(DB::raw('LIMIT 10,10'))
-//                ->offset($offset)
         ->get()
-//        ->lists('id')
     ;
 
-
-
-    dd($auctionData);
-
-
+    dd( $openLeads[4] );
 
     return 'ok';
 

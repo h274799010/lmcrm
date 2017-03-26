@@ -246,6 +246,7 @@ class LeadController extends AgentController {
             ->make();
     }
 
+
     /**
      * Получение подробной информации по лиду
      *
@@ -827,7 +828,11 @@ class LeadController extends AgentController {
                     $query->select('id', 'sphere_id', 'stepname');
                 }
             ])
-            ->get()->toJson();
+            ->get()
+            ->toJson()
+        ;
+
+//        dd($spheres);
 
         // задаем вьюшку
         $view = 'agent.lead.opened';

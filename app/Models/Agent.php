@@ -67,6 +67,12 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     }
 
 
+
+    public function requestPayment(){
+        return $this->hasMany('\App\Models\RequestPayment','initiator_id','id');
+    }
+
+
     /**
      * Сферы к которым прикреплен агент
      *

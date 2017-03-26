@@ -211,6 +211,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
      * Отчеты по ручным транзакциям
      *
      */
+
+    // По всем ручным транзитам
+    Route::get('report/agents', ['as' => 'admin.report.agents', 'uses' => 'Admin\TransactionController@agentTransactionReport']);
+
+
     // По всем ручным транзитам
     Route::get('report/all', ['as' => 'admin.report.all', 'uses' => 'Admin\TransactionController@allTransactionReport']);
     // По транзитам системы (админов)
