@@ -31,13 +31,27 @@
                     <th>Status</th>
                     <td><span class="badge badge-status-{{ $requestPayment->status }}">{{ $statuses[ $requestPayment->status ] }}</span></td>
                 </tr>
+                @if( $requestPayment->type == \App\Models\RequestPayment::TYPE_WITHDRAWAL )
+                    <tr>
+                        <th>Company</th>
+                        <td>{{ $requestPayment->company }}</td>
+                    </tr>
+                    <tr>
+                        <th>Bank</th>
+                        <td>{{ $requestPayment->bank }}</td>
+                    </tr>
+                    <tr>
+                        <th>Branch number</th>
+                        <td>{{ $requestPayment->branch_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Invoice_number</th>
+                        <td>{{ $requestPayment->invoice_number }}</td>
+                    </tr>
+                @endif
                 <tr>
                     <th>Created</th>
                     <td>{{ $requestPayment->created_at->format('d/m/Y H:i') }}</td>
-                </tr>
-                <tr>
-                    <th>Updated</th>
-                    <td>{{ $requestPayment->updated_at->format('d/m/Y H:i') }}</td>
                 </tr>
                 </tbody>
             </table>
