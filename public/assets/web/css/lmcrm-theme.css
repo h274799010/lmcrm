@@ -842,6 +842,6 @@ h4.statistic-sphere-name{
 .filter-item-wrap:last-child {
 	margin-right: 0;
 }
-input {
+input[type=text], input[type=number], input[type=email] {
 	background: #ffffff !important;
 }
