@@ -14,6 +14,15 @@
 
     <div class="row">
         <div class="col-xs-12">
+            <div class="alert alert-info" role="alert">
+                <p>Requisites: {{ trans('site/site.requisites') }}</p>
+                <p>{{ trans('site/site.requisites_desc') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
             <a href="#" class="btn btn-success" id="btnReplenishment">Replenishment</a>
             <a href="#" class="btn btn-info" id="btnWithdrawal">Withdrawal</a>
         </div>
