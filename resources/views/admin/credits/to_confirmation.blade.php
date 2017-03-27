@@ -62,31 +62,14 @@
 
 @section('styles')
     <style type="text/css">
-        .table-requests .badge-type-{{ \App\Models\RequestPayment::TYPE_REPLENISHMENT }} {
-            background-color: #dff0d8;
-            color: #3c763d;
-        }
-        .table-requests .badge-type-{{ \App\Models\RequestPayment::TYPE_WITHDRAWAL }} {
-            background-color: #d9edf7;
-            color: #31708f;
-        }
+        .table-requests .badge-type-{{ \App\Models\RequestPayment::TYPE_REPLENISHMENT }} {background-color: #dff0d8;color: #3c763d;}
+        .table-requests .badge-type-{{ \App\Models\RequestPayment::TYPE_WITHDRAWAL }} {background-color: #d9edf7;color: #31708f;}
         .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_PROCESSING }},
         .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_CONFIRMED }},
-        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_PAYMENT }} {
-            background-color: #fcf8e3;
-            color: #8a6d3b;
-        }
-        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_CONFIRMED }} {
-            background-color: #dff0d8;
-            color: #3c763d;
-        }
-        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_REJECTED }} {
-            background-color: #f2dede;
-            color: #a94442;
-        }
-        .table-requests td:first-child {
-            font-weight: bold;
-        }
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_PAYMENT }} {background-color: #fcf8e3;color: #8a6d3b;}
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_CONFIRMED }} {background-color: #dff0d8;color: #3c763d;}
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_REJECTED }} {background-color: #f2dede;color: #a94442;}
+        .table-requests td:first-child {font-weight: bold;}
         .btn-info-request {
             font-size: 22px;
             line-height: 22px;

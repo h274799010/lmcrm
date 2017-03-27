@@ -31,7 +31,7 @@
                     <td class="middle">{{ $agent->email }}</td>
                     <td class="middle center">{{ $agent->replenishment }}</td>
                     <td class="middle center">{{ $agent->withdrew }}</td>
-                    <td class="middle center"> <a class="btn btn-primary" href="#"> ACTION </a> </td>
+                    <td class="middle center"> <a class="btn btn-primary" href="{{ route('admin.report.agents.detail', ['id'=>$agent->id]) }}"> ACTION </a> </td>
                 </tr>
             @empty
                 <tr>

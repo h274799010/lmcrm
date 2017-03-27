@@ -235,7 +235,7 @@ class RequestsPayments
         }
 
         $requestsPayments = RequestPayment::where(function ($query) use ($user) {
-                $query->where('status', '=', RequestPayment::STATUS_WAITING)
+                $query->where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
                     ->orWhere('handler_id', '=', $user->id);
             });
 
