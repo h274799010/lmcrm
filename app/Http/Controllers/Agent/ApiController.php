@@ -17,6 +17,7 @@ use App\Models\Wallet;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Psy\Util\Json;
 use Validator;
 use App\Models\Agent;
 use App\Models\Salesman;
@@ -33,6 +34,8 @@ use App\Facades\Notice;
 use App\Models\Auction;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
+use App\Models\AgentsPrivateGroups;
+
 
 class ApiController extends Controller
 {
@@ -144,102 +147,49 @@ class ApiController extends Controller
         // лиды которые нужно пропустить
         $offset = (int)$request->offset;
 
-        // id последнего итема на апликации
-        $lastItemId = (int)$request->lastItemId;
-
         // id пользователя
         $userId = $this->user->id;
 
-
-        if( $lastItemId == 0 ){
-
-            // выборка лидов и данных для аукциона
-            $auctionList = Auction::
-                  where( 'status', 0 )
-                ->where( 'user_id', $userId )
-                ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
-                ->with(
-                    [
-                        'lead' => function($query)
-                        {
-                            $query
-                                ->select('id', 'opened', 'email', 'sphere_id', 'name', 'operator_processing_time', 'created_at')
-                            ;
-                        },
-                        'sphere' => function($query){
-                            $query
-                                ->select('id', 'name')
-                            ;
-                        },
-                        'maskName' => function($query){
-                            $query
-                                ->select('id', 'name')
-                            ;
-                        }
-                    ])
-                ->orderBy('created_at', 'desc')
-                ->orderBy('id')
-                ->skip( $offset )
-                ->take(10)
-                ->get()
-            ;
-
-
-            $lastAuction = Auction::
-                  where( 'status', 0 )
-                ->where( 'user_id', $userId )
-                ->orderBy('created_at')
-                ->orderBy('id')
-                ->get()
-            ;
-
-            $lastItemId = $lastAuction[ count($lastAuction)-1 ]->id;
-
-        }else{
-
-            $lastItem = Auction::find( $lastItemId );
-
-            // выборка лидов и данных для аукциона
-            $auctionList = Auction::
-                  where( 'status', 0 )
-                ->where( 'user_id', $userId )
-                ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
-                ->where( 'created_at', '<=', $lastItem->created_at )
-                ->with(
-                    [
-                        'lead' => function($query)
-                        {
-                            $query
-                                ->select('id', 'opened', 'email', 'sphere_id', 'name', 'created_at')
-                            ;
-                        },
-                        'sphere' => function($query){
-                            $query
-                                ->select('id', 'name')
-                            ;
-                        },
-                        'maskName' => function($query){
-                            $query
-                                ->select('id', 'name')
-                            ;
-                        }
-                    ])
-                ->orderBy('created_at', 'desc')
-                ->orderBy('id')
-                ->skip( $offset )
-                ->take(10)
-                ->get()
-            ;
-
-        }
-
+        // выборка лидов и данных для аукциона
+        $auctionList = Auction::
+        where( 'status', 0 )
+            ->where( 'user_id', $userId )
+            ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+            ->with(
+                [
+                    'lead' => function($query)
+                    {
+                        $query
+                            ->with('phone')
+                            ->select('id', 'opened', 'customer_id', 'email', 'sphere_id', 'name', 'operator_processing_time', 'created_at')
+                        ;
+                    },
+                    'sphere' => function($query){
+                        $query
+                            ->select('id', 'name')
+                        ;
+                    },
+                    'maskName' => function($query){
+                        $query
+                            ->select('id', 'name')
+                        ;
+                    }
+                ])
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id')
+            ->skip( $offset )
+            ->take(10)
+            ->get()
+        ;
 
 
         // добавляем лиду данные по маскам
-        $auctionData = [];
-        $auctionList->each(function( $auction ) use(&$auctionData, $userId){
+        $auctionItems = [];
+        $auctionList->each(function( $auction ) use(&$auctionItems, $userId){
 
+            // проверка, открыт ли этот лид у агента
             $openLead = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', $userId )->first();
+            // поверка, открыт ли этот лид у других агентов
             $openLeadOther = OpenLeads::where( 'lead_id', $auction['lead']['id'] )->where( 'agent_id', '<>', $userId )->first();
 
             if(!$openLead || !$openLeadOther) {
@@ -250,11 +200,60 @@ class ApiController extends Controller
                 // добавляем лиду атрибуты фильтра
                 $auction->lead->getAdditional();
 
-                $auction->openLead = $openLead ? 'true' : 'false';
+                // обработка номера телефона (только первые 4 символа, остальные закрываются звездочками)
+                $phone = str_pad(substr($auction->lead->phone->phone, 0, 4), strlen($auction->lead->phone->phone), '*', STR_PAD_RIGHT);
 
-                $auction->openLeadOther = $openLeadOther ? 'true' : 'false';
+                // подготовка имени лида (имя частично прячется звездочками)
+                $name = substr($auction->lead['name'], 0, 1) .'***' .mb_substr($auction->lead['name'], -1, 1);
 
-                $auctionData[] = $auction;
+                // собираются данные итема лида
+                $auctionItems[] =
+                [
+
+                    // id лида
+                    'id' => $auction->lead['id'],
+
+                    // имя лида
+                    'name' => $name,
+
+                    // телефон
+                    'phone' => $phone,
+
+                    // количество открытий лида
+                    'opened' => $auction->lead['opened'],
+
+                    // открыт ли этот лид у агента, или нет
+                    'openLead' => $openLead ? 'true' : 'false',
+
+                    // открыт ли этот лид у других агентов
+                    'openLeadOther' => $openLeadOther ? 'true' : 'false',
+
+                    // время когда лид был обработан оператором и добавлен в систему
+                    'system_added' => $auction->lead['operator_processing_time'] ? $auction->lead['operator_processing_time']->format('H:i d M Y') : NULL,
+
+                    // время когда лид был добавлен непосредственно на аукцион агента
+                    'auction_added' => $auction['created_at']->format('H:i d M Y'),
+
+                    // данные сферы
+                    'sphere' =>
+                    [
+                        'id' => $auction->lead['sphere']['id'],
+                        'name' => $auction->lead['sphere']['name'],
+                    ],
+
+                    // данные маски
+                    'mask' =>
+                    [
+                        'id' => $auction['maskName']['id'] ? $auction['maskName']['id'] : 0,
+                        'name' => $auction['maskName']['name'] ? $auction['maskName']['name'] : 'deleted',
+                    ],
+
+                    // данные фильтра лида
+                    'filter' => $auction->lead['filter'],
+
+                    // дополнительные данные по лиду
+                    'additional' => $auction->lead['additional'],
+                ];
 
                 return true;
             }
@@ -262,13 +261,10 @@ class ApiController extends Controller
             return false;
         });
 
-
-        $this->userData['auctionData'] = $auctionData;
-        $this->userData['lastItemId'] = $lastItemId;
-
+        // добавление в общие данные итемов аукциона
+        $this->userData['auctionItems'] = $auctionItems;
 
         return response()->json( $this->userData );
-
     }
 
 
@@ -309,43 +305,60 @@ class ApiController extends Controller
         return response()->json( $auction );
     }
 
+
     /**
      * Страница отданных лидов пользователя
      *
+     * @param  Request  $request
+     *
+     * $return JSON
      */
-    public function deposited()
+    public function deposited( Request $request )
     {
 
-//        $leads = $this->user->leads()->with('phone')->get();
-        $leads = Lead::where('agent_id', $this->user->id)->with('phone')->get();
+        // лиды которые нужно пропустить
+        $offset = (int)$request->offset;
 
-        if( !$leads->count() ){
-            $leads = 'Нет лидов';
-        }else{
-//            $leads = $leads->toArray();
-        }
+        // выбираем лиды
+        $leads = Lead::
+              where('agent_id', $this->user->id)
+            ->with('phone', 'sphere')
+            ->orderBy('created_at', 'desc')
+            ->skip( $offset )
+            ->take(10)
+            ->get();
 
-        // добавляем маску в лид
+        // добавляем имя статуса в лид
         $leads = $leads->map(function( $lead ){
 
+            // формат времени
+            $lead->date = $lead->created_at->format('Y/m/d');
+
+            // имя статуса лида
             $lead->sName = $lead->statusName();
 
-            return $lead;
+            // вознаграждение агента за лид,
+            // обработка в зависимости от того где лид, на аукционе или в приватной группе
+            if( $lead->status != 8 ){
 
+                // если лид еще не расчитан - возвращается 0, если расчитан - выбирается вся сумма
+                $lead->earnings = $lead->payment_status == 0 ? 0 : PayInfo::getAgentsOpenedLeadsData( $lead->id, true );
+
+            }else{
+
+                // заработки по сделкам
+                $lead->earnings = PayInfo::getClosedDealInGroupData( $lead->id, true );
+            }
+
+            return $lead;
         });
 
-        $data =
-            [
-                'id' => $this->user->id,
-                'email' => $this->user->email,
-                'wallet' => $this->wallet->earned + $this->wallet->buyed,
-                'wasted' => $this->wallet->wasted,
-                'leads' => $leads,
-            ];
+        // добавляем в общие данные отданых лидов
+        $this->userData['leads'] = $leads;
 
-        return response()->json($data);
+
+        return response()->json( $this->userData );
     }
-
 
 
     /**
@@ -401,6 +414,8 @@ class ApiController extends Controller
 
             // добавляем лиду атрибуты фильтра
             $openLead->lead->getAdditional();
+
+            $openLead->date = $openLead->created_at->format('Y/m/d H:i');
 
 //            Log::info( $openLead->lead->sphereStatuses );
 
@@ -571,5 +586,91 @@ class ApiController extends Controller
     }
 
 
+    /**
+     * Вывод детализации по передаче лида агентом другим агентам в группе
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Json
+     */
+    public function privateGroup( Request $request ){
+
+        $leadId = (int)$request->lead_id;
+
+        // получаем лид
+        $lead = Lead::find( $leadId );
+
+        // выбираем статусы сферы
+        $sphereStatuses = $lead->sphereStatuses->statuses;
+
+        // массив со статусами ( status_id => stepname )
+        $statuses[0] = 'No status';
+
+        // перебираем все статусы и формируем массив со статусами
+        $sphereStatuses->each(function( $status ) use (&$statuses){
+            // добавление статуса в массив статусов
+            $statuses[$status->id] = $status->stepname;
+        });
+
+        // получаем всех участников группы агента
+        $members = AgentsPrivateGroups::
+        where( 'agent_owner_id', $lead['agent_id'] )
+            ->with(
+                [
+                    'memberData',
+                    'openLead'=>function($query) use ($leadId){
+                        // получаем только текущий лид
+                        $query->where('lead_id', $leadId);
+                    }
+                ]
+            )
+            ->get();
+
+        // коллекция с агентами для которых лид был открыт
+        $membersOpen = collect();
+        // коллекция с агентами для которых лид небыл открыт
+        $membersNotOpen = collect();
+
+        // перебор всех участников группы и выборка нужных данных
+        $members->each(function($item) use (&$membersOpen, &$membersNotOpen, $statuses){
+
+            // проверка открытых лидов у участника
+            if( $item['openLead']->count()==0 ){
+                // если нет открытых лидов
+
+                $data =
+                    [
+                        'id' => $item['memberData']['id'],
+                        'email' => $item['memberData']['email'],
+                    ];
+
+
+                // todo добавляем данные в массив с агентами, которым лид не добавлен
+                $membersNotOpen->push($data);
+
+            }else{
+                // если лид открыт для участника
+
+                $data =
+                    [
+                        'id' => $item['memberData']['id'],
+                        'email' => $item['memberData']['email'],
+                        'status' => $statuses[ $item['openLead'][0]['status'] ]
+                    ];
+
+                // todo добавляем данные в массив с агентами, которым лид был добавлен
+                $membersOpen->push($data);
+            }
+        });
+
+
+        return response()->json(
+            [
+                'membersOpen' => $membersOpen,
+                'membersNotOpen' => $membersNotOpen
+            ]
+        );
+    }
 
 }

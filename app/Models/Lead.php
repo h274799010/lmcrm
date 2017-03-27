@@ -76,7 +76,7 @@ class Lead extends EloquentUser {
         4 => 'close auction',     // лид снят с аукциона
         5 => 'agent bad',         // агент пометил лид как bad
         6 => 'closed deal',       // закрытие сделки по лиду
-        7 => 'selective auction', // добавление лида на аукционы выборочных агентов
+        7 => 'selective auction', // добавление лида оператором на аукционы выборочных агентов
         8 => 'private group',      // лид для приватной группы
     ];
 

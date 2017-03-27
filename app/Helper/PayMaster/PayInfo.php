@@ -40,6 +40,110 @@ class PayInfo
 
 
     /**
+     * Получить данные по открытым лидам агентов
+     *
+     *
+     * @param  integer  $leadId
+     * @param  boolean  $sum
+     *
+     * @return object
+     */
+    public static function getAgentsOpenedLeadsData( $leadId, $sum=false )
+    {
+
+        $leadInfo  = TransactionsLeadInfo::
+              where('lead_id', $leadId)
+            ->lists('transaction_id');
+
+        $transactionsDetails = TransactionsDetails::
+              whereIn('transaction_id', $leadInfo)
+            ->where('type', 'openLead')
+            ->where('user_id', '<>', config('payment.system_id'));
+
+        if($sum){
+
+            $transactionsDetails = $transactionsDetails->sum('amount') * (-1);
+
+        }else{
+
+            $transactionsDetails = $transactionsDetails->get();
+        }
+
+        return $transactionsDetails;
+    }
+
+
+    /**
+     * Данные закрытых сделок по лиду
+     *
+     *
+     * @param  integer  $leadId
+     * @param  boolean  $sum
+     *
+     * @return object
+     */
+    public static function getClosedDealData( $leadId, $sum=false )
+    {
+
+        $leadInfo  = TransactionsLeadInfo::
+        where('lead_id', $leadId)
+            ->lists('transaction_id');
+
+        $transactionsDetails = TransactionsDetails::
+        whereIn('transaction_id', $leadInfo)
+            ->where('type', 'closingDeal')
+            ->where('user_id', '<>', config('payment.system_id'));
+
+        if($sum){
+
+            $transactionsDetails = $transactionsDetails->sum('amount') * (-1);
+
+        }else{
+
+            $transactionsDetails = $transactionsDetails->get();
+        }
+
+        return $transactionsDetails;
+    }
+
+
+    /**
+     * Данные закрытых сделок по лиду по группам
+     *
+     *
+     * @param  integer  $leadId
+     * @param  boolean  $sum
+     *
+     * @return object
+     */
+    public static function getClosedDealInGroupData( $leadId, $sum=false )
+    {
+
+        $lead = Lead::find($leadId);
+
+        $leadInfo  = TransactionsLeadInfo::
+        where('lead_id', $leadId)
+            ->lists('transaction_id');
+
+        $transactionsDetails = TransactionsDetails::
+        whereIn('transaction_id', $leadInfo)
+            ->where('type', 'closingDealInGroup')
+            ->where('user_id', '<>', $lead->agent_id);
+
+        if($sum){
+
+            $transactionsDetails = $transactionsDetails->sum('amount') * (-1);
+
+        }else{
+
+            $transactionsDetails = $transactionsDetails->get();
+        }
+
+        return $transactionsDetails;
+    }
+
+
+    /**
      * Данные покупателей лида
      *
      * @param  integer  $lead_id

@@ -1532,19 +1532,20 @@ class LeadController extends AgentController {
      */
     public function depositedDetails( $leadId ){
 
-//        dd($leadId);
-
-//        $a = \App\Helper\PayMaster\Price::closeDealInGroup(1,1);
-//
-//        dd($a);
-
-
-//        dd( AgentsPrivateGroups::all() );
-
-//        return view('agent.lead.depositedLeadDetails');
-
         // получаем лид
         $lead = Lead::find($leadId);
+
+        // выбираем статусы сферы
+        $sphereStatuses = $lead->sphereStatuses->statuses;
+
+        // массив со статусами ( status_id => stepname )
+        $statuses = [];
+
+        // перебираем все статусы и формируем массив со статусами
+        $sphereStatuses->each(function( $status ) use (&$statuses){
+            // добавление статуса в массив статусов
+            $statuses[$status->id] = $status->stepname;
+        });
 
         // получаем всех участников группы агента
         $members = AgentsPrivateGroups::
@@ -1578,6 +1579,8 @@ class LeadController extends AgentController {
         });
 
 
+//        dd( $membersOpen );
+
 
 //        dd( $membersOpen );
 
@@ -1606,18 +1609,8 @@ class LeadController extends AgentController {
         // находим данные участника группы для которого нужно открыть лид
         $user = Sentinel::findById($request['member_id']);
 
-
-//        $user = User::find($request['member_id']);
-//        $user = Agent::find($request['member_id']);
-//        $user = Sentinel::getUser($request['member_id']);
-//        dd($user);
-
-//        $data = 'Lead: ' .$request['lead_id'] .', agent: ' .$request['member_id'];
-
         // открытие лида
         $openResult = $lead->openForMember( $user );
-
-        // todo отправить данные по лиду на фронтенд
 
         return $openResult;
     }

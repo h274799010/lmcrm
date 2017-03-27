@@ -46,80 +46,125 @@ Route::get('transitionTest/{status}', function($status){
 
 Route::get('stat', function(){
 
+
+
+    dd( \Carbon\Carbon::now()->subDays(0)->diffForHumans() );
+
+
+    $leadId = 250;
+
+    // получаем лид
+    $lead = Lead::find( $leadId );
+
+    // выбираем статусы сферы
+    $sphereStatuses = $lead->sphereStatuses->statuses;
+
+    // массив со статусами ( status_id => stepname )
+    $statuses[0] = 'No status';
+
+    // перебираем все статусы и формируем массив со статусами
+    $sphereStatuses->each(function( $status ) use (&$statuses){
+        // добавление статуса в массив статусов
+        $statuses[$status->id] = $status->stepname;
+    });
+
+    // получаем всех участников группы агента
+    $members = \App\Models\AgentsPrivateGroups::
+          where( 'agent_owner_id', $lead['agent_id'] )
+        ->with(
+            [
+                'memberData',
+                'openLead'=>function($query) use ($leadId){
+                    // получаем только текущий лид
+                    $query->where('lead_id', $leadId);
+                }
+            ]
+        )
+        ->get();
+
+    // коллекция с агентами для которых лид был открыт
+    $membersOpen = collect();
+    // коллекция с агентами для которых лид небыл открыт
+    $membersNotOpen = collect();
+
+    // перебор всех участников группы и выборка нужных данных
+    $members->each(function($item) use (&$membersOpen, &$membersNotOpen, $statuses){
+
+        // проверка открытых лидов у участника
+        if( $item['openLead']->count()==0 ){
+            // если нет открытых лидов
+
+            $data =
+                [
+                    'id' => $item['memberData']['id'],
+                    'email' => $item['memberData']['email'],
+                ];
+
+
+            // todo добавляем данные в массив с агентами, которым лид не добавлен
+            $membersNotOpen->push($data);
+
+        }else{
+            // если лид открыт для участника
+
+            $data =
+            [
+                'id' => $item['memberData']['id'],
+                'email' => $item['memberData']['email'],
+                'status' => $statuses[ $item['openLead'][0]['status'] ]
+            ];
+
+            // todo добавляем данные в массив с агентами, которым лид был добавлен
+            $membersOpen->push($data);
+        }
+    });
+
+    return response()->json(
+        [
+            'membersOpen' => $membersOpen,
+            'membersNotOpen' => $membersNotOpen
+        ]
+    );
+
+//        dd( $membersOpen );
+
+
+        dd( $membersNotOpen );
+
+
+
+
+//    dd( Lead::find(250) );
+
+    $c = \App\Helper\PayMaster\PayInfo::getClosedDealData( 250 );
+
+    dd($c);
+
+
+
+    $c = \App\Helper\PayMaster\PayInfo::getAgentsOpenedLeadsData( 3, true );
+
+    dd($c);
+
+
+    $a  = \App\Models\TransactionsLeadInfo::where('lead_id', 3)->lists('transaction_id');
+
+    $b = \App\Models\TransactionsDetails::whereIn('transaction_id', $a)->get();
+
+    dd($b);
+
+
+
+
     $userId = 6;
 
     $user = \App\Models\User::find( $userId );
 
 
-//    $user = \App\Models\Agent::find(6);
-
-    $userIds = [$user->id];
-
-    if($user->inRole('agent')) {
-
-        $agent = \App\Models\Agent::find( $user->id );
-
-        $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
-
-//        dd($salesmans);
-
-        if(count($salesmans) > 0) {
-            $userIds = array_merge($userIds, $salesmans);
-        }
-
-    }
-
 
     $openLeads = \App\Models\OpenLeads::
           whereIn('agent_id', $userIds);
 
-//    if (count($request->only('filter'))) {
-//        // если фильтр есть
-//
-//        // получаем данные фильтра
-//        $eFilter = $request->only('filter')['filter'];
-//
-//        if(!empty($eFilter)) {
-//            // перебираем данные и проверяем на соответствие
-//            foreach ($eFilter as $eFKey => $eFVal) {
-//
-//                // проверяем ключ
-//                switch($eFKey) {
-//
-//                    // если фильтр по дате
-//                    case 'sphere':
-//
-//                        if($eFVal != '') {
-//                            $openLeads = $openLeads->join('leads', function ($join) use ($eFVal) {
-//                                $join->on('open_leads.lead_id', '=', 'leads.id')
-//                                    ->where('leads.sphere_id', '=', $eFVal);
-//                            });
-//                        }
-//
-//                        break;
-//                    case 'status':
-//
-//                        if($eFVal != '') {
-//                            $openLeads = $openLeads->where('open_leads.status', '=', $eFVal);
-//                        }
-//
-//                        break;
-//                    case 'date':
-//                        if($eFVal != 'empty' && $eFVal != '') {
-//                            $eFVal = explode('/', $eFVal);
-//
-//                            $start = trim($eFVal[0]);
-//                            $end = trim($eFVal[1]);
-//
-//                            $openLeads = $openLeads->where('open_leads.created_at', '>=', $start . ' 00:00:00')
-//                                ->where('open_leads.created_at', '<=', $end . ' 23:59:59');
-//                        }
-//                        break;
-//                    default: ;
-//                }
-//            }
-//        }
-//    }
 
     $openLeads = $openLeads
         ->with(

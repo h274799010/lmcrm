@@ -74,6 +74,9 @@ Route::group(['middleware' => 'jwt-auth'], function () {
     Route::post('openLead', ['as' => 'api.open.lead', 'uses' => 'Agent\ApiController@openLead']);
 
 
+    // данные приватной группы агента по лиду
+    Route::post('privateGroup', ['as' => 'api.private.group', 'uses' => 'Agent\ApiController@privateGroup']);
+
 
     // создание нового лида
     Route::post('newLead', ['as' => 'api.opened', 'uses' => 'Agent\ApiController@createLead']);
