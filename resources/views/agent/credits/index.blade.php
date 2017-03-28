@@ -95,6 +95,13 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="alert alert-info" role="alert">
+                                    <p>Replenishment description</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default modal-cancel" data-dismiss="modal">
