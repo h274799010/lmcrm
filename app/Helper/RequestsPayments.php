@@ -101,6 +101,15 @@ class RequestsPayments
         $check->request_payment_id = $requestPayment->id;
         $check->save();
 
+        // Резервируем снимаемую сумму
+        $transaction = PayMaster::transaction($user->id);
+        $transactionInfo = PayMaster::pay([
+            'transaction' => $transaction->id,
+            'user_id' => $user->id,
+            'type' => 'withdrawal',
+            'amount' => $requestPayment->amount
+        ]);
+
         return array(
             'status' => 'success',
             'result' => $requestPayment
@@ -134,15 +143,7 @@ class RequestsPayments
         if($status == RequestPayment::STATUS_CONFIRMED) {
             $requestPayment->status = RequestPayment::STATUS_CONFIRMED;
 
-            if($requestPayment->type == RequestPayment::TYPE_WITHDRAWAL) {
-                $transaction = PayMaster::transaction($initiator->id);
-                $transactionInfo = PayMaster::pay([
-                    'transaction' => $transaction->id,
-                    'user_id' => $initiator->id,
-                    'type' => 'withdrawal',
-                    'amount' => $requestPayment->amount
-                ]);
-            } else {
+            if($requestPayment->type == RequestPayment::TYPE_REPLENISHMENT) {
                 $transactionInfo =
                     PayMaster::changeManual(
                         Sentinel::getUser()->id,  // пользователь которыз инициирует транзакцию
@@ -159,6 +160,16 @@ class RequestsPayments
         }
         else {
             $requestPayment->status = RequestPayment::STATUS_REJECTED;
+
+            // Если тип запроса был "Вывод" - возвращаем зарезервируваную сумму вывода
+            if($requestPayment->type == RequestPayment::TYPE_WITHDRAWAL) {
+                $transactionInfo = PayMaster::changeManual(
+                        Sentinel::getUser()->id, // пользователь которыз инициирует транзакцию
+                        $initiator->id,          // пользователь с кошельком которого происходят изменения
+                        'buyed',      // тип кошелька агента ( buyed, earned, wasted )
+                        $requestPayment->amount  // величина на которую изменяется сумма кошелька
+                    );
+            }
         }
         $requestPayment->save();
 
