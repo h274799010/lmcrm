@@ -51,6 +51,10 @@
     <script type="text/javascript" src="{{ asset('components/jquery/jquery-2.min.js') }}"></script>
     <!-- Bootstrap Core JavaScript -->
     <script type="text/javascript" src="{{ asset('components/bootstrap/js/bootstrap.min.js') }}"></script>
+<script type="text/javascript">
+    var jqeBsTooltip = $.fn.tooltip.noConflict();
+    $.fn.bsTooltip = jqeBsTooltip;
+</script>
     <!--<script type="text/javascript" src="{{ asset('components/bootstrap/js/material.min.js') }}"></script>
   <script type="text/javascript" src="{{ asset('components/bootstrap/js/ripples.min.js') }}"></script>-->
 

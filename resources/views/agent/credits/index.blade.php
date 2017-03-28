@@ -23,8 +23,8 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <a href="#" class="btn btn-success" id="btnReplenishment">Replenishment</a>
-            <a href="#" class="btn btn-info" id="btnWithdrawal">Withdrawal</a>
+            <a href="#" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Replenishment button description" id="btnReplenishment">Replenishment</a>
+            <a href="#" class="btn btn-info" data-toggle="tooltip" data-placement="top" title="Withdrawal button description" id="btnWithdrawal">Withdrawal</a>
         </div>
     </div>
 
@@ -1002,6 +1002,11 @@
         });
 
         uploaderWithdrawal.init();
+
+
+        $(function () {
+            $('[data-toggle="tooltip"]').bsTooltip();
+        })
     </script>
 @endsection
 
