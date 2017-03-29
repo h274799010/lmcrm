@@ -12,6 +12,8 @@
         </div>
     </div>
 
+    <div id="alertsWrapper"></div>
+
     <div class="row">
         <div class="col-xs-12">
             <div class="alert alert-info" role="alert">
@@ -31,7 +33,7 @@
     <div class="row">
         <div class="col-xs-12">
             <h4>Payment requests</h4>
-            <table class="table table-bordered table-striped table-hover table-requests" id="openLeadsTable">
+            <table class="table table-bordered table-striped table-hover table-requests" id="requestPaymentsTable">
                 <thead>
                 <tr>
                     <th>Amount</th>
@@ -46,9 +48,9 @@
                     @foreach($requestsPayments as $requestsPayment)
                         <tr class="@if($requestsPayment->type == \App\Models\RequestPayment::TYPE_REPLENISHMENT) replenishment @else withdrawal @endif" id="requestPayment_{{ $requestsPayment->id }}">
                             <td class="bold">{{ $requestsPayment->amount }}</td>
-                            <td><span class="badge badge-type">{{ $types[ $requestsPayment->type ] }}</span></td>
+                            <td><span class="badge badge-type" data-toggle="tooltip" data-placement="top" title="{{ $types['description'][ $requestsPayment->type ] }}">{{ $types[ $requestsPayment->type ] }}</span></td>
                             <td>
-                                <span class="badge badge-status-{{ $requestsPayment->status }}">
+                                <span class="badge badge-status-{{ $requestsPayment->status }}" data-toggle="tooltip" data-placement="top" title="{{ $statuses['description'][ $requestsPayment->status ] }}">
                                     {{ $statuses[ $requestsPayment->status ] }}
                                 </span>
                             </td>
@@ -66,6 +68,9 @@
                         </tr>
                     @endforeach
                 @else
+                    <tr>
+                        <td colspan="5" id="requestPaymentsEmpty">The list of payment requests is empty</td>
+                    </tr>
                 @endif
                 </tbody>
             </table>
@@ -88,17 +93,17 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-xs-12">
-                                <div class="controls">
-                                    {{ Form::label('replenishment', 'Amount', array('class' => 'control-label')) }}
-                                    {{ Form::text('replenishment', NULL, array('class' => 'form-control', 'id' => 'inpReplenishment')) }}
-                                    <span class="help-block" id="errorsInpReplenishment">{{ $errors->first('revenue_share', ':message') }}</span>
+                                <div class="alert alert-info" role="alert">
+                                    <p>Replenishment description</p>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-xs-12">
-                                <div class="alert alert-info" role="alert">
-                                    <p>Replenishment description</p>
+                                <div class="controls">
+                                    {{ Form::label('replenishment', 'Amount', array('class' => 'control-label')) }}
+                                    {{ Form::text('replenishment', NULL, array('class' => 'form-control', 'id' => 'inpReplenishment')) }}
+                                    <span class="help-block" id="errorsInpReplenishment">{{ $errors->first('revenue_share', ':message') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -131,6 +136,13 @@
                         </h4>
                     </div>
                     <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="alert alert-info" role="alert">
+                                    <p>Replenishment description</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-xs-12">
                                 <div class="controls">
@@ -203,15 +215,21 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">
-                            Attach a check:
+                            Do you confirm payment?
                         </h4>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
-                            <div id="uploadProgress"></div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="alert alert-info" role="alert">
+                                    <p>Description</p>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group  {{ $errors->has('comment') ? 'has-error' : '' }}">
                             <div class="controls">
+                                <div class="label-check-btn">Attach a check:</div>
+                                <div id="uploadProgress"></div>
                                 <div id="addCheckBtn" class="btn btn-success">Add file</div>
                             </div>
                         </div>
@@ -321,6 +339,20 @@
         .upload-progress .upload-status-percent{color:#fff;text-align:center;width:100%;font-weight:700;position:relative;z-index:2}
         .file-container{margin-top:16px}
         .file-container:first-child{margin-top:0}
+
+        .alert-replenishment .form-group {
+            margin-bottom: 0;
+        }
+        .alert-replenishment .checkbox {
+            margin-top: 15px;
+            margin-bottom: 0;
+        }
+        .label-check-btn {
+            margin-bottom: 10px;
+        }
+        .file-container {
+            margin-bottom: 12px;
+        }
     </style>
 @endsection
 
@@ -673,6 +705,47 @@
             fileUploader.init();
         }
 
+        function showSuccessMessage(message) {
+            var html = '<div class="alert alert-success alert-replenishment" role="alert">' +
+                '<div>'+message+'</div>'+
+                '<div class="form-group"><div class="checkbox"><input type="checkbox" id="iGetIt"> <label for="iGetIt">Ok, I get it.</label></div></div>'+
+                '</div>';
+
+            $('#alertsWrapper').html(html);
+        }
+
+        function prepareRequestPaymentHtml(requestPayment) {
+            var html = '';
+
+            var trClass = ' class="replenishment"';
+            if(requestPayment.type.value == '{{ \App\Models\RequestPayment::TYPE_WITHDRAWAL }}') {
+                trClass = ' class="withdrawal"'
+            }
+
+            html += '<tr'+trClass+' id="requestPayment_'+requestPayment.id+'">';
+            html += '<td class="bold">'+requestPayment.amount+'</td>';
+            html += '<td><span class="badge badge-type" data-toggle="tooltip" data-placement="top" title="'+requestPayment.type.description+'">'+requestPayment.type.name+'</span></td>';
+            html += '<td>';
+            html += '<span class="badge badge-status-1" data-toggle="tooltip" data-placement="top" title="'+requestPayment.status.description+'">';
+            html += requestPayment.status.name;
+            html += '</span>';
+            html += '</td>';
+            html += '<td>'+requestPayment.date+'</td>';
+            html += '<td>';
+            if(requestPayment.status.value == '{{ \App\Models\RequestPayment::STATUS_WAITING_PROCESSING }}' && requestPayment.type.value == '{{ \App\Models\RequestPayment::TYPE_REPLENISHMENT }}') {
+                html += '-';
+            } else {
+                html += '<a class="btn btn-default getRequestDetail" data-id="'+requestPayment.id+'">Detail</a>';
+            }
+            if(requestPayment.status.value == '{{ \App\Models\RequestPayment::STATUS_WAITING_PAYMENT }}' && requestPayment.type.value == '{{ \App\Models\RequestPayment::TYPE_REPLENISHMENT }}') {
+                html += ' <a class="btn btn-success btnPaid" data-id="'+requestPayment.id+'">Paid</a>';
+            }
+            html += '</td>';
+            html += '</tr>';
+
+            return html;
+        }
+
         $(document).ready(function () {
             $(document).on('click', '#btnReplenishment', function (e) {
                 e.preventDefault();
@@ -696,14 +769,37 @@
                 $error.closest('.controls').removeClass('has-error');
             });
 
+            $(document).on('change', '#iGetIt', function (e) {
+                e.preventDefault();
+
+                $(this).closest('.alert').fadeOut(500);
+                setTimeout(function () {
+                    $('#alertsWrapper').html('');
+                }, 500);
+            });
+
             $(document).on('submit', '#replenishmentForm', function (e) {
                 e.preventDefault();
 
                 var params = $(this).serialize();
 
                 $.post('{{ route('agent.credits.replenishment.create') }}', params, function (data) {
+                    var html = '';
                     if(data.status == 'success') {
-                        window.location.reload();
+                        //window.location.reload();
+                        html = prepareRequestPaymentHtml(data.result);
+
+                        if( $('#requestPaymentsEmpty').length > 0 ) {
+                            $('#requestPaymentsEmpty').remove();
+                        }
+
+                        $('#requestPaymentsTable tbody').prepend(html);
+
+                        $('#inpReplenishment').val('');
+
+                        $('#modalReplenishment').modal('hide');
+
+                        showSuccessMessage('Your request was successfully sent. Now transfer money to the specified account number. After payment, click the "Paid" button near the request');
                     }
                     else if(data.status == 'fail') {
                         bootbox.dialog({
@@ -712,7 +808,7 @@
                         });
                     }
                     else if (data.status == 'errors') {
-                        var html = '';
+                        html = '';
                         $.each(data.errors, function (i, error) {
                             if(i > 0) html += '<br>';
                             html += error;
@@ -729,8 +825,21 @@
                 var params = $(this).serialize();
 
                 $.post('{{ route('agent.credits.withdrawal.create') }}', params, function (data) {
+                    var html = '';
                     if(data.status == 'success') {
-                        window.location.reload();
+                        html = prepareRequestPaymentHtml(data.result);
+
+                        if( $('#requestPaymentsEmpty').length > 0 ) {
+                            $('#requestPaymentsEmpty').remove();
+                        }
+
+                        $('#requestPaymentsTable tbody').prepend(html);
+
+                        $(document).find('#modalWithdrawal .modal-body :input').val('');
+
+                        $('#modalWithdrawal').modal('hide');
+
+                        showSuccessMessage('The money will be credited to your account after the administration checks');
                     }
                     else if(data.status == 'fail') {
                         bootbox.dialog({
@@ -740,7 +849,7 @@
                     }
                     else if (data.status == 'errors') {
                         $.each(data.errors, function (i, error) {
-                            var html = '';
+                            html = '';
                             $.each(error, function (ind, mess) {
                                 if(ind > 0) html += '<br>';
                                 html += mess;
@@ -808,16 +917,18 @@
 
                 $('#requestPaymentID').val( $(this).data('id') );
 
-                $('#modalPaidForm').find('button[type=submit]').addClass('disabled');
+                $('#modalPaid').find('#uploadProgress').empty();
+                $('#modalPaid').find('#addCheckBtn').show();
+                $('#modalPaid').find('.label-check-btn').show();
 
                 $('#modalPaid').modal('show');
             });
 
-            $(document).on('click', '#modalPaidForm button[type=submit]', function (e) {
+            /*$(document).on('click', '#modalPaidForm button[type=submit]', function (e) {
                 if( $(this).hasClass('disabled') ) {
                     return false;
                 }
-            });
+            });*/
 
             $(document).on('submit', '#modalPaidForm', function (e) {
                 e.preventDefault();
@@ -825,11 +936,20 @@
                 var params = $(this).serialize();
 
                 $.post('{{ route('agent.credits.changeStatus') }}', params, function (data) {
-                    if(data == true) {
-                        window.location.reload();
+                    if(data.status == 'success') {
+                        //window.location.reload();
+
+                        var html = prepareRequestPaymentHtml(data.result);
+
+                        $(document).find( '#requestPayment_'+$('#requestPaymentID').val() ).replaceWith(html);
                     } else {
                         alert('Server error!');
                     }
+
+                    $('#requestPaymentID').val('');
+                    $('#modalPaid').modal('hide');
+
+                    showSuccessMessage('The money will be credited to your account after the administration checks');
                 });
             });
 
@@ -927,13 +1047,8 @@
                 FileUploaded: function (up, file, res) {
                     $('#checkModalChange').removeClass('disabled').prop('disabled', false);
 
-                    //var data = $.parseJSON(res.response);
-
-                    //$('#uploadProgress').empty();
-
-                    $('#addCheckBtn').remove();
-
-                    $('#modalPaidForm').find('button[type=submit]').removeClass('disabled');
+                    $('#addCheckBtn').hide();
+                    $('#modalPaid').find('.label-check-btn').hide();
                 },
 
                 Error: function(up, err) {

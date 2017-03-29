@@ -78,7 +78,11 @@ class RequestPayment extends Model
         return collect(
             [
                 self::TYPE_REPLENISHMENT => 'Replenishment',
-                self::TYPE_WITHDRAWAL => 'Withdrawal'
+                self::TYPE_WITHDRAWAL => 'Withdrawal',
+                'description' => [
+                    self::TYPE_REPLENISHMENT => 'Replenishment description',
+                    self::TYPE_WITHDRAWAL => 'Withdrawal description'
+                ]
             ]
         );
     }
@@ -96,7 +100,14 @@ class RequestPayment extends Model
                 self::STATUS_WAITING_PAYMENT => 'Waiting payment',
                 self::STATUS_WAITING_CONFIRMED => 'Waiting confirmed',
                 self::STATUS_CONFIRMED => 'Confirmed',
-                self::STATUS_REJECTED => 'Rejected'
+                self::STATUS_REJECTED => 'Rejected',
+                'description' => [
+                    self::STATUS_WAITING_PROCESSING => 'Waiting processing description',
+                    self::STATUS_WAITING_PAYMENT => 'Waiting payment description',
+                    self::STATUS_WAITING_CONFIRMED => 'Waiting confirmed description',
+                    self::STATUS_CONFIRMED => 'Confirmed description',
+                    self::STATUS_REJECTED => 'Rejected description'
+                ]
             ]
         );
     }

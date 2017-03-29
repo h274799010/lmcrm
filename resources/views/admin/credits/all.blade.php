@@ -55,6 +55,9 @@
                 </tr>
             @endforeach
         @else
+            <tr>
+                <td colspan="6">The list of payment requests is empty</td>
+            </tr>
         @endif
         </tbody>
     </table>

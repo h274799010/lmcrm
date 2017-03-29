@@ -81,6 +81,25 @@ class RequestsPaymentsController extends AgentController
     {
         $result = RequestsPayments::setStatusRequestPayment($request);
 
-        return response()->json($result);
+        $statuses = RequestPayment::getRequestPaymentStatus();
+        $types = RequestPayment::getRequestPaymentType();
+
+        $result->status = [
+            'name' => $statuses[ $result->status ],
+            'description' => $statuses['description'][ $result->status ],
+            'value' => $result->status
+        ];
+        $result->type = [
+            'name' => $types[ $result->type ],
+            'description' => $types['description'][ $result->type ],
+            'value' => $result->type
+        ];
+
+        $result->date = $result->created_at->format('d/m/Y H:i');
+
+        return response()->json([
+            'status' => 'success',
+            'result' => $result
+        ]);
     }
 }

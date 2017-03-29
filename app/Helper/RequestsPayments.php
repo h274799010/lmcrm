@@ -39,9 +39,24 @@ class RequestsPayments
         $requestPayment = new RequestPayment();
         $requestPayment->amount = $request->input('replenishment');
         $requestPayment->initiator_id = $user->id;
-        $requestPayment->status = RequestPayment::STATUS_WAITING_PROCESSING;
+        $requestPayment->status = RequestPayment::STATUS_WAITING_PAYMENT;
         $requestPayment->type = RequestPayment::TYPE_REPLENISHMENT;
         $requestPayment->save();
+
+        $statuses = RequestPayment::getRequestPaymentStatus();
+        $types = RequestPayment::getRequestPaymentType();
+        $requestPayment->status = [
+            'name' => $statuses[ $requestPayment->status ],
+            'description' => $statuses['description'][ $requestPayment->status ],
+            'value' => $requestPayment->status
+        ];
+        $requestPayment->type = [
+            'name' => $types[ $requestPayment->type ],
+            'description' => $types['description'][ $requestPayment->type ],
+            'value' => $requestPayment->type
+        ];
+
+        $requestPayment->date = $requestPayment->created_at->format('d/m/Y H:i');
 
         return array(
             'status' => 'success',
@@ -110,6 +125,21 @@ class RequestsPayments
             'amount' => $requestPayment->amount
         ]);
 
+        $statuses = RequestPayment::getRequestPaymentStatus();
+        $types = RequestPayment::getRequestPaymentType();
+        $requestPayment->status = [
+            'name' => $statuses[ $requestPayment->status ],
+            'description' => $statuses['description'][ $requestPayment->status ],
+            'value' => $requestPayment->status
+        ];
+        $requestPayment->type = [
+            'name' => $types[ $requestPayment->type ],
+            'description' => $types['description'][ $requestPayment->type ],
+            'value' => $requestPayment->type
+        ];
+
+        $requestPayment->date = $requestPayment->created_at->format('d/m/Y H:i');
+
         return array(
             'status' => 'success',
             'result' => $requestPayment
@@ -125,6 +155,8 @@ class RequestsPayments
     public function setStatusRequestPayment(Request $request)
     {
         $request_payment_id = (int)$request->input('request_payment_id');
+
+        $user = Sentinel::getUser();
 
         if( !$request_payment_id ) {
             abort(403, 'Wrong request payment id');
@@ -146,7 +178,7 @@ class RequestsPayments
             if($requestPayment->type == RequestPayment::TYPE_REPLENISHMENT) {
                 $transactionInfo =
                     PayMaster::changeManual(
-                        Sentinel::getUser()->id,  // пользователь которыз инициирует транзакцию
+                        $user->id,  // пользователь которыз инициирует транзакцию
                         $initiator->id,           // пользователь с кошельком которого происходят изменения
                         'buyed',    // тип кошелька агента ( buyed, earned, wasted )
                         $requestPayment->amount          // величина на которую изменяется сумма кошелька
@@ -164,7 +196,7 @@ class RequestsPayments
             // Если тип запроса был "Вывод" - возвращаем зарезервируваную сумму вывода
             if($requestPayment->type == RequestPayment::TYPE_WITHDRAWAL) {
                 $transactionInfo = PayMaster::changeManual(
-                        Sentinel::getUser()->id, // пользователь которыз инициирует транзакцию
+                    $user->id, // пользователь которыз инициирует транзакцию
                         $initiator->id,          // пользователь с кошельком которого происходят изменения
                         'buyed',      // тип кошелька агента ( buyed, earned, wasted )
                         $requestPayment->amount  // величина на которую изменяется сумма кошелька
@@ -173,7 +205,11 @@ class RequestsPayments
         }
         $requestPayment->save();
 
-        return true;
+        if($user->inRole('agent')) {
+            return $requestPayment;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -212,7 +248,7 @@ class RequestsPayments
     {
         $user = Sentinel::getUser();
         $requestsPayments = RequestPayment::where(function ($query) use ($user) {
-                $query->where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
+                $query->whereIn('status', [RequestPayment::STATUS_WAITING_PROCESSING, RequestPayment::STATUS_WAITING_PAYMENT, RequestPayment::STATUS_WAITING_CONFIRMED])
                     ->orWhere(function ($query2) use ($user) {
                         $query2->where('handler_id', '=', $user->id)
                             ->whereIn('status', [RequestPayment::STATUS_WAITING_PAYMENT, RequestPayment::STATUS_WAITING_CONFIRMED]);
