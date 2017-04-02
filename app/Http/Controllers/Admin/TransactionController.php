@@ -324,26 +324,11 @@ class TransactionController extends AdminController {
             $accountManagers = $role->users()->get();
         }
 
-
-        /*$spheres = Sphere::active()->get();
-
-        $role = Sentinel::findRoleBySlug('account_manager');
-        $users = $role->users()->lists('id');
-
-        $accManagers = AccountManager::whereIn('id', $users)->get();*/
-
-
         return view('admin.transactionReport.agentsTransactionReports', [
             'spheres' => $spheres,
             'accManagers' => $accountManagers,
             'selectedFilters' => $selectedFilters
         ]);
-
-
-//        dd($allTransactions);
-
-//        dd('allTransactionReport');
-//        return 'true';
     }
 
     public function agentTransactionReportDatatables(Request $request)
@@ -592,8 +577,124 @@ class TransactionController extends AdminController {
      */
     public function systemTransactionReport()
     {
+        $user = Sentinel::getUser();
 
-        return 'true';
+        $reports = RequestPayment::where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
+            ->orWhere('handler_id', '=', $user->id)
+            ->get();
+
+        $statistic = array(
+            'replenishment' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'withdrawal' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'confirmed' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'rejected' => [
+                'all' => 0,
+                'period' => 0
+            ]
+        );
+        foreach ($reports as $report) {
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                    $statistic['replenishment']['all'] += $report->amount;
+                } else {
+                    $statistic['withdrawal']['all'] += $report->amount;
+                }
+            }
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                $statistic['confirmed']['all'] += 1;
+            } else {
+                $statistic['rejected']['all'] += 1;
+            }
+        }
+
+        return view('admin.transactionReport.systemReport', [
+            'reports' => $reports,
+            'statistic' => $statistic,
+            'statuses' => RequestPayment::getRequestPaymentStatus(),
+            'types' => RequestPayment::getRequestPaymentType()
+        ]);
+    }
+
+    public function systemTransactionReportData(Request $request)
+    {
+        $timeFrom = $request->timeFrom;
+        $timeTo =$request->timeTo;
+
+        if( !$timeFrom ){
+            $timeFrom = 0;
+        } else {
+            $timeFrom = Carbon::createFromFormat('Y-m-d', $timeFrom)->timestamp;
+        }
+
+        if(!$timeTo) {
+            $timeTo = date('Y-m-d');
+        }
+        $timeTo = Carbon::createFromFormat('Y-m-d', $timeTo)->timestamp;
+
+        $user = Sentinel::getUser();
+
+        $reports = RequestPayment::where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
+            ->orWhere('handler_id', '=', $user->id)
+            ->get();
+
+        $statistic = array(
+            'replenishment' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'withdrawal' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'confirmed' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'rejected' => [
+                'all' => 0,
+                'period' => 0
+            ]
+        );
+        foreach ($reports as $report) {
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                    $statistic['replenishment']['all'] += $report->amount;
+                } else {
+                    $statistic['withdrawal']['all'] += $report->amount;
+                }
+            }
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                $statistic['confirmed']['all'] += 1;
+            } else {
+                $statistic['rejected']['all'] += 1;
+            }
+
+            if($report->created_at->timestamp >= $timeFrom && $report->created_at->timestamp <= $timeTo) {
+                if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                    if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                        $statistic['replenishment']['period'] += $report->amount;
+                    } else {
+                        $statistic['withdrawal']['period'] += $report->amount;
+                    }
+                }
+                if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                    $statistic['confirmed']['period'] += 1;
+                } else {
+                    $statistic['rejected']['period'] += 1;
+                }
+            }
+        }
+
+        return $statistic;
     }
 
 

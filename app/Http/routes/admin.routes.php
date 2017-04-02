@@ -224,5 +224,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('report/all', ['as' => 'admin.report.all', 'uses' => 'Admin\TransactionController@allTransactionReport']);
     // По транзитам системы (админов)
     Route::get('report/system', ['as' => 'admin.report.system', 'uses' => 'Admin\TransactionController@systemTransactionReport']);
+    Route::post('report/system/data', ['as' => 'admin.report.system.data', 'uses' => 'Admin\TransactionController@systemTransactionReportData']);
 
 });

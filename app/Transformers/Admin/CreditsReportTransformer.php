@@ -50,7 +50,7 @@ class CreditsReportTransformer extends TransformerAbstract
             2 => $agent->accountManagers, // Account managers
             3 => $agent->replenishment, // Replenishment
             4 => $agent->withdrew, // Withdrawal
-            5 => view('admin.credits.datatables.all_actions', [
+            5 => view('admin.transactionReport.datatables.all_actions', [
                 'agent' => $agent
             ])->render(),
         ];
