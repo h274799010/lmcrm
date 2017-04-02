@@ -1,0 +1,1 @@
+<a class="btn btn-primary" href="{{ route('admin.report.agents.detail', ['id'=>$agent->id]) }}"> ACTION </a>
