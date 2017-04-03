@@ -2,6 +2,7 @@
 
 namespace App\Helper\PayMaster;
 
+use App\Models\AgentSphere;
 use App\Models\HistoryBadLeads;
 use App\Models\SalesmanInfo;
 use Illuminate\Database\Eloquent\Collection;
@@ -199,6 +200,30 @@ class Pay
                     'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
                 ]
             );
+
+        // Если лид был добавлен как "Только дилмейкеру" - отдаем депозитору процент от сделки
+        if($lead->specification == Lead::SPECIFICATION_FOR_DEALMAKER) {
+            $depositor = Agent::find($lead->agent_id);
+            $depositorSphere = AgentSphere::where('agent_id', '=', $depositor->id)
+                ->where('sphere_id', '=', $lead->sphere_id)
+                ->first();
+            if(!isset($depositorSphere->id)) {
+                $depositorSphere = AgentInfo::where('agent_id', '=', $depositor->id)->first();
+            }
+
+            $depositorPrice = ($price / 100) * $depositorSphere->dealmaker_revenue_share;
+
+            Payment::fromSystem(
+                [
+                    'initiator_id'  => config('payment.system_id'),         // id инициатора платежа
+                    'user_id'       => $depositor->id,          // id пользователя, на кошелек которого будет зачисленна сумма
+                    'wallet_type'   => 'earned',      // тип кошелька с которого снимается сумма
+                    'type'          => 'closeDealLeadForDealmakers',         // тип транзакции
+                    'amount'        => $depositorPrice,           // снимаемая с пользователя сумма
+                    'lead_id'       => $lead->id,  // (не обязательно) id лида если он учавствует в платеже
+                ]
+            );
+        }
 
         return $paymentStatus;
         // если возникли ошибки при платеже

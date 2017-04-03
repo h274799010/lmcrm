@@ -39,9 +39,24 @@ class RequestsPayments
         $requestPayment = new RequestPayment();
         $requestPayment->amount = $request->input('replenishment');
         $requestPayment->initiator_id = $user->id;
-        $requestPayment->status = RequestPayment::STATUS_WAITING;
+        $requestPayment->status = RequestPayment::STATUS_WAITING_PAYMENT;
         $requestPayment->type = RequestPayment::TYPE_REPLENISHMENT;
         $requestPayment->save();
+
+        $statuses = RequestPayment::getRequestPaymentStatus();
+        $types = RequestPayment::getRequestPaymentType();
+        $requestPayment->status = [
+            'name' => $statuses[ $requestPayment->status ],
+            'description' => $statuses['description'][ $requestPayment->status ],
+            'value' => $requestPayment->status
+        ];
+        $requestPayment->type = [
+            'name' => $types[ $requestPayment->type ],
+            'description' => $types['description'][ $requestPayment->type ],
+            'value' => $requestPayment->type
+        ];
+
+        $requestPayment->date = $requestPayment->created_at->format('d/m/Y H:i');
 
         return array(
             'status' => 'success',
@@ -59,7 +74,11 @@ class RequestsPayments
     {
         $validator = Validator::make($request->all(), [
             'withdrawal' => 'required|numeric|min:' . RequestPayment::MINIMUM_AMOUNT,
-            'requisites' => 'required'
+            'company' => 'required',
+            'bank' => 'required',
+            'branch_number' => 'required',
+            'invoice_number' => 'required',
+            'receipt' => 'required'
         ]);
 
         if($validator->fails()) {
@@ -85,9 +104,41 @@ class RequestsPayments
         $requestPayment = new RequestPayment();
         $requestPayment->amount = $request->input('withdrawal');
         $requestPayment->initiator_id = $user->id;
-        $requestPayment->status = RequestPayment::STATUS_WAITING;
+        $requestPayment->status = RequestPayment::STATUS_WAITING_PROCESSING;
         $requestPayment->type = RequestPayment::TYPE_WITHDRAWAL;
+        $requestPayment->company = $request->input('company');
+        $requestPayment->bank = $request->input('bank');
+        $requestPayment->branch_number = $request->input('branch_number');
+        $requestPayment->invoice_number = $request->input('invoice_number');
         $requestPayment->save();
+
+        $check = CheckRequestPayment::find($request->input('receipt'));
+        $check->request_payment_id = $requestPayment->id;
+        $check->save();
+
+        // Резервируем снимаемую сумму
+        $transaction = PayMaster::transaction($user->id);
+        $transactionInfo = PayMaster::pay([
+            'transaction' => $transaction->id,
+            'user_id' => $user->id,
+            'type' => 'withdrawal',
+            'amount' => $requestPayment->amount
+        ]);
+
+        $statuses = RequestPayment::getRequestPaymentStatus();
+        $types = RequestPayment::getRequestPaymentType();
+        $requestPayment->status = [
+            'name' => $statuses[ $requestPayment->status ],
+            'description' => $statuses['description'][ $requestPayment->status ],
+            'value' => $requestPayment->status
+        ];
+        $requestPayment->type = [
+            'name' => $types[ $requestPayment->type ],
+            'description' => $types['description'][ $requestPayment->type ],
+            'value' => $requestPayment->type
+        ];
+
+        $requestPayment->date = $requestPayment->created_at->format('d/m/Y H:i');
 
         return array(
             'status' => 'success',
@@ -104,6 +155,8 @@ class RequestsPayments
     public function setStatusRequestPayment(Request $request)
     {
         $request_payment_id = (int)$request->input('request_payment_id');
+
+        $user = Sentinel::getUser();
 
         if( !$request_payment_id ) {
             abort(403, 'Wrong request payment id');
@@ -122,30 +175,41 @@ class RequestsPayments
         if($status == RequestPayment::STATUS_CONFIRMED) {
             $requestPayment->status = RequestPayment::STATUS_CONFIRMED;
 
-            if($requestPayment->type == RequestPayment::TYPE_WITHDRAWAL) {
-                $transaction = PayMaster::transaction($initiator->id);
-                $transactionInfo = PayMaster::pay([
-                    'transaction' => $transaction->id,
-                    'user_id' => $initiator->id,
-                    'type' => 'withdrawal',
-                    'amount' => $requestPayment->amount
-                ]);
-            } else {
+            if($requestPayment->type == RequestPayment::TYPE_REPLENISHMENT) {
                 $transactionInfo =
                     PayMaster::changeManual(
-                        Sentinel::getUser()->id,  // пользователь которыз инициирует транзакцию
+                        $user->id,  // пользователь которыз инициирует транзакцию
                         $initiator->id,           // пользователь с кошельком которого происходят изменения
                         'buyed',    // тип кошелька агента ( buyed, earned, wasted )
                         $requestPayment->amount          // величина на которую изменяется сумма кошелька
                     );
             }
         }
+        elseif ($status == RequestPayment::STATUS_WAITING_PAYMENT) {
+            $requestPayment->status = RequestPayment::STATUS_WAITING_PAYMENT;
+        } elseif ($status == RequestPayment::STATUS_WAITING_CONFIRMED) {
+            $requestPayment->status = RequestPayment::STATUS_WAITING_CONFIRMED;
+        }
         else {
             $requestPayment->status = RequestPayment::STATUS_REJECTED;
+
+            // Если тип запроса был "Вывод" - возвращаем зарезервируваную сумму вывода
+            if($requestPayment->type == RequestPayment::TYPE_WITHDRAWAL) {
+                $transactionInfo = PayMaster::changeManual(
+                    $user->id, // пользователь которыз инициирует транзакцию
+                        $initiator->id,          // пользователь с кошельком которого происходят изменения
+                        'buyed',      // тип кошелька агента ( buyed, earned, wasted )
+                        $requestPayment->amount  // величина на которую изменяется сумма кошелька
+                    );
+            }
         }
         $requestPayment->save();
 
-        return true;
+        if($user->inRole('agent')) {
+            return $requestPayment;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -158,7 +222,6 @@ class RequestsPayments
         $user = Agent::find(Sentinel::getUser()->id);
 
         $requestsPayments = $user->requestsPayments()
-            ->with('handler')
             ->orderBy('requests_payments.status', 'asc')
             ->orderBy('requests_payments.created_at', 'desc')
             ->get();
@@ -177,7 +240,7 @@ class RequestsPayments
     }
 
     /**
-     * Получение списка обработанных запросов для акк. менеджера / админа
+     * Получение списка не обработанных запросов для акк. менеджера / админа
      *
      * @return array
      */
@@ -185,10 +248,10 @@ class RequestsPayments
     {
         $user = Sentinel::getUser();
         $requestsPayments = RequestPayment::where(function ($query) use ($user) {
-                $query->where('status', '=', RequestPayment::STATUS_WAITING)
+                $query->whereIn('status', [RequestPayment::STATUS_WAITING_PROCESSING, RequestPayment::STATUS_WAITING_PAYMENT, RequestPayment::STATUS_WAITING_CONFIRMED])
                     ->orWhere(function ($query2) use ($user) {
                         $query2->where('handler_id', '=', $user->id)
-                            ->where('status', '=', RequestPayment::STATUS_PROCESS);
+                            ->whereIn('status', [RequestPayment::STATUS_WAITING_PAYMENT, RequestPayment::STATUS_WAITING_CONFIRMED]);
                     });
             })
             ->with('initiator')
@@ -219,7 +282,7 @@ class RequestsPayments
         }
 
         $requestsPayments = RequestPayment::where(function ($query) use ($user) {
-                $query->where('status', '=', RequestPayment::STATUS_WAITING)
+                $query->where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
                     ->orWhere('handler_id', '=', $user->id);
             });
 
@@ -260,10 +323,16 @@ class RequestsPayments
 
         if(empty($requestPayment->handler_id) && !$user->inRole('agent')) {
             $requestPayment->handler_id = $user->id;
-            $requestPayment->status = RequestPayment::STATUS_PROCESS;
             $requestPayment->save();
         }
-        $requestPayment = RequestPayment::with('handler', 'initiator', 'files', 'messages')->find($requestPayment->id);
+        $requestPayment = RequestPayment::with([
+            'handler',
+            'initiator',
+            'files',
+            'messages' => function($query) {
+                $query->with('sender');
+            }
+        ])->find($requestPayment->id);
 
         if(isset($requestPayment->files)) {
             foreach ($requestPayment->files as $key => $cheque) {
@@ -313,12 +382,18 @@ class RequestsPayments
 
         return \Plupload::file('file', function($file) use ($request_payment_id) {
 
-            $requestPayment = RequestPayment::find($request_payment_id);
+            if($request_payment_id) {
+                $requestPayment = RequestPayment::find($request_payment_id);
+                $initiator = $requestPayment->initiator_id;
+            } else {
+                $initiator = Sentinel::getUser()->id;
+                $request_payment_id = 0;
+            }
 
             $original_name = $file->getClientOriginalName();
             $extension = File::extension( $original_name );
             $file_name = md5( microtime() . rand(0, 9999) ) . '.' . $extension;
-            $directory = 'uploads/agent/'.$requestPayment->initiator_id.'/';
+            $directory = 'uploads/agent/'.$initiator.'/';
 
             if(!File::exists($directory)) {
                 File::makeDirectory($directory, $mode = 0777, true, true);
@@ -418,7 +493,8 @@ class RequestsPayments
 
         if(isset($message->id)) {
             return response()->json([
-                'status' => 'success'
+                'status' => 'success',
+                'message' => $message
             ]);
         } else {
             return response()->json([

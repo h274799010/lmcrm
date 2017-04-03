@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterLeadsTableSurname extends Migration
+class AlterLeadsTableSpecificationColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,8 @@ class AlterLeadsTableSurname extends Migration
      */
     public function up()
     {
-        //surname
         Schema::table('leads', function (Blueprint $table) {
-            $table->string('surname')->nullable(); // Фамилия лида
+            $table->integer('specification'); // Спецификация лида (отправлен на аукцион, только дилмейкерам или в приватной группе)
         });
     }
 
@@ -26,7 +25,7 @@ class AlterLeadsTableSurname extends Migration
     public function down()
     {
         Schema::table('leads', function (Blueprint $table) {
-            $table->dropColumn('surname');
+            $table->dropColumn('specification');
         });
     }
 }

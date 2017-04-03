@@ -17,8 +17,8 @@
 
     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
         <div class="col-xs-10 group_checkbox">
-            <div class="checkbox">
-                {{ Form::checkbox('group', 'private', false, array('class' => '', 'id'=>'group') ) }} <label for="group">for private group</label>
+            <div class="radio">
+                {{ Form::radio('group', 'private', false, array('class' => 'connectedRadio', 'id'=>'group') ) }} <label for="group">For private group</label>
                 <span class="help-block">{{ $errors->first('group', ':message') }}</span>
             </div>
 
@@ -27,6 +27,25 @@
 
     <div class="form-group group-select {{ $errors->has('agents') ? 'has-error' : '' }}" id="groupSelectWrap">
         <div class="col-xs-10 wrap">
+        </div>
+    </div>
+
+    <div class="form-group {{ $errors->has('specification') ? 'has-error' : '' }}">
+        <div class="col-xs-10 group_checkbox">
+            <div class="radio">
+                {{ Form::radio('specification', 'specification', false, array('class' => 'connectedRadio', 'id'=>'specification') ) }} <label for="specification">For dealmaker</label>
+                <span class="help-block">{{ $errors->first('specification', ':message') }}</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-xs-10 group_checkbox">
+            <div class="radio">
+                {{ Form::radio('all_specification', 'all_specification', false, array('class' => 'connectedRadio', 'id'=>'all_specification', 'checked' => 'checked') ) }} <label for="all_specification">All</label>
+            </div>
+
         </div>
     </div>
 
@@ -83,6 +102,17 @@
             return html;
         }
         $(document).ready(function () {
+            $(document).on('change', '.connectedRadio', function (e) {
+                e.preventDefault();
+
+                if($(this).prop('checked') == true) {
+                    $(this).closest('.form-group')
+                        .siblings('.form-group')
+                        .find('.connectedRadio')
+                        .prop('checked', false)
+                        .trigger('change');
+                }
+            });
             $(document).on('change', '#group', function (e) {
                 e.preventDefault();
 
@@ -111,7 +141,7 @@
                     $groupSelectWrap.hide().find('.wrap').empty();
                     $this.prop('disabled', false);
                 }
-            })
+            });
         });
     </script>
 @endsection

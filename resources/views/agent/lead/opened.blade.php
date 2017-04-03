@@ -531,6 +531,7 @@
 @section('scripts')
     <script>
         var _token = '{{ csrf_token() }}';
+        var getOrganizerRoute = '{{ route('agent.lead.OrganizerItem') }}';
         function prependOpenLeadsStatuses(currentStatus, data, lead_id) {
             var html = '';
 

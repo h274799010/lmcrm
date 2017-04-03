@@ -28,5 +28,8 @@ return array(
         2 => 'Payment for unsold lead',  // "штраф" депозитору за непроданный лид
         3 => 'Payment for bad lead',     // оплата агентам по плохому лиду (возврат покупателям, штраф депозитору)
         4 => 'Private group',            // лид для приватной группы в денежной системе не учавствует
+    ),
+    'specifications' => array(
+        1 => 'For dealmaker'
     )
 );

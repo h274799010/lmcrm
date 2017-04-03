@@ -320,6 +320,7 @@ class AgentController extends AdminController
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
         $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
         $agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
+        $agentInfo->dealmaker_revenue_share = $request->input('dealmaker_revenue_share');
         $agentInfo->company = $request->input('company');
         $agentInfo->save();
 
@@ -332,6 +333,9 @@ class AgentController extends AdminController
                 }
                 if($agentSphere->payment_revenue_share <= 0) {
                     $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+                }
+                if($agentSphere->dealmaker_revenue_share <= 0) {
+                    $agentSphere->dealmaker_revenue_share = $request->input('dealmaker_revenue_share');
                 }
                 $agentSphere->save();
             }
@@ -353,6 +357,7 @@ class AgentController extends AdminController
         if(isset($agentSphere->id)) {
             $agentSphere->lead_revenue_share = $request->input('lead_revenue_share');
             $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+            $agentSphere->dealmaker_revenue_share = $request->input('dealmaker_revenue_share');
 
             $agentSphere->save();
             return response()->json([ 'error'=>false, 'message'=>trans('admin/agent.revenue_update') ]);

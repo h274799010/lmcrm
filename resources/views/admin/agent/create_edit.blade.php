@@ -129,6 +129,13 @@
                 <span class="help-block">{{ $errors->first('payment_revenue_share', ':message') }}</span>
             </div>
         </div>
+        <div class="form-group  {{ $errors->has('dealmaker_revenue_share') ? 'has-error' : '' }}">
+            {{ Form::label('dealmaker_revenue_share', trans("admin/users.dealmaker_revenue_share"), array('class' => 'control-label')) }}
+            <div class="controls">
+                {{ Form::text('dealmaker_revenue_share', (isset($agent))?$agent->agentInfo->dealmaker_revenue_share:NULL, array('class' => 'form-control')) }}
+                <span class="help-block">{{ $errors->first('dealmaker_revenue_share', ':message') }}</span>
+            </div>
+        </div>
 
         <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
             {{ Form::label('email', trans("admin/users.email"), array('class' => 'control-label')) }}
@@ -405,6 +412,13 @@
                                 <div class="controls">
                                     {{ Form::text('payment_revenue_share', (isset($agentSphere))?$agentSphere->payment_revenue_share:NULL, array('class' => 'form-control')) }}
                                     <span class="help-block">{{ $errors->first('payment_revenue_share', ':message') }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-revenue  {{ $errors->has('dealmaker_revenue_share') ? 'has-error' : '' }}">
+                                {{ Form::label('dealmaker_revenue_share', trans("admin/users.dealmaker_revenue_share"), array('class' => 'control-label')) }}
+                                <div class="controls">
+                                    {{ Form::text('dealmaker_revenue_share', (isset($agentSphere))?$agentSphere->dealmaker_revenue_share:NULL, array('class' => 'form-control')) }}
+                                    <span class="help-block">{{ $errors->first('dealmaker_revenue_share', ':message') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -829,7 +843,7 @@
         margin-top: 0;
     }
 
-    .form-group-revenue:last-child {
+    .form-group-revenue:nth-child(2n+2) {
         float: right;
     }
     .form-group-wrap:after, .clearfix:after {

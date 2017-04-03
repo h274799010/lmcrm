@@ -31,13 +31,27 @@
                     <th>Status</th>
                     <td><span class="badge badge-status-{{ $requestPayment->status }}">{{ $statuses[ $requestPayment->status ] }}</span></td>
                 </tr>
+                @if( $requestPayment->type == \App\Models\RequestPayment::TYPE_WITHDRAWAL )
+                    <tr>
+                        <th>Company</th>
+                        <td>{{ $requestPayment->company }}</td>
+                    </tr>
+                    <tr>
+                        <th>Bank</th>
+                        <td>{{ $requestPayment->bank }}</td>
+                    </tr>
+                    <tr>
+                        <th>Branch number</th>
+                        <td>{{ $requestPayment->branch_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Invoice_number</th>
+                        <td>{{ $requestPayment->invoice_number }}</td>
+                    </tr>
+                @endif
                 <tr>
                     <th>Created</th>
                     <td>{{ $requestPayment->created_at->format('d/m/Y H:i') }}</td>
-                </tr>
-                <tr>
-                    <th>Updated</th>
-                    <td>{{ $requestPayment->updated_at->format('d/m/Y H:i') }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -45,17 +59,30 @@
     </div>
 
 
-    @if($requestPayment->type == \App\Models\RequestPayment::TYPE_REPLENISHMENT)
-        <span data-status="{{ \App\Models\RequestPayment::STATUS_REJECTED }}" class="btn btn-raised btn-danger btnStatusChange
-            @if( $requestPayment->status != \App\Models\RequestPayment::STATUS_PROCESS )
-                disabled
-            @endif">
+    <span data-status="{{ \App\Models\RequestPayment::STATUS_REJECTED }}" data-title="Are you sure you want to refuse the account refill?" class="btn btn-raised btn-danger btnStatusChange
+        @if( $requestPayment->status == \App\Models\RequestPayment::STATUS_CONFIRMED || $requestPayment->status == \App\Models\RequestPayment::STATUS_REJECTED )
+            disabled
+        @endif">
             Reject
         </span>
-        <span data-status="{{ \App\Models\RequestPayment::STATUS_CONFIRMED }}" class="btn btn-raised btn-success btnStatusChange
-            @if( $requestPayment->status != \App\Models\RequestPayment::STATUS_PROCESS )
-                disabled
-            @endif">
+    @if($requestPayment->type == \App\Models\RequestPayment::TYPE_REPLENISHMENT)
+        @if( $requestPayment->status == \App\Models\RequestPayment::STATUS_WAITING_PROCESSING )
+            <span data-status="{{ \App\Models\RequestPayment::STATUS_WAITING_PAYMENT }}" data-title="Ask the agent to transfer money to the account?" class="btn btn-raised btn-success btnStatusChange">
+                Request payment
+            </span>
+        @else
+            <span data-status="{{ \App\Models\RequestPayment::STATUS_CONFIRMED }}" data-title="Do you really want to replenish an agent account for <strong>{{ $requestPayment->amount }}</strong>" class="btn btn-raised btn-success btnStatusChange
+                @if( $requestPayment->status == \App\Models\RequestPayment::STATUS_CONFIRMED || $requestPayment->status == \App\Models\RequestPayment::STATUS_REJECTED )
+                    disabled
+                @endif">
+                Approve
+            </span>
+        @endif
+    @else
+        <span data-status="{{ \App\Models\RequestPayment::STATUS_CONFIRMED }}" data-title="Transfer <strong>{{ $requestPayment->amount }}</strong> to an agent account?" class="btn btn-raised btn-success btnStatusChange
+        @if( $requestPayment->status == \App\Models\RequestPayment::STATUS_CONFIRMED || $requestPayment->status == \App\Models\RequestPayment::STATUS_REJECTED )
+            disabled
+        @endif">
             Approve
         </span>
     @endif
@@ -191,13 +218,11 @@
             background-color: #d9edf7;
             color: #31708f;
         }
-        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING }} {
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_PROCESSING }},
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_CONFIRMED }},
+        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_WAITING_PAYMENT }} {
             background-color: #fcf8e3;
             color: #8a6d3b;
-        }
-        .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_PROCESS }} {
-            background-color: #d9edf7;
-            color: #31708f;
         }
         .table-requests .badge-status-{{ \App\Models\RequestPayment::STATUS_CONFIRMED }} {
             background-color: #dff0d8;
@@ -457,10 +482,7 @@
                     return false;
                 }
 
-                var html = 'Do you really want to replenish an agent account for <strong>{{ $requestPayment->amount }}</strong>';
-                if($(this).data('status') == '{{ \App\Models\RequestPayment::STATUS_REJECTED }}') {
-                    html = 'Are you sure you want to refuse the account refill?';
-                }
+                var html = $(this).data('title');
 
                 $('#statusValue').val($(this).data('status'));
                 $('#modalStatus').find('.modal-body').html(html);

@@ -114,6 +114,12 @@ class Lead extends EloquentUser {
         4 => 'private group',            // лид для приватной группы в денежной системе не учавствует
     ];
 
+    /**
+     * "Спецификация" лида
+     */
+    const SPECIFICATION_FOR_DEALMAKER = 1; // Лид отправляется на аукцион только дилмейкерам
+
+
 
     /**
      * Метод создания нового лида
@@ -1378,6 +1384,19 @@ class Lead extends EloquentUser {
         }
 
         return $res;
+    }
+
+    /**
+     * Возвращает название "спецификации" лида
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getSpecifications() {
+        return collect(
+            [
+                self::SPECIFICATION_FOR_DEALMAKER => trans('lead/statuses.specifications.'.self::SPECIFICATION_FOR_DEALMAKER),
+            ]
+        );
     }
 
 }

@@ -123,6 +123,10 @@ class CreateLead
             $lead->payment_status = 4;
         }
 
+        if( isset($request['specification']) && $user->inRole('agent') ) {
+            $lead->specification = Lead::SPECIFICATION_FOR_DEALMAKER;
+        }
+
         $user->leads()->save($lead);
 
         if( isset($request['group']) && isset($request['agents']) && $user->inRole('agent')){

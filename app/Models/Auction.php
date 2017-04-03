@@ -264,6 +264,9 @@ class Auction extends Model
                     $leadsByFilter = $leadsByFilter->whereNotIn('id', $excludedLeads);
                 }
             }
+            if($agent->inRole('leadbayer')) {
+                $leadsByFilter = $leadsByFilter->where('specification', '!=', Lead::SPECIFICATION_FOR_DEALMAKER);
+            }
              $leadsByFilter = $leadsByFilter->get();
             // массив id лидов подходящих по текущей маске
             $leadsIds = $leadsByFilter->lists('id')->toArray();

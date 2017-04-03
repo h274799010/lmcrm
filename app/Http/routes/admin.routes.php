@@ -214,11 +214,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
 
     // По всем ручным транзитам
     Route::get('report/agents', ['as' => 'admin.report.agents', 'uses' => 'Admin\TransactionController@agentTransactionReport']);
+    Route::get('report/agents/detail/{id}', ['as' => 'admin.report.agents.detail', 'uses' => 'Admin\TransactionController@agentTransactionReportDetail']);
+    Route::post('report/agents/data', ['as' => 'admin.report.agents.data', 'uses' => 'Admin\TransactionController@agentTransactionReportData']);
+    Route::get('report/agents/datatable', ['as' => 'admin.report.agents.datatable', 'uses' => 'Admin\TransactionController@agentTransactionReportDatatables']);
+    Route::post('report/agents/getFilter',['as'=>'admin.report.agents.getFilter', 'uses' => 'Admin\TransactionController@getFilter']);
 
 
     // По всем ручным транзитам
     Route::get('report/all', ['as' => 'admin.report.all', 'uses' => 'Admin\TransactionController@allTransactionReport']);
     // По транзитам системы (админов)
     Route::get('report/system', ['as' => 'admin.report.system', 'uses' => 'Admin\TransactionController@systemTransactionReport']);
+    Route::post('report/system/data', ['as' => 'admin.report.system.data', 'uses' => 'Admin\TransactionController@systemTransactionReportData']);
 
 });

@@ -1,8 +1,12 @@
 <?php namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
+use App\Models\AccountManager;
 use App\Models\Agent;
 use App\Models\RequestPayment;
+use App\Models\Sphere;
+use App\Transformers\Admin\CreditsReportTransformer;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
@@ -286,65 +290,282 @@ class TransactionController extends AdminController {
      */
     public function agentTransactionReport()
     {
+        $filter = Cookie::get('adminCreditReportsFilter');
+        $filter = json_decode($filter, true);
 
-        $role = Sentinel::findRoleById(2);
+        $selectedFilters = array(
+            'sphere' => false,
+            'accountManager' => false
+        );
+        if (count($filter) > 0) {
+            $sphere_id = $filter['sphere'];
+            $accountManager_id = $filter['accountManager'];
 
-        $users = $role->users()->with('roles')->lists('id');
+            if(!$sphere_id) {
+                $role = Sentinel::findRoleBySlug('account_manager');
+                $accountManagers = $role->users()->get();
+            } else {
+                $selectedFilters['sphere'] = $sphere_id;
+                $sphere = Sphere::find($sphere_id);
+                $accountManagers = $sphere->accountManagers()->select('users.id', 'users.email')->get();
+            }
 
+            if(!$accountManager_id) {
+                $spheres = Sphere::active()->get();
+            } else {
+                $selectedFilters['accountManager'] = $accountManager_id;
+                $accountManager = AccountManager::find($accountManager_id);
+                $spheres = $accountManager->spheres()->select('spheres.id', 'spheres.name')->get();
+            }
+        } else {
+            $spheres = Sphere::active()->get();
 
-        $agents = Agent::whereIn( 'id', $users )->get();
-
-
-        $agents = $agents->map(function( $agent ){
-
-            $withdrew = RequestPayment::
-                  where('initiator_id', $agent->id)
-                ->where('status', 3)
-                ->where('type', 2)
-                ->sum('amount');
-
-            $agent->withdrew = $withdrew ? $withdrew : 0;
-
-
-            $replenishment = RequestPayment::
-                  where('initiator_id', $agent->id)
-                ->where('status', 3)
-                ->where('type', 1)
-                ->sum('amount');
-
-            $agent->replenishment = $replenishment ? $replenishment : 0;
-
-
-            return $agent;
-
-        });
-
-
-
-//        dd($agents[2]);
-
-//        return 'true';
-
-//        $allTransactions = PayInfo::getAllTransactions( ['manual'] );
-
-//        dd($allTransactions[0]);
+            $role = Sentinel::findRoleBySlug('account_manager');
+            $accountManagers = $role->users()->get();
+        }
 
         return view('admin.transactionReport.agentsTransactionReports', [
-
-            'agents' => $agents
-
-//            'transactions' => $allTransactions
-//            'statuses' => \App\Facades\Lead::getStatuses('status'),
-//            'auctionStatuses' => \App\Facades\Lead::getStatuses('auctionStatus'),
-//            'paymentStatuses' => \App\Facades\Lead::getStatuses('paymentStatus'),
-//            'selectedFilters' => $selectedFilters
+            'spheres' => $spheres,
+            'accManagers' => $accountManagers,
+            'selectedFilters' => $selectedFilters
         ]);
+    }
 
+    public function agentTransactionReportDatatables(Request $request)
+    {
+        $agents = Agent::listAll();
 
-//        dd($allTransactions);
+        // Если есть параметры фильтра
+        if (count($request->only('filter'))) {
+            // добавляем на страницу куки с данными по фильтру
+            Cookie::queue('adminCreditReportsFilter', json_encode($request->only('filter')['filter']), null, null, null, false, false);
+            // Получаем параметры
+            $eFilter = $request->only('filter')['filter'];
 
-//        dd('allTransactionReport');
-//        return 'true';
+            $filteredIds = array();
+
+            $agentsSphereIds = array();
+            $agentsAccIds = array();
+
+            // Пробегаемся по параметрам из фильтра
+            foreach ($eFilter as $eFKey => $eFVal) {
+                switch($eFKey) {
+                    case 'sphere':
+                        $agentsSphereIds = array();
+                        if($eFVal) {
+                            $sphere = Sphere::find($eFVal);
+                            $agentsSphereIds = $sphere->agentsAll()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    case 'accountManager':
+                        $agentsAccIds = array();
+                        if($eFVal) {
+                            $accountManager = AccountManager::find($eFVal);
+                            $agentsAccIds = $accountManager->agentsAll()->get()->pluck('id', 'id')->toArray();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Обьеденяем id агентов по всем фильтрам
+            $tmp = array_merge($agentsSphereIds, $agentsAccIds);
+            // Убираем повторяющиеся записи (оставляем только уникальные)
+            $tmp = array_unique($tmp);
+
+            // Ишем обшие id по всем фильтрам
+            foreach ($tmp as $val) {
+                $flag = 0;
+                if(empty($eFilter['sphere']) || in_array($val, $agentsSphereIds)) {
+                    $flag++;
+                }
+                if(empty($eFilter['accountManager']) || in_array($val, $agentsAccIds)) {
+                    $flag++;
+                }
+                if( $flag == 2 ) {
+                    $filteredIds[] = $val;
+                }
+            }
+            // Если фильтры не пустые - то применяем их
+            if( !empty($eFilter['sphere']) || !empty($eFilter['accountManager']) || !empty($eFilter['role']) ) {
+                $agents->whereIn('id', $filteredIds);
+            }
+        }
+
+        return Datatables::of($agents)
+            ->setTransformer(new CreditsReportTransformer())
+            ->make();
+    }
+
+    function getFilter(Request $request)
+    {
+        $type = $request->input('type');
+        $id = $request->input('id');
+
+        $sphere_id = $request->input('sphere_id');
+        $accountManager_id = $request->input('accountManager_id');
+
+        $result = array();
+        if($id) {
+            switch ($type) {
+                case 'sphere':
+                    $sphere = Sphere::find($id);
+                    $result['accountManagers'] = $sphere->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
+                    break;
+                case 'accountManager':
+                    $accountManager = AccountManager::find($id);
+                    $result['spheres'] = $accountManager->spheres()->select('spheres.id', 'spheres.name')->get();
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            if(!$sphere_id) {
+                $role = Sentinel::findRoleBySlug('account_manager');
+                $result['accountManagers'] = $role->users()->select('users.id', \DB::raw('users.email AS name'))->get();
+            }
+
+            if(!$accountManager_id) {
+                $result['spheres'] = Sphere::active()->get();
+            }
+        }
+
+        return response()->json($result);
+    }
+
+    public function agentTransactionReportDetail($id)
+    {
+        $agent = Agent::find($id);
+        $user = Sentinel::getUser();
+
+        $reports = $agent->requestPayment()->where(function ($query) use ($user) {
+            $query->where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
+                ->orWhere('handler_id', '=', $user->id);
+        })->get();
+
+        $statistic = array(
+            'replenishment' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'withdrawal' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'confirmed' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'rejected' => [
+                'all' => 0,
+                'period' => 0
+            ]
+        );
+        foreach ($reports as $report) {
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                    $statistic['replenishment']['all'] += $report->amount;
+                } else {
+                    $statistic['withdrawal']['all'] += $report->amount;
+                }
+            }
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                $statistic['confirmed']['all'] += 1;
+            } else {
+                $statistic['rejected']['all'] += 1;
+            }
+        }
+
+        return view('admin.transactionReport.agentTransactionReportDetail', [
+            'agent' => $agent,
+            'reports' => $reports,
+            'statistic' => $statistic,
+            'statuses' => RequestPayment::getRequestPaymentStatus(),
+            'types' => RequestPayment::getRequestPaymentType()
+        ]);
+    }
+
+    public function agentTransactionReportData(Request $request)
+    {
+        // проверка id пользователя
+        $userId = (int)$request->input('agent_id');
+
+        // если id пользователя равен нулю - выходим
+        if( !$userId ){ abort(403, 'Wrong user id'); }
+
+        $timeFrom = $request->timeFrom;
+        $timeTo =$request->timeTo;
+
+        if( !$timeFrom ){
+            $timeFrom = 0;
+        } else {
+            $timeFrom = Carbon::createFromFormat('Y-m-d', $timeFrom)->timestamp;
+        }
+
+        if(!$timeTo) {
+            $timeTo = date('Y-m-d');
+        }
+        $timeTo = Carbon::createFromFormat('Y-m-d', $timeTo)->timestamp;
+
+        $agent = Agent::find($userId);
+        $user = Sentinel::getUser();
+
+        $reports = $agent->requestPayment()->where(function ($query) use ($user) {
+            $query->where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
+                ->orWhere('handler_id', '=', $user->id);
+            })
+            ->get();
+
+        $statistic = array(
+            'replenishment' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'withdrawal' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'confirmed' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'rejected' => [
+                'all' => 0,
+                'period' => 0
+            ]
+        );
+        foreach ($reports as $report) {
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                    $statistic['replenishment']['all'] += $report->amount;
+                } else {
+                    $statistic['withdrawal']['all'] += $report->amount;
+                }
+            }
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                $statistic['confirmed']['all'] += 1;
+            } else {
+                $statistic['rejected']['all'] += 1;
+            }
+
+            if($report->created_at->timestamp >= $timeFrom && $report->created_at->timestamp <= $timeTo) {
+                if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                    if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                        $statistic['replenishment']['period'] += $report->amount;
+                    } else {
+                        $statistic['withdrawal']['period'] += $report->amount;
+                    }
+                }
+                if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                    $statistic['confirmed']['period'] += 1;
+                } else {
+                    $statistic['rejected']['period'] += 1;
+                }
+            }
+        }
+
+        return $statistic;
     }
 
 
@@ -356,8 +577,124 @@ class TransactionController extends AdminController {
      */
     public function systemTransactionReport()
     {
+        $user = Sentinel::getUser();
 
-        return 'true';
+        $reports = RequestPayment::where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
+            ->orWhere('handler_id', '=', $user->id)
+            ->get();
+
+        $statistic = array(
+            'replenishment' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'withdrawal' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'confirmed' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'rejected' => [
+                'all' => 0,
+                'period' => 0
+            ]
+        );
+        foreach ($reports as $report) {
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                    $statistic['replenishment']['all'] += $report->amount;
+                } else {
+                    $statistic['withdrawal']['all'] += $report->amount;
+                }
+            }
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                $statistic['confirmed']['all'] += 1;
+            } else {
+                $statistic['rejected']['all'] += 1;
+            }
+        }
+
+        return view('admin.transactionReport.systemReport', [
+            'reports' => $reports,
+            'statistic' => $statistic,
+            'statuses' => RequestPayment::getRequestPaymentStatus(),
+            'types' => RequestPayment::getRequestPaymentType()
+        ]);
+    }
+
+    public function systemTransactionReportData(Request $request)
+    {
+        $timeFrom = $request->timeFrom;
+        $timeTo =$request->timeTo;
+
+        if( !$timeFrom ){
+            $timeFrom = 0;
+        } else {
+            $timeFrom = Carbon::createFromFormat('Y-m-d', $timeFrom)->timestamp;
+        }
+
+        if(!$timeTo) {
+            $timeTo = date('Y-m-d');
+        }
+        $timeTo = Carbon::createFromFormat('Y-m-d', $timeTo)->timestamp;
+
+        $user = Sentinel::getUser();
+
+        $reports = RequestPayment::where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
+            ->orWhere('handler_id', '=', $user->id)
+            ->get();
+
+        $statistic = array(
+            'replenishment' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'withdrawal' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'confirmed' => [
+                'all' => 0,
+                'period' => 0
+            ],
+            'rejected' => [
+                'all' => 0,
+                'period' => 0
+            ]
+        );
+        foreach ($reports as $report) {
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                    $statistic['replenishment']['all'] += $report->amount;
+                } else {
+                    $statistic['withdrawal']['all'] += $report->amount;
+                }
+            }
+            if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                $statistic['confirmed']['all'] += 1;
+            } else {
+                $statistic['rejected']['all'] += 1;
+            }
+
+            if($report->created_at->timestamp >= $timeFrom && $report->created_at->timestamp <= $timeTo) {
+                if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                    if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
+                        $statistic['replenishment']['period'] += $report->amount;
+                    } else {
+                        $statistic['withdrawal']['period'] += $report->amount;
+                    }
+                }
+                if($report->status == RequestPayment::STATUS_CONFIRMED) {
+                    $statistic['confirmed']['period'] += 1;
+                } else {
+                    $statistic['rejected']['period'] += 1;
+                }
+            }
+        }
+
+        return $statistic;
     }
 
 
