@@ -25,8 +25,13 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <a href="#" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Replenishment button description" id="btnReplenishment">Replenishment</a>
-            <a href="#" class="btn btn-info" data-toggle="tooltip" data-placement="top" title="Withdrawal button description" id="btnWithdrawal">Withdrawal</a>
+            <a href="#" class="btn btn-success" id="btnReplenishment">Replenishment</a> - Replenishment button description
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-xs-12">
+            <a href="#" class="btn btn-info" id="btnWithdrawal">Withdrawal</a> - Withdrawal button description
         </div>
     </div>
 
@@ -48,9 +53,9 @@
                     @foreach($requestsPayments as $requestsPayment)
                         <tr class="@if($requestsPayment->type == \App\Models\RequestPayment::TYPE_REPLENISHMENT) replenishment @else withdrawal @endif" id="requestPayment_{{ $requestsPayment->id }}">
                             <td class="bold">{{ $requestsPayment->amount }}</td>
-                            <td><span class="badge badge-type" data-toggle="tooltip" data-placement="top" title="{{ $types['description'][ $requestsPayment->type ] }}">{{ $types[ $requestsPayment->type ] }}</span></td>
+                            <td><span class="badge message-trigger badge-type" data-toggle="tooltip" data-placement="top" title="{{ $types['description'][ $requestsPayment->type ] }}" data-title="{{ $types['description'][ $requestsPayment->type ] }}">{{ $types[ $requestsPayment->type ] }}</span></td>
                             <td>
-                                <span class="badge badge-status-{{ $requestsPayment->status }}" data-toggle="tooltip" data-placement="top" title="{{ $statuses['description'][ $requestsPayment->status ] }}">
+                                <span class="badge message-trigger badge-status-{{ $requestsPayment->status }}" data-toggle="tooltip" data-placement="top" title="{{ $statuses['description'][ $requestsPayment->status ] }}" data-title="{{ $statuses['description'][ $requestsPayment->status ] }}">
                                     {{ $statuses[ $requestsPayment->status ] }}
                                 </span>
                             </td>
@@ -993,6 +998,12 @@
                         });
                     }
                 });
+            });
+
+            $(document).on('click', '.message-trigger', function (e) {
+                e.preventDefault();
+
+                showSuccessMessage( $(this).data('title') );
             });
         });
 
