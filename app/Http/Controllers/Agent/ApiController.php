@@ -35,6 +35,8 @@ use App\Models\Auction;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use App\Models\AgentsPrivateGroups;
+use Aider;
+use App\Models\UserMasks;
 
 
 class ApiController extends Controller
@@ -147,40 +149,159 @@ class ApiController extends Controller
         // лиды которые нужно пропустить
         $offset = (int)$request->offset;
 
+//        Log::info($request->filter);
+
+//        array (
+//            'sphere' => '',
+//            'mask' => '',
+//            'opened' => '',
+//        )
+
+
         // id пользователя
         $userId = $this->user->id;
 
         // выборка лидов и данных для аукциона
-        $auctionList = Auction::
-        where( 'status', 0 )
-            ->where( 'user_id', $userId )
-            ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
-            ->with(
-                [
-                    'lead' => function($query)
-                    {
-                        $query
-                            ->with('phone')
-                            ->select('id', 'opened', 'customer_id', 'email', 'sphere_id', 'name', 'operator_processing_time', 'created_at')
-                        ;
-                    },
-                    'sphere' => function($query){
-                        $query
-                            ->select('id', 'name')
-                        ;
-                    },
-                    'maskName' => function($query){
-                        $query
-                            ->select('id', 'name')
-                        ;
-                    }
-                ])
-            ->orderBy('created_at', 'desc')
-            ->orderBy('id')
-            ->skip( $offset )
-            ->take(10)
-            ->get()
-        ;
+//        $auctionList = Auction::
+//              where( 'status', 0 )
+//            ->where( 'user_id', $userId )
+//            ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+//            ->with(
+//                [
+//                    'lead' => function($query)
+//                    {
+//                        $query
+//                            ->with('phone')
+//                            ->select('id', 'opened', 'customer_id', 'email', 'sphere_id', 'name', 'operator_processing_time', 'created_at')
+//                        ;
+//                    },
+//                    'sphere' => function($query){
+//                        $query
+//                            ->select('id', 'name')
+//                        ;
+//                    },
+//                    'maskName' => function($query){
+//                        $query
+//                            ->select('id', 'name')
+//                        ;
+//                    }
+//                ])
+//            ->orderBy('created_at', 'desc')
+//            ->orderBy('id')
+//            ->skip( $offset )
+//            ->take(10)
+//            ->get()
+//        ;
+
+
+        if( $request->filter['sphere'] == '' ){
+
+            $auctionList = Auction::
+                  where( 'status', 0 )
+                ->where( 'user_id', $userId )
+                ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+                ->with(
+                    [
+                        'lead' => function($query)
+                        {
+                            $query
+                                ->with('phone')
+                                ->select('id', 'opened', 'customer_id', 'email', 'sphere_id', 'name', 'operator_processing_time', 'created_at')
+                            ;
+                        },
+                        'sphere' => function($query){
+                            $query
+                                ->select('id', 'name')
+                            ;
+                        },
+                        'maskName' => function($query){
+                            $query
+                                ->select('id', 'name')
+                            ;
+                        }
+                    ])
+                ->orderBy('created_at', 'desc')
+                ->orderBy('id')
+                ->skip( $offset )
+                ->take(10)
+                ->get()
+            ;
+
+
+//            $auctionList
+//                ->where('sphere_id', $request->filter['sphere']);
+
+        }elseif( $request->filter['sphere'] != '' && $request->filter['mask'] == ''){
+
+            $auctionList = Auction::
+                  where( 'status', 0 )
+                ->where( 'user_id', $userId )
+                ->where( 'sphere_id', $request->filter['sphere'] )
+                ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+                ->with(
+                    [
+                        'lead' => function($query)
+                        {
+                            $query
+                                ->with('phone')
+                                ->select('id', 'opened', 'customer_id', 'email', 'sphere_id', 'name', 'operator_processing_time', 'created_at')
+                            ;
+                        },
+                        'sphere' => function($query){
+                            $query
+                                ->select('id', 'name')
+                            ;
+                        },
+                        'maskName' => function($query){
+                            $query
+                                ->select('id', 'name')
+                            ;
+                        }
+                    ])
+                ->orderBy('created_at', 'desc')
+                ->orderBy('id')
+                ->skip( $offset )
+                ->take(10)
+                ->get()
+            ;
+
+        }elseif( $request->filter['sphere'] != '' && $request->filter['mask'] != ''){
+
+            $auctionList = Auction::
+            where( 'status', 0 )
+                ->where( 'user_id', $userId )
+                ->where( 'sphere_id', $request->filter['sphere'] )
+                ->where( 'mask_id', $request->filter['mask'] )
+                ->select('id', 'lead_id', 'sphere_id', 'mask_id', 'mask_name_id', 'created_at')
+                ->with(
+                    [
+                        'lead' => function($query)
+                        {
+                            $query
+                                ->with('phone')
+                                ->select('id', 'opened', 'customer_id', 'email', 'sphere_id', 'name', 'operator_processing_time', 'created_at')
+                            ;
+                        },
+                        'sphere' => function($query){
+                            $query
+                                ->select('id', 'name')
+                            ;
+                        },
+                        'maskName' => function($query){
+                            $query
+                                ->select('id', 'name')
+                            ;
+                        }
+                    ])
+                ->orderBy('created_at', 'desc')
+                ->orderBy('id')
+                ->skip( $offset )
+                ->take(10)
+                ->get()
+            ;
+
+        }
+
 
 
         // добавляем лиду данные по маскам
@@ -229,10 +350,11 @@ class ApiController extends Controller
                     'openLeadOther' => $openLeadOther ? 'true' : 'false',
 
                     // время когда лид был обработан оператором и добавлен в систему
-                    'system_added' => $auction->lead['operator_processing_time'] ? $auction->lead['operator_processing_time']->format('H:i d M Y') : NULL,
+                    'system_added' => $auction->lead['operator_processing_time'] ? Aider::dateFormat( $auction->lead['operator_processing_time'] ) : NULL,
 
                     // время когда лид был добавлен непосредственно на аукцион агента
-                    'auction_added' => $auction['created_at']->format('H:i d M Y'),
+//                    'auction_added' => $auction['created_at']->format('H:i d M Y'),
+                    'auction_added' => Aider::dateFormat( $auction['created_at'] ),
 
                     // данные сферы
                     'sphere' =>
@@ -263,6 +385,41 @@ class ApiController extends Controller
 
         // добавление в общие данные итемов аукциона
         $this->userData['auctionItems'] = $auctionItems;
+
+        // все сферы пользователя с масками
+        $agent = Agent::find($this->user->id);
+
+        $spheres = $agent->spheresWithMasks;
+
+        $sphereData = [];
+
+        $spheres->each(function( $sphere ) use(&$sphereData){
+
+            $masks = [];
+
+            $sphere->masks->each(function( $mask ) use(&$masks){
+
+                $mask->getBitmask();
+
+                if( $mask->bitmask['status'] == 1 && $mask['active'] == 1){
+
+                    $masks[$mask['id']] =
+                        [
+                            'id' => $mask['id'],
+                            'name' => $mask['name'],
+                        ];
+                }
+            });
+
+            $sphereData[$sphere['id']] =
+            [
+                'id' => $sphere['id'],
+                'name' => $sphere['name'],
+                'masks' => $masks,
+            ];
+        });
+
+        $this->userData['sphereData'] = $sphereData;
 
         return response()->json( $this->userData );
     }
@@ -355,6 +512,7 @@ class ApiController extends Controller
 
         // добавляем в общие данные отданых лидов
         $this->userData['leads'] = $leads;
+
 
 
         return response()->json( $this->userData );
@@ -484,7 +642,7 @@ class ApiController extends Controller
         });
 
 
-        Log::info($openLeadsData[3]->statuses);
+//        Log::info($openLeadsData[3]->statuses);
 
 
         $this->userData['openedLeads'] = $openLeadsData;
@@ -673,4 +831,442 @@ class ApiController extends Controller
         );
     }
 
+
+    /**
+     * Данные по сферам и состоянием масок агента
+     *
+     */
+    public function agentSphereMasks()
+    {
+
+        // модель агента
+        $agent = Agent::find( $this->user->id );
+
+        // массив с данными по сферам и их маскам
+        $spheres = [];
+        // перебор всех сфер и выбор нужных данных в массив $spheres
+        $agent->spheresWithMasks->each(function( $data ) use(&$spheres){
+
+            // массив с id активных масками
+            $active = [];
+            // массив с id масок ожидающими утверждение админа
+            $pending = [];
+            // массив с id выключенных масок
+            $off = [];
+
+            // перебирание всех масок и отфильтровывание по статусам
+            $data->masks->each(function($mask) use ( &$active, &$pending, &$off ){
+
+                // получение битмаска маски
+                $mask->getBitmask();
+
+                // распределение id масок относительно статусов
+                if( $mask->bitmask->status == 0 ){
+                    // если маска на утверждении админа
+
+                    // id маски заноситса в массив ожидающих масок
+                    $pending[] = $mask->id;
+
+                }elseif( $mask->active == 0 ){
+                    // если маска отключена агентом
+
+                    // id маски заноситса в массив отключенных масок
+                    $off[] = $mask->id;
+
+                }else{
+                    // если маска активна
+
+                    // id маски заноситса в массив активных масок
+                    $active[] = $mask->id;
+                }
+            });
+
+
+            // подсчет количества лидов на аукционе
+            if( count($active) == 0 ){
+                // если активных масок нет
+
+                // присваиваем количеству лидов 0
+                $leads = 0;
+
+            }else{
+                // если есть активные маски
+
+                // получаем лиды с аукциона по активным ааскам
+                $leads = Auction::whereIn('mask_name_id', $active)->count();
+            }
+
+            // оформление всех данных в массив
+            $spheres[] =
+                [
+                    'id' => $data->id,
+                    'name' => $data->name,
+                    'leads' => $leads,
+                    'masks' =>
+                        [
+                            'count' => $data->masks->count(),
+                            'active' => count($active),
+                            'pending' => count($pending),
+                            'off' => count($off)
+                        ],
+                ];
+
+        });
+
+        return response()->json( $spheres );
+    }
+
+
+    /**
+     * Данные по маскам одной сферы
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Json
+     */
+    public function agentSphereMasksData( Request $request )
+    {
+
+        $sphereId = (int)$request->sphereId;
+
+        $sphere = Sphere::find($sphereId);
+
+        $filterAttr = $sphere->filterAttrWithOptions;
+
+        // Основные данные по маскам
+        $blankMask =
+        [
+            'id' => 0,
+            'name' => '',
+            'sphere_id' => $sphere->id,
+            'description' => '',
+        ];
+
+        $filterAttr->each(function( $attr ) use( &$blankMask ){
+
+            $options = [];
+            $attr->filterOptions->each(function( $option ) use( &$options, $attr ){
+
+                $options[] =
+                [
+                    'id' => $option->id,
+                    'name' => $option->name,
+                    'value' => false,
+                ];
+            });
+
+
+            $blankMask['filter'][] =
+            [
+                'id' => $attr->id,
+                'name' => $attr->label,
+                'options' => $options,
+            ];
+        });
+
+
+
+        $sphereMasks =
+            [
+                'id' => $sphere->id,
+                'name' => $sphere->name,
+                'masks' => [],
+            ];
+
+        $userMasks = UserMasks::
+        where( 'sphere_id',  $sphere->id )
+            ->where( 'user_id', $this->user->id )
+            ->get();
+
+
+        // перебираем все маски и выделяем нужные данные
+        $userMasks->each(function( $mask ) use(&$sphereMasks){
+
+            // получение битмаска маски
+            $mask->getBitmask();
+
+            if( $mask['bitmask']['status'] == 0 || $mask['active'] == 0 ){
+
+                $leads = 0;
+
+            }else{
+
+                $leads = Auction::where('mask_name_id', $mask->id)->count();
+            }
+
+
+            $sphereMasks['masks'][$mask['id']] =
+                [
+                    'id' => $mask['id'],
+                    'name' => $mask['name'],
+                    'description' => $mask['description'],
+                    'active' => $mask['active'] == 0 ? false : true,
+                    'leads' => $leads,
+                    'pending' => $mask['bitmask']['status'] == 0 ? false : true,
+                    'updated_at' => Aider::dateFormat( $mask['bitmask']['updated_at'] ),
+                ];
+
+        });
+
+        $sphereMasks['blankMask'] = $blankMask;
+
+        return response()->json( $sphereMasks );
+    }
+
+
+    /**
+     * Изменение активности маски агентом
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Json
+     */
+    public function maskActiveSwitch( Request $request )
+    {
+
+        // выбираем id маски
+        $maskId = (int)$request->maskId;
+
+        // выбираем маску
+        $userMasks = UserMasks::find( $maskId );
+
+        $userMasks->active = !$userMasks->active;
+
+        $userMasks->save();
+
+        if( $userMasks->active == 0 ){
+
+            $leads = 0;
+
+        }else{
+
+            $leads = Auction::where('mask_name_id', $userMasks->id)->count();
+        }
+
+        return response()->json([ 'status'=>'true', 'leads'=>$leads ]);
+
+    }
+
+
+    /**
+     * Данные для редактирования маски
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Json
+     */
+    public function sphereMasksEdit( Request $request )
+    {
+
+        // выбираем id маски
+        $maskId = (int)$request->maskId;
+
+        // выбираем маску
+        $mask = UserMasks::find( $maskId );
+
+        $sphere = Sphere::find( $mask->sphere_id );
+
+        $filterAttr = $sphere->filterAttrWithOptions;
+
+        // Основные данные по маскам
+        $maskData =
+        [
+            'id' => $mask->id,
+            'name' => $mask->name,
+            'description' => $mask->description,
+        ];
+
+        // добавление битмаска
+        $mask->getBitmask();
+
+
+        /**
+         * Перебор атрибутов и заполнение значениями из маски агента
+         */
+        $filterAttr->each(function( $attr ) use( &$maskData, $mask){
+
+            // выделяем битмаск
+            $bitmask = $mask->bitmask;
+
+            // массив с опциями
+            $options = [];
+
+            $attr->filterOptions->each(function( $option ) use( &$options, $attr, $bitmask ){
+
+                $options[] =
+                    [
+                        'id' => $option->id,
+                        'name' => $option->name,
+                        'value' => $bitmask['fb_' .$option->attr_id .'_' .$option->id] == 1 ? 'true' : 'false',
+                    ];
+            });
+
+
+            $maskData['filter'][] =
+            [
+                'id' => $attr->id,
+                'name' => $attr->label,
+                'options' => $options,
+            ];
+        });
+
+
+        return response()->json([ 'status'=>'true', 'mask'=>$mask, 'maskData'=>$maskData ]);
+
+    }
+
+
+    /**
+     * Данные для редактирования маски
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Json
+     */
+    public function saveMask( Request $request )
+    {
+
+        // выбираем маску
+        $mask = UserMasks::where('id', $request->mask['id'])->where('user_id', $this->user->id)->first();
+
+        if(!$mask){
+            return response()->json([ 'status' => 'false' ]);
+        }
+
+        // меняем в модели имя маски
+        $mask->name = $request->mask['name'];
+        // меняем в моделе описание маски
+        $mask->description = $request->mask['description'];
+        // сохраняем модель
+        $mask->save();
+
+        // добавляем битмаск в модель
+        $mask->getBitmask();
+
+        $filter = collect($request->mask['filter']);
+
+        $filter->each(function( $attr ) use( &$mask ){
+
+            $options = collect($attr['options']);
+            $options->each(function( $option ) use( $attr, &$mask){
+
+                $fb_attr_opt = 'fb_' .$attr['id'] .'_' .$option['id'];
+
+                $value = $option['value'] ? 1 : 0;
+
+                if( $mask->bitmask[$fb_attr_opt] != $value ){
+
+                    $mask->bitmask[$fb_attr_opt] = $value;
+                    $mask->bitmask['status'] = 0;
+                }
+            });
+        });
+
+        $mask->bitmask->changeTable($mask->sphere_id);
+        $mask->bitmask->save();
+
+        return response()->json([ 'status' => 'true' ]);
+    }
+
+
+    /**
+     * Создание новой маски
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Json
+     */
+    public function createMask( Request $request )
+    {
+//        'sphere_id' => $sphere->id,
+
+        $bitMask = new AgentBitmask( $request->mask['sphere_id'], $this->user->id );
+
+        $bitMask->user_id = $this->user->id;
+        $bitMask->save();
+
+        $mask = new UserMasks();
+        $mask->user_id = $this->user->id;
+        $mask->sphere_id = $request->mask['sphere_id'];
+        $mask->mask_id = $bitMask->id;
+
+        $mask->user_id = $this->user->id;
+
+        $mask->active = 1;
+
+        // меняем в модели имя маски
+        $mask->name = $request->mask['name'];
+        // меняем в моделе описание маски
+        $mask->description = $request->mask['description'];
+        // сохраняем модель
+        $mask->save();
+
+        // добавляем битмаск в модель
+        $mask->getBitmask();
+
+        $filter = collect($request->mask['filter']);
+
+//        Log::info($filter);
+
+        $filter->each(function( $attr ) use( &$mask ){
+
+            $options = collect($attr['options']);
+            $options->each(function( $option ) use( $attr, &$mask){
+
+                $fb_attr_opt = 'fb_' .$attr['id'] .'_' .$option['id'];
+
+                $value = $option['value'] ? 1 : 0;
+
+                if( $mask->bitmask[$fb_attr_opt] != $value ){
+
+                    $mask->bitmask[$fb_attr_opt] = $value;
+                    $mask->bitmask['status'] = 0;
+
+                }else{
+                    $mask->bitmask[$fb_attr_opt] = 0;
+                }
+            });
+        });
+
+//        Log::info($mask->bitmask);
+
+        $mask->bitmask->changeTable($mask->sphere_id);
+        $mask->bitmask->save();
+
+        return response()->json([ 'status' => 'true' ]);
+    }
+
+
+    /**
+     * Удаление маски
+     *
+     *
+     * @param  Request  $request
+     *
+     * @return Json
+     */
+    public function dellMask(Request $request)
+    {
+
+        // выбираем маску
+        $mask = UserMasks::where('id', $request->maskId)->where('user_id', $this->user->id)->first();
+
+        if(!$mask){
+            return response()->json([ 'status' => 'false' ]);
+        }
+
+        $mask->getBitmask();
+
+        $mask->bitmask->changeTable($mask->sphere_id);
+
+        $mask->bitmask->delete();
+        $mask->delete();
+
+        return response()->json([ 'status' => 'true' ]);
+    }
 }

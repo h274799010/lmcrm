@@ -33,6 +33,15 @@ Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|sal
 // todo удалить, это для проверки выдачи статистики
 Route::get('transitionTest/{status}', function($status){
 
+    $agent = Agent::find( $this->user->id );
+
+    $spheres = $agent->spheresWithMasks;
+
+    dd($spheres);
+
+//    return response()->json($agent->spheresWithMasks);
+
+
 //    $a = \App\Models\SphereStatusTransitions::all();
 
     $a = \App\Models\SphereStatusTransitions::getRating( 1, 2, $status);
@@ -44,147 +53,110 @@ Route::get('transitionTest/{status}', function($status){
 
 });
 
+
 Route::get('stat', function(){
 
 
 
-    dd( \Carbon\Carbon::now()->subDays(0)->diffForHumans() );
 
+    $u = \App\Models\User::find(6);
 
-    $leadId = 250;
+    $a = \App\Models\Agent::find($u->id);
 
-    // получаем лид
-    $lead = Lead::find( $leadId );
+    $spheres = $a->spheresWithMasks;
 
-    // выбираем статусы сферы
-    $sphereStatuses = $lead->sphereStatuses->statuses;
+    $sphereData = [];
 
-    // массив со статусами ( status_id => stepname )
-    $statuses[0] = 'No status';
+    $spheres->each(function( $sphere ) use(&$sphereData){
 
-    // перебираем все статусы и формируем массив со статусами
-    $sphereStatuses->each(function( $status ) use (&$statuses){
-        // добавление статуса в массив статусов
-        $statuses[$status->id] = $status->stepname;
-    });
+        $masks = [];
 
-    // получаем всех участников группы агента
-    $members = \App\Models\AgentsPrivateGroups::
-          where( 'agent_owner_id', $lead['agent_id'] )
-        ->with(
-            [
-                'memberData',
-                'openLead'=>function($query) use ($leadId){
-                    // получаем только текущий лид
-                    $query->where('lead_id', $leadId);
-                }
-            ]
-        )
-        ->get();
+        $sphere->masks->each(function( $mask ) use(&$masks){
 
-    // коллекция с агентами для которых лид был открыт
-    $membersOpen = collect();
-    // коллекция с агентами для которых лид небыл открыт
-    $membersNotOpen = collect();
+            $mask->getBitmask();
 
-    // перебор всех участников группы и выборка нужных данных
-    $members->each(function($item) use (&$membersOpen, &$membersNotOpen, $statuses){
+            if( $mask->bitmap['status'] == 1 && $mask['active'] == 1){
 
-        // проверка открытых лидов у участника
-        if( $item['openLead']->count()==0 ){
-            // если нет открытых лидов
-
-            $data =
+                $masks[] =
                 [
-                    'id' => $item['memberData']['id'],
-                    'email' => $item['memberData']['email'],
+                    'id' => $mask['id'],
+                    'name' => $mask['name'],
                 ];
+            }
 
-
-            // todo добавляем данные в массив с агентами, которым лид не добавлен
-            $membersNotOpen->push($data);
-
-        }else{
-            // если лид открыт для участника
-
-            $data =
+            $sphereData =
             [
-                'id' => $item['memberData']['id'],
-                'email' => $item['memberData']['email'],
-                'status' => $statuses[ $item['openLead'][0]['status'] ]
+                'id' => $sphere['id'],
+                'name' => $sphere['name'],
+                'masks' => $masks,
             ];
 
-            // todo добавляем данные в массив с агентами, которым лид был добавлен
-            $membersOpen->push($data);
-        }
+        });
+
+
+
     });
 
-    return response()->json(
+    dd($a->spheresWithMasks);
+
+
+    // выбираем id маски
+    $maskId = 33;
+
+    // выбираем маску
+    $mask = App\Models\UserMasks::find( $maskId );
+
+    $sphere = App\Models\Sphere::find( 1 );
+
+    $filterAttr = $sphere->filterAttrWithOptions;
+
+    // Основные данные по маскам
+    $maskData =
         [
-            'membersOpen' => $membersOpen,
-            'membersNotOpen' => $membersNotOpen
-        ]
-    );
+            'id' => $mask->id,
+            'name' => $mask->name,
+            'description' => $mask->description,
+        ];
 
-//        dd( $membersOpen );
-
-
-        dd( $membersNotOpen );
+    // добавление битмаска
+    $mask->getBitmask();
 
 
+    /**
+     * Перебор атрибутов и заполнение значениями из маски агента
+     *
+     */
+    $filterAttr->each(function( $attr ) use( &$maskData, $mask){
 
+        // выделяем битмаск
+        $bitmask = $mask->bitmask;
 
-//    dd( Lead::find(250) );
+        // массив с опциями
+        $options = [];
 
-    $c = \App\Helper\PayMaster\PayInfo::getClosedDealData( 250 );
+        $attr->filterOptions->each(function( $option ) use( &$options, $attr, $bitmask ){
 
-    dd($c);
-
-
-
-    $c = \App\Helper\PayMaster\PayInfo::getAgentsOpenedLeadsData( 3, true );
-
-    dd($c);
-
-
-    $a  = \App\Models\TransactionsLeadInfo::where('lead_id', 3)->lists('transaction_id');
-
-    $b = \App\Models\TransactionsDetails::whereIn('transaction_id', $a)->get();
-
-    dd($b);
-
-
-
-
-    $userId = 6;
-
-    $user = \App\Models\User::find( $userId );
-
-
-
-    $openLeads = \App\Models\OpenLeads::
-          whereIn('agent_id', $userIds);
-
-
-    $openLeads = $openLeads
-        ->with(
+            $options[] =
             [
-                'lead' => function ($query) {
-                    $query->with('sphereStatuses', 'sphere');
-                },
-                'maskName2',
-                'statusInfo',
-                'closeDealInfo'
-            ]
-        )
-        ->orderBy('created_at', 'desc')
-        ->take(10)
-        ->get()
-    ;
+                'id' => $option->id,
+                'name' => $option->name,
+                'value' => $bitmask['fb_' .$option->attr_id .'_' .$option->id] == 1 ? 'true' : 'false',
+            ];
+        });
 
-    dd( $openLeads[4] );
+
+        $maskData['filter'][] =
+        [
+            'id' => $attr->id,
+            'name' => $attr->label,
+            'options' => $options,
+        ];
+
+    });
+
+
+    dd($maskData);
 
     return 'ok';
-
 });
 

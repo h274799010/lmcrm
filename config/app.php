@@ -197,7 +197,12 @@ return [
          */
         App\Providers\StatisticProvider::class,
 
+        /*
+         * Общие функции проекта
+         */
+        App\Providers\AiderProvider::class,
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -264,6 +269,8 @@ return [
         'Statistic' => App\Facades\Statistic::class,
         'Messages' => App\Facades\Messages::class,
         'RequestsPayments' => App\Facades\RequestsPayments::class,
+        'Aider' => App\Facades\Aider::class,
+
     ],
 
 ];

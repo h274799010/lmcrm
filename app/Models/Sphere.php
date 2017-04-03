@@ -40,6 +40,16 @@ class Sphere extends Model
 
 
     /**
+     * Получение данных фильтра сферы c опциями
+     *
+     *
+     */
+    public function filterAttrWithOptions() {
+        return $this->hasMany('App\Models\SphereFormFilters', 'sphere_id', 'id')->with('filterOptions')->orderBy('position');
+    }
+
+
+    /**
      * Примечания по сфере
      *
      *
