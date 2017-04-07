@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Helper\PayMaster\PayCalculation;
 use App\Models\Agent;
 use App\Models\Auction;
 use App\Models\HistoryBadLeads;
@@ -138,7 +139,13 @@ class AgentSalesmanSphereController extends SphereController
             'salesman_id' => $this->salesman->id,
             'userData' => $userData,
             'badLeads' => $badLeads,
-            'permissions' => $permissions
+            'permissions' => $permissions,
+            'wallet' => [
+                'buyed' => $wallet->buyed,
+                'earned' => $wallet->earned,
+                'wasted' => $wallet->wasted,
+                'total' => PayCalculation::possibilityPayment($wallet)
+            ]
         ]);
 
         // переводим данные по балансу в json

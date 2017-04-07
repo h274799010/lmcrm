@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Facades\CreateLead;
+use App\Helper\PayMaster\PayCalculation;
 use App\Lmcrm\Lead;
 use App\Models\Agent;
 use App\Models\AgentBitmask;
@@ -147,7 +148,13 @@ class AgentSalesmanLeadController extends LeadController
             'salesman_id' => $this->salesman->id,
             'userData' => $userData,
             'badLeads' => $badLeads,
-            'permissions' => $permissions
+            'permissions' => $permissions,
+            'wallet' => [
+                'buyed' => $wallet->buyed,
+                'earned' => $wallet->earned,
+                'wasted' => $wallet->wasted,
+                'total' => PayCalculation::possibilityPayment($wallet)
+            ]
         ]);
 
         // переводим данные по балансу в json
