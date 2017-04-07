@@ -25,13 +25,13 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <a href="#" class="btn btn-success" id="btnReplenishment">Replenishment</a> - Replenishment button description
+            <a href="#" class="btn btn-success btn-actions" id="btnReplenishment">Replenishment</a> - Replenishment button description
         </div>
     </div>
     <br>
     <div class="row">
         <div class="col-xs-12">
-            <a href="#" class="btn btn-info" id="btnWithdrawal">Withdrawal</a> - Withdrawal button description
+            <a href="#" class="btn btn-info btn-actions" id="btnWithdrawal">Withdrawal</a> - Withdrawal button description
         </div>
     </div>
 
@@ -357,6 +357,9 @@
         }
         .file-container {
             margin-bottom: 12px;
+        }
+        .btn-actions {
+            min-width: 148px;
         }
     </style>
 @endsection
