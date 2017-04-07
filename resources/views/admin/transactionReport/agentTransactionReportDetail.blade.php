@@ -43,15 +43,20 @@
                             <th colspan="10">Request payments</th>
                         </tr>
                         <tr>
+                            <th colspan="2" class="center middle">Replenishment</th>
+
                             <th colspan="2" class="center middle">Withdrawal</th>
 
-                            <th colspan="2" class="center middle">Replenishment</th>
+                            <th colspan="2" class="center middle">Total requests</th>
 
                             <th colspan="2" class="center middle">Confirmed</th>
 
                             <th colspan="2" class="center middle">Rejected</th>
                         </tr>
                         <tr>
+                            <th class="center middle">all</th>
+                            <th class="center middle">period</th>
+
                             <th class="center middle">all</th>
                             <th class="center middle">period</th>
 
@@ -75,6 +80,9 @@
                             <td class="center middle summary_table_operator_bad_all"> {{ $statistic['withdrawal']['all'] }}</td>
                             <td class="center middle summary_table_operator_bad_period"> {{ $statistic['withdrawal']['period'] }}</td>
 
+                            <td class="center middle summary_table_operator_bad_all"> {{ $statistic['total']['all'] }}</td>
+                            <td class="center middle summary_table_operator_bad_period"> {{ $statistic['total']['period'] }}</td>
+
                             <td class="center middle summary_table_users_bad_all"> {{ $statistic['confirmed']['all'] }}</td>
                             <td class="center middle summary_table_users_bad_period"> {{ $statistic['confirmed']['period'] }}</td>
 
@@ -95,6 +103,7 @@
                         <thead>
                         <tr>
                             <th>Amount</th>
+                            <th>Handler</th>
                             <th>Initiator</th>
                             <th>Type</th>
                             <th>Status</th>
@@ -107,6 +116,13 @@
                             @foreach($reports as $report)
                                 <tr>
                                     <td>{{ $report->amount }}</td>
+                                    <td>
+                                        @if(isset($report->handler))
+                                            {{ $report->handler->email }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>
                                         @if(isset($report->initiator))
                                             {{ $report->initiator->email }}
@@ -182,6 +198,9 @@
 
             html += '<td class="center middle summary_table_operator_bad_all">'+statistic.withdrawal.all+'</td>';
             html += '<td class="center middle summary_table_operator_bad_period">'+statistic.withdrawal.period+'</td>';
+
+            html += '<td class="center middle summary_table_operator_bad_all">'+statistic.total.all+'</td>';
+            html += '<td class="center middle summary_table_operator_bad_period">'+statistic.total.period+'</td>';
 
             html += '<td class="center middle summary_table_users_bad_all">'+statistic.confirmed.all+'</td>';
             html += '<td class="center middle summary_table_users_bad_period">'+statistic.confirmed.period+'</td>';
@@ -260,6 +279,7 @@
 
             // todo дефолтное значение календаря, при кнопке отмена
             $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
+                dataStart = dataEnd = null;
                 $(this).val('').trigger('change');
             });
         });
