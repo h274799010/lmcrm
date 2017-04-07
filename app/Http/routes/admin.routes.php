@@ -187,6 +187,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // Настройки
     Route::get('settings/roles', ['as' => 'admin.settings.roles', 'uses' => 'Admin\SettingsController@roles']);
     Route::match(['put','post'], 'settings/role/update', ['as' => 'admin.settings.roleUpdate', 'uses' => 'Admin\SettingsController@roleUpdate']);
+    Route::get('settings/system', ['as' => 'admin.settings.system', 'uses' => 'Admin\SettingsController@systemSettings']);
+    Route::post('settings/create',['as'=>'admin.settings.create', 'uses' => 'Admin\SettingsController@create']);
+    Route::match(['put','post'], 'settings/update', ['as' => 'admin.settings.update', 'uses' => 'Admin\SettingsController@settingsUpdate']);
 
     // Работа с групами агентов
     Route::get('groups/to/confirmation', ['as' => 'admin.groups.to.confirmation', 'uses' => 'Admin\AgentPrivateGroupsController@ToConfirmationAgentInGroup']);

@@ -226,6 +226,11 @@
                             <i class="fa fa-users"></i> Roles
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.settings.system') }}">
+                            <i class="fa fa-file-o "></i> Systems
+                        </a>
+                    </li>
                 </ul>
             </li>
 

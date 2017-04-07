@@ -98,5 +98,98 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
+        /** --- Настройки системы --- */
+        $settings = [
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_TEXT,
+                'name' => 'agent.credits.requisites',
+                'value' => 'Requisites: 4554-4578-1215-7785',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.requisites_description',
+                'value' => '',
+                'description' => '<p>Requisites description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.buttons.replenishment.description',
+                'value' => '',
+                'description' => '<p>replenishment description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits..buttons.withdrawal.description',
+                'value' => '',
+                'description' => '<p>replenishment description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.popups.replenishment.description',
+                'value' => '',
+                'description' => '<p>replenishment description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.popups.withdrawal.description',
+                'value' => '',
+                'description' => '<p>replenishment description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.messages.success.replenishment',
+                'value' => '',
+                'description' => '<p>replenishment description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.messages.success.withdrawal',
+                'value' => '',
+                'description' => '<p>replenishment description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.popups.paid.description',
+                'value' => '',
+                'description' => '<p>replenishment description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'agent.credits.min_withdrawal_amount',
+                'value' => 1000,
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'system.agents.lead_revenue_share',
+                'value' => '50',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'system.agents.payment_revenue_share',
+                'value' => '80',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'system.agents.dealmaker_revenue_share',
+                'value' => '50',
+                'description' => ''
+            ],
+        ];
+
+        $locale = App::getLocale();
+
+        foreach ($settings as $setting) {
+            $data = new \App\Models\SettingsSystem();
+            $data->type = $setting['type'];
+            $data->name = $setting['name'];
+            $data->translateOrNew($locale)->value = $setting['value'];
+            $data->translateOrNew($locale)->description = $setting['description'];
+            $data->save();
+        }
+
     }
 }
