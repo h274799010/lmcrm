@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Facades\Settings;
 use App\Helper\PayMaster\Pay;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Illuminate\Database\Eloquent\Model;
@@ -354,13 +355,15 @@ class OpenLeads extends Model {
             $user = $agent;
         }
 
-        $agentSphere = AgentSphere::where('sphere_id', '=', $lead->id)
-            ->where('agent_id', '=', $user->id)
-            ->first();
-
         $percent = 0;
-        if(isset($agentSphere->id) && !$agent->inRole('leadbayer')) {
-            $percent = $price * (100 - $agentSphere->payment_revenue_share) / 100;
+        if($user->inRole('dealmaker')) {
+            $agentSphere = AgentSphere::where('sphere_id', '=', $lead->sphere_id)
+                ->where('agent_id', '=', $user->id)
+                ->first();
+
+            $paymentRevenueShare = isset($agentSphere->payment_revenue_share) && $agentSphere->payment_revenue_share > 0 ? $agentSphere->payment_revenue_share : Settings::get_setting('system.agents.payment_revenue_share');
+
+            $percent = $price * (100 - $paymentRevenueShare) / 100;
         }
 
 
@@ -375,7 +378,7 @@ class OpenLeads extends Model {
         $closedDeal->comments = $comments;                      // описание
         $closedDeal->status = $agent->inRole('leadbayer') ? ClosedDeals::DEAL_STATUS_CONFIRMED : ClosedDeals::DEAL_STATUS_WAITING; // закрыта/не закрыта (подтверждает админ или акк. менеджер)
         $closedDeal->price = $price;                            // цена за сделку. добавляет агент при закрытии сделки
-        $closedDeal->percent = $agent->inRole('leadbayer') ? '-' : $percent;                        // процент от сделки
+        $closedDeal->percent = $percent;                        // процент от сделки
         //$closedDeal->purchase_transaction_id = '';            // id транзакции платежа
         //$closedDeal->purchase_date = '';                      // дата когда был совершен платеж
         $closedDeal->save();

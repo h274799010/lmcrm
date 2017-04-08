@@ -2,6 +2,8 @@
 
 namespace App\Helper\PayMaster;
 
+use App\Facades\Settings;
+use App\Models\AgentSphere;
 use App\Models\OpenLeads;
 use Illuminate\Database\Eloquent\Model;
 
@@ -86,12 +88,16 @@ class PayCalculation
             // находим платежные данные агента
             $agentInfo = AgentInfo::where( 'agent_id', $lead['agent_id'] )->first();
 
+            $agentSphere = AgentSphere::where('sphere_id', '=', $lead['sphere_id'])
+                ->where('agent_id', '=', $lead['agent_id'])
+                ->first();
+
             // процент агента за открытие лида
-            $leadRevenueShare = $agentInfo->lead_revenue_share;
+            $leadRevenueShare = isset($agentSphere->lead_revenue_share) && $agentSphere->lead_revenue_share > 0 ? $agentSphere->lead_revenue_share : Settings::get_setting('system.agents.lead_revenue_share');
 
             // выручка агента по продажам лида
             // отнимаем от суммы всех продаж по лиду цену за оператора и умножаем на процент от выручки
-            $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare;
+            $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare / 100;
 
 
             return $agentRevenueOpenLead;
@@ -134,10 +140,14 @@ class PayCalculation
         $callOperator = PayInfo::OperatorPayment( $lead->id ) * (-1);
 
         // находим платежные данные агента
-        $agentInfo = AgentInfo::where( 'agent_id', $lead['agent_id'] )->first();
+        //$agentInfo = AgentInfo::where( 'agent_id', $lead['agent_id'] )->first();
+
+        $agentSphere = AgentSphere::where('sphere_id', '=', $lead->sphere_id)
+            ->where('agent_id', '=', $lead->agent_id)
+            ->first();
 
         // процент агента за открытые лиды
-        $leadRevenueShare = $agentInfo->lead_revenue_share;
+        $leadRevenueShare = isset($agentSphere->lead_revenue_share) && $agentSphere->lead_revenue_share > 0 ? $agentSphere->lead_revenue_share : Settings::get_setting('system.agents.lead_revenue_share');
 
         // выручка депозитора по продажам лида
         $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare / 100;

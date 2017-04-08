@@ -18,6 +18,7 @@ class CreateSettingsSystemTable extends Migration
             $table->string('name', 255);  // имя поля
             $table->string('value', 255); // значение
             $table->longText('description');     // Описание
+            $table->unique('name');
             $table->engine = 'InnoDB';
         });
     }

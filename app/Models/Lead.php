@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Facades\Settings;
 use App\Helper\PayMaster\PayCalculation;
 use App\Helper\PayMaster\PayInfo;
 use Cartalyst\Sentinel\Users\EloquentUser;
@@ -1242,12 +1243,15 @@ class Lead extends EloquentUser {
      */
     public function paymentRevenueShare()
     {
-        $agentInfo = $this    // данные агента в таблице AgentInfo
+        /*$agentInfo = $this    // данные агента в таблице AgentInfo
             ->hasOne( 'App\Models\AgentInfo', 'agent_id', 'agent_id')
+            ->first();*/
+        $agentSphere = AgentSphere::where('sphere_id', '=', $this->sphere_id)
+            ->where('agent_id', '=', $this->agent_id)
             ->first();
 
         // возвращает только саму выручку
-        return $agentInfo->payment_revenue_share;
+        return isset($agentSphere->payment_revenue_share) ? $agentSphere->payment_revenue_share : Settings::get_setting('system.agents.payment_revenue_share');
     }
 
 

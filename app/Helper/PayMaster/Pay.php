@@ -2,6 +2,7 @@
 
 namespace App\Helper\PayMaster;
 
+use App\Facades\Settings;
 use App\Models\AgentSphere;
 use App\Models\HistoryBadLeads;
 use App\Models\SalesmanInfo;
@@ -561,17 +562,22 @@ class Pay
             $agent_id = Lead::find( $lead['agent_id'] )->agent_id;
 
             // находим платежные данные агента
-            $agentInfo = AgentInfo::where( 'agent_id', $agent_id )->first();
+            //$agentInfo = AgentInfo::where( 'agent_id', $agent_id )->first();
+
+            $agentSphere = AgentSphere::where('sphere_id', '=', $lead_id)
+                ->where('agent_id', '=', $agent_id)
+                ->first();
 
             // процент агента за открытие лида
-            $leadRevenueShare = $agentInfo->lead_revenue_share;
+            $leadRevenueShare = isset($agentSphere->lead_revenue_share) && $agentSphere->lead_revenue_share > 0 ? $agentSphere->lead_revenue_share : Settings::get_setting('system.agents.lead_revenue_share');
             // процент агента за закрытие сделки по лиду
-            $paymentRevenueShare = $agentInfo->payment_revenue_share;
+            $paymentRevenueShare = isset($agentSphere->payment_revenue_share) && $agentSphere->payment_revenue_share > 0 ? $agentSphere->payment_revenue_share : Settings::get_setting('system.agents.payment_revenue_share');
 
             // todo вынести расчет в калькуляции
             // выручка агента по продажам лида
             // отнимаем от суммы всех продаж по лиду цену за оператора и умножаем на процент от выручки
-            $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare;
+            //$agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare;
+            $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare / 100;
 
             $paymentStatus['openLeads'] = $agentRevenueOpenLead;
 
