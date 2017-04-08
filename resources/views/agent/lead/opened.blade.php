@@ -723,8 +723,14 @@
                         else if(data.status == 'success') {
                             if(data.stepname != '') {
                                 var lead_id = $checkModal.find('input[name=openedLeadId]').val();
-                                $statusLabel.addClass('waiting');
-                                $statusLabel.html('<i class="fa fa-clock-o" aria-hidden="true"></i> '+data.stepname);
+                                var labelClass = 'waiting';
+                                var iconClass = 'fa-clock-o';
+                                if(data.type == 'leadbayer') {
+                                    labelClass = 'confirm';
+                                    iconClass = 'fa-check-square-o';
+                                }
+                                $statusLabel.addClass(labelClass);
+                                $statusLabel.html('<i class="fa '+iconClass+'" aria-hidden="true"></i> '+data.stepname);
                                 $statusLabel.siblings().remove();
                                 $statusLabel.after('<a href="{{ url('/') }}/agent/lead/aboutDeal/'+lead_id+'" class="btn btn-default btn-sm btn-status aboutDeal"><i class="fa fa-eye" aria-hidden="true"></i></a>');
                             }

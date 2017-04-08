@@ -1126,6 +1126,7 @@ class LeadController extends AgentController {
                 $res['status'] = 'success';
                 $res['message'] = trans('site/lead.deal_closed');
                 $res['stepname'] = $status->stepname;
+                $res['type'] = $user->inRole('leadbayer') ? 'leadbayer' : 'dealmaker';
 
                 return response()->json($res);
 

@@ -359,7 +359,7 @@ class OpenLeads extends Model {
             ->first();
 
         $percent = 0;
-        if(isset($agentSphere->id)) {
+        if(isset($agentSphere->id) && !$agent->inRole('leadbayer')) {
             $percent = $price * (100 - $agentSphere->payment_revenue_share) / 100;
         }
 
@@ -373,9 +373,9 @@ class OpenLeads extends Model {
         $closedDeal->sender = $sender_id;                       // id пользователя который отдал лид агенту (оператор или партнер)
         $closedDeal->lead_source = $lead_source;                // лид получен с аукциона или передан напрямую по группе (1-auction, 2-group)
         $closedDeal->comments = $comments;                      // описание
-        $closedDeal->status = ClosedDeals::DEAL_STATUS_WAITING; // закрыта/не закрыта (подтверждает админ или акк. менеджер)
+        $closedDeal->status = $agent->inRole('leadbayer') ? ClosedDeals::DEAL_STATUS_CONFIRMED : ClosedDeals::DEAL_STATUS_WAITING; // закрыта/не закрыта (подтверждает админ или акк. менеджер)
         $closedDeal->price = $price;                            // цена за сделку. добавляет агент при закрытии сделки
-        $closedDeal->percent = $percent;                        // процент от сделки
+        $closedDeal->percent = $agent->inRole('leadbayer') ? '-' : $percent;                        // процент от сделки
         //$closedDeal->purchase_transaction_id = '';            // id транзакции платежа
         //$closedDeal->purchase_date = '';                      // дата когда был совершен платеж
         $closedDeal->save();
