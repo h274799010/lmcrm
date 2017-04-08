@@ -34,7 +34,7 @@ class SettingsSystem extends Eloquent
                 $setting->description = $setting->name;
             }
 
-            return $setting->description;
+            return trim($setting->description);
         }
         else {
             if(empty($setting->value)) {
@@ -44,7 +44,7 @@ class SettingsSystem extends Eloquent
                 }
             }
 
-            return $setting->value;
+            return trim($setting->value);
         }
     }
 

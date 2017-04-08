@@ -32,7 +32,10 @@
                                             @if($setting->type == \App\Models\SettingsSystem::TYPE_NUMBER)
                                                 {{ Form::number($setting->id, $setting->value, array('class' => 'form-control')) }}
                                             @elseif($setting->type == \App\Models\SettingsSystem::TYPE_LONGTEXT)
-                                                {{ Form::textarea($setting->id, $setting->description, array('class' => 'form-control', 'rows'=>5)) }}
+                                                {{ Form::textarea($setting->id, $setting->description, array('class' => 'form-control', 'id'=>'ckeditor_'.$setting->id, 'rows'=>5)) }}
+                                                <script type="text/javascript">
+                                                    CKEDITOR.replace( 'ckeditor_{{ $setting->id }}' );
+                                                </script>
                                             @else
                                                 {{ Form::text($setting->id, $setting->value, array('class' => 'form-control')) }}
                                             @endif
@@ -77,8 +80,8 @@
 @endsection
 
 @section('scripts')
+    <script src="{{ asset('components/ckeditor/ckeditor.js') }}"></script>
     <script type="text/javascript">
-
         $(document).ready(function () {
             $(document).on('submit', '.rolesForm', function (e) {
                 e.preventDefault();

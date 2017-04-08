@@ -50,9 +50,12 @@
                                         <div class="form-group  {{ $errors->has('description') ? 'has-error' : '' }}">
                                             {{ Form::label('description', trans('admin/settings.description'), array('class' => 'control-label')) }}
                                             <div class="controls">
-                                                {{ Form::textarea('description', NULL, array('class' => 'form-control')) }}
+                                                {{ Form::textarea('description', NULL, array('class' => 'form-control', 'id'=>'ckeditor_'.$role->id)) }}
                                                 <span class="help-block">{{ $errors->first('description', ':message') }}</span>
                                             </div>
+                                            <script type="text/javascript">
+                                                CKEDITOR.replace( 'ckeditor_{{ $role->id }}' );
+                                            </script>
                                         </div>
                                     </div>
                                 </div>
@@ -94,6 +97,7 @@
 @endsection
 
 @section('scripts')
+    <script src="{{ asset('components/ckeditor/ckeditor.js') }}"></script>
     <script type="text/javascript">
 
         $(document).ready(function () {
