@@ -13,6 +13,10 @@ class SphereFormFilters extends Model
         return $this->hasMany('App\Models\FormFiltersOptions','attr_id','id')->orderBy('position');
     }
 
+    public function filterOptions() {
+        return $this->hasMany('App\Models\FormFiltersOptions','attr_id','id')->orderBy('position');
+    }
+
     public function sphere() {
         return $this->belongsTo('App\Models\Sphere','id','sphere_id');
     }

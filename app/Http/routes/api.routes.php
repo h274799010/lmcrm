@@ -74,9 +74,41 @@ Route::group(['middleware' => 'jwt-auth'], function () {
     Route::post('openLead', ['as' => 'api.open.lead', 'uses' => 'Agent\ApiController@openLead']);
 
 
+    // данные приватной группы агента по лиду
+    Route::post('privateGroup', ['as' => 'api.private.group', 'uses' => 'Agent\ApiController@privateGroup']);
+
 
     // создание нового лида
     Route::post('newLead', ['as' => 'api.opened', 'uses' => 'Agent\ApiController@createLead']);
+
+
+    // данные по сферам и состоянием масок агента
+    Route::post('agentSphereMasks', ['as' => 'api.sphere.masks', 'uses' => 'Agent\ApiController@agentSphereMasks']);
+
+
+    // получение данных по маскам сферы
+    Route::post('agentSphereMasksData', ['as' => 'api.sphere.masks.data', 'uses' => 'Agent\ApiController@agentSphereMasksData']);
+
+
+    // переключение активности маски агентом (включение/выключение)
+    Route::post('maskActiveSwitch', ['as' => 'api.mask.active.switch', 'uses' => 'Agent\ApiController@maskActiveSwitch']);
+
+
+    // создание нового лида
+    Route::post('sphereMasksEdit', ['as' => 'api.mask.sphere.edit', 'uses' => 'Agent\ApiController@sphereMasksEdit']);
+
+
+    // сохранение отредактированной маски
+    Route::post('saveMask', ['as' => 'api.save.mask', 'uses' => 'Agent\ApiController@saveMask']);
+
+
+    // создание новой маски
+    Route::post('saveNewMask', ['as' => 'api.save.new.mask', 'uses' => 'Agent\ApiController@createMask']);
+
+
+    // создание новой маски
+    Route::post('dellMask', ['as' => 'api.dell.mask', 'uses' => 'Agent\ApiController@dellMask']);
+
 
 });
 

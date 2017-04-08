@@ -31,6 +31,7 @@ return [
         'repaymentForLead '    => 'repayment for the bad lead',    // возврат средств за bad_lead агентам которые его купили
         'operatorRepayment'    => 'refund for operator handling',  // "штраф" за оператора автору "плохого" лида
         'rewardForOpenLead'    => 'Agent reward for the Lead',     // "награждение" агента за открытие лида
+        'closingDealInGroup'   => 'Closing deal in group',         // закрытие сделок в группе
     ],
 
 

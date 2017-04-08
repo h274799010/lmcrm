@@ -33,6 +33,15 @@ Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|sal
 // todo удалить, это для проверки выдачи статистики
 Route::get('transitionTest/{status}', function($status){
 
+    $agent = Agent::find( $this->user->id );
+
+    $spheres = $agent->spheresWithMasks;
+
+    dd($spheres);
+
+//    return response()->json($agent->spheresWithMasks);
+
+
 //    $a = \App\Models\SphereStatusTransitions::all();
 
     $a = \App\Models\SphereStatusTransitions::getRating( 1, 2, $status);
@@ -44,103 +53,111 @@ Route::get('transitionTest/{status}', function($status){
 
 });
 
+
 Route::get('stat', function(){
 
-    $userId = 6;
-
-    $user = \App\Models\User::find( $userId );
 
 
-//    $user = \App\Models\Agent::find(6);
 
-    $userIds = [$user->id];
+    $u = \App\Models\User::find(6);
 
-    if($user->inRole('agent')) {
+    $a = \App\Models\Agent::find($u->id);
 
-        $agent = \App\Models\Agent::find( $user->id );
+    $spheres = $a->spheresWithMasks;
 
-        $salesmans = $agent->salesmen()->get()->lists('id')->toArray();
+    $sphereData = [];
 
-//        dd($salesmans);
+    $spheres->each(function( $sphere ) use(&$sphereData){
 
-        if(count($salesmans) > 0) {
-            $userIds = array_merge($userIds, $salesmans);
-        }
+        $masks = [];
 
-    }
+        $sphere->masks->each(function( $mask ) use(&$masks){
 
+            $mask->getBitmask();
 
-    $openLeads = \App\Models\OpenLeads::
-          whereIn('agent_id', $userIds);
+            if( $mask->bitmap['status'] == 1 && $mask['active'] == 1){
 
-//    if (count($request->only('filter'))) {
-//        // если фильтр есть
-//
-//        // получаем данные фильтра
-//        $eFilter = $request->only('filter')['filter'];
-//
-//        if(!empty($eFilter)) {
-//            // перебираем данные и проверяем на соответствие
-//            foreach ($eFilter as $eFKey => $eFVal) {
-//
-//                // проверяем ключ
-//                switch($eFKey) {
-//
-//                    // если фильтр по дате
-//                    case 'sphere':
-//
-//                        if($eFVal != '') {
-//                            $openLeads = $openLeads->join('leads', function ($join) use ($eFVal) {
-//                                $join->on('open_leads.lead_id', '=', 'leads.id')
-//                                    ->where('leads.sphere_id', '=', $eFVal);
-//                            });
-//                        }
-//
-//                        break;
-//                    case 'status':
-//
-//                        if($eFVal != '') {
-//                            $openLeads = $openLeads->where('open_leads.status', '=', $eFVal);
-//                        }
-//
-//                        break;
-//                    case 'date':
-//                        if($eFVal != 'empty' && $eFVal != '') {
-//                            $eFVal = explode('/', $eFVal);
-//
-//                            $start = trim($eFVal[0]);
-//                            $end = trim($eFVal[1]);
-//
-//                            $openLeads = $openLeads->where('open_leads.created_at', '>=', $start . ' 00:00:00')
-//                                ->where('open_leads.created_at', '<=', $end . ' 23:59:59');
-//                        }
-//                        break;
-//                    default: ;
-//                }
-//            }
-//        }
-//    }
+                $masks[] =
+                [
+                    'id' => $mask['id'],
+                    'name' => $mask['name'],
+                ];
+            }
 
-    $openLeads = $openLeads
-        ->with(
+            $sphereData =
             [
-                'lead' => function ($query) {
-                    $query->with('sphereStatuses', 'sphere');
-                },
-                'maskName2',
-                'statusInfo',
-                'closeDealInfo'
-            ]
-        )
-        ->orderBy('created_at', 'desc')
-        ->take(10)
-        ->get()
-    ;
+                'id' => $sphere['id'],
+                'name' => $sphere['name'],
+                'masks' => $masks,
+            ];
 
-    dd( $openLeads[4] );
+        });
+
+
+
+    });
+
+    dd($a->spheresWithMasks);
+
+
+    // выбираем id маски
+    $maskId = 33;
+
+    // выбираем маску
+    $mask = App\Models\UserMasks::find( $maskId );
+
+    $sphere = App\Models\Sphere::find( 1 );
+
+    $filterAttr = $sphere->filterAttrWithOptions;
+
+    // Основные данные по маскам
+    $maskData =
+        [
+            'id' => $mask->id,
+            'name' => $mask->name,
+            'description' => $mask->description,
+        ];
+
+    // добавление битмаска
+    $mask->getBitmask();
+
+
+    /**
+     * Перебор атрибутов и заполнение значениями из маски агента
+     *
+     */
+    $filterAttr->each(function( $attr ) use( &$maskData, $mask){
+
+        // выделяем битмаск
+        $bitmask = $mask->bitmask;
+
+        // массив с опциями
+        $options = [];
+
+        $attr->filterOptions->each(function( $option ) use( &$options, $attr, $bitmask ){
+
+            $options[] =
+            [
+                'id' => $option->id,
+                'name' => $option->name,
+                'value' => $bitmask['fb_' .$option->attr_id .'_' .$option->id] == 1 ? 'true' : 'false',
+            ];
+        });
+
+
+        $maskData['filter'][] =
+        [
+            'id' => $attr->id,
+            'name' => $attr->label,
+            'options' => $options,
+        ];
+
+    });
+
+
+    dd($maskData);
 
     return 'ok';
-
 });
 
 Route::get('settings/create', function () {
