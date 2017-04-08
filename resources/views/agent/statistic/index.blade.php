@@ -2,11 +2,10 @@
 
 {{-- Content --}}
 @section('content')
-    <div class="page-header">
-        <h3>
-            @lang('statistic.page_title') {{ $statistic['user']['email'] }}
-        </h3>
-    </div>
+    <ol class="breadcrumb">
+        <li><a href="/">LM CRM</a></li>
+        <li  class="active">@lang('statistic.page_title') {{ $statistic['user']['email'] }}</li>
+    </ol>
 
     {{-- Проверка есть ли у пользователя сферы --}}
     @if($spheres->count() == 0)

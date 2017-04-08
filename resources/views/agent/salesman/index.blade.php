@@ -1,14 +1,24 @@
 @extends('layouts.master')
 {{-- Content --}}
 @section('content')
-    <div class="_page-header" xmlns="http://www.w3.org/1999/html">
-        @if(!$userBanned && !$userNotActive)
-            <a class="btn btn-info pull-right flip" href="{{route('agent.salesman.create')}}"><i class="fa fa-plus"></i> {{ trans("agent/salesman/main.add") }}</a>
-        @endif
+    <ol class="breadcrumb">
+        <li><a href="/">LM CRM</a></li>
+        <li  class="active">Salesmans</li>
+    </ol>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="_page-header" xmlns="http://www.w3.org/1999/html">
+                @if(!$userBanned && !$userNotActive)
+                    <a class="btn btn-info pull-right flip" href="{{route('agent.salesman.create')}}"><i class="fa fa-plus"></i> {{ trans("agent/salesman/main.add") }}</a>
+                @endif
+            </div>
+        </div>
     </div>
 
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
                 <table class="table table-bordered table-striped table-hover dataTable">
                     <thead>
                     <tr>
@@ -47,6 +57,7 @@
                     @endforelse
                     </tbody>
                 </table>
+            </div>
         </div>
     </div>
 
@@ -87,6 +98,15 @@
 
 @section('styles')
     <style>
+        .dataTables_wrapper label {
+            margin-bottom: 16px;
+        }
+        .dataTables_wrapper label input {
+            margin-left: 8px;
+        }
+        .dataTables_wrapper label select {
+            margin: 0 8px;
+        }
         .agent-buttons .icon {
             width: 20px;
             height: 20px;

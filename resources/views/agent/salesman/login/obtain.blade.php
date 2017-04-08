@@ -4,77 +4,83 @@
 @section('content')
     <div class="_page-header" xmlns="http://www.w3.org/1999/html"></div>
 
-    @if($errors->any())
-        <div class="alert alert-warning alert-dismissible fade in" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-            <div>{{$errors->first()}}</div>
-        </div>
-    @endif
-
-    <div class="alert alert-warning alert-dismissible fade in hidden" role="alert" id="open_result">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-        <div id="open_result_content"></div>
-    </div>
-
     <div class="dataTables_container" id="obtainedLeadsFilters">
-        <div class="col-md-12">
-            <label class="obtain-label-period" for="reportrange">
-                Period:
-                <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter reportrange" id="reportrange" value="" />
-            </label>
-            @if(count($spheres) > 0)
-                <label>
-                    Sphere
-                    <select data-name="spheres" class="selectbox dataTables_filter">
-                        <option></option>
-                        @foreach($spheres as $sphere)
-                            <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
-                        @endforeach
-                    </select>
+        <div class="row">
+            <div class="col-xs-12">
+                @if($errors->any())
+                    <div class="alert alert-warning alert-dismissible fade in" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <div>{{$errors->first()}}</div>
+                    </div>
+                @endif
+
+                <div class="alert alert-warning alert-dismissible fade in hidden" role="alert" id="open_result">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div id="open_result_content"></div>
+                </div>
+                <div id="jsErrorsWrapper"></div>
+            </div>
+
+            <div class="col-md-12 filter-wrapper">
+                <label class="obtain-label-period" for="reportrange">
+                    <span class="filter-label">Period:</span>
+                    <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter reportrange" id="reportrange" value="" />
                 </label>
-            @endif
-            <label>
-                Show
-                <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                </select> entries
-            </label>
-        </div>
+                @if(count($spheres) > 0)
+                    <label>
+                        <span class="filter-label">Sphere</span>
+                        <select data-name="spheres" class="selectbox dataTables_filter">
+                            <option></option>
+                            @foreach($spheres as $sphere)
+                                <option value="{{ $sphere->id }}">{{ $sphere->name }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                @endif
+                <label>
+                    <span class="filter-label">Show</span>
+                    <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select> <span class="filter-label filter-label-last">entries</span>
+                </label>
+                <button class="btn btn-sm btn-danger" id="resetFilters" style="margin-bottom: 0;">{{ trans('admin/admin.button.filter_reset') }}</button>
+            </div>
 
-        <div class="col-md-12">
-            <table class="table table-bordered table-striped table-hover" id="tableObtainedLeads">
-                <thead>
-                <tr>{{--@php($i=0)--}}
-                    <th><div>{{ trans("site/lead.count") }}</div></th>
-                    <th><div>{{ trans("main.open") }}</div></th>
-                    @if( Sentinel::hasAccess(['agent.lead.openAll']) )
-                        <th><div>{{ trans("main.open.all") }}</div></th>
-                    @endif
-                    <th><div>{{ trans("site/lead.sphere") }}</div></th>
-                    <th><div>{{ trans("site/lead.open.mask") }}</div></th>
-                    <th><div>{{ trans("site/lead.updated") }}</div></th>
-                    <th><div>{{ trans("site/lead.name") }}</div></th>
-                    <th><div>{{ trans("site/lead.phone") }}</div></th>
-                    <th><div>{{ trans("site/lead.email") }}</div></th>
-                    <th><div>Actions</div></th>
+            <div class="col-md-12">
+                <table class="table table-bordered table-striped table-hover" id="tableObtainedLeads">
+                    <thead>
+                    <tr>{{--@php($i=0)--}}
+                        <th><div>{{ trans("site/lead.count") }}</div></th>
+                        <th><div>{{ trans("main.open") }}</div></th>
+                        @if( Sentinel::hasAccess(['agent.lead.openAll']) )
+                            <th><div>{{ trans("main.open.all") }}</div></th>
+                        @endif
+                        <th><div>{{ trans("site/lead.sphere") }}</div></th>
+                        <th><div>{{ trans("site/lead.open.mask") }}</div></th>
+                        <th><div>{{ trans("site/lead.updated") }}</div></th>
+                        <th><div>{{ trans("site/lead.name") }}</div></th>
+                        <th><div>{{ trans("site/lead.phone") }}</div></th>
+                        <th><div>{{ trans("site/lead.email") }}</div></th>
+                        <th><div>Actions</div></th>
 
-                    {{--@forelse($sphere['filterAttr'] as $agent_attr)
-                        <th><div>{{ $agent_attr->label }}</div></th>@php($i++)
-                    @empty
-                    @endforelse
+                        {{--@forelse($sphere['filterAttr'] as $agent_attr)
+                            <th><div>{{ $agent_attr->label }}</div></th>@php($i++)
+                        @empty
+                        @endforelse
 
-                    @php($i=0)
-                    @forelse($sphere['leadAttr'] as $lead_attr)
-                        <th><div>{{ $lead_attr->label }}</div></th>@php($i++)
-                    @empty
-                    @endforelse--}}
-                </tr>
-                </thead>
-                <tbody></tbody>
-                <tfoot></tfoot>
-            </table>
+                        @php($i=0)
+                        @forelse($sphere['leadAttr'] as $lead_attr)
+                            <th><div>{{ $lead_attr->label }}</div></th>@php($i++)
+                        @empty
+                        @endforelse--}}
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -189,7 +195,7 @@
                     if(data.status == 'fail') {
                         var error = prepareErrorsHTML(data.error);
 
-                        $('#obtainedLeadsFilters').before(error);
+                        $('#jsErrorsWrapper').html(error);
                     } else if (data.status == 'success') {
                         window.location = data.route;
                     } else {
@@ -199,6 +205,18 @@
                         });
                     }
                 })
+            });
+
+            $(document).on('click', '#resetFilters', function (e) {
+                e.preventDefault();
+
+                $('.filter-wrapper').find('select').each(function (i, el) {
+                    $(el).prop('selectedIndex', 0);
+                    var selectBox = $(el).data("selectBox-selectBoxIt");
+                    selectBox.refresh();
+                });
+
+                $('.filter-wrapper input').val('').trigger('change');
             });
         });
 
@@ -315,6 +333,19 @@
             width: 28px;
             display: inline-block;
             text-align: center;
+        }
+        .filter-wrapper {
+            margin: 16px 0;
+        }
+        .filter-label {
+            margin-right: 6px;
+        }
+        .filter-label.filter-label-last {
+            margin-right: 0;
+            margin-left: 6px;
+        }
+        .filter-wrapper label {
+            margin-right: 15px;
         }
     </style>
 @stop
