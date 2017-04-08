@@ -101,63 +101,63 @@ class DatabaseSeeder extends Seeder
         /** --- Настройки системы --- */
         $settings = [
             [
-                'type' => \App\Models\SettingsSystem::TYPE_TEXT,
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
                 'name' => 'agent.credits.requisites',
-                'value' => 'Requisites: 4554-4578-1215-7785',
+                'value' => '',
+                'description' => '<p>Requisites: 4554-4578-1215-7785</p><p>Requisites description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_TEXT,
+                'name' => 'agent.credits.buttons.replenishment.description',
+                'value' => '- Replenishment button description',
                 'description' => ''
             ],
             [
-                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
-                'name' => 'agent.credits.requisites_description',
-                'value' => '',
-                'description' => '<p>Requisites description</p>'
-            ],
-            [
-                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
-                'name' => 'agent.credits.buttons.replenishment.description',
-                'value' => '',
-                'description' => '<p>replenishment description</p>'
-            ],
-            [
-                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'type' => \App\Models\SettingsSystem::TYPE_TEXT,
                 'name' => 'agent.credits..buttons.withdrawal.description',
-                'value' => '',
-                'description' => '<p>replenishment description</p>'
+                'value' => '- Withdrawal button description',
+                'description' => ''
             ],
             [
                 'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
                 'name' => 'agent.credits.popups.replenishment.description',
                 'value' => '',
-                'description' => '<p>replenishment description</p>'
+                'description' => '<p>Replenishment description</p>'
             ],
             [
                 'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
                 'name' => 'agent.credits.popups.withdrawal.description',
                 'value' => '',
-                'description' => '<p>replenishment description</p>'
+                'description' => '<p>Withdrawal description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_TEXT,
+                'name' => 'agent.credits.messages.label.ok',
+                'value' => 'Ok, I get it.',
+                'description' => ''
             ],
             [
                 'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
-                'name' => 'agent.credits.messages.success.replenishment',
+                'name' => 'agent.credits.messages.success.create_replenishment',
                 'value' => '',
-                'description' => '<p>replenishment description</p>'
+                'description' => '<p>Your request was successfully sent. Now transfer money to the specified account number. After payment, click the &quot;Paid&quot; button near the request</p>'
             ],
             [
                 'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
-                'name' => 'agent.credits.messages.success.withdrawal',
+                'name' => 'agent.credits.messages.success.paid_replenishment',
                 'value' => '',
-                'description' => '<p>replenishment description</p>'
+                'description' => '<p>The money will be credited to your account after the administration checks</p>'
             ],
             [
                 'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
-                'name' => 'agent.credits.popups.paid.description',
+                'name' => 'agent.credits.messages.success.create_withdrawal',
                 'value' => '',
-                'description' => '<p>replenishment description</p>'
+                'description' => '<p>The money will be credited to your account after the administration checks</p>'
             ],
             [
                 'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
                 'name' => 'agent.credits.min_withdrawal_amount',
-                'value' => 1000,
+                'value' => '2000',
                 'description' => ''
             ],
             [
