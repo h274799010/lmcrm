@@ -140,7 +140,7 @@ class PayCalculation
         $leadRevenueShare = $agentInfo->lead_revenue_share;
 
         // выручка депозитора по продажам лида
-        $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare;
+        $agentRevenueOpenLead = ( $revenueOpenLead - $callOperator ) * $leadRevenueShare / 100;
 
         return $agentRevenueOpenLead;
 

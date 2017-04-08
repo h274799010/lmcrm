@@ -354,11 +354,13 @@ class OpenLeads extends Model {
             $user = $agent;
         }
 
-        $agentInfo = $user->agentInfo()->first();
+        $agentSphere = AgentSphere::where('sphere_id', '=', $lead->id)
+            ->where('agent_id', '=', $user->id)
+            ->first();
 
         $percent = 0;
-        if(isset($agentInfo->id)) {
-            $percent = $price * $agentInfo->payment_revenue_share;
+        if(isset($agentSphere->id)) {
+            $percent = $price * (100 - $agentSphere->payment_revenue_share) / 100;
         }
 
 
