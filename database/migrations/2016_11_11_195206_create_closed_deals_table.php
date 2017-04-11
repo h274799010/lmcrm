@@ -17,8 +17,8 @@ class CreateClosedDealsTable extends Migration
             $table->integer('open_lead_id');             // id открытого лида, по которому закрывается сделка
             $table->integer('deal_type');                // id типа закрытой сделки
             $table->integer('agent_id');                 // id агента который закрывает сделку
-            $table->integer('sender');                   // id пользователя который отдал лид агенту (оператор или партнер)
-            $table->integer('lead_source');              // кто добавил: оператор, партнер...
+            $table->integer('sender');                   // id пользователя который отдал лид агенту (оператор или партнер) depositor_id
+            $table->integer('lead_source');              // кто добавил: оператор, партнер... depositor_type
             $table->string('comments');                  // описание
             $table->integer('status');                   // закрыта/не закрыта (подтверждает админ или акк. менеджер), если есть подтверждение происходит транзакция по вознаграждению агента
             $table->double('price', 20, 2);              // цена за сделку. добавляет агент при закрытии сделки

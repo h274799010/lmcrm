@@ -201,6 +201,8 @@ return [
          * Общие функции проекта
          */
         App\Providers\AiderProvider::class,
+
+        LaravelFCM\FCMServiceProvider::class
     ],
 
 
@@ -271,6 +273,8 @@ return [
         'RequestsPayments' => App\Facades\RequestsPayments::class,
         'Aider' => App\Facades\Aider::class,
 
+        'FCM'      => LaravelFCM\Facades\FCM::class,
+        'FCMGroup' => LaravelFCM\Facades\FCMGroup::class,
     ],
 
 ];

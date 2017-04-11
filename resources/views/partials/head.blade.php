@@ -94,10 +94,93 @@
     @section('script') @show
     <script type="text/javascript" src="{{ asset('assets/web/js/lmcrm.js') }}"></script>
 
-    {{-- Система нотификаций подключается только агентам или продавцам --}}
+    {{-- Система нотификаций подключается только агентам и продавцам --}}
     @if( Sentinel::inRole('agent') || Sentinel::inRole('salesman') )
         {{-- Подключение системы нотификаций --}}
         <script src="{{ asset('assets/web/js/notifications.js') }}"></script>
+
+
+        <script src="https://www.gstatic.com/firebasejs/3.6.8/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/3.6.8/firebase-messaging.js"></script>
+
+        <script src="/firebase-messaging-sw.js"></script>
+
+
+        <script>
+
+//            firebase.initializeApp({
+//                messagingSenderId: '366085223489'
+//            });
+
+//            const messaging = firebase.messaging();
+
+            messaging.requestPermission()
+
+            .then(function() {
+
+                console.log('Notification permission granted.');
+
+                // TODO(developer): Retrieve an Instance ID token for use with FCM.
+            })
+            .catch(function(err) {
+
+                console.log('Unable to get permission to notify.', err);
+
+            });
+
+
+            if ('Notification' in window) {
+//                var messaging = firebase.messaging();
+
+
+                console.log('нотификации поддерживаются');
+
+                // пользователь уже разрешил получение уведомлений
+                // подписываем на уведомления если ещё не подписали
+//                if (Notification.permission === 'granted') {
+//                    subscribe();
+//                }
+
+                // по клику, запрашиваем у пользователя разрешение на уведомления
+                // и подписываем его
+//                $('#subscribe').on('click', function () {
+//                    subscribe();
+//                });
+            }else{
+                console.log('нотификации не поддерживаются')
+            }
+
+
+
+
+
+
+
+
+            messaging.getToken()
+                .then(function (currentToken) {
+                    console.log(currentToken);
+
+                    if (currentToken) {
+                        sendTokenToServer(currentToken);
+                    } else {
+                        console.warn('Не удалось получить токен.');
+//                        setTokenSentToServer(false);
+                    }
+                })
+                .catch(function (err) {
+                    console.warn('При получении токена произошла ошибка.', err);
+//                    setTokenSentToServer(false);
+                });
+
+
+
+
+
+
+        </script>
+
+
     @endif
 
 

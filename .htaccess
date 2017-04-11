@@ -1,4 +1,15 @@
 RewriteEngine On
+
+
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+
+
 RewriteRule ^\.htaccess$ - [F]
 RewriteCond %{REQUEST_URI} =""
 RewriteRule ^.*$ /public/index.php [NC,L]
@@ -11,3 +22,6 @@ RewriteRule ^public/.*$ /public/index.php [NC,L]
 # RewriteCond %{THE_REQUEST} /public/([^\s?]*) [NC]
 # RewriteRule ^ %1 [L,NE,R=302]
 # RewriteRule ^((?!public/).*)$ public/$1 [L,NC]
+
+
+

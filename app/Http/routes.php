@@ -56,7 +56,61 @@ Route::get('transitionTest/{status}', function($status){
 
 Route::get('stat', function(){
 
+//use LaravelFCM\Message\OptionsBuilder;
+//use LaravelFCM\Message\PayloadDataBuilder;
+//use LaravelFCM\Message\PayloadNotificationBuilder;
+//use FCM;
 
+
+    $optionBuiler = new LaravelFCM\Message\OptionsBuilder();
+    $optionBuiler
+        ->setTimeToLive(60*20)
+        ->setCollapseKey('key1');
+
+    $notificationBuilder = new LaravelFCM\Message\PayloadNotificationBuilder('LM CRM');
+    $notificationBuilder->setBody('Пробное оповещения с сайта LM CRM')
+        ->setSound('default');
+
+    $dataBuilder = new LaravelFCM\Message\PayloadDataBuilder();
+    $dataBuilder->addData(['a_data' => 'my_data']);
+
+    $option = $optionBuiler->build();
+    $notification = $notificationBuilder->build();
+    $data = $dataBuilder->build();
+
+    $token = "eO531F_OdN4:APA91bGDEYJahLInI3fHF9y-eMf2etxzHkzBLn-VucZzHQjoqK1aUZ6nHmJOON2EmDjAGbzbolRfJuAXi2ipKjpR-NRnVrygqhp794uXiC8n-uS0xwaY743dOqEGknh5O19sadrgIxkI";
+
+    $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
+
+    $downstreamResponse->numberSuccess();
+    $downstreamResponse->numberFailure();
+    $downstreamResponse->numberModification();
+
+//return Array - you must remove all this tokens in your database
+    $downstreamResponse->tokensToDelete();
+
+//return Array (key : oldToken, value : new token - you must change the token in your database )
+    $downstreamResponse->tokensToModify();
+
+//return Array - you should try to resend the message to the tokens in the array
+    $downstreamResponse->tokensToRetry();
+
+// return Array (key:token, value:errror) - in production you should remove from your database the tokens
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    dd('Ok');
 
 
     $u = \App\Models\User::find(6);
