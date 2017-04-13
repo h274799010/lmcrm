@@ -92,7 +92,10 @@ class Auction extends Model
 
         // перебираем всех агентов и добавляем данные в таблицу
         $agentsBitmask->each( function( $agent ) use( &$query, $sphere_id, $lead_id ){
-            $maskName = UserMasks::where('user_id', '=', $agent['user_id'])->where('mask_id', '=', $agent['id'])->first();
+            $maskName = UserMasks::where('user_id', '=', $agent['user_id'])
+                ->where('mask_id', '=', $agent['id'])
+                ->where('sphere_id', '=', $sphere_id)
+                ->first();
 
             if(isset($maskName->id)) {
                 // формируем запрос
