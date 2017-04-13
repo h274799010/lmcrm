@@ -130,6 +130,10 @@ class AgentController extends AdminController
 
         $user->spheres()->sync($request->input('spheres'));
 
+        $permissions = User::$bannedPermissions;
+        $user->permissions = $permissions;
+        $user->save();
+
         //$user->accountManagers()->sync($request->input('accountManagers'));
 
         // Заполняем agentInfo
