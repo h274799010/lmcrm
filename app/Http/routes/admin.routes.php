@@ -229,4 +229,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('report/system', ['as' => 'admin.report.system', 'uses' => 'Admin\TransactionController@systemTransactionReport']);
     Route::post('report/system/data', ['as' => 'admin.report.system.data', 'uses' => 'Admin\TransactionController@systemTransactionReportData']);
 
+    // Профит агентов
+    Route::get('profit/index', ['as' => 'admin.profit.index', 'uses' => 'Admin\ProfitController@index']);
+    Route::get('profit/datatable', ['as' => 'admin.profit.data', 'uses' => 'Admin\ProfitController@data']);
+    Route::post('profit/getFilter',['as'=>'admin.profit.getFilter', 'uses' => 'Admin\ProfitController@getFilter']);
+    Route::get('profit/detail/{id}', ['as' => 'admin.profit.detail', 'uses' => 'Admin\ProfitController@detail']);
+
 });

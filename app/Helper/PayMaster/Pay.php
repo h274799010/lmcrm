@@ -190,18 +190,6 @@ class Pay
             }
         }
 
-        // оплачиваем закрытие сделки
-        $paymentStatus =
-            Payment::toSystem(
-                [
-                    'initiator_id'  => $agent->id,  // id инициатора платежа
-                    'user_id'       => $user_id,  // id пользователя, с кошелька которого снимается сумма
-                    'type'          => 'closingDeal',  // тип транзакции
-                    'amount'        => $price,      // снимаемая с пользователя сумма
-                    'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
-                ]
-            );
-
         // Если лид был добавлен как "Только дилмейкеру" - отдаем депозитору процент от сделки
         if($lead->specification == Lead::SPECIFICATION_FOR_DEALMAKER) {
             $depositor = Agent::find($lead->agent_id);
@@ -213,6 +201,7 @@ class Pay
             }
 
             $depositorPrice = ($price / 100) * $depositorSphere->dealmaker_revenue_share;
+            $price = $price - $depositorPrice;
 
             Payment::fromSystem(
                 [
@@ -225,6 +214,18 @@ class Pay
                 ]
             );
         }
+
+        // оплачиваем закрытие сделки
+        $paymentStatus =
+            Payment::toSystem(
+                [
+                    'initiator_id'  => $agent->id,  // id инициатора платежа
+                    'user_id'       => $user_id,  // id пользователя, с кошелька которого снимается сумма
+                    'type'          => 'closingDeal',  // тип транзакции
+                    'amount'        => $price,      // снимаемая с пользователя сумма
+                    'lead_id'       => $lead->id,   // (не обязательно) id лида если он учавствует в платеже
+                ]
+            );
 
         return $paymentStatus;
         // если возникли ошибки при платеже

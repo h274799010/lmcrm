@@ -1,0 +1,1 @@
+<a class="btn btn-primary" href="{{ route('admin.profit.detail', ['id'=>$agent->id]) }}"> PROFIT </a>

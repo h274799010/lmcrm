@@ -1182,6 +1182,124 @@ class Lead extends EloquentUser {
         return PayInfo::SystemRevenueFromLeadSum( $this->id, ['openLead', 'repaymentForLead'] );
     }
 
+    public function revenueForAuction()
+    {
+        return PayInfo::SystemRevenueFromLeadSum( $this->id, [
+            'openLead',
+            'repaymentForLead',
+            'operatorPayment',
+            'rewardForOpenLead'
+        ] );
+    }
+
+    public function revenueForSystem()
+    {
+        return PayInfo::SystemRevenueFromLeadSum( $this->id, [
+            'openLead',
+            'repaymentForLead',
+            'operatorPayment',
+            'rewardForOpenLead',
+            'closingDeal',
+            'closeDealLeadForDealmakers'
+        ] );
+    }
+
+    /**
+     * Профит системы по лиду
+     *
+     * @return array
+     */
+    public function getDepositionsProfit() {
+        $agent = $this->depositor()->first();
+
+        $maxOpened = $this->sphere->openLead;
+
+        $agentSphere = AgentSphere::select('lead_revenue_share', 'payment_revenue_share', 'dealmaker_revenue_share')
+            ->where('agent_id', '=', $agent->id)
+            ->where('sphere_id', '=', $this->sphere_id)
+            ->first();
+
+        $paymentRevenueShare = isset($agentSphere->payment_revenue_share) ? $agentSphere->payment_revenue_share : Settings::get_setting('system.agents.payment_revenue_share');
+        $leadRevenueShare = isset($agentSphere->lead_revenue_share) ? $agentSphere->lead_revenue_share : Settings::get_setting('system.agents.lead_revenue_share');
+
+        $dealmakerRevenueShare = isset($agentSphere->dealmaker_revenue_share) ? $agentSphere->dealmaker_revenue_share : Settings::get_setting('system.agents.dealmaker_revenue_share');
+
+        $paymentRevenueShare = 100 - $paymentRevenueShare;
+        $leadRevenueShare = 100 - $leadRevenueShare;
+        $dealmakerRevenueShare = 100 - $dealmakerRevenueShare;
+
+        // все транзакции в которых учавствовал лид
+        $transactions = TransactionsLeadInfo::where( 'lead_id', '=', $this->id )
+            ->lists( 'transaction_id' );
+
+        $transactionsDetails = TransactionsDetails::whereIn( 'transaction_id', $transactions )
+            ->where( 'user_id', config('payment.system_id') )
+            ->whereIn( 'type', ['openLead'] )
+            ->select('amount')
+            ->get();
+
+        $operatorPayment = TransactionsDetails::whereIn( 'transaction_id', $transactions ) // получение деталей по найденным транзакциям
+            ->where( 'type', 'operatorPayment' )
+            ->where('user_id', '=', config('payment.system_id'))
+            ->first();
+        //dd($operatorPayment);
+
+        $openedArr = array();
+        if(count($transactionsDetails) > 0) {
+            $openedArr = $transactionsDetails->lists('amount')->toArray();
+
+            if(count($openedArr) < $maxOpened) {
+                for ($i = count($openedArr); $i < $maxOpened; $i++) {
+                    $openedArr[] = '-';
+                }
+            }
+        }
+        else {
+            for ($i = 1; $i <= $maxOpened; $i++) {
+                $openedArr[] = '-';
+            }
+        }
+
+        $closedDeals = ClosedDeals::whereIn('open_lead_id', $this->openLeads->lists('id')->toArray())->get();
+
+        $totalDeals = 0;
+        $percentDeals = 0;
+        if(count($closedDeals) > 0) {
+            foreach ($closedDeals as $closedDeal) {
+                $totalDeals += $closedDeal->price;
+                $percentDeals += $closedDeal->percent;
+            }
+        }
+
+        $result = [
+            'type' => $this->ClosingDealCount() ? 'Deposition + Deal' : 'Deposition', // Тип строки: "Deposition" или "Deposition + Deal"
+            'revenue_share' => [
+                'from_deals' => $paymentRevenueShare, // Профит системы со сделки
+                'from_leads' => $leadRevenueShare,  // Профит системы с открытия лида
+                'from_dealmaker' => $this->specification == self::SPECIFICATION_FOR_DEALMAKER ? $dealmakerRevenueShare : '-'  // Профит системы с лида "Только для дилмейкеров"
+            ],
+            'max_opened' => $maxOpened, // Максимальное кол-во открытий лида в сфере
+            'opened' => $openedArr, // Открытия лида: Номер открытия => Цена по которой открыли
+            'deals' => [ // Профит системы с закрытой сделки
+                'total' => $totalDeals, // сумма на которую закрыли сделку
+                'our' => $this->revenueForClosingDeal()    // процент от сделки, который пологается системе: $deal_price * $profit_from_deals / 100%
+            ],
+            'auction' => [ // Профит системы с аукциона
+                'leads' => PayInfo::SystemRevenueFromLeadSum( $this->id, ['openLead'] ), // Общий профит системы за открытия лида
+                'deals' => $this->revenueForClosingDeal(), // Общий профит системы за закрытые сделки
+                'total' => $this->systemRevenue() // Общий профит системы: $sum_leads_auction + $deals
+            ],
+            'operator' => isset($operatorPayment->amount) ? $operatorPayment->amount : 0, // Цена по которой лид был обработан оператором
+            'profit' => [ // Окончательный профит системы
+                'leads' => $this->revenueForAuction(), // Профит за открытия лидов
+                'deals' => $this->revenueForClosingDeal(), // Профит за закрыьтия сделок
+                'total' => $this->revenueForSystem()  // Общий профит системы: $leads + $deals
+            ]
+        ];
+
+        return $result;
+    }
+
 
     /**
      * Доход со сделок
@@ -1202,7 +1320,7 @@ class Lead extends EloquentUser {
      */
     public function revenueForClosingDeal()
     {
-        return PayInfo::SystemRevenueFromLeadSum( $this->id, 'closingDeal' );
+        return PayInfo::SystemRevenueFromLeadSum( $this->id, ['closingDeal', 'closeDealLeadForDealmakers'] );
     }
 
 

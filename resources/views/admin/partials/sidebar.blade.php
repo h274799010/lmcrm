@@ -213,9 +213,15 @@
                     </li>
                 </ul>
             </li>
-
-
             <li>
+                <a href="{{ route('admin.profit.index') }}">
+                    <i class="fa fa-list"></i> {{ trans('admin/sidebar.agent_profit') }}
+                </a>
+            </li>
+
+
+
+                <li>
                 <a href="#">
                     <i class="glyphicon glyphicon-cog"></i> Settings
                     <span class="fa arrow"></span>
