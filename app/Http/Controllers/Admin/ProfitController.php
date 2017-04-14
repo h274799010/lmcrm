@@ -208,7 +208,7 @@ class ProfitController extends AdminController
 
         $agent = Agent::find($id);
 
-        $leads = $agent->leads()->where('id',421)->with('sphere', 'openLeads')->get();
+        $leads = $agent->leads()->with('sphere', 'openLeads')->get();
 
         /**
          * Структура массива деталей по лиду
