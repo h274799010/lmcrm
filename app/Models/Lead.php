@@ -1232,21 +1232,31 @@ class Lead extends EloquentUser {
         $transactions = TransactionsLeadInfo::where( 'lead_id', '=', $this->id )
             ->lists( 'transaction_id' );
 
-        $transactionsDetails = TransactionsDetails::whereIn( 'transaction_id', $transactions )
-            ->where( 'user_id', config('payment.system_id') )
-            ->whereIn( 'type', ['openLead'] )
-            ->select('amount')
+        $info = TransactionsLeadInfo::where('lead_id', '=', $this->id)
+            ->whereIn('transaction_id', $transactions)
             ->get();
 
-        $operatorPayment = TransactionsDetails::whereIn( 'transaction_id', $transactions ) // получение деталей по найденным транзакциям
-            ->where( 'type', 'operatorPayment' )
-            ->where('user_id', '=', config('payment.system_id'))
-            ->first();
-        //dd($operatorPayment);
-
         $openedArr = array();
-        if(count($transactionsDetails) > 0) {
-            $openedArr = $transactionsDetails->lists('amount')->toArray();
+        if(count($info) > 0) {
+            foreach ($info as $val) {
+                $transactionDetails = TransactionsDetails::where( 'transaction_id', '=', $val->transaction_id )
+                    ->where( 'user_id', config('payment.system_id') )
+                    ->where( 'type', '=', 'openLead' )
+                    ->select('amount')
+                    ->first();
+                if(!isset($transactionDetails->amount)) {
+                    continue;
+                }
+
+                if($val->number > 1) {
+                    $price = $transactionDetails->amount / $val->number;
+                    for($i = $val->number; $i > 0; $i--) {
+                        $openedArr[] = $price;
+                    }
+                } else {
+                    $openedArr[] = $transactionDetails->amount;
+                }
+            }
 
             if(count($openedArr) < $maxOpened) {
                 for ($i = count($openedArr); $i < $maxOpened; $i++) {
@@ -1259,6 +1269,13 @@ class Lead extends EloquentUser {
                 $openedArr[] = '-';
             }
         }
+
+        $operatorPayment = TransactionsDetails::whereIn( 'transaction_id', $transactions ) // получение деталей по найденным транзакциям
+            ->where( 'type', 'operatorPayment' )
+            ->where('user_id', '=', config('payment.system_id'))
+            ->first();
+        //dd($operatorPayment);
+
 
         $closedDeals = ClosedDeals::whereIn('open_lead_id', $this->openLeads->lists('id')->toArray())->get();
 

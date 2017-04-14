@@ -420,11 +420,45 @@ class OpenLeads extends Model {
         $transactions = Transactions::whereIn('id', $transactions)
             ->where('initiator_user_id', '=', $agent->id)->lists('id');
 
-        $transactionsDetails = TransactionsDetails::whereIn( 'transaction_id', $transactions )
-            ->where( 'user_id', config('payment.system_id') )
-            ->whereIn( 'type', ['openLead'] )
-            ->select('amount')
+        $info = TransactionsLeadInfo::where('lead_id', '=', $this->lead_id)
+            ->whereIn('transaction_id', $transactions)
             ->get();
+
+        $openedArr = array();
+        $auctionSum = 0;
+        if(count($info) > 0) {
+            foreach ($info as $val) {
+                $transactionDetails = TransactionsDetails::where( 'transaction_id', '=', $val->transaction_id )
+                    ->where( 'user_id', config('payment.system_id') )
+                    ->where( 'type', '=', 'openLead' )
+                    ->select('amount')
+                    ->first();
+                if(!isset($transactionDetails->amount)) {
+                    continue;
+                }
+                $auctionSum += $transactionDetails->amount;
+
+                if($val->number > 1) {
+                    $price = $transactionDetails->amount / $val->number;
+                    for($i = $val->number; $i > 0; $i--) {
+                        $openedArr[] = $price;
+                    }
+                } else {
+                    $openedArr[] = $transactionDetails->amount;
+                }
+            }
+
+            if(count($openedArr) < $maxOpened) {
+                for ($i = count($openedArr); $i < $maxOpened; $i++) {
+                    $openedArr[] = '-';
+                }
+            }
+        }
+        else {
+            for ($i = 1; $i <= $maxOpened; $i++) {
+                $openedArr[] = '-';
+            }
+        }
 
         $revenueSystem = TransactionsDetails::whereIn( 'transaction_id', $transactions )
             ->where( 'user_id', config('payment.system_id') )
@@ -444,22 +478,6 @@ class OpenLeads extends Model {
             ->whereIn( 'type', ['closingDeal', 'closeDealLeadForDealmakers'] )
             ->select('amount')
             ->sum('amount');
-
-        $openedArr = array();
-        if(count($transactionsDetails) > 0) {
-            $openedArr = $transactionsDetails->lists('amount')->toArray();
-
-            if(count($openedArr) < $maxOpened) {
-                for ($i = count($openedArr); $i < $maxOpened; $i++) {
-                    $openedArr[] = '-';
-                }
-            }
-        }
-        else {
-            for ($i = 1; $i <= $maxOpened; $i++) {
-                $openedArr[] = '-';
-            }
-        }
 
         $closedDeals = ClosedDeals::whereIn('open_lead_id', [$this->id])->get();
 
@@ -486,13 +504,13 @@ class OpenLeads extends Model {
                 'our' => $revenueClosingDeals    // процент от сделки, который пологается системе: $deal_price * $profit_from_deals / 100%
             ],
             'auction' => [ // Профит системы с аукциона
-                'leads' => $transactionsDetails->sum('amount'), // Общий профит системы за открытия лида
+                'leads' => $auctionSum, // Общий профит системы за открытия лида
                 'deals' => $revenueClosingDeals, // Общий профит системы за закрытые сделки
                 'total' => $revenueSystem // Общий профит системы: $sum_leads_auction + $deals
             ],
             'operator' => '-', // Цена по которой лид был обработан оператором
             'profit' => [ // Окончательный профит системы
-                'leads' => $transactionsDetails->sum('amount'), // Профит за открытия лидов
+                'leads' => $auctionSum, // Профит за открытия лидов
                 'deals' => $revenueClosingDeals, // Профит за закрыьтия сделок
                 'total' => $revenueSystem  // Общий профит системы: $leads + $deals
             ]
