@@ -10,7 +10,7 @@ use App\Models\OperatorsSpheres;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Agent;
-use App\Models\OperatorSphere;
+use App\Models\Operator;
 use App\Models\Sphere;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Yajra\Datatables\Facades\Datatables;
@@ -56,7 +56,7 @@ class OperatorController extends AccountManagerController {
             ->remove_column('first_name')
             ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
             ->add_column('spheres', function($model) {
-                $operator = OperatorSphere::find($model->id);
+                $operator = Operator::find($model->id);
                 $operatorSpheres = $operator->spheres()->get()->lists('name')->toArray();
                 $operatorSpheres = implode(', ', $operatorSpheres);
 
@@ -85,7 +85,7 @@ class OperatorController extends AccountManagerController {
         $accountManagerOperator->account_manager_id = Sentinel::getUser()->id;
         $accountManagerOperator->save();
 
-        $user = OperatorSphere::find($user->id);
+        $user = Operator::find($user->id);
 
         foreach ($request->only('spheres') as $sphere) {
             $user->spheres()->sync($sphere);
@@ -98,7 +98,7 @@ class OperatorController extends AccountManagerController {
     {
         //$operator = Sentinel::findById($id);
 
-        $operator = OperatorSphere::find($id);
+        $operator = Operator::find($id);
 
         // данные сферы
         $spheres = Sphere::active()->lists('name','id');
@@ -124,7 +124,7 @@ class OperatorController extends AccountManagerController {
         $operator->email = $request->input('email');
         $operator->save();
 
-        $operator = OperatorSphere::find($operator->id);
+        $operator = Operator::find($operator->id);
         $operator->spheres()->sync($request->input('spheres'));
         /*$operator->update($request->except('password','password_confirmation'));
         dd($operator);*/

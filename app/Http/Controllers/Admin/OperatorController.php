@@ -4,8 +4,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Requests\AdminUsersEditFormRequest;
 use App\Http\Requests\OperatorFormRequest;
 use App\Models\AccountManager;
+use App\Models\OperatorHistory;
 use App\Models\Operator;
-use App\Models\OperatorSphere;
 use App\Models\Sphere;
 use App\Models\User;
 use Illuminate\Http\Response;
@@ -97,14 +97,14 @@ class OperatorController extends AdminController {
             }
         }
 
-        $operators = OperatorSphere::whereIn('id', $operatorsId)
+        $operators = Operator::whereIn('id', $operatorsId)
             ->select('id', 'email', 'first_name', 'last_name', 'created_at');
 
         return Datatables::of($operators)
             ->remove_column('first_name')
             ->edit_column('last_name', function($model) { return $model->last_name.' '.$model->first_name; })
             ->add_column('spheres', function($model) {
-                $operator = OperatorSphere::find($model->id);
+                $operator = Operator::find($model->id);
                 $operatorSpheres = $operator->spheres()->get()->lists('name')->toArray();
                 $operatorSpheres = implode(', ', $operatorSpheres);
 
@@ -170,7 +170,7 @@ class OperatorController extends AdminController {
         $role = \Sentinel::findRoleBySlug('operator');
         $user->roles()->attach($role);
 
-        $user = OperatorSphere::find($user->id);
+        $user = Operator::find($user->id);
 
         foreach ($request->only('spheres') as $sphere) {
             $user->spheres()->sync($sphere);
@@ -183,7 +183,7 @@ class OperatorController extends AdminController {
     {
         //$operator = Sentinel::findById($id);
 
-        $operator = OperatorSphere::find($id);
+        $operator = Operator::find($id);
 
         // данные сферы
         $spheres = Sphere::active()->lists('name','id');
@@ -195,7 +195,7 @@ class OperatorController extends AdminController {
 
     public function update( Request $request, $id )
     {
-        $operator = OperatorSphere::find($id);
+        $operator = Operator::find($id);
 
         $password = $request->password;
         $passwordConfirmation = $request->password_confirmation;
@@ -211,7 +211,7 @@ class OperatorController extends AdminController {
         $operator->email = $request->input('email');
         $operator->save();
 
-        $operator = OperatorSphere::find($operator->id);
+        $operator = Operator::find($operator->id);
         $operator->spheres()->sync($request->input('spheres'));
         /*$operator->update($request->except('password','password_confirmation'));
         dd($operator);*/
@@ -227,7 +227,7 @@ class OperatorController extends AdminController {
 
     public function attachAccountManagers(Request $request)
     {
-        $operator=OperatorSphere::findOrFail($request->input('operator_id'));
+        $operator=Operator::findOrFail($request->input('operator_id'));
 
         $accountManagers = ( $request->input('accountManagers') ?: [] );
 

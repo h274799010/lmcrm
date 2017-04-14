@@ -3,8 +3,8 @@
 namespace App\Helper;
 
 use App\Models\Agent;
+use App\Models\OperatorHistory;
 use App\Models\Operator;
-use App\Models\OperatorSphere;
 use App\Models\Salesman;
 use Illuminate\Http\Request;
 use Validator;
@@ -26,7 +26,7 @@ class CreateLead
         } elseif ($user->inRole('salesman')) {
             $user = Salesman::find($user->id);
         } else {
-            $user = OperatorSphere::find($user->id);
+            $user = Operator::find($user->id);
         }
 
         $spheres = $user->spheres()->get()->pluck('name', 'id');
@@ -53,7 +53,7 @@ class CreateLead
             $agent =  Agent::find($user_id);
             $user = $agent;
         } else {
-            $agent = OperatorSphere::find($user_id);
+            $agent = Operator::find($user_id);
             $user = $agent;
         }
         if($user->banned_at && !$user->hasAccess('create_leads')) {
@@ -202,7 +202,7 @@ class CreateLead
 
     public function storeOperator($user_id, $name, $phone, $comment, $email, $sphere_id, $surname)
     {
-        $agent = OperatorSphere::find($user_id);
+        $agent = Operator::find($user_id);
         $user = $agent;
 
         $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $phone)] );
@@ -227,10 +227,10 @@ class CreateLead
 
         $user->leads()->save($lead);
 
-        $leadEdited = Operator::where('lead_id', '=', $lead->id)->where('operator_id', '=', $user->id)->first();
+        $leadEdited = OperatorHistory::where('lead_id', '=', $lead->id)->where('operator_id', '=', $user->id)->first();
 
         if(!$leadEdited) {
-            $leadEdited = new Operator;
+            $leadEdited = new OperatorHistory;
 
             $leadEdited->lead_id = $lead->id;
             $leadEdited->operator_id = $user->id;

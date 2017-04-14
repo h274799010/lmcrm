@@ -7,8 +7,8 @@ use App\Models\Agent;
 use App\Models\AgentInfo;
 use App\Models\Lead;
 use App\Models\LeadDepositorData;
+use App\Models\OperatorHistory;
 use App\Models\Operator;
-use App\Models\OperatorSphere;
 use App\Models\Salesman;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
@@ -98,7 +98,7 @@ class LeadServiceProvider extends ServiceProvider
             }
         });
 
-        OperatorSphere::saved(function($operator) {
+        Operator::saved(function($operator) {
             $depositorData = LeadDepositorData::where('depositor_id', '=', $operator->id)->get();
 
             if(!empty($depositorData)) {

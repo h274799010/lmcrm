@@ -9,7 +9,7 @@ use App\Models\CheckClosedDeals;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\OpenLeads;
-use App\Models\OperatorSphere;
+use App\Models\Operator;
 use App\Models\Sphere;
 use App\Transformers\Admin\AllDealsTransformer;
 use App\Transformers\Admin\ConfirmationDealsTransformer;

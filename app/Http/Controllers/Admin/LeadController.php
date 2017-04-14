@@ -7,7 +7,7 @@ use App\Models\Agent;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\OpenLeads;
-use App\Models\OperatorSphere;
+use App\Models\Operator;
 use App\Models\Sphere;
 use App\Transformers\LeadTransformer;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
@@ -81,7 +81,7 @@ class LeadController extends Controller
                             break;
                         case 'operator':
 
-                            $operator = OperatorSphere::find($id);
+                            $operator = Operator::find($id);
 
                             $accountManagers = $operator->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
                             $spheres = $operator->spheres()->where('status', '=', 1)->select('spheres.id', 'spheres.name')->get();
@@ -110,7 +110,7 @@ class LeadController extends Controller
                             $accountManagers = $agent->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
                             $spheres = $agent->spheres()->where('status', '=', 1)->select('spheres.id', 'spheres.name')->get();
 
-                            $operators = OperatorSphere::select('users.id', \DB::raw('users.email AS name'));
+                            $operators = Operator::select('users.id', \DB::raw('users.email AS name'));
                             if(count($spheres)) {
                                 $operators = $operators->join('operator_sphere', function ($join) use ($spheres) {
                                     $join->on('operator_sphere.operator_id', '=', 'users.id')
@@ -331,7 +331,7 @@ class LeadController extends Controller
                     break;
                 case 'operator':
 
-                    $operator = OperatorSphere::find($id);
+                    $operator = Operator::find($id);
 
                     $res['accountManagers'] = $operator->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
                     $res['spheres'] = $operator->spheres()->where('status', '=', 1)->select('spheres.id', 'spheres.name')->get();
@@ -360,7 +360,7 @@ class LeadController extends Controller
                     $res['accountManagers'] = $agent->accountManagers()->select('users.id', \DB::raw('users.email AS name'))->get();
                     $res['spheres'] = $agent->spheres()->where('status', '=', 1)->select('spheres.id', 'spheres.name')->get();
 
-                    $res['operators'] = OperatorSphere::select('users.id', \DB::raw('users.email AS name'));
+                    $res['operators'] = Operator::select('users.id', \DB::raw('users.email AS name'));
                     if(count($res['spheres'])) {
                         $res['operators'] = $res['operators']->join('operator_sphere', function ($join) use ($res) {
                             $join->on('operator_sphere.operator_id', '=', 'users.id')

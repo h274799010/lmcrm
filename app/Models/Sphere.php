@@ -116,7 +116,7 @@ class Sphere extends Model
     }
 
     public function operators(){
-        return $this->belongsToMany('\App\Models\OperatorSphere','operator_sphere','sphere_id','operator_id');
+        return $this->belongsToMany('\App\Models\Operator','operator_sphere','sphere_id','operator_id');
     }
 
     public function statusTransitions()

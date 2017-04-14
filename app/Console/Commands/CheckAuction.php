@@ -8,7 +8,7 @@ use App\Models\AgentBitmask;
 use App\Models\Auction;
 use App\Models\Lead;
 use App\Models\LeadBitmask;
-use App\Models\Operator;
+use App\Models\OperatorHistory;
 use Illuminate\Console\Command;
 
 class CheckAuction extends Command
@@ -47,7 +47,7 @@ class CheckAuction extends Command
                     // добавляем лид на аукцион всем подходящим агентам
                     Auction::addFromBitmask( $agents, $lead->sphere_id,  $lead->id  );
 
-                    $sender = Operator::where('lead_id', '=', $lead->id)->first();
+                    $sender = OperatorHistory::where('lead_id', '=', $lead->id)->first();
                     if($sender) {
                         $senderId = $sender->operator_id;
                     } else {

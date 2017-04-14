@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateOperators extends Migration
+class CreateOperatorHistoryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,11 +12,12 @@ class CreateOperators extends Migration
      */
     public function up()
     {
-        Schema::create('operator', function (Blueprint $table) {
+        Schema::create('operator_history', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('lead_id');    // id лида
             $table->integer('operator_id');    // id оператора
             $table->timestamps();
+            $table->index('lead_id', 'operator_id');
         });
     }
 
@@ -27,6 +28,6 @@ class CreateOperators extends Migration
      */
     public function down()
     {
-        Schema::drop('operator');
+        Schema::drop('operator_history');
     }
 }
