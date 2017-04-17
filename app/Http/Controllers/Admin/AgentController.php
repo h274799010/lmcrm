@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Admin;
 
+use App\Facades\Settings;
 use App\Helper\CreditHelper;
 use App\Http\Controllers\AdminController;
 use App\Http\Requests\AgentFormRequest;
@@ -129,13 +130,17 @@ class AgentController extends AdminController
 
         $user->spheres()->sync($request->input('spheres'));
 
+        $permissions = User::$bannedPermissions;
+        $user->permissions = $permissions;
+        $user->save();
+
         //$user->accountManagers()->sync($request->input('accountManagers'));
 
         // Заполняем agentInfo
         $agentInfo = new AgentInfo();
         $agentInfo->agent_id = $user->id;
-        $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
-        $agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
+        //$agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
+        //$agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
         $agentInfo->company = $request->input('company');
         $agentInfo->save();
 
@@ -144,10 +149,13 @@ class AgentController extends AdminController
         if( count($agentSpheres) > 0 ) {
             foreach ($agentSpheres as $agentSphere) {
                 if($agentSphere->lead_revenue_share <= 0) {
-                    $agentSphere->lead_revenue_share = $request->input('lead_revenue_share');
+                    $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.lead_revenue_share');
                 }
                 if($agentSphere->payment_revenue_share <= 0) {
-                    $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+                    $agentSphere->payment_revenue_share = Settings::get_setting('system.agents.payment_revenue_share');
+                }
+                if($agentSphere->dealmaker_revenue_share <= 0) {
+                    $agentSphere->dealmaker_revenue_share = Settings::get_setting('system.agents.dealmaker_revenue_share');
                 }
                 $agentSphere->save();
             }
@@ -318,9 +326,10 @@ class AgentController extends AdminController
         //$agent->accountManagers()->sync($request->input('accountManagers'));
 
         $agentInfo = AgentInfo::where('agent_id', '=', $agent->id)->first();
-        $agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
-        $agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
-        $agentInfo->dealmaker_revenue_share = $request->input('dealmaker_revenue_share');
+        // Теперь эти параметры указываются глобально для всей системы в настройках
+        //$agentInfo->lead_revenue_share = $request->input('lead_revenue_share');
+        //$agentInfo->payment_revenue_share = $request->input('payment_revenue_share');
+        //$agentInfo->dealmaker_revenue_share = $request->input('dealmaker_revenue_share');
         $agentInfo->company = $request->input('company');
         $agentInfo->save();
 
@@ -329,13 +338,13 @@ class AgentController extends AdminController
         if( count($agentSpheres) > 0 ) {
             foreach ($agentSpheres as $agentSphere) {
                 if($agentSphere->lead_revenue_share <= 0) {
-                    $agentSphere->lead_revenue_share = $request->input('lead_revenue_share');
+                    $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.lead_revenue_share');
                 }
                 if($agentSphere->payment_revenue_share <= 0) {
-                    $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+                    $agentSphere->payment_revenue_share = Settings::get_setting('system.agents.payment_revenue_share');
                 }
                 if($agentSphere->dealmaker_revenue_share <= 0) {
-                    $agentSphere->dealmaker_revenue_share = $request->input('dealmaker_revenue_share');
+                    $agentSphere->dealmaker_revenue_share = Settings::get_setting('system.agents.dealmaker_revenue_share');
                 }
                 $agentSphere->save();
             }

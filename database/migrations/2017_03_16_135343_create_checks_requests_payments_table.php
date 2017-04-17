@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateChecksApplicationsPaymentsTable extends Migration
+class CreateChecksRequestsPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -19,7 +19,7 @@ class CreateChecksApplicationsPaymentsTable extends Migration
             $table->string('name');                 // оригинальное имя файла
             $table->string('file_name');            // имя файла в файловой системе
             $table->boolean('block_deleting')->default(false); // флаг для запрета удаления файлов
-            $table->index('application_lead_id');
+            $table->index('request_payment_id');
         });
     }
 

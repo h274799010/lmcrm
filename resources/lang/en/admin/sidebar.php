@@ -19,5 +19,6 @@ return [
     'newAgents' => 'New Agents',
     'openLeads' => 'Open leads',
     'statistic' => 'Statistic',
-    'spheres_item' => 'Spheres'
+    'spheres_item' => 'Spheres',
+    'agent_profit' => 'Agents profit'
 ];

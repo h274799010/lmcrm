@@ -4,13 +4,13 @@ namespace App\Transformers\Admin;
 
 
 use App\Models\Lead;
+use App\Models\OperatorHistory;
 use App\Models\Operator;
-use App\Models\OperatorSphere;
 use League\Fractal\TransformerAbstract;
 
 class StatisticOperatorsTransformer extends TransformerAbstract
 {
-    public function transform(OperatorSphere $operator)
+    public function transform(Operator $operator)
     {
         // количество лидов которые добавил оператор
         $leadsAdded = Lead::where('agent_id', $operator->id)->count();
@@ -25,10 +25,10 @@ class StatisticOperatorsTransformer extends TransformerAbstract
             ->count();
 
         // лиды которые оператор уже отредактировал
-        $leadsEdited = Operator::where('operator_id', $operator->id)->count();
+        $leadsEdited = OperatorHistory::where('operator_id', $operator->id)->count();
 
         // лиды которые обработал оператор
-        $operatorLeadsId = Operator::where('operator_id', $operator->id)->lists('lead_id');
+        $operatorLeadsId = OperatorHistory::where('operator_id', $operator->id)->lists('lead_id');
         // лиды которые забанил оператор
         $marked_bad = Lead::
         whereIn('id', $operatorLeadsId)

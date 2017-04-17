@@ -7,7 +7,7 @@ use App\Models\Agent;
 use App\Models\Lead;
 use App\Models\Customer;
 use App\Models\OpenLeads;
-use App\Models\OperatorSphere;
+use App\Models\Operator;
 use App\Models\Sphere;
 use App\Transformers\LeadTransformer;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
@@ -145,7 +145,7 @@ class LeadController extends Controller
                     break;
                 case 'operator':
 
-                    $operator = OperatorSphere::find($id);
+                    $operator = Operator::find($id);
 
                     $res['spheres'] = $operator->spheres()->whereIn('spheres.id', $accountManagerSpheres)->where('spheres.status', '=', 1)->select('spheres.id', 'spheres.name')->get();
 
@@ -166,7 +166,7 @@ class LeadController extends Controller
 
                     $res['spheres'] = $agent->spheres()->whereIn('spheres.id', $accountManagerSpheres)->where('spheres.status', '=', 1)->select('spheres.id', 'spheres.name')->get();
 
-                    $res['operators'] = OperatorSphere::whereIn('users.id', $accountManagerOperators)->select('users.id', \DB::raw('users.email AS name'));
+                    $res['operators'] = Operator::whereIn('users.id', $accountManagerOperators)->select('users.id', \DB::raw('users.email AS name'));
                     if(count($res['spheres'])) {
                         $res['operators'] = $res['operators']->join('operator_sphere', function ($join) use ($res) {
                             $join->on('operator_sphere.operator_id', '=', 'users.id')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\PayMaster\PayCalculation;
 use App\Models\AgentsPrivateGroups;
 use Illuminate\Http\Request;
 use App\Models\Agent;
@@ -216,7 +217,13 @@ class AgentController extends BaseController
             'balance' => $balance,
             'userData' => $userData,
             'badLeads' => $badLeads,
-            'permissions' => $permissions
+            'permissions' => $permissions,
+            'wallet' => [
+                'buyed' => $wallet->buyed,
+                'earned' => $wallet->earned,
+                'wasted' => $wallet->wasted,
+                'total' => PayCalculation::possibilityPayment($wallet)
+            ]
         ]);
 
         // переводим данные по балансу в json

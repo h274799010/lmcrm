@@ -17,21 +17,20 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="alert alert-info" role="alert">
-                <p>Requisites: {{ trans('site/site.requisites') }}</p>
-                <p>{{ trans('site/site.requisites_desc') }}</p>
+                {!! Settings::get_setting('agent.credits.requisites') !!}
             </div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-xs-12">
-            <a href="#" class="btn btn-success" id="btnReplenishment">Replenishment</a> - Replenishment button description
+            <a href="#" class="btn btn-success btn-actions" id="btnReplenishment">Replenishment</a> {!! Settings::get_setting('agent.credits.buttons.replenishment.description') !!}
         </div>
     </div>
     <br>
     <div class="row">
         <div class="col-xs-12">
-            <a href="#" class="btn btn-info" id="btnWithdrawal">Withdrawal</a> - Withdrawal button description
+            <a href="#" class="btn btn-info btn-actions" id="btnWithdrawal">Withdrawal</a> {!! Settings::get_setting('agent.credits..buttons.withdrawal.description') !!}
         </div>
     </div>
 
@@ -99,7 +98,7 @@
                         <div class="row">
                             <div class="col-xs-12">
                                 <div class="alert alert-info" role="alert">
-                                    <p>Replenishment description</p>
+                                    {!! Settings::get_setting('agent.credits.popups.replenishment.description') !!}
                                 </div>
                             </div>
                         </div>
@@ -144,7 +143,7 @@
                         <div class="row">
                             <div class="col-xs-12">
                                 <div class="alert alert-info" role="alert">
-                                    <p>Replenishment description</p>
+                                    {!! Settings::get_setting('agent.credits.popups.withdrawal.description') !!}
                                 </div>
                             </div>
                         </div>
@@ -357,6 +356,9 @@
         }
         .file-container {
             margin-bottom: 12px;
+        }
+        .btn-actions {
+            min-width: 148px;
         }
     </style>
 @endsection
@@ -713,7 +715,7 @@
         function showSuccessMessage(message) {
             var html = '<div class="alert alert-success alert-replenishment" role="alert">' +
                 '<div>'+message+'</div>'+
-                '<div class="form-group"><div class="checkbox"><input type="checkbox" id="iGetIt"> <label for="iGetIt">Ok, I get it.</label></div></div>'+
+                '<div class="form-group"><div class="checkbox"><input type="checkbox" id="iGetIt"> <label for="iGetIt">{!! Settings::get_setting('agent.credits.messages.label.ok') !!}</label></div></div>'+
                 '</div>';
 
             $('#alertsWrapper').html(html);
@@ -804,7 +806,7 @@
 
                         $('#modalReplenishment').modal('hide');
 
-                        showSuccessMessage('Your request was successfully sent. Now transfer money to the specified account number. After payment, click the "Paid" button near the request');
+                        showSuccessMessage("{!! Settings::get_setting('agent.credits.messages.success.create_replenishment') !!}");
                     }
                     else if(data.status == 'fail') {
                         bootbox.dialog({
@@ -844,7 +846,7 @@
 
                         $('#modalWithdrawal').modal('hide');
 
-                        showSuccessMessage('The money will be credited to your account after the administration checks');
+                        showSuccessMessage('{!! Settings::get_setting('agent.credits.messages.success.create_withdrawal') !!}');
                     }
                     else if(data.status == 'fail') {
                         bootbox.dialog({

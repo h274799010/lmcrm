@@ -437,12 +437,8 @@ class TransactionController extends AdminController {
     public function agentTransactionReportDetail($id)
     {
         $agent = Agent::find($id);
-        $user = Sentinel::getUser();
 
-        $reports = $agent->requestPayment()->where(function ($query) use ($user) {
-            $query->where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
-                ->orWhere('handler_id', '=', $user->id);
-        })->get();
+        $reports = $agent->requestPayment()->get();
 
         $statistic = array(
             'replenishment' => [
@@ -451,6 +447,10 @@ class TransactionController extends AdminController {
             ],
             'withdrawal' => [
                 'all' => 0,
+                'period' => 0
+            ],
+            'total' => [
+                'all' => count($reports),
                 'period' => 0
             ],
             'confirmed' => [
@@ -509,13 +509,8 @@ class TransactionController extends AdminController {
         $timeTo = Carbon::createFromFormat('Y-m-d', $timeTo)->timestamp;
 
         $agent = Agent::find($userId);
-        $user = Sentinel::getUser();
 
-        $reports = $agent->requestPayment()->where(function ($query) use ($user) {
-            $query->where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
-                ->orWhere('handler_id', '=', $user->id);
-            })
-            ->get();
+        $reports = $agent->requestPayment()->get();
 
         $statistic = array(
             'replenishment' => [
@@ -524,6 +519,10 @@ class TransactionController extends AdminController {
             ],
             'withdrawal' => [
                 'all' => 0,
+                'period' => 0
+            ],
+            'total' => [
+                'all' => count($reports),
                 'period' => 0
             ],
             'confirmed' => [
@@ -550,6 +549,7 @@ class TransactionController extends AdminController {
             }
 
             if($report->created_at->timestamp >= $timeFrom && $report->created_at->timestamp <= $timeTo) {
+                $statistic['total']['period'] += 1;
                 if($report->status == RequestPayment::STATUS_CONFIRMED) {
                     if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
                         $statistic['replenishment']['period'] += $report->amount;
@@ -577,11 +577,7 @@ class TransactionController extends AdminController {
      */
     public function systemTransactionReport()
     {
-        $user = Sentinel::getUser();
-
-        $reports = RequestPayment::where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
-            ->orWhere('handler_id', '=', $user->id)
-            ->get();
+        $reports = RequestPayment::all();
 
         $statistic = array(
             'replenishment' => [
@@ -590,6 +586,10 @@ class TransactionController extends AdminController {
             ],
             'withdrawal' => [
                 'all' => 0,
+                'period' => 0
+            ],
+            'total' => [
+                'all' => count($reports),
                 'period' => 0
             ],
             'confirmed' => [
@@ -640,11 +640,7 @@ class TransactionController extends AdminController {
         }
         $timeTo = Carbon::createFromFormat('Y-m-d', $timeTo)->timestamp;
 
-        $user = Sentinel::getUser();
-
-        $reports = RequestPayment::where('status', '=', RequestPayment::STATUS_WAITING_PROCESSING)
-            ->orWhere('handler_id', '=', $user->id)
-            ->get();
+        $reports = RequestPayment::all();
 
         $statistic = array(
             'replenishment' => [
@@ -653,6 +649,10 @@ class TransactionController extends AdminController {
             ],
             'withdrawal' => [
                 'all' => 0,
+                'period' => 0
+            ],
+            'total' => [
+                'all' => count($reports),
                 'period' => 0
             ],
             'confirmed' => [
@@ -679,6 +679,7 @@ class TransactionController extends AdminController {
             }
 
             if($report->created_at->timestamp >= $timeFrom && $report->created_at->timestamp <= $timeTo) {
+                $statistic['total']['period'] += 1;
                 if($report->status == RequestPayment::STATUS_CONFIRMED) {
                     if($report->type == RequestPayment::TYPE_REPLENISHMENT) {
                         $statistic['replenishment']['period'] += $report->amount;

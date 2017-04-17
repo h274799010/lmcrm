@@ -15,9 +15,9 @@ return [
     'no' => 'No',
     'roles' => 'Roles',
     'roles_info' => 'Adding the role to user, be assigned all privileges for a given role.',
-    'lead_revenue_share' => 'Lead revenue share',
-    'payment_revenue_share' => 'Payment revenue share',
-    'dealmaker_revenue_share' => 'Dealmaker revenue share',
+    'lead_revenue_share' => 'Interest from auction',
+    'payment_revenue_share' => 'Dealmaker percent for closed deal',
+    'dealmaker_revenue_share' => 'A percentage of the leads for dealmaker',
     'company' => 'Company',
     'spheres' => 'Spheres',
 

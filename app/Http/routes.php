@@ -214,3 +214,22 @@ Route::get('stat', function(){
     return 'ok';
 });
 
+Route::get('settings/create', function () {
+    $settings = \App\Facades\Settings::get_settings();
+
+    return view('admin.settings.create', [
+        'settings' => $settings,
+        'type' => 'tmp'
+    ]);
+});
+
+Route::post('settings/save', function (Illuminate\Http\Request $request) {
+    $locale = App::getLocale();
+
+    $setting = new \App\Models\SettingsSystem();
+    $setting->type = $request['type'];
+    $setting->name = $request['name'];
+    $setting->translateOrNew($locale)->value = $request['value'];
+    $setting->translateOrNew($locale)->description = $request['description'];
+    $setting->save();
+});

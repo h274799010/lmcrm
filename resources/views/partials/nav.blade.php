@@ -86,7 +86,20 @@
 
                     </li>
                 </ul>
-
+            @endif
+            @if(isset($wallet))
+                <ul class="nav navbar-top-links navbar-left flip agent-info-block">
+                    <li class="text-success status-label">
+                        <a class="@if($wallet['total'] > 0) text-success @else text-danger @endif penalty-data-menu-toggle" data-target="#" data-toggle="dropdown" aria-haspopup="true">
+                            <i class="fa fa-ils" aria-hidden="true"></i> {{ $wallet['total'] }}
+                        </a>
+                        <ul class="dropdown-menu permissions-dropdown">
+                            <li class="text-success"><b>Buyed:</b> <i class="fa fa-ils" aria-hidden="true"></i> {{ $wallet['buyed'] }}</li>
+                            <li class="text-success"><b>Earned:</b> <i class="fa fa-ils" aria-hidden="true"></i> {{ $wallet['earned'] }}</li>
+                            <li class="text-danger"><b>Wasted:</b> <i class="fa fa-ils" aria-hidden="true"></i> {{ $wallet['wasted'] }}</li>
+                        </ul>
+                    </li>
+                </ul>
             @endif
 
             <ul class="nav navbar-top-links navbar-right language_bar_chooser flip">

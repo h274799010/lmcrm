@@ -4,6 +4,7 @@ namespace App\Helper;
 
 
 use App\Facades\Messages;
+use App\Facades\Settings;
 use Illuminate\Http\Request;
 use App\Models\AccountManager;
 use App\Models\Agent;
@@ -73,7 +74,7 @@ class RequestsPayments
     public function createWithdrawalCreateRequestPayment(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'withdrawal' => 'required|numeric|min:' . RequestPayment::MINIMUM_AMOUNT,
+            'withdrawal' => 'required|numeric|min:' . Settings::get_setting('agent.credits.min_withdrawal_amount'),
             'company' => 'required',
             'bank' => 'required',
             'branch_number' => 'required',

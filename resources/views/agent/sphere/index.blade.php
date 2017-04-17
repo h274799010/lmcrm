@@ -2,8 +2,10 @@
 
 {{-- Content --}}
 @section('content')
-    <div class="_page-header" xmlns="http://www.w3.org/1999/html">
-    </div>
+    <ol class="breadcrumb">
+        <li><a href="/">LM CRM</a></li>
+        <li  class="active"> Filtration customer </li>
+    </ol>
 
     @forelse($agentSpheres as $sphere)
 
@@ -114,13 +116,22 @@
 {{-- styles --}}
 @section('styles')
     <style>
-
+        .dataTables_wrapper label {
+            margin-bottom: 16px;
+        }
+        .dataTables_wrapper label input {
+            margin-left: 8px;
+        }
+        .dataTables_wrapper label select {
+            margin: 0 8px;
+        }
         .table{
             margin-bottom: 5px;
         }
 
         .add_mask{
             margin-bottom: 20px;
+            margin-top: 8px;
         }
 
         /*

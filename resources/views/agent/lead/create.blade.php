@@ -15,6 +15,15 @@
 
     </div>
 
+    <div class="form-group">
+        <div class="col-xs-10 group_checkbox">
+            <div class="radio">
+                {{ Form::radio('all_specification', 'all_specification', false, array('class' => 'connectedRadio', 'id'=>'all_specification', 'checked' => 'checked') ) }} <label for="all_specification">All</label>
+            </div>
+
+        </div>
+    </div>
+
     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
         <div class="col-xs-10 group_checkbox">
             <div class="radio">
@@ -35,15 +44,6 @@
             <div class="radio">
                 {{ Form::radio('specification', 'specification', false, array('class' => 'connectedRadio', 'id'=>'specification') ) }} <label for="specification">For dealmaker</label>
                 <span class="help-block">{{ $errors->first('specification', ':message') }}</span>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="form-group">
-        <div class="col-xs-10 group_checkbox">
-            <div class="radio">
-                {{ Form::radio('all_specification', 'all_specification', false, array('class' => 'connectedRadio', 'id'=>'all_specification', 'checked' => 'checked') ) }} <label for="all_specification">All</label>
             </div>
 
         </div>

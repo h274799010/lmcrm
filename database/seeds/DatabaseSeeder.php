@@ -98,5 +98,98 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
+        /** --- Настройки системы --- */
+        $settings = [
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.requisites',
+                'value' => '',
+                'description' => '<p>Requisites: 4554-4578-1215-7785</p><p>Requisites description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_TEXT,
+                'name' => 'agent.credits.buttons.replenishment.description',
+                'value' => '- Replenishment button description',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_TEXT,
+                'name' => 'agent.credits..buttons.withdrawal.description',
+                'value' => '- Withdrawal button description',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.popups.replenishment.description',
+                'value' => '',
+                'description' => '<p>Replenishment description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.popups.withdrawal.description',
+                'value' => '',
+                'description' => '<p>Withdrawal description</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_TEXT,
+                'name' => 'agent.credits.messages.label.ok',
+                'value' => 'Ok, I get it.',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.messages.success.create_replenishment',
+                'value' => '',
+                'description' => '<p>Your request was successfully sent. Now transfer money to the specified account number. After payment, click the &quot;Paid&quot; button near the request</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.messages.success.paid_replenishment',
+                'value' => '',
+                'description' => '<p>The money will be credited to your account after the administration checks</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_LONGTEXT,
+                'name' => 'agent.credits.messages.success.create_withdrawal',
+                'value' => '',
+                'description' => '<p>The money will be credited to your account after the administration checks</p>'
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'agent.credits.min_withdrawal_amount',
+                'value' => '2000',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'system.agents.lead_revenue_share',
+                'value' => '50',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'system.agents.payment_revenue_share',
+                'value' => '80',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'system.agents.dealmaker_revenue_share',
+                'value' => '50',
+                'description' => ''
+            ],
+        ];
+
+        $locale = App::getLocale();
+
+        foreach ($settings as $setting) {
+            $data = new \App\Models\SettingsSystem();
+            $data->type = $setting['type'];
+            $data->name = $setting['name'];
+            $data->translateOrNew($locale)->value = $setting['value'];
+            $data->translateOrNew($locale)->description = $setting['description'];
+            $data->save();
+        }
+
     }
 }

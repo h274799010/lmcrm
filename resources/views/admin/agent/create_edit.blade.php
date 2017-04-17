@@ -115,7 +115,7 @@
             </div>
         </div>
 
-        <div class="form-group  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
+        {{--<div class="form-group  {{ $errors->has('lead_revenue_share') ? 'has-error' : '' }}">
             {{ Form::label('lead_revenue_share', trans("admin/users.lead_revenue_share"), array('class' => 'control-label')) }}
             <div class="controls">
                 {{ Form::text('lead_revenue_share', (isset($agent))?$agent->agentInfo->lead_revenue_share:NULL, array('class' => 'form-control')) }}
@@ -135,7 +135,7 @@
                 {{ Form::text('dealmaker_revenue_share', (isset($agent))?$agent->agentInfo->dealmaker_revenue_share:NULL, array('class' => 'form-control')) }}
                 <span class="help-block">{{ $errors->first('dealmaker_revenue_share', ':message') }}</span>
             </div>
-        </div>
+        </div>--}}
 
         <div class="form-group  {{ $errors->has('email') ? 'has-error' : '' }}">
             {{ Form::label('email', trans("admin/users.email"), array('class' => 'control-label')) }}

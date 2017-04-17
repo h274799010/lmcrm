@@ -187,6 +187,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // Настройки
     Route::get('settings/roles', ['as' => 'admin.settings.roles', 'uses' => 'Admin\SettingsController@roles']);
     Route::match(['put','post'], 'settings/role/update', ['as' => 'admin.settings.roleUpdate', 'uses' => 'Admin\SettingsController@roleUpdate']);
+    Route::get('settings/system', ['as' => 'admin.settings.system', 'uses' => 'Admin\SettingsController@systemSettings']);
+    Route::post('settings/create',['as'=>'admin.settings.create', 'uses' => 'Admin\SettingsController@create']);
+    Route::match(['put','post'], 'settings/update', ['as' => 'admin.settings.update', 'uses' => 'Admin\SettingsController@settingsUpdate']);
 
     // Работа с групами агентов
     Route::get('groups/to/confirmation', ['as' => 'admin.groups.to.confirmation', 'uses' => 'Admin\AgentPrivateGroupsController@ToConfirmationAgentInGroup']);
@@ -225,5 +228,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     // По транзитам системы (админов)
     Route::get('report/system', ['as' => 'admin.report.system', 'uses' => 'Admin\TransactionController@systemTransactionReport']);
     Route::post('report/system/data', ['as' => 'admin.report.system.data', 'uses' => 'Admin\TransactionController@systemTransactionReportData']);
+
+    // Профит агентов
+    Route::get('profit/index', ['as' => 'admin.profit.index', 'uses' => 'Admin\ProfitController@index']);
+    Route::get('profit/datatable', ['as' => 'admin.profit.data', 'uses' => 'Admin\ProfitController@data']);
+    Route::post('profit/getFilter',['as'=>'admin.profit.getFilter', 'uses' => 'Admin\ProfitController@getFilter']);
+    Route::get('profit/detail/{id}', ['as' => 'admin.profit.detail', 'uses' => 'Admin\ProfitController@detail']);
 
 });

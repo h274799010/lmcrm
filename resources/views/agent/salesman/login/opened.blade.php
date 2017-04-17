@@ -3,32 +3,33 @@
 @section('content')
         <!-- Page Content -->
 <div class="row">
-    <div class="col-md-12" id="openedLeadsFilters">
+    <div class="col-md-12 filter-wrapper" id="openedLeadsFilters">
         <label class="obtain-label-period" for="reportrange">
-            Period:
+            <span class="filter-label">Period:</span>
             <input type="text" name="date" data-name="date" class="mdl-textfield__input dataTables_filter" value="" id="reportrange" />
         </label>
         <label class="obtain-label-period">
-            Sphere:
+            <span class="filter-label">Sphere:</span>
             <select data-name="sphere" class="selectbox dataTables_filter" id="spheresFilter">
                 <option></option>
             </select>
         </label>
         <label class="obtain-label-period">
-            Status:
+            <span class="filter-label">Status:</span>
             <select data-name="status" class="selectbox dataTables_filter" id="statusesFilter" disabled="disabled">
                 <option></option>
             </select>
         </label>
         <label>
-            Show
+            <span class="filter-label">Show</span>
             <select data-name="pageLength" class="selectbox dataTables_filter" data-js="1">
                 <option></option>
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
-            </select> entries
+            </select> <span class="filter-label filter-label-last">entries</span>
         </label>
+        <button class="btn btn-sm btn-danger" id="resetFilters" style="margin-bottom: 0;">{{ trans('admin/admin.button.filter_reset') }}</button>
     </div>
     <div id="main_table" class="col-md-12">
 
@@ -220,7 +221,19 @@
 
 @section('styles')
     <style>
-
+        .filter-wrapper {
+            margin: 16px 0;
+        }
+        .filter-label {
+            margin-right: 6px;
+        }
+        .filter-label.filter-label-last {
+            margin-right: 0;
+            margin-left: 6px;
+        }
+        .filter-wrapper label {
+            margin-right: 15px;
+        }
         #main_table table tr td{
             cursor: help;
         }
@@ -729,6 +742,18 @@
 
             $(document).on('click', '.aboutDeal', function () {
                 window.location = $(this).attr('href');
+            });
+
+            $(document).on('click', '#resetFilters', function (e) {
+                e.preventDefault();
+
+                $('.filter-wrapper').find('select').each(function (i, el) {
+                    $(el).prop('selectedIndex', 0);
+                    var selectBox = $(el).data("selectBox-selectBoxIt");
+                    selectBox.refresh();
+                });
+
+                $('.filter-wrapper input').val('').trigger('change');
             });
         });
 

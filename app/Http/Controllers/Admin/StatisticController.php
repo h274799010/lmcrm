@@ -8,8 +8,8 @@ use App\Models\AccountManagerSphere;
 use App\Models\AgentSphere;
 use App\Models\OpenLeads;
 use App\Models\OpenLeadsStatusDetails;
+use App\Models\OperatorHistory;
 use App\Models\Operator;
-use App\Models\OperatorSphere;
 use App\Models\Salesman;
 use App\Models\Sphere;
 use App\Models\SphereStatuses;
@@ -813,7 +813,7 @@ class StatisticController extends Controller
         }
 
         // находим всех операторов
-        $operators = OperatorSphere::
+        $operators = Operator::
         whereIn('id', $operatorsId)
             ->select('id', 'email', 'first_name', 'last_name', 'updated_at', 'created_at');
 
@@ -882,7 +882,7 @@ class StatisticController extends Controller
         // если id пользователя равен нулю - выходим
         if( !$operatorId ){ abort(403, 'Wrong user id'); }
 
-        $operator = OperatorSphere::with('spheres')->find($operatorId);
+        $operator = Operator::with('spheres')->find($operatorId);
 
 //        dd($operator);
 
@@ -924,7 +924,7 @@ class StatisticController extends Controller
                 ->count();
 
             // обработанные лиды
-            $processed_all = Operator::where('operator_id', $operator->id)->count();
+            $processed_all = OperatorHistory::where('operator_id', $operator->id)->count();
 
             // добавленные лиды
             $added_all = Lead::
@@ -934,7 +934,7 @@ class StatisticController extends Controller
 
 
             // лиды которые обработал оператор
-            $operatorLeadsId = Operator::where('operator_id', $operator->id)->lists('lead_id');
+            $operatorLeadsId = OperatorHistory::where('operator_id', $operator->id)->lists('lead_id');
             // лиды которые забанил оператор
             $marked_bad = Lead::
                   whereIn('id', $operatorLeadsId)
@@ -1005,7 +1005,7 @@ class StatisticController extends Controller
         // если id пользователя равен нулю - выходим
         if( !$operatorId ){ abort(403, 'Wrong user id'); }
 
-        $operator = OperatorSphere::with('spheres')->find($operatorId);
+        $operator = Operator::with('spheres')->find($operatorId);
 
 //        dd($operator);
 
@@ -1058,13 +1058,13 @@ class StatisticController extends Controller
 
 
             // обработанные лиды
-            $operators_leads_all = Operator::where('operator_id', $operator->id)->lists('id');
+            $operators_leads_all = OperatorHistory::where('operator_id', $operator->id)->lists('id');
 
             $processed_all = Lead::whereIn('id', $operators_leads_all)->where('sphere_id', $sphere['id'])->count();
 
 
             // обработанные лиды за период
-            $operators_leads_period = Operator::
+            $operators_leads_period = OperatorHistory::
                   where('operator_id', $operator->id)
                 ->where( 'created_at', '>=', $dateFrom )
                 ->where( 'created_at', '<=', $dateTo )
@@ -1089,7 +1089,7 @@ class StatisticController extends Controller
                 ->count();
 
             // лиды которые обработал оператор
-            $operatorLeadsId = Operator::where('operator_id', $operator->id)->lists('lead_id');
+            $operatorLeadsId = OperatorHistory::where('operator_id', $operator->id)->lists('lead_id');
             // количество лидов которые забанил оператор
             $marked_bad_all = Lead::
                   whereIn('id', $operatorLeadsId)

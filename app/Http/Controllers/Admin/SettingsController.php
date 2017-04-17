@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Facades\Settings;
 use App\Http\Controllers\AdminController;
 use App\Models\Role;
+use App\Models\SettingsSystem;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -60,5 +62,37 @@ class SettingsController extends AdminController
         } else {
             return redirect()->route('admin.settings.roles');
         }
+    }
+
+    // Страница с настройками системы
+    public function systemSettings()
+    {
+        $settings = Settings::get_settings();
+
+        return view('admin.settings.systems', [
+            'settings' => $settings
+        ]);
+    }
+
+    public function settingsUpdate(Request $request)
+    {
+        $settings = $request->except('_method', '_token');
+
+        $locale = App::getLocale();
+
+        foreach ($settings as $id => $value) {
+            $setting = SettingsSystem::find($id);
+
+            if(isset($setting->id)) {
+                if($setting->type == SettingsSystem::TYPE_LONGTEXT) {
+                    $setting->translateOrNew($locale)->description = $value;
+                } else {
+                    $setting->translateOrNew($locale)->value = $value;
+                }
+                $setting->save();
+            }
+        }
+
+        return response()->json(true);
     }
 }

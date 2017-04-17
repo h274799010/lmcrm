@@ -2,10 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Cartalyst\Sentinel\Users\EloquentUser;
 
-class Operator extends Model
-{
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Query\Builder;
+
+class Operator extends EloquentUser implements AuthenticatableContract, CanResetPasswordContract {
+    use Authenticatable, CanResetPassword, SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'first_name', 'last_name','email', 'password',
+    ];
 
 
     /**
@@ -14,51 +30,39 @@ class Operator extends Model
      *
      * @var string
      */
-    protected $table = "operator";
+    protected $table = "users";
+
 
     /**
-     * Связь с таблицей лидов (первый попавшийся, удалить)
+     * The attributes that should be hidden for arrays.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @var array
      */
-    public function lead()
-    {
-        return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+
+    public function spheres() {
+        return $this->belongsToMany('\App\Models\Sphere','operator_sphere','operator_id','sphere_id')->where('status', '=', 1);
     }
 
-
+    public function accountManagers() {
+        return $this->belongsToMany('\App\Models\User','account_managers_operators','operator_id','account_manager_id');
+    }
     /**
      * Связь с таблицей лидов (все лиды оператора)
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function leads()
-    {
-        return $this->hasMany('App\Models\Lead', 'id', 'lead_id');
+    public function leads(){
+        return $this->hasMany('\App\Models\Lead','agent_id','id');
     }
 
-
-    /**
-     * Связь с таблицей пользователей
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function operator()
-    {
-        return $this->hasOne('App\Models\User', 'id', 'operator_id');
-    }
-
-    public function editedLeads()
-    {
-        return $this->hasOne('App\Models\Lead', 'id', 'lead_id');
-    }
-
-    public function spheres()
-    {
-        return $this->belongsToMany('App\Models\Sphere', 'operator_sphere', 'operator_id', 'sphere_id');
-    }
-
-    public function sphere(){
-        return $this->spheres()->first();
-    }
 }

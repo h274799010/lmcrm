@@ -11,13 +11,14 @@ use App\Models\Auction;
 use App\Models\CheckClosedDeals;
 use App\Models\FormFiltersOptions;
 use App\Models\LeadBitmask;
+use App\Models\OperatorHistory;
 use App\Models\Operator;
-use App\Models\OperatorSphere;
 use App\Models\OperatorOrganizer;
 use App\Models\SphereFormFilters;
 use App\Models\SphereStatuses;
 use App\Models\User;
 use App\Models\Salesman;
+use App\Models\UserMasks;
 use App\Transformers\Operator\EditedLeadsTransformer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
@@ -76,7 +77,7 @@ class SphereController extends Controller {
         // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
         // получаем все сферы оператора
-        $spheres = OperatorSphere::find($operator->id)->spheres()->get();
+        $spheres = Operator::find($operator->id)->spheres()->get();
         $spheresId = $spheres->lists('id');
 
 
@@ -123,7 +124,7 @@ class SphereController extends Controller {
         // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
         // получаем все сферы оператора
-        $spheresId = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
+        $spheresId = Operator::find($operator->id)->spheres()->get()->lists('id');
 
         $filters = $request['filters'];
 
@@ -245,7 +246,7 @@ class SphereController extends Controller {
     public function editedLids()
     {
         // получаем данные пользователя (оператора)
-        $operator = OperatorSphere::find(Sentinel::getUser()->id);
+        $operator = Operator::find(Sentinel::getUser()->id);
 
         $spheres = $operator->spheres()->get();
         $statuses = \App\Facades\Lead::getStatuses('status');
@@ -261,7 +262,7 @@ class SphereController extends Controller {
         // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
         // получаем id всех лидов, которые редактировал оператор
-        $leadsId = Operator::where('operator_id', '=', $operator->id)->with('editedLeads')->get()->lists('lead_id');
+        $leadsId = OperatorHistory::where('operator_id', '=', $operator->id)->with('editedLeads')->get()->lists('lead_id');
 
         // получаем все лиды оператора
         $leads = Lead::whereNotIn( 'status', [0, 1] )
@@ -334,7 +335,7 @@ class SphereController extends Controller {
         // получаем данные пользователя (оператора)
         $operator = Sentinel::getUser();
         // получаем все сферы оператора
-        $spheres = OperatorSphere::find($operator->id)->spheres()->get()->lists('id');
+        $spheres = Operator::find($operator->id)->spheres()->get()->lists('id');
         // все лиды помеченные на оповещение
         $leads = Lead::
 //        whereIn('status', [0,1])
@@ -363,10 +364,10 @@ class SphereController extends Controller {
     {
 
         $operator = Sentinel::getUser();
-        $leadEdited = Operator::where('lead_id', '=', $id)->where('operator_id', '=', $operator->id)->first();
+        $leadEdited = OperatorHistory::where('lead_id', '=', $id)->where('operator_id', '=', $operator->id)->first();
 
         if(!$leadEdited) {
-            $leadEdited = new Operator;
+            $leadEdited = new OperatorHistory;
 
             $leadEdited->lead_id = $id;
             $leadEdited->operator_id = $operator->id;
@@ -512,7 +513,7 @@ class SphereController extends Controller {
 
         $operator = Sentinel::getUser();
 
-        $leadEdited = Operator::where('lead_id', $lead->id)->where('operator_id', $operator->id)->first();
+        $leadEdited = OperatorHistory::where('lead_id', $lead->id)->where('operator_id', $operator->id)->first();
         $leadEdited->updated_at = date("Y-m-d H:i:s");
         $leadEdited->save();
 
@@ -987,7 +988,7 @@ class SphereController extends Controller {
      * @return Response
      */
     public function checkLead( Request $request ) {
-        $leadEdited = Operator::with('lead')->where('lead_id', '=', $request->lead_id)->first();
+        $leadEdited = OperatorHistory::with('lead')->where('lead_id', '=', $request->lead_id)->first();
 
         if(isset($leadEdited->id)) {
             if($leadEdited->lead->status == 0 || $leadEdited->lead->status == 1) {
@@ -1178,7 +1179,7 @@ class SphereController extends Controller {
         $operator = Sentinel::getUser();
 
         // сохраняем данные редактированного лида в таблице оператора
-        $leadEdited = Operator::where('lead_id', $lead->id)->where('operator_id', $operator->id)->first();
+        $leadEdited = OperatorHistory::where('lead_id', $lead->id)->where('operator_id', $operator->id)->first();
         $leadEdited->updated_at = date("Y-m-d H:i:s");
         $leadEdited->save();
 
@@ -1295,11 +1296,65 @@ class SphereController extends Controller {
             }
 
             $agents = $agents->orderBy('lead_price', 'desc')
-                ->groupBy('user_id')
                 ->get();
 
             // если агенты есть - добавляем лид им на аукцион и оповещаем
             if( $agents->count() ){
+
+                // Если маска отключена и лид подходит по другой - удаляем ее
+                // если лид подходит только по выключенной маске - пропускаем
+                $tmp = array();
+                foreach ($agents as $key => $mask) {
+                    if( !isset($tmp[ $mask->user_id ]) ) {
+                        $tmp[ $mask->user_id ] = array();
+                    }
+                    $mask->key = $key;
+                    $tmp[ $mask->user_id ][] = $mask;
+                }
+                foreach ($tmp as $user_id => $masks) {
+                    if(count($masks) > 1) {
+                        // Отключенные маски
+                        $off = array();
+                        // Включенные маски
+                        $on = array();
+                        foreach ($masks as $mask) {
+                            $maskName = UserMasks::where('user_id', '=', $mask->user_id)
+                                ->where('sphere_id', '=', $sphere_id)
+                                ->where('mask_id', '=', $mask->id)
+                                ->first();
+                            if($maskName->active == 1) {
+                                $on[] = $mask->key;
+                            }
+                            else {
+                                $off[] = $mask->key;
+                            }
+                        }
+                        // Если есть хотябы одна включенная маска - удаляем остальные
+                        if(count($on) > 0) {
+                            foreach ($off as $key) {
+                                unset($agents[$key]);
+                            }
+                        }
+                    }
+                    else {
+                        continue;
+                    }
+                }
+
+                // Ищем самую дорогую маску
+                $tmp = array();
+                foreach ($agents as $key => $mask) {
+                    if(!isset($tmp[$mask->user_id])) {
+                        $tmp[$mask->user_id] = ['key'=>$key,'price'=>$mask->lead_price];
+                    } else {
+                        if($mask->lead_price > $tmp[$mask->user_id]['price']) {
+                            unset($agents[$tmp[$mask->user_id]['key']]);
+                            $tmp[$mask->user_id] = ['key'=>$key,'price'=>$mask->lead_price];
+                        } else {
+                            unset($agents[$key]);
+                        }
+                    }
+                }
 
                 // помечаем что лид уже был на аукционе
                 $lead->auction_status = 1;
@@ -1512,7 +1567,7 @@ class SphereController extends Controller {
     public function create()
     {
         $user = Sentinel::getUser();
-        $user = OperatorSphere::find($user->id);
+        $user = Operator::find($user->id);
         $spheres = $user->spheres()->get()->pluck('name', 'id');
 
         return view('sphere.lead.create2', [
@@ -1531,7 +1586,7 @@ class SphereController extends Controller {
         $lead = Lead::with('phone')->find($lead_id);
 
         $user = Sentinel::getUser();
-        $user = OperatorSphere::find($user->id);
+        $user = Operator::find($user->id);
         $spheres = $user->spheres()->whereNotIn('sphere_id', [$lead->sphere_id])->get()->pluck('name', 'id');
 
         return view('sphere.lead.create2', [
