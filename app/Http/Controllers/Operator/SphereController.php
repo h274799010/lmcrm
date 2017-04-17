@@ -18,6 +18,7 @@ use App\Models\SphereFormFilters;
 use App\Models\SphereStatuses;
 use App\Models\User;
 use App\Models\Salesman;
+use App\Models\UserMasks;
 use App\Transformers\Operator\EditedLeadsTransformer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
@@ -1295,11 +1296,65 @@ class SphereController extends Controller {
             }
 
             $agents = $agents->orderBy('lead_price', 'desc')
-                ->groupBy('user_id')
                 ->get();
 
             // если агенты есть - добавляем лид им на аукцион и оповещаем
             if( $agents->count() ){
+
+                // Если маска отключена и лид подходит по другой - удаляем ее
+                // если лид подходит только по выключенной маске - пропускаем
+                $tmp = array();
+                foreach ($agents as $key => $mask) {
+                    if( !isset($tmp[ $mask->user_id ]) ) {
+                        $tmp[ $mask->user_id ] = array();
+                    }
+                    $mask->key = $key;
+                    $tmp[ $mask->user_id ][] = $mask;
+                }
+                foreach ($tmp as $user_id => $masks) {
+                    if(count($masks) > 1) {
+                        // Отключенные маски
+                        $off = array();
+                        // Включенные маски
+                        $on = array();
+                        foreach ($masks as $mask) {
+                            $maskName = UserMasks::where('user_id', '=', $mask->user_id)
+                                ->where('sphere_id', '=', $sphere_id)
+                                ->where('mask_id', '=', $mask->id)
+                                ->first();
+                            if($maskName->active == 1) {
+                                $on[] = $mask->key;
+                            }
+                            else {
+                                $off[] = $mask->key;
+                            }
+                        }
+                        // Если есть хотябы одна включенная маска - удаляем остальные
+                        if(count($on) > 0) {
+                            foreach ($off as $key) {
+                                unset($agents[$key]);
+                            }
+                        }
+                    }
+                    else {
+                        continue;
+                    }
+                }
+
+                // Ищем самую дорогую маску
+                $tmp = array();
+                foreach ($agents as $key => $mask) {
+                    if(!isset($tmp[$mask->user_id])) {
+                        $tmp[$mask->user_id] = ['key'=>$key,'price'=>$mask->lead_price];
+                    } else {
+                        if($mask->lead_price > $tmp[$mask->user_id]['price']) {
+                            unset($agents[$tmp[$mask->user_id]['key']]);
+                            $tmp[$mask->user_id] = ['key'=>$key,'price'=>$mask->lead_price];
+                        } else {
+                            unset($agents[$key]);
+                        }
+                    }
+                }
 
                 // помечаем что лид уже был на аукционе
                 $lead->auction_status = 1;
