@@ -24,7 +24,34 @@
                                     <div class="alert" role="alert"></div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingOne">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{ $setting->id }}" aria-expanded="true" aria-controls="collapseOne">
+                                                {{ $setting->name }}
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse_{{ $setting->id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{ $setting->id }}">
+                                        <div class="panel-body">
+                                            <div class="controls">
+                                                @if($setting->type == \App\Models\SettingsSystem::TYPE_NUMBER)
+                                                    {{ Form::number($setting->id, $setting->value, array('class' => 'form-control')) }}
+                                                @elseif($setting->type == \App\Models\SettingsSystem::TYPE_LONGTEXT)
+                                                    {{ Form::textarea($setting->id, $setting->description, array('class' => 'form-control', 'id'=>'ckeditor_'.$setting->id, 'rows'=>5)) }}
+                                                    <script type="text/javascript">
+                                                        CKEDITOR.replace( 'ckeditor_{{ $setting->id }}' );
+                                                    </script>
+                                                @else
+                                                    {{ Form::text($setting->id, $setting->value, array('class' => 'form-control')) }}
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{--<div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         {{ Form::label('value', $setting->name, array('class' => 'control-label')) }}
@@ -42,7 +69,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>--}}
                         @endforeach
                         <div class="row">
                             <div class="col-md-12">
