@@ -734,7 +734,7 @@ class Lead extends EloquentUser {
         // Если у агента есть открытые лиды без проставленного статуса
         // возвращаем ошибку
         $user = Sentinel::findUserById($agent->id);
-        if($user->inRole('dealmaker')) {
+        if($user->inRole('dealmaker') && $operator === false) {
             $countOpenLeadNoStatus = OpenLeads::where('agent_id', '=', $agent->id)
                 ->where('status', '=', 0)->count();
             if($countOpenLeadNoStatus > 0) {

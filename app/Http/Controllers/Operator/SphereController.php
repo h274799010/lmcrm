@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AgentBitmask;
 use App\Models\Auction;
 use App\Models\CheckClosedDeals;
+use App\Models\ClosedDeals;
 use App\Models\FormFiltersOptions;
 use App\Models\LeadBitmask;
 use App\Models\OperatorHistory;
@@ -1473,7 +1474,7 @@ class SphereController extends Controller {
             $openLead = OpenLeads::where( 'agent_id', $user->id )->where( 'lead_id', $lead_id )->first();
 
             // закрытие сделки
-            $openLead->closeDeal( $userData->price, '', $senderId );
+            $openLead->closeDeal( $userData->price, '', $senderId, ClosedDeals::LEAD_SOURCE_AUCTION );
 
             if( isset($request->data['dealStatus']) && !empty($request->data['dealStatus']) ) {
                 $openLead->status = $request->data['dealStatus'];
