@@ -12,6 +12,7 @@ use App\Models\ClosedDeals;
 use App\Models\Sphere;
 use App\Models\TransactionsDetails;
 use App\Models\TransactionsLeadInfo;
+use App\Transformers\Admin\AccManagersProfitTransformer;
 use App\Transformers\Admin\AgentProfitTransformer;
 use Illuminate\Http\Request;
 
@@ -253,6 +254,54 @@ class ProfitController extends AdminController
                 'profit' => $result['profit_bayed']['profit']['total'] / ($result['openLeads'] > 0 ? $result['openLeads'] : 1)
             ],
             'profit' => $agentCoeff
+        ]);
+    }
+
+    public function accManagers()
+    {
+        return view('admin.profit.accManagers');
+    }
+
+    public function accManagersData()
+    {
+        $role = Sentinel::findRoleBySlug('account_manager');
+        $accManagers = $role->users()->select('id')->get()->lists('id')->toArray();
+        $accManagers = AccountManager::whereIn('id', $accManagers)->get();
+
+        return Datatables::of($accManagers)
+            ->setTransformer(new AccManagersProfitTransformer())
+            ->make();
+    }
+
+    public function accManagerDetail($id)
+    {
+        $id = (int)$id;
+
+        if (!$id) {
+            abort(403, 'Wrong account manager id');
+        }
+
+        $accManager = AccountManager::find($id);
+
+        $spheres = $accManager->spheres()->get();
+
+        foreach ($spheres as $key => $sphere) {
+            $spheres[$key]->profit = $accManager->getProfit($sphere->id);
+        }
+        //dd($spheres);
+        return view('admin.profit.accManagerDetail', [
+            'accManager' => $accManager,
+            'spheres' => $spheres,
+            /*'result' => $result,
+            'depositedProfit' => [
+                'count' => $result['leads'],
+                'profit' => $result['profit']['profit']['total'] / ($result['leads'] > 0 ? $result['leads'] : 1)
+            ],
+            'bayedProfit' => [
+                'count' => $result['openLeads'],
+                'profit' => $result['profit_bayed']['profit']['total'] / ($result['openLeads'] > 0 ? $result['openLeads'] : 1)
+            ],
+            'profit' => $agentCoeff*/
         ]);
     }
 }

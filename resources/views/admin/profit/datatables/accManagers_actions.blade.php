@@ -1,0 +1,1 @@
+<a class="btn btn-primary" href="{{ route('admin.profit.accManager.detail', ['id'=>$accManager->id]) }}"> PROFIT </a>

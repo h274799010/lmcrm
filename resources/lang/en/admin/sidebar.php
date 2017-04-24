@@ -20,5 +20,6 @@ return [
     'openLeads' => 'Open leads',
     'statistic' => 'Statistic',
     'spheres_item' => 'Spheres',
-    'agent_profit' => 'Agents profit'
+    'agent_profit' => 'Agents',
+    'account_managers' => 'Account Managers'
 ];

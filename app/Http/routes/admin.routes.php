@@ -234,5 +234,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('profit/datatable', ['as' => 'admin.profit.data', 'uses' => 'Admin\ProfitController@data']);
     Route::post('profit/getFilter',['as'=>'admin.profit.getFilter', 'uses' => 'Admin\ProfitController@getFilter']);
     Route::get('profit/detail/{id}', ['as' => 'admin.profit.detail', 'uses' => 'Admin\ProfitController@detail']);
+    Route::get('profit/accManagers', ['as' => 'admin.profit.accManagers', 'uses' => 'Admin\ProfitController@accManagers']);
+    Route::get('profit/accManagers/datatable', ['as' => 'admin.profit.accManagers.data', 'uses' => 'Admin\ProfitController@accManagersData']);
+    Route::get('profit/accManager/detail/{id}', ['as' => 'admin.profit.accManager.detail', 'uses' => 'Admin\ProfitController@accManagerDetail']);
 
 });

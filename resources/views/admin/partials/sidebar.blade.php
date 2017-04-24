@@ -214,14 +214,27 @@
                 </ul>
             </li>
             <li>
-                <a href="{{ route('admin.profit.index') }}">
-                    <i class="fa fa-list"></i> {{ trans('admin/sidebar.agent_profit') }}
+                <a href="#">
+                    <i class="fa fa-list"></i> Profit
+                    <span class="fa arrow"></span>
                 </a>
+                <ul class="nav collapse">
+                    <li>
+                        <a href="{{ route('admin.profit.index') }}">
+                            <i class="fa fa-list"></i> {{ trans('admin/sidebar.agent_profit') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.profit.accManagers') }}">
+                            <i class="fa fa-list"></i> {{ trans('admin/sidebar.account_managers') }}
+                        </a>
+                    </li>
+                </ul>
             </li>
 
 
 
-                <li>
+            <li>
                 <a href="#">
                     <i class="glyphicon glyphicon-cog"></i> Settings
                     <span class="fa arrow"></span>

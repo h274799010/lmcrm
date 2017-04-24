@@ -433,6 +433,7 @@ class OpenLeads extends Model {
         $auctionSum = 0;
 
         $operatorPayment = isset($operatorPayment->amount) ? $operatorPayment->amount : 0;
+        $operatorPayment = $operatorPayment / $lead->opened;
 
         if(count($info) > 0) {
             foreach ($info as $val) {
@@ -455,7 +456,6 @@ class OpenLeads extends Model {
                     $openedArr[] = $transactionDetails->amount;
                 }
             }
-            $operatorPayment = $operatorPayment / (count($openedArr) > 0 ? count($openedArr) : 1);
 
             if(count($openedArr) < $maxOpened) {
                 for ($i = count($openedArr); $i < $maxOpened; $i++) {
