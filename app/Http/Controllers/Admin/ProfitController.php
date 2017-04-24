@@ -216,8 +216,8 @@ class ProfitController extends AdminController
         $role = Sentinel::findRoleBySlug('agent');
         $agents = $role->users()->get()->lists('id')->toArray();
         $agents = Agent::whereIn('id', $agents)->get();
-        $maxCoeff = false;
-        $minCoeff = false;
+        $maxCoeff = 0;
+        $minCoeff = 0;
 
         foreach ($agents as $agent2) {
             $profit = $agent2->getProfit();
@@ -228,16 +228,22 @@ class ProfitController extends AdminController
             }
 
             $profit = ($profit['profit']['profit']['total'] + $profit['profit_bayed']['profit']['total']) / $leads;
+            if($profit < 0) {
+                $profit = 0;
+            }
 
-            if($maxCoeff === false || $maxCoeff < $profit) {
+            if($maxCoeff < $profit) {
                 $maxCoeff = $profit;
             }
-            if($minCoeff === false || $minCoeff > $profit) {
+            if(($minCoeff === 0 || $minCoeff > $profit) && $profit > 0) {
                 $minCoeff = $profit;
             }
         }
         $agentProfit = ($result['profit']['profit']['total'] + $result['profit_bayed']['profit']['total']) / ($result['leads'] + $result['openLeads'] == 0 ? 1 : $result['leads'] + $result['openLeads']);
-        $agentCoeff = $agentProfit / ( $maxCoeff - $minCoeff );
+        // ([заработок агента]-MIN) / (MAX-MIN)
+        //$agentCoeff = $agentProfit / ( $maxCoeff - $minCoeff );
+
+        $agentCoeff = ($agentProfit - $minCoeff) / ( $maxCoeff - $minCoeff ) * 100;
 
 
         // TEST
