@@ -16,6 +16,14 @@
 
     <div class="row">
         <div class="col-xs-12">
+            <div class="coeff">
+                Coefficient: <span>{{ number_format($profit, 2) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
             <table class="table table-striped table-hover dataTable1" id="agentCreditReportsTable">
                 <thead>
                 <tr>
@@ -127,7 +135,7 @@
             <table class="table table-striped table-hover dataTable1" id="agentCreditReportsTable">
                 <thead>
                 <tr>
-                    <th class="center" rowspan="2">Deposition</th>
+                    <th class="center" rowspan="2">Exposion</th>
                     <th class="center" colspan="3">Share Revenue</th>
                     <th class="center" rowspan="2">Opened from auction</th>
                     <th class="center" colspan="2">Deals profit</th>
@@ -180,7 +188,7 @@
                         <td class="dirty">{{ number_format($detail['auction']['leads'], 2) }}</td>
                         <td class="profit">{{ number_format($detail['auction']['deals'], 2) }}</td>
                         <td class="dirty">{{ number_format($detail['auction']['total'], 2) }}</td>
-                        <td>{{ $detail['operator'] }}</td>
+                        <td class="loss">{{ number_format($detail['operator'], 2) }}</td>
                         <td class="profit">{{ number_format($detail['profit']['leads'], 2) }}</td>
                         <td class="profit">{{ number_format($detail['profit']['deals'], 2) }}</td>
                         <td class="profit">{{ number_format($detail['profit']['total'], 2) }}</td>
@@ -198,7 +206,7 @@
                     <td class="dirty">{{ number_format($result['profit_bayed']['auction']['leads'], 2) }}</td>
                     <td class="profit">{{ number_format($result['profit_bayed']['auction']['deals'], 2) }}</td>
                     <td class="dirty">{{ number_format($result['profit_bayed']['auction']['total'], 2) }}</td>
-                    <td>-</td>
+                    <td class="loss">{{ number_format($result['profit_bayed']['operator'], 2) }}</td>
                     <td class="profit">{{ number_format($result['profit_bayed']['profit']['leads'], 2) }}</td>
                     <td class="profit">{{ number_format($result['profit_bayed']['profit']['deals'], 2) }}</td>
                     <td class="profit">{{ number_format($result['profit_bayed']['profit']['total'], 2) }}</td>
@@ -217,7 +225,7 @@
                         <td class="profit">{{ number_format($result['profit_bayed']['profit']['total'], 2) }}</td>
                     </tr>
                     <tr>
-                        <th>Deposited leads</th>
+                        <th>Exposion leads</th>
                         <td class="loss">{{ $bayedProfit['count'] }}</td>
                     </tr>
                     <tr>
@@ -278,6 +286,12 @@
         }
         tfoot {
             background: rgba(255, 236, 53, 0.53);
+        }
+        .coeff {
+            padding: 20px 0;
+        }
+        .coeff span {
+            font-weight: bold;
         }
     </style>
 @endsection

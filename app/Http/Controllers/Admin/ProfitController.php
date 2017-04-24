@@ -208,160 +208,51 @@ class ProfitController extends AdminController
 
         $agent = Agent::find($id);
 
-        $leads = $agent->leads()->with('sphere', 'openLeads')->get();
+        $result = $agent->getProfit();
 
-        /**
-         * Структура массива деталей по лиду
-         *
-         * [
-         *      'type' => '', // Тип строки: "Deposition" или "Deposition + Deal"
-         *      'revenue_share' => [
-         *          'from_deals' => '', // Профит системы со сделки
-         *          'from_leads' => ''  // Профит системы с открытия лида
-         *      ],
-         *          'max_opened' => '', // Максимальное кол-во открытий лида в сфере
-         *      'opened' => [ // Открытия лида: Номер открытия => Цена по которой открыли
-         *          1 => 'price',
-         *          2 => 'price'
-         *      ],
-         *      'deals' => [ // Профит системы с закрытой сделки
-         *          'total' => '', // сумма на которую закрыли сделку
-         *          'our' => ''    // процент от сделки, который пологается системе: $deal_price * $profit_from_deals / 100%
-         *      ],
-         *      'auction' => [ // Профит системы с аукциона
-         *          'leads' => '', // Общий профит системы за открытия лида
-         *          'deals' => '', // Общий профит системы за закрытые сделки
-         *          'total' => '' // Общий профит системы: $sum_leads_auction + $deals
-         *      ],
-         *      'operator' => '', // Цена по которой лид был обработан оператором
-         *      'profit' => [ // Окончательный профит системы
-         *          'leads' => '', // Профит за открытия лидов
-         *          'deals' => '', // Профит за закрыьтия сделок
-         *          'total' => ''  // Общий профит системы: $leads + $deals
-         *      ]
-         * ]
-         */
-        $result = [
-            'details' => [],
-            'bayed' => [],
-            'profit' => [
-                'revenue_share' => [
-                    'from_deals' => 0,
-                    'from_leads' => 0,
-                    'from_dealmaker' => 0,
-                ],
-                'max_opened' => 0,
-                'opened' => 0,
-                'deals' => [
-                    'total' => 0,
-                    'our' => 0,
-                ],
-                'auction' => [
-                    'leads' => 0,
-                    'deals' => 0,
-                    'total' => 0,
-                ],
-                'operator' => 0,
-                'profit' => [
-                    'leads' => 0,
-                    'deals' => 0,
-                    'total' => 0
-                ]
-            ],
-            'profit_bayed' => [
-                'revenue_share' => [
-                    'from_deals' => 0,
-                    'from_leads' => 0,
-                    'from_dealmaker' => 0,
-                ],
-                'max_opened' => 0,
-                'opened' => 0,
-                'deals' => [
-                    'total' => 0,
-                    'our' => 0,
-                ],
-                'auction' => [
-                    'leads' => 0,
-                    'deals' => 0,
-                    'total' => 0,
-                ],
-                'operator' => 0,
-                'profit' => [
-                    'leads' => 0,
-                    'deals' => 0,
-                    'total' => 0
-                ]
-            ],
-        ];
-        // Профит по внесенным лидам
-        foreach ($leads as $lead) {
-            $details = $lead->getDepositionsProfit();
+        // TEST
 
-            foreach ($details as $key => $val) {
-                if($key == 'type') {
-                    continue;
-                }
-                if($key == 'opened') {
-                    foreach ($val as $val2) {
-                        $result['profit'][$key] += $val2;
-                    }
-                    continue;
-                }
-                if(is_array($val)) {
-                    foreach ($val as $key2 => $val2) {
-                        $result['profit'][$key][$key2] += (float)$val2;
-                    }
-                }
-                else {
-                    $result['profit'][$key] += (float)$val;
-                }
+        $role = Sentinel::findRoleBySlug('agent');
+        $agents = $role->users()->get()->lists('id')->toArray();
+        $agents = Agent::whereIn('id', $agents)->get();
+        $maxCoeff = false;
+        $minCoeff = false;
+
+        foreach ($agents as $agent2) {
+            $profit = $agent2->getProfit();
+
+            $leads = $profit['leads'] + $profit['openLeads'];
+            if($leads == 0) {
+                $leads = 1;
             }
 
-            $result['details'][] = $details;
-            //$result = $tmp;
-        }
+            $profit = ($profit['profit']['profit']['total'] + $profit['profit_bayed']['profit']['total']) / $leads;
 
-        // Профит по открытым лидам
-        $openLeads = $agent->openLeads()->get();
-        foreach ($openLeads as $openLead) {
-            $details = $openLead->getBayedProfit();
-
-            foreach ($details as $key => $val) {
-                if($key == 'type') {
-                    continue;
-                }
-                if($key == 'opened') {
-                    foreach ($val as $val2) {
-                        $result['profit_bayed'][$key] += $val2;
-                    }
-                    continue;
-                }
-                if(is_array($val)) {
-                    foreach ($val as $key2 => $val2) {
-                        $result['profit_bayed'][$key][$key2] += (float)$val2;
-                    }
-                }
-                else {
-                    $result['profit_bayed'][$key] += (float)$val;
-                }
+            if($maxCoeff === false || $maxCoeff < $profit) {
+                $maxCoeff = $profit;
             }
-
-            $result['bayed'][] = $details;
+            if($minCoeff === false || $minCoeff > $profit) {
+                $minCoeff = $profit;
+            }
         }
+        $agentProfit = ($result['profit']['profit']['total'] + $result['profit_bayed']['profit']['total']) / ($result['leads'] + $result['openLeads'] == 0 ? 1 : $result['leads'] + $result['openLeads']);
+        $agentCoeff = $agentProfit / ( $maxCoeff - $minCoeff );
 
-        //dd($result);
+
+        // TEST
 
         return view('admin.profit.detail', [
             'agent' => $agent,
             'result' => $result,
             'depositedProfit' => [
-                'count' => count($leads),
-                'profit' => $result['profit']['profit']['total'] / (count($leads) > 0 ? count($leads) : 1)
+                'count' => $result['leads'],
+                'profit' => $result['profit']['profit']['total'] / ($result['leads'] > 0 ? $result['leads'] : 1)
             ],
             'bayedProfit' => [
-                'count' => count($openLeads),
-                'profit' => $result['profit_bayed']['profit']['total'] / (count($openLeads) > 0 ? count($openLeads) : 1)
+                'count' => $result['openLeads'],
+                'profit' => $result['profit_bayed']['profit']['total'] / ($result['openLeads'] > 0 ? $result['openLeads'] : 1)
             ],
+            'profit' => $agentCoeff
         ]);
     }
 }
