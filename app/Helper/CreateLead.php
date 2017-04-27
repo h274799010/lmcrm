@@ -17,6 +17,8 @@ use App\Models\LeadDepositorData;
 
 class CreateLead
 {
+
+
     public function create($user_id)
     {
         $user = Sentinel::findById($user_id);
@@ -37,8 +39,14 @@ class CreateLead
         );
     }
 
+
+    /**
+     * Сохранение лида в системе
+     *
+     */
     public function store(Request $request, $user_id)
     {
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
             'name' => 'required'
@@ -47,8 +55,10 @@ class CreateLead
         $user = Sentinel::findById($user_id);
 
         if($user->inRole('salesman')) {
+
             $agent =  Salesman::find($user_id)->agent()->first();
             $user = Salesman::find($user->id);
+
         } elseif($user->inRole('agent')) {
             $agent =  Agent::find($user_id);
             $user = $agent;
@@ -56,6 +66,7 @@ class CreateLead
             $agent = Operator::find($user_id);
             $user = $agent;
         }
+
         if($user->banned_at && !$user->hasAccess('create_leads')) {
             if($request->ajax()){
                 return response()->json([
@@ -72,6 +83,7 @@ class CreateLead
 
 
         if($user->inRole('operator')) {
+
             if ( $validator->fails() ) {
                 if($request->ajax()){
                     return response()->json($validator);
@@ -79,7 +91,9 @@ class CreateLead
                     return redirect()->back()->withErrors($validator)->withInput();
                 }
             }
+
         } else {
+
             if ($validator->fails() || !$agent->sphere()) {
                 if($request->ajax()){
                     return response()->json($validator);
@@ -199,6 +213,204 @@ class CreateLead
             return redirect()->back();
         }
     }
+
+
+    /**
+     * Сохранение лида в системе
+     *
+     */
+    public function collectStore($data, $user_id)
+    {
+
+//        $validator = Validator::make($data->toArray(), [
+//            'phone' => 'required|regex:/\(?([0-9]{3})\)?([\s.-])*([0-9]{3})([\s.-])*([0-9]{4})/',
+//            'name' => 'required'
+//        ]);
+
+        $user = Sentinel::findById($user_id);
+
+        if($user->inRole('salesman')) {
+
+            $agent =  Salesman::find($user_id)->agent()->first();
+            $user = Salesman::find($user->id);
+
+        } elseif($user->inRole('agent')) {
+            $agent =  Agent::find($user_id);
+            $user = $agent;
+        } else {
+            $agent = Operator::find($user_id);
+            $user = $agent;
+        }
+
+        if($user->banned_at && !$user->hasAccess('create_leads')) {
+
+            return [
+                'status' => 'LeadCreateError',
+                'message' => trans('lead/form.user_banned')
+            ];
+
+//            if($data->ajax()){
+//                return response()->json([
+//                    'status' => 'LeadCreateError',
+//                    'message' => trans('lead/form.user_banned')
+//                ]);
+//            } else {
+//                return redirect()->back()->withErrors([
+//                    'status' => 'LeadCreateError',
+//                    'message' => trans('lead/form.user_banned')
+//                ]);
+//            }
+        }
+
+
+//        if($user->inRole('operator')) {
+//
+//            if ( $validator->fails() ) {
+//
+//                return $validator;
+//
+////                if($request->ajax()){
+////                    return response()->json($validator);
+////                } else {
+////                    return redirect()->back()->withErrors($validator)->withInput();
+////                }
+//            }
+//
+//        } else {
+//
+//            if ($validator->fails() || !$agent->sphere()) {
+//
+//                return $validator;
+//
+////                if($request->ajax()){
+////                    return response()->json($validator);
+////                } else {
+////                    return redirect()->back()->withErrors($validator)->withInput();
+////                }
+//            }
+//        }
+
+
+        $customer = Customer::firstOrCreate( ['phone'=>preg_replace('/[^\d]/', '', $data['phone'])] );
+
+        // Получаем список лидов (активных на аукционе или на обработке у оператора) с введенным номером телефона
+        $existingLeads = $customer->checkExistingLeads($data['sphere'])->get()->lists('id')->toArray();
+        // Если лиды нашлись - выводим сообщение об ошибке
+        if($existingLeads) {
+
+            return $validator;
+
+//            if($request->ajax()){
+//                return response()->json([
+//                    'status' => 'LeadCreateError',
+//                    'message' => trans('lead/form.exists')
+//                ]);
+//            } else {
+//                return redirect()->back()->withErrors([
+//                    'status' => 'LeadCreateError',
+//                    'message' => trans('lead/form.exists')
+//                ]);
+//            }
+        }
+
+        $lead = new Lead($data->toArray());
+        $lead->customer_id=$customer->id;
+        $lead->sphere_id = $data['sphere'];
+        $lead->status = 0;
+
+        // если в реквесте есть группа
+        if( isset($data['group']) && $user->inRole('agent')){
+            // добавляем лид со статусами к передаче в приватной группе
+
+            $lead->status = 8;
+            $lead->auction_status = 6;
+            $lead->payment_status = 4;
+        }
+
+        if( isset($request['specification']) && $user->inRole('agent') ) {
+            $lead->specification = Lead::SPECIFICATION_FOR_DEALMAKER;
+        }
+
+        $user->leads()->save($lead);
+
+        if( isset($data['group']) && isset($data['agents']) && $user->inRole('agent')){
+            if(  count($data['agents']) > 0 ) {
+                foreach ($data['agents'] as $agent_id) {
+                    $lead = Lead::find( $lead->id );
+
+                    $groupAgent = Sentinel::findById($agent_id);
+
+                    $lead->openForMember( $groupAgent );
+                }
+            }
+        }
+
+        if(!$user->inRole('operator')) {
+            // данные агента
+            $agentInfoData = AgentInfo::where('agent_id', $agent->id)->first();
+        }
+
+        // выбираем данные текущего пользователя
+        $currentUser = Sentinel::findById($user->id);
+
+        // выбираем все роли пользователя
+        $userRoles = $currentUser->roles()->get();
+
+        // массив с ролями пользователя
+        $userRolesArray = [];
+
+        // перебираем объект с ролями и формируем массив
+        $userRoles->each(function( $item ) use(&$userRolesArray){
+            // добавляем роль в массив
+            $userRolesArray[] = $item->slug;
+        });
+
+        // преобразовываем массив с ролями в строку
+        $userRolesSting = serialize($userRolesArray);
+
+
+        // создаем новый экземпляр LeadDepositorData
+        $leadDepositorData = new LeadDepositorData();
+
+        // id лида, к которому привязанны данные
+        $leadDepositorData->lead_id = $lead->id;
+
+        // id пользователя который внес лид в систему
+        $leadDepositorData->depositor_id = $currentUser->id;
+
+        // имя пользователя
+        $leadDepositorData->depositor_name = $currentUser->first_name;
+        if(!$user->inRole('operator')) {
+            // название компании
+            $leadDepositorData->depositor_company = $agentInfoData->company;
+        } else {
+            // название компании
+            $leadDepositorData->depositor_company = 'system_company_name';
+        }
+        // роль агента (будут либо две, либо одна)
+        $leadDepositorData->depositor_role = $userRolesSting;
+        // состояния пользователя (активный, приостановленный, в ожидании, забанненый, удаленный)
+        $leadDepositorData->depositor_status = $currentUser->banned_at ? 'banned':'active';
+
+        $leadDepositorData->save();
+
+        return [
+            'status' => 'LeadCreateSuccess',
+            'message' => trans('lead/form.successfully_created')
+        ];
+
+//        if($request->ajax()){
+//            return response()->json([
+//                'status' => 'LeadCreateSuccess',
+//                'message' => trans('lead/form.successfully_created')
+//            ]);
+//        } else {
+//            return redirect()->back();
+//        }
+
+
+    }
+
 
     public function storeOperator($user_id, $name, $phone, $comment, $email, $sphere_id, $surname)
     {

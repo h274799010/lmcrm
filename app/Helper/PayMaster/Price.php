@@ -15,7 +15,7 @@ use App\Models\AgentsPrivateGroups;
 use App\Models\Transactions;
 use App\Models\TransactionsDetails;
 use App\Models\AgentBitmask;
-
+use Illuminate\Support\Facades\Log;
 
 
 
@@ -48,6 +48,9 @@ class Price
 
         // выбираем таблицу битмаска по id сферы лида
         $mask = new AgentBitmask( $lead->sphere->id );
+
+        Log::info('маска: ');
+        Log::info( $agent_mask_id );
 
         // выбираем прайс по заданной маске агента
         $price = $mask->find( $agent_mask_id )->lead_price;

@@ -1,5 +1,5 @@
 <?php
-Route::group(['prefix' => 'admin'], function() {
+Route::group(['prefix' => 'admin'], function () {
     Route::get('sphere/data', 'Admin\SphereController@data');
     Route::get('agent/data', 'Admin\AgentController@data');
     Route::get('user/data', 'Admin\UserController@data');
@@ -8,7 +8,7 @@ Route::group(['prefix' => 'admin'], function() {
 
 
 // роуты для разных групп пользователей
-Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => ['localeSessionRedirect','localizationRedirect', 'localize']], function() {
+Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localize']], function () {
     include('routes/front.routes.php');
     include('routes/agent.routes.php');
     include('routes/operator.routes.php');
@@ -19,8 +19,8 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => ['loc
 
 
 // Роуты мобильного приложения
-Route::group(['prefix' => 'api'], function(){
-    include ('routes/api.routes.php');
+Route::group(['prefix' => 'api'], function () {
+    include('routes/api.routes.php');
 });
 
 
@@ -31,9 +31,9 @@ Route::get('notice', ['as' => 'notification', 'middleware' => ['auth', 'agent|sa
 Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notified']);
 
 // todo удалить, это для проверки выдачи статистики
-Route::get('transitionTest/{status}', function($status){
+Route::get('transitionTest/{status}', function ($status) {
 
-    $agent = Agent::find( $this->user->id );
+    $agent = Agent::find($this->user->id);
 
     $spheres = $agent->spheresWithMasks;
 
@@ -44,7 +44,7 @@ Route::get('transitionTest/{status}', function($status){
 
 //    $a = \App\Models\SphereStatusTransitions::all();
 
-    $a = \App\Models\SphereStatusTransitions::getRating( 1, 2, $status);
+    $a = \App\Models\SphereStatusTransitions::getRating(1, 2, $status);
 
 
 //    dd($a);
@@ -54,7 +54,42 @@ Route::get('transitionTest/{status}', function($status){
 });
 
 
-Route::get('stat', function(){
+Route::get('sal', function () {
+
+    $salesmen = \App\Models\Agent::find(6)->salesmen()->get();
+    $permissions = \App\Models\User::$bannedPermissions;
+
+    $agent = \App\Models\Agent::find(6);
+
+
+//    dd( $agent->salesmenById(120)->first() );
+
+    $s = $agent->salesmenById(82)->first();
+
+    dd($s->masks()->get());
+
+    $salesmenData = [];
+
+    $salesmen->each(function ($sal) use (&$salesmenData) {
+
+        $salesmenData[] =
+            [
+                'id' => $sal['id'],
+                'email' => $sal['email'],
+                'name' => $sal['first_name'],
+                'surname' => $sal['last_name'],
+                'permissions' => $sal['permissions'],
+                'banned_at' => $sal['banned_at'],
+            ];
+
+    });
+
+    dd($salesmen);
+
+});
+
+
+Route::get('stat', function () {
 
 //use LaravelFCM\Message\OptionsBuilder;
 //use LaravelFCM\Message\PayloadDataBuilder;
@@ -62,9 +97,16 @@ Route::get('stat', function(){
 //use FCM;
 
 
+    $l = App\Models\Lead::where('id', '>=', 10)->where('id', '<', 15)->get();
+
+    dd($l);
+
+    dd('Ok');
+
+
     $optionBuiler = new LaravelFCM\Message\OptionsBuilder();
     $optionBuiler
-        ->setTimeToLive(60*20)
+        ->setTimeToLive(60 * 20)
         ->setCollapseKey('key1');
 
     $notificationBuilder = new LaravelFCM\Message\PayloadNotificationBuilder('LM CRM');
@@ -98,18 +140,6 @@ Route::get('stat', function(){
 // return Array (key:token, value:errror) - in production you should remove from your database the tokens
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     dd('Ok');
 
 
@@ -121,32 +151,31 @@ Route::get('stat', function(){
 
     $sphereData = [];
 
-    $spheres->each(function( $sphere ) use(&$sphereData){
+    $spheres->each(function ($sphere) use (&$sphereData) {
 
         $masks = [];
 
-        $sphere->masks->each(function( $mask ) use(&$masks){
+        $sphere->masks->each(function ($mask) use (&$masks) {
 
             $mask->getBitmask();
 
-            if( $mask->bitmap['status'] == 1 && $mask['active'] == 1){
+            if ($mask->bitmap['status'] == 1 && $mask['active'] == 1) {
 
                 $masks[] =
-                [
-                    'id' => $mask['id'],
-                    'name' => $mask['name'],
-                ];
+                    [
+                        'id' => $mask['id'],
+                        'name' => $mask['name'],
+                    ];
             }
 
             $sphereData =
-            [
-                'id' => $sphere['id'],
-                'name' => $sphere['name'],
-                'masks' => $masks,
-            ];
+                [
+                    'id' => $sphere['id'],
+                    'name' => $sphere['name'],
+                    'masks' => $masks,
+                ];
 
         });
-
 
 
     });
@@ -158,9 +187,9 @@ Route::get('stat', function(){
     $maskId = 33;
 
     // выбираем маску
-    $mask = App\Models\UserMasks::find( $maskId );
+    $mask = App\Models\UserMasks::find($maskId);
 
-    $sphere = App\Models\Sphere::find( 1 );
+    $sphere = App\Models\Sphere::find(1);
 
     $filterAttr = $sphere->filterAttrWithOptions;
 
@@ -180,7 +209,7 @@ Route::get('stat', function(){
      * Перебор атрибутов и заполнение значениями из маски агента
      *
      */
-    $filterAttr->each(function( $attr ) use( &$maskData, $mask){
+    $filterAttr->each(function ($attr) use (&$maskData, $mask) {
 
         // выделяем битмаск
         $bitmask = $mask->bitmask;
@@ -188,23 +217,23 @@ Route::get('stat', function(){
         // массив с опциями
         $options = [];
 
-        $attr->filterOptions->each(function( $option ) use( &$options, $attr, $bitmask ){
+        $attr->filterOptions->each(function ($option) use (&$options, $attr, $bitmask) {
 
             $options[] =
-            [
-                'id' => $option->id,
-                'name' => $option->name,
-                'value' => $bitmask['fb_' .$option->attr_id .'_' .$option->id] == 1 ? 'true' : 'false',
-            ];
+                [
+                    'id' => $option->id,
+                    'name' => $option->name,
+                    'value' => $bitmask['fb_' . $option->attr_id . '_' . $option->id] == 1 ? 'true' : 'false',
+                ];
         });
 
 
         $maskData['filter'][] =
-        [
-            'id' => $attr->id,
-            'name' => $attr->label,
-            'options' => $options,
-        ];
+            [
+                'id' => $attr->id,
+                'name' => $attr->label,
+                'options' => $options,
+            ];
 
     });
 
