@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Facades\Settings;
 use App\Helper\PayMaster\PayCalculation;
 use App\Helper\PayMaster\PayInfo;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Cartalyst\Sentinel\Users\EloquentUser;
 
 use App\Models\Customer;
@@ -732,12 +733,15 @@ class Lead extends EloquentUser {
 
         // Если у агента есть открытые лиды без проставленного статуса
         // возвращаем ошибку
-        $countOpenLeadNoStatus = OpenLeads::where('agent_id', '=', $agent->id)
-            ->where('status', '=', 0)->count();
-        if($countOpenLeadNoStatus > 0) {
-            return array(
-                'error' => trans('lead/lead.there_is_open_leads_no_status')
-            );
+        $user = Sentinel::findUserById($agent->id);
+        if($user->inRole('dealmaker') && $operator === false) {
+            $countOpenLeadNoStatus = OpenLeads::where('agent_id', '=', $agent->id)
+                ->where('status', '=', 0)->count();
+            if($countOpenLeadNoStatus > 0) {
+                return array(
+                    'error' => trans('lead/lead.there_is_open_leads_no_status')
+                );
+            }
         }
 
 
@@ -857,12 +861,15 @@ class Lead extends EloquentUser {
 
         // Если у агента есть открытые лиды без проставленного статуса
         // возвращаем ошибку
-        $countOpenLeadNoStatus = OpenLeads::where('agent_id', '=', $agent->id)
-            ->where('status', '=', 0)->count();
-        if($countOpenLeadNoStatus > 0) {
-            return array(
-                'error' => trans('lead/lead.there_is_open_leads_no_status')
-            );
+        $user = Sentinel::findUserById($agent->id);
+        if($user->inRole('dealmaker')) {
+            $countOpenLeadNoStatus = OpenLeads::where('agent_id', '=', $agent->id)
+                ->where('status', '=', 0)->count();
+            if($countOpenLeadNoStatus > 0) {
+                return array(
+                    'error' => trans('lead/lead.there_is_open_leads_no_status')
+                );
+            }
         }
 
         // Ищем этот лид у других агентов

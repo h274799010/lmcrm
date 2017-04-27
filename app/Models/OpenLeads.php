@@ -417,6 +417,11 @@ class OpenLeads extends Model {
         $transactions = TransactionsLeadInfo::where( 'lead_id', $this->lead_id )
             ->lists( 'transaction_id' );
 
+        $operatorPayment = TransactionsDetails::whereIn( 'transaction_id', $transactions ) // получение деталей по найденным транзакциям
+        ->where( 'type', 'operatorPayment' )
+            ->where('user_id', '=', config('payment.system_id'))
+            ->first();
+
         $transactions = Transactions::whereIn('id', $transactions)
             ->where('initiator_user_id', '=', $agent->id)->lists('id');
 
@@ -426,6 +431,10 @@ class OpenLeads extends Model {
 
         $openedArr = array();
         $auctionSum = 0;
+
+        $operatorPayment = isset($operatorPayment->amount) ? $operatorPayment->amount : 0;
+        $operatorPayment = $operatorPayment / $lead->opened;
+
         if(count($info) > 0) {
             foreach ($info as $val) {
                 $transactionDetails = TransactionsDetails::where( 'transaction_id', '=', $val->transaction_id )
@@ -463,7 +472,7 @@ class OpenLeads extends Model {
         $revenueSystem = TransactionsDetails::whereIn( 'transaction_id', $transactions )
             ->where( 'user_id', config('payment.system_id') )
             ->whereIn( 'type', [
-                'openLead',
+                //'openLead',
                 'repaymentForLead',
                 'operatorPayment',
                 'rewardForOpenLead',
@@ -490,8 +499,10 @@ class OpenLeads extends Model {
             }
         }
 
+        $totalAuction = (($auctionSum + $operatorPayment) / 100) * $leadRevenueShare;
+
         $result = [
-            'type' => $lead->ClosingDealCount() ? 'Deposition + Deal' : 'Deposition', // Тип строки: "Deposition" или "Deposition + Deal"
+            'type' => $this->state == 2 ? 'Exposion + Deal' : 'Exposion', // Тип строки: "Deposition" или "Deposition + Deal"
             'revenue_share' => [
                 'from_deals' => $paymentRevenueShare, // Профит системы со сделки
                 'from_leads' => $leadRevenueShare,  // Профит системы с открытия лида
@@ -508,11 +519,11 @@ class OpenLeads extends Model {
                 'deals' => $revenueClosingDeals, // Общий профит системы за закрытые сделки
                 'total' => $revenueSystem // Общий профит системы: $sum_leads_auction + $deals
             ],
-            'operator' => '-', // Цена по которой лид был обработан оператором
+            'operator' => $operatorPayment, // Цена по которой лид был обработан оператором
             'profit' => [ // Окончательный профит системы
-                'leads' => $auctionSum, // Профит за открытия лидов
+                'leads' => $totalAuction, // Профит за открытия лидов
                 'deals' => $revenueClosingDeals, // Профит за закрыьтия сделок
-                'total' => $revenueSystem  // Общий профит системы: $leads + $deals
+                'total' => $revenueSystem + $totalAuction  // Общий профит системы: $leads + $deals
             ]
         ];
 

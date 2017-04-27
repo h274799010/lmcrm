@@ -168,6 +168,12 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
+                'name' => 'system.agents.dealmaker_lead_revenue_share',
+                'value' => '100',
+                'description' => ''
+            ],
+            [
+                'type' => \App\Models\SettingsSystem::TYPE_NUMBER,
                 'name' => 'system.agents.payment_revenue_share',
                 'value' => '80',
                 'description' => ''

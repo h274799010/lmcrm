@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\AccountManager;
 
+use App\Facades\Settings;
 use App\Helper\PayMaster;
 use App\Http\Controllers\AccountManagerController;
 use App\Http\Requests\AgentFormRequest;
@@ -195,10 +196,17 @@ class AgentController extends AccountManagerController {
         if( count($agentSpheres) > 0 ) {
             foreach ($agentSpheres as $agentSphere) {
                 if($agentSphere->lead_revenue_share <= 0) {
-                    $agentSphere->lead_revenue_share = $request->input('lead_revenue_share');
+                    if($user->inRole('dealmaker')) {
+                        $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.dealmaker_lead_revenue_share');
+                    } else {
+                        $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.lead_revenue_share');
+                    }
                 }
                 if($agentSphere->payment_revenue_share <= 0) {
-                    $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+                    $agentSphere->payment_revenue_share = Settings::get_setting('system.agents.payment_revenue_share');
+                }
+                if($agentSphere->dealmaker_revenue_share <= 0) {
+                    $agentSphere->dealmaker_revenue_share = Settings::get_setting('system.agents.dealmaker_revenue_share');
                 }
                 $agentSphere->save();
             }
@@ -419,10 +427,17 @@ class AgentController extends AccountManagerController {
         if( count($agentSpheres) > 0 ) {
             foreach ($agentSpheres as $agentSphere) {
                 if($agentSphere->lead_revenue_share <= 0) {
-                    $agentSphere->lead_revenue_share = $request->input('lead_revenue_share');
+                    if($agent->inRole('dealmaker')) {
+                        $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.dealmaker_lead_revenue_share');
+                    } else {
+                        $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.lead_revenue_share');
+                    }
                 }
                 if($agentSphere->payment_revenue_share <= 0) {
-                    $agentSphere->payment_revenue_share = $request->input('payment_revenue_share');
+                    $agentSphere->payment_revenue_share = Settings::get_setting('system.agents.payment_revenue_share');
+                }
+                if($agentSphere->dealmaker_revenue_share <= 0) {
+                    $agentSphere->dealmaker_revenue_share = Settings::get_setting('system.agents.dealmaker_revenue_share');
                 }
                 $agentSphere->save();
             }

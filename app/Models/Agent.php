@@ -680,4 +680,155 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $accessibility_at;
     }
 
+    public function getProfit()
+    {
+        $agent = $this;
+
+        $leads = $agent->leads()->whereNotIn('status', array(0, 1, 3, 4))->with('sphere', 'openLeads')->get();
+
+        /**
+         * Структура массива деталей по лиду
+         *
+         * [
+         *      'type' => '', // Тип строки: "Deposition" или "Deposition + Deal"
+         *      'revenue_share' => [
+         *          'from_deals' => '', // Профит системы со сделки
+         *          'from_leads' => ''  // Профит системы с открытия лида
+         *      ],
+         *          'max_opened' => '', // Максимальное кол-во открытий лида в сфере
+         *      'opened' => [ // Открытия лида: Номер открытия => Цена по которой открыли
+         *          1 => 'price',
+         *          2 => 'price'
+         *      ],
+         *      'deals' => [ // Профит системы с закрытой сделки
+         *          'total' => '', // сумма на которую закрыли сделку
+         *          'our' => ''    // процент от сделки, который пологается системе: $deal_price * $profit_from_deals / 100%
+         *      ],
+         *      'auction' => [ // Профит системы с аукциона
+         *          'leads' => '', // Общий профит системы за открытия лида
+         *          'deals' => '', // Общий профит системы за закрытые сделки
+         *          'total' => '' // Общий профит системы: $sum_leads_auction + $deals
+         *      ],
+         *      'operator' => '', // Цена по которой лид был обработан оператором
+         *      'profit' => [ // Окончательный профит системы
+         *          'leads' => '', // Профит за открытия лидов
+         *          'deals' => '', // Профит за закрыьтия сделок
+         *          'total' => ''  // Общий профит системы: $leads + $deals
+         *      ]
+         * ]
+         */
+        $result = [
+            'details' => [],
+            'bayed' => [],
+            'profit' => [
+                'revenue_share' => [
+                    'from_deals' => 0,
+                    'from_leads' => 0,
+                    'from_dealmaker' => 0,
+                ],
+                'max_opened' => 0,
+                'opened' => 0,
+                'deals' => [
+                    'total' => 0,
+                    'our' => 0,
+                ],
+                'auction' => [
+                    'leads' => 0,
+                    'deals' => 0,
+                    'total' => 0,
+                ],
+                'operator' => 0,
+                'profit' => [
+                    'leads' => 0,
+                    'deals' => 0,
+                    'total' => 0
+                ]
+            ],
+            'profit_bayed' => [
+                'revenue_share' => [
+                    'from_deals' => 0,
+                    'from_leads' => 0,
+                    'from_dealmaker' => 0,
+                ],
+                'max_opened' => 0,
+                'opened' => 0,
+                'deals' => [
+                    'total' => 0,
+                    'our' => 0,
+                ],
+                'auction' => [
+                    'leads' => 0,
+                    'deals' => 0,
+                    'total' => 0,
+                ],
+                'operator' => 0,
+                'profit' => [
+                    'leads' => 0,
+                    'deals' => 0,
+                    'total' => 0
+                ]
+            ],
+        ];
+        // Профит по внесенным лидам
+        foreach ($leads as $lead) {
+            $details = $lead->getDepositionsProfit();
+
+            foreach ($details as $key => $val) {
+                if($key == 'type') {
+                    continue;
+                }
+                if($key == 'opened') {
+                    foreach ($val as $val2) {
+                        $result['profit'][$key] += $val2;
+                    }
+                    continue;
+                }
+                if(is_array($val)) {
+                    foreach ($val as $key2 => $val2) {
+                        $result['profit'][$key][$key2] += (float)$val2;
+                    }
+                }
+                else {
+                    $result['profit'][$key] += (float)$val;
+                }
+            }
+
+            $result['details'][] = $details;
+            //$result = $tmp;
+        }
+
+        // Профит по открытым лидам
+        $openLeads = $agent->openLeads()->whereNotIn('state', [0])->get();
+        foreach ($openLeads as $openLead) {
+            $details = $openLead->getBayedProfit();
+
+            foreach ($details as $key => $val) {
+                if($key == 'type') {
+                    continue;
+                }
+                if($key == 'opened') {
+                    foreach ($val as $val2) {
+                        $result['profit_bayed'][$key] += $val2;
+                    }
+                    continue;
+                }
+                if(is_array($val)) {
+                    foreach ($val as $key2 => $val2) {
+                        $result['profit_bayed'][$key][$key2] += (float)$val2;
+                    }
+                }
+                else {
+                    $result['profit_bayed'][$key] += (float)$val;
+                }
+            }
+
+            $result['bayed'][] = $details;
+        }
+
+        $result['leads'] = count($leads);
+        $result['openLeads'] = count($openLeads);
+
+        return $result;
+    }
+
 }

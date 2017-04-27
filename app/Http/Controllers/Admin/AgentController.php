@@ -149,7 +149,11 @@ class AgentController extends AdminController
         if( count($agentSpheres) > 0 ) {
             foreach ($agentSpheres as $agentSphere) {
                 if($agentSphere->lead_revenue_share <= 0) {
-                    $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.lead_revenue_share');
+                    if($user->inRole('dealmaker')) {
+                        $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.dealmaker_lead_revenue_share');
+                    } else {
+                        $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.lead_revenue_share');
+                    }
                 }
                 if($agentSphere->payment_revenue_share <= 0) {
                     $agentSphere->payment_revenue_share = Settings::get_setting('system.agents.payment_revenue_share');
@@ -338,7 +342,11 @@ class AgentController extends AdminController
         if( count($agentSpheres) > 0 ) {
             foreach ($agentSpheres as $agentSphere) {
                 if($agentSphere->lead_revenue_share <= 0) {
-                    $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.lead_revenue_share');
+                    if($agent->inRole('dealmaker')) {
+                        $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.dealmaker_lead_revenue_share');
+                    } else {
+                        $agentSphere->lead_revenue_share = Settings::get_setting('system.agents.lead_revenue_share');
+                    }
                 }
                 if($agentSphere->payment_revenue_share <= 0) {
                     $agentSphere->payment_revenue_share = Settings::get_setting('system.agents.payment_revenue_share');
