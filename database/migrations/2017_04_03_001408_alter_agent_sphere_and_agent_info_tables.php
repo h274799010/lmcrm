@@ -14,6 +14,7 @@ class AlterAgentSphereAndAgentInfoTables extends Migration
     {
         Schema::table('agent_sphere', function (Blueprint $table) {
             $table->float('dealmaker_revenue_share');  // цена по которой агент закрывает сделку
+            $table->float('profitability');  // Профитабильность агента в сфере
         });
         Schema::table('agent_info', function (Blueprint $table) {
             $table->float('dealmaker_revenue_share');  // цена по которой агент закрывает сделку
@@ -29,6 +30,7 @@ class AlterAgentSphereAndAgentInfoTables extends Migration
     {
         Schema::table('agent_sphere', function (Blueprint $table) {
             $table->dropColumn('dealmaker_revenue_share');
+            $table->dropColumn('profitability');
         });
         Schema::table('agent_info', function (Blueprint $table) {
             $table->dropColumn('dealmaker_revenue_share');

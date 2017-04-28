@@ -16,32 +16,26 @@
 
     <div class="row">
         <div class="col-md-8 col-xs-12" id="agentCreditReportsFilter">
-            <div class="col-xs-3">
-                <div class="form-group">
-                    <label class="control-label _col-sm-3">Spheres</label>
-                    <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
-                        <option value=""></option>
-                        @foreach($spheres as $sphere)
-                            <option value="{{ $sphere->id }}" @if($selectedFilters['sphere'] && $selectedFilters['sphere'] == $sphere->id) selected="selected" @endif >{{ $sphere->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="form-group">
+                <label class="control-label _col-sm-3">Spheres</label>
+                <select data-name="sphere" class="selectbox dataTables_filter form-control connectedFilter" data-type="sphere" data-target="#accountManagerFilter" id="sphereFilter" data-placeholder="-">
+                    <option value=""></option>
+                    @foreach($spheres as $sphere)
+                        <option value="{{ $sphere->id }}" @if($selectedFilters['sphere'] && $selectedFilters['sphere'] == $sphere->id) selected="selected" @endif >{{ $sphere->name }}</option>
+                    @endforeach
+                </select>
             </div>
-            <div class="col-xs-3">
-                <div class="form-group">
-                    <label class="control-label _col-sm-3">Account manager</label>
-                    <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter" data-placeholder="-">
-                        <option value=""></option>
-                        @foreach($accManagers as $accountManager)
-                            <option value="{{ $accountManager->id }}" @if($selectedFilters['accountManager'] && $selectedFilters['accountManager'] == $accountManager->id) selected="selected" @endif >{{ $accountManager->email }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="form-group">
+                <label class="control-label _col-sm-3">Account manager</label>
+                <select data-name="accountManager" class="selectbox dataTables_filter form-control connectedFilter" data-type="accountManager" data-target="#sphereFilter" id="accountManagerFilter" data-placeholder="-">
+                    <option value=""></option>
+                    @foreach($accManagers as $accountManager)
+                        <option value="{{ $accountManager->id }}" @if($selectedFilters['accountManager'] && $selectedFilters['accountManager'] == $accountManager->id) selected="selected" @endif >{{ $accountManager->email }}</option>
+                    @endforeach
+                </select>
             </div>
-            <div class="col-xs-3">
-                <div class="form-group" style="padding-top: 23px;">
-                    <button class="btn btn-sm btn-danger" id="resetFilters" style="margin-bottom: 0;">{{ trans('admin/admin.button.filter_reset') }}</button>
-                </div>
+            <div class="form-group" style="padding-top: 23px;">
+                <button class="btn btn-sm btn-danger" id="resetFilters" style="margin-bottom: 0;">{{ trans('admin/admin.button.filter_reset') }}</button>
             </div>
         </div>
     </div>
@@ -62,6 +56,19 @@
 
 @section('styles')
     <style type="text/css">
+        .form-group {
+            display: inline-block;
+            max-width: 220px;
+            vertical-align: bottom;
+            margin-right: 8px;
+        }
+        .form-group:last-child {
+            margin-right: 0;
+        }
+        .form-group label.control-label, label.control-label {
+            display: block;
+            margin-bottom: 6px;
+        }
     </style>
 @endsection
 

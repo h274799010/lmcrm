@@ -674,153 +674,186 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
         return $accessibility_at;
     }
 
-    public function getProfit()
+    /**
+     * Получаем профит агента
+     *
+     * @param null $spheres
+     * @return array
+     */
+    public function getProfit($spheres = null, $period = null)
     {
         $agent = $this;
 
-        $leads = $agent->leads()->whereNotIn('status', array(0, 1, 3, 4))->with('sphere', 'openLeads')->get();
+        if(!is_array($spheres)) {
+            $spheres = [$spheres];
+        }
 
-        /**
-         * Структура массива деталей по лиду
-         *
-         * [
-         *      'type' => '', // Тип строки: "Deposition" или "Deposition + Deal"
-         *      'revenue_share' => [
-         *          'from_deals' => '', // Профит системы со сделки
-         *          'from_leads' => ''  // Профит системы с открытия лида
-         *      ],
-         *          'max_opened' => '', // Максимальное кол-во открытий лида в сфере
-         *      'opened' => [ // Открытия лида: Номер открытия => Цена по которой открыли
-         *          1 => 'price',
-         *          2 => 'price'
-         *      ],
-         *      'deals' => [ // Профит системы с закрытой сделки
-         *          'total' => '', // сумма на которую закрыли сделку
-         *          'our' => ''    // процент от сделки, который пологается системе: $deal_price * $profit_from_deals / 100%
-         *      ],
-         *      'auction' => [ // Профит системы с аукциона
-         *          'leads' => '', // Общий профит системы за открытия лида
-         *          'deals' => '', // Общий профит системы за закрытые сделки
-         *          'total' => '' // Общий профит системы: $sum_leads_auction + $deals
-         *      ],
-         *      'operator' => '', // Цена по которой лид был обработан оператором
-         *      'profit' => [ // Окончательный профит системы
-         *          'leads' => '', // Профит за открытия лидов
-         *          'deals' => '', // Профит за закрыьтия сделок
-         *          'total' => ''  // Общий профит системы: $leads + $deals
-         *      ]
-         * ]
-         */
+        // Если передан массив с id сфер - ищем лидов только по этим сферам
+        if($spheres) {
+            $leads = $agent->leads()
+                ->whereIn('sphere_id', $spheres)
+                ->whereNotIn('status', array(0, 1, 3, 4));
+        }
+        else {
+            // В противном случае получаем всех лидов
+            $leads = $agent->leads()->whereNotIn('status', array(0, 1, 3, 4));
+        }
+
+        if($period) {
+            $leads = $leads->where(function ($query) use ($period) {
+                $query->where('created_at', '>=', $period['start'])
+                    ->where('created_at', '<=', $period['end']);
+            });
+        }
+
+        $leads = $leads->with('sphere', 'openLeads')->get();
+
+        // Возвращаемый массив
         $result = [
-            'details' => [],
-            'bayed' => [],
-            'profit' => [
-                'revenue_share' => [
-                    'from_deals' => 0,
-                    'from_leads' => 0,
-                    'from_dealmaker' => 0,
+            'deposition' => [], // Данные по отданым лидам
+            'exposition' => [], // Данные по купленым лидам
+            'deposition_total' => [ // Общая информация по отданым лидам
+                'opened' => 0, // Доход с открытий лидов
+                'deals' => [ // Доход со сделок
+                    'total' => 0, // Общая сумма закрытия сделок
+                    'our' => 0,   // Сколько получила сиситема за закрытия сделок
                 ],
-                'max_opened' => 0,
-                'opened' => 0,
-                'deals' => [
-                    'total' => 0,
-                    'our' => 0,
+                'auction' => [ // Доход системы (грязными)
+                    'leads' => 0, // Доход с продаж лидов
+                    'deals' => 0, // Доход из закрытий сделок
+                    'total' => 0, // Общий доход (leads + deals)
                 ],
-                'auction' => [
-                    'leads' => 0,
-                    'deals' => 0,
-                    'total' => 0,
+                'operator' => 0, // Общие расходы на обработку оператором
+                'profit' => [ // Доход системы (чистыми)
+                    'leads' => 0, // Доход с продажи лидов
+                    'deals' => 0, // Доход из закрытий сделок
+                    'total' => 0  // Общий доход (leads + deals)
                 ],
-                'operator' => 0,
-                'profit' => [
-                    'leads' => 0,
-                    'deals' => 0,
-                    'total' => 0
-                ]
+                'total' => 0 // Профит за депозирование
             ],
-            'profit_bayed' => [
-                'revenue_share' => [
-                    'from_deals' => 0,
-                    'from_leads' => 0,
-                    'from_dealmaker' => 0,
+            'exposition_total' => [ // Общая информация по купленым лидам
+                'opened' => 0, // Доход с открытий лидов
+                'deals' => [ // Доход со сделок
+                    'total' => 0, // Общая сумма закрытия сделок
+                    'our' => 0,   // Сколько получила сиситема за закрытия сделок
                 ],
-                'max_opened' => 0,
-                'opened' => 0,
-                'deals' => [
-                    'total' => 0,
-                    'our' => 0,
+                'auction' => [ // Доход системы (грязными)
+                    'leads' => 0, // Доход с продаж лидов
+                    'deals' => 0, // Доход из закрытий сделок
+                    'total' => 0, // Общий доход (leads + deals)
                 ],
-                'auction' => [
-                    'leads' => 0,
-                    'deals' => 0,
-                    'total' => 0,
+                'operator' => 0, // Общие расходы на обработку оператором
+                'profit' => [ // Доход системы (чистыми)
+                    'leads' => 0, // Доход с продажи лидов
+                    'deals' => 0, // Доход из закрытий сделок
+                    'total' => 0  // Общий доход (leads + deals)
                 ],
-                'operator' => 0,
-                'profit' => [
-                    'leads' => 0,
-                    'deals' => 0,
-                    'total' => 0
-                ]
+                'total' => 0 // Профит за покупку
             ],
+            'leads' => 0, // Кол-во отданных лидов
+            'openLeads' => 0, // Кол-во купленных лидов
+            'total' => 0, // Общий профит по лидам: (deposition + exposition) / transactions
         ];
-        // Профит по внесенным лидам
+
+        // Проходимся по внесенным лидам и получаем профит каждого из них
         foreach ($leads as $lead) {
+            // Профит из лида
             $details = $lead->getDepositionsProfit();
 
+            // Суммируем детали с общими данными по отданым лидам
             foreach ($details as $key => $val) {
-                if($key == 'type') {
+                if(in_array($key, ['type', 'revenue_share', 'max_opened'])) {
                     continue;
                 }
                 if($key == 'opened') {
                     foreach ($val as $val2) {
-                        $result['profit'][$key] += $val2;
+                        $result['deposition_total'][$key] += $val2;
                     }
                     continue;
                 }
                 if(is_array($val)) {
                     foreach ($val as $key2 => $val2) {
-                        $result['profit'][$key][$key2] += (float)$val2;
+                        $result['deposition_total'][$key][$key2] += (float)$val2;
                     }
                 }
                 else {
-                    $result['profit'][$key] += (float)$val;
+                    $result['deposition_total'][$key] += (float)$val;
                 }
             }
 
-            $result['details'][] = $details;
-            //$result = $tmp;
+            // Добавляем данные в возвращаемый массив
+            $result['deposition'][] = $details;
         }
 
-        // Профит по открытым лидам
-        $openLeads = $agent->openLeads()->whereNotIn('state', [0])->get();
+        // Список купленных лидов агента
+        $openLeads = $agent->openLeads()
+            ->whereNotIn('state', [0]);
+
+        if($period) {
+            $openLeads = $openLeads->where(function ($query) use ($period) {
+                    $query->where('created_at', '>=', $period['start'])
+                        ->where('created_at', '<=', $period['end']);
+                });
+        }
+
+        $openLeads = $openLeads->get();
+
+        $result['openLeads'] = 0; // Кол-во купленных лидов
+        // Проходимся по купленным лидам и получаем профит каждого из них
         foreach ($openLeads as $openLead) {
+            // Если нужна выборка по сферам
+            if($spheres) {
+                // Получаем ID сферы лида
+                $lead = $openLead->lead()->select('sphere_id')->first();
+
+                // Если купленный лид не пренадлежит нужным сферам - пропускаем его
+                if(!in_array($lead->sphere_id, $spheres)) {
+                    continue;
+                }
+            }
+
+            $result['openLeads']++;
+
+            // Профит из купленного лида
             $details = $openLead->getBayedProfit();
 
+            // Суммируем детали с общими данными по купленным лидам
             foreach ($details as $key => $val) {
-                if($key == 'type') {
+                if(in_array($key, ['type', 'revenue_share', 'max_opened'])) {
                     continue;
                 }
                 if($key == 'opened') {
                     foreach ($val as $val2) {
-                        $result['profit_bayed'][$key] += $val2;
+                        $result['exposition_total'][$key] += $val2;
                     }
                     continue;
                 }
                 if(is_array($val)) {
                     foreach ($val as $key2 => $val2) {
-                        $result['profit_bayed'][$key][$key2] += (float)$val2;
+                        $result['exposition_total'][$key][$key2] += (float)$val2;
                     }
                 }
                 else {
-                    $result['profit_bayed'][$key] += (float)$val;
+                    $result['exposition_total'][$key] += (float)$val;
                 }
             }
 
-            $result['bayed'][] = $details;
+            // Добавляем данные в возвращаемый массив
+            $result['exposition'][] = $details;
         }
 
-        $result['leads'] = count($leads);
-        $result['openLeads'] = count($openLeads);
+        $result['leads'] = count($leads);         // Кол-во отданных лидов
+
+        // Кол-во отданых и купленных лидов
+        $transactions = $result['leads'] + $result['openLeads'];
+        $transactions = $transactions == 0 ? 1 : $transactions;
+
+        // Общий профит по лидам: (deposition + exposition) / transactions
+        $result['total'] = ($result['deposition_total']['profit']['total'] + $result['exposition_total']['profit']['total']) / $transactions;
+
+        // Профит
+        $result['deposition_total']['total'] = $result['deposition_total']['profit']['total'] / ($result['leads'] > 0 ? $result['leads'] : 1);
+        $result['exposition_total']['total'] = $result['exposition_total']['profit']['total'] / ($result['openLeads'] > 0 ? $result['openLeads'] : 1);
 
         return $result;
     }

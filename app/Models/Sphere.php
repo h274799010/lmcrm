@@ -210,4 +210,59 @@ class Sphere extends Model
         return $interval;
     }
 
+    /**
+     * Ищем максимальное и минимальное значение профитабильности агентов в сфере
+     * $period - за какой период считать
+     *
+     * @param null $period
+     * @return array
+     */
+    public function getAgentsProfitabilityRatio($period = null) {
+        // Список агентов в сфере
+        $agents = $this->agentsAll()->get();
+        $maxCoeff = 0; // Максимальная профитабильность
+        $minCoeff = 0; // Минимальная профитабильность
+
+        // Проходимся по списку агентов и ищем макс./мин. профитабильность
+        foreach ($agents as $agent) {
+            // Данные про профитабильности агента
+            $profit = $agent->getProfit($this->id, $period);
+
+            // Значение профитабильности
+            $profit = $profit['total'];
+            // Если профитабильность меньше 0, приравниваем ее к нулю
+            if($profit < 0) {
+                $profit = 0;
+            }
+
+            // Ищем минимальные и максимальные значения профитабильности
+            if($maxCoeff < $profit) {
+                $maxCoeff = $profit;
+            }
+            if(($minCoeff === 0 || $minCoeff > $profit) && $profit > 0) {
+                $minCoeff = $profit;
+            }
+        }
+        // Если макс. профитабильность меньше или равна нулю - записываем 1
+        // Чтоб не возникало ошибки с делением на 0
+        if($maxCoeff <= 0) {
+            $maxCoeff = 1;
+        }
+
+        // Разница между макс. и мин. профитабильностью
+        $ratioDiff = $maxCoeff - $minCoeff;
+        // Если равняется нулю - записываем 1
+        // Чтоб не возникало ошибки с делением на 0
+        if($ratioDiff == 0) {
+            $ratioDiff = 1;
+        }
+
+        // Возвращаем массив
+        return [
+            'min' => $minCoeff, // Минимальное значение профитабильности
+            'max' => $maxCoeff, // Максимальное значение профитабильности
+            'diff' => $ratioDiff // Разница между минимальным и максимальным значением (MAX-MIN)
+        ];
+    }
+
 }
