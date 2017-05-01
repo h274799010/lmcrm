@@ -71,6 +71,10 @@ class SalesmanController extends AgentController {
 
         $salesman = Salesman::find($salesman->id);
 
+        $permissions = User::$bannedPermissions;
+        $salesman->permissions = $permissions;
+        $salesman->save();
+
         $salesman->info()->save(new SalesmanInfo([
             'agent_id'=>$agent->id,
             'sphere_id'=>$agent->sphereLink->sphere_id,
