@@ -92,6 +92,47 @@ class SetAgentsRanks extends Command
                     }
                 }
             }
+
+            // Выставляем ранги агентам в сфере
+
+            // Ищем дополнительные данные агентов в сфере
+            $agentsSphere = AgentSphere::where('sphere_id', '=', $sphere->id)->get();
+
+            if(count($agentsSphere) > 0) {
+                $min = $agentsSphere->min('profitability'); // Минимальная профитабильность агентов в сфере
+                $max = $agentsSphere->max('profitability'); // Максимальная профитабильность агентов в сфере
+
+                $diff = $max - $min; // Разница между минимальной и максимальной профитабильностью (r_max - r_min)
+
+                // Если разница равняется нулю, записываем еденицу, чтоб избежать деления на ноль
+                $diff = $diff == 0 ? 1 : $diff;
+
+                //print_r($min."\n");
+                //print_r($max."\n");
+
+                foreach ($agentsSphere as $agentSphere) {
+                    // ранг = r_max_sett * ( (r_max-rAgent)/(r_max-r_min))
+                    // r_max_sett -количество рангов в сфере
+                    // r_max, r_min - максимальный и мин коеф. рангов
+                    // rAgent - коеф ранга агента
+
+                    $rank = $sphere->max_range * ( ($max - $agentSphere->profitability) / $diff );
+
+                    // Если ранг агента меньше или равен нулю
+                    // либо его профитабильность равняется максимальной в сфере
+                    // устанавливаем ему 1 ранг
+                    if($rank <= 0 || $agentSphere->profitability == $max) {
+                        $rank = 1;
+                    }
+
+                    // Сохраняем ранг
+                    $agentSphere->agent_range = $rank;
+                    $agentSphere->save();
+
+                    //print_r(floor($rank)."\n");
+                }
+                //print_r('-------------'."\n");
+            }
         }
     }
 }
