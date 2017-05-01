@@ -98,6 +98,10 @@ class Salesman extends EloquentUser implements AuthenticatableContract, CanReset
     }
 
 
+    public function masks(){
+        return $this->hasMany('App\Models\UserMasks', 'user_id', 'id');
+    }
+
     public function wallet(){
         return $this->belongsToMany('\App\Models\Wallet','salesman_info','salesman_id','wallet_id');
     }

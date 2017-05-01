@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "50a39f17c456e5b348db29d0d659f1ca",
-    "content-hash": "75bf8dbbbdc761eec6fcacf43d374f53",
+    "hash": "e604d6bbcf6500aa6339edc238319c1e",
+    "content-hash": "c9de152fcbda24b513f90aa3fb81218e",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -60,6 +60,61 @@
                 "webprofiler"
             ],
             "time": "2017-01-19 08:19:49"
+        },
+        {
+            "name": "brozot/laravel-fcm",
+            "version": "v1.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brozot/Laravel-FCM.git",
+                "reference": "91a799822bb656e0f6c138adb27a58adc0aed2db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brozot/Laravel-FCM/zipball/91a799822bb656e0f6c138adb27a58adc0aed2db",
+                "reference": "91a799822bb656e0f6c138adb27a58adc0aed2db",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~6.0",
+                "illuminate/support": "5.*",
+                "monolog/monolog": "^1.19",
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "laravel/laravel": "5.2.*",
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "4.7.*",
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LaravelFCM\\": "src/",
+                    "LaravelFCM\\Mocks\\": "tests/mocks"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Brosy",
+                    "email": "nicolas.brosy@gmail.com"
+                }
+            ],
+            "description": "Laravel / Lumen package for Firebase Cloud Messaging ",
+            "keywords": [
+                "FCM",
+                "Firebase Cloud Messaging",
+                "firebase",
+                "laravel",
+                "lumen",
+                "notification",
+                "push"
+            ],
+            "time": "2017-03-28 06:23:46"
         },
         {
             "name": "cartalyst/sentinel",

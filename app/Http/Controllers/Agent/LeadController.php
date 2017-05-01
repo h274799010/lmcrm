@@ -27,6 +27,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
 use App\Models\Agent;
@@ -1059,6 +1060,7 @@ class LeadController extends AgentController {
      */
     public function setOpenLeadStatus( Request $request )
     {
+
         $res = array(
             'status' => '',
             'message' => '',

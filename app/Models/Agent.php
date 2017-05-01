@@ -67,6 +67,12 @@ class Agent extends EloquentUser implements AuthenticatableContract, CanResetPas
     }
 
 
+    public function salesmenById($id){
+//        return $this->hasOne('\App\Models\SalesmanInfo', 'agent_id', 'id')->where(id);
+        return $this->belongsToMany('\App\Models\Salesman','salesman_info','agent_id','salesman_id')
+            ->where('salesman_id', $id);
+    }
+
 
     public function requestPayment(){
         return $this->hasMany('\App\Models\RequestPayment','initiator_id','id');

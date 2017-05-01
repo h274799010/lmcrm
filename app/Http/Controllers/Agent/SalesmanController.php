@@ -90,6 +90,8 @@ class SalesmanController extends AgentController {
         return view('agent.salesman.create')->with('salesman',$salesman);
     }
 
+
+
     public function update(AdminUsersEditFormRequest $request, $id) {
         $salesman = Salesman::find($id);
 

@@ -235,6 +235,11 @@ class AgentController extends BaseController
         return true;
     }
 
+
+    /**
+     * Получение приватной группы агента
+     *
+     */
     public function getAgentPrivateGroup()
     {
         $agent = Agent::find(\Cartalyst\Sentinel\Laravel\Facades\Sentinel::getUser()->id);

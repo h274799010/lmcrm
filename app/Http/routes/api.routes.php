@@ -58,6 +58,13 @@ Route::group(['middleware' => 'jwt-auth'], function () {
 
     });
 
+
+
+
+    // создание нового лида
+    Route::post('newLead', ['as' => 'api.opened', 'uses' => 'Agent\ApiController@createLead']);
+
+
     // лиды отфильтрованные для агента
     Route::post('obtain', ['as' => 'api.obtain', 'uses' => 'Agent\ApiController@obtain']);
 
@@ -77,9 +84,6 @@ Route::group(['middleware' => 'jwt-auth'], function () {
     // данные приватной группы агента по лиду
     Route::post('privateGroup', ['as' => 'api.private.group', 'uses' => 'Agent\ApiController@privateGroup']);
 
-
-    // создание нового лида
-    Route::post('newLead', ['as' => 'api.opened', 'uses' => 'Agent\ApiController@createLead']);
 
 
     // данные по сферам и состоянием масок агента
@@ -108,6 +112,36 @@ Route::group(['middleware' => 'jwt-auth'], function () {
 
     // создание новой маски
     Route::post('dellMask', ['as' => 'api.dell.mask', 'uses' => 'Agent\ApiController@dellMask']);
+
+
+    // смена статуса открытого лида
+    Route::post('changeOpenLeadStatus', ['as' => 'api.change.status', 'uses' => 'Agent\ApiController@changeOpenLeadStatus']);
+
+
+    // смена статуса открытого лида
+    Route::post('getOrganizerData', ['as' => 'api.organizer.data', 'uses' => 'Agent\ApiController@getOrganizerData']);
+
+
+    // получение всех салесманов агента
+    Route::post('getAllSalesmen', ['as' => 'api.all.salesmen', 'uses' => 'Agent\ApiController@getAllSalesmen']);
+
+
+    // обновление прав салесмана агентом
+    Route::post('permissionsUpdate', ['as' => 'api.salesmen.permissions.update', 'uses' => 'Agent\ApiController@permissionsUpdate']);
+
+
+    // создание нового салесмана агентом
+    Route::post('createSalesmen', ['as' => 'api.create.salesmen', 'uses' => 'Agent\ApiController@createSalesmen']);
+
+
+    // обновление данных салесмана агентом
+    Route::post('updateSalesmenData', ['uses' => 'Agent\ApiController@updateSalesmenData']);
+
+    // получение сфер пользователя
+    Route::post('getSpheres', ['uses' => 'Agent\ApiController@getSpheres']);
+
+    // получение участников из группы пользователя
+    Route::post('getGroupMembers', ['uses' => 'Agent\ApiController@getGroupMembers']);
 
 
 });
