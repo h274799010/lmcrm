@@ -220,8 +220,13 @@
             </li>
 
 
+            {{-- Получение всех стран --}}
+            <li>
+                <a href="{{ route('admin.region', ['id'=>0]) }}"><i class="fa fa-map-marker"></i> Regions</a>
+            </li>
 
-                <li>
+
+            <li>
                 <a href="#">
                     <i class="glyphicon glyphicon-cog"></i> Settings
                     <span class="fa arrow"></span>
