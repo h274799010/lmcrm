@@ -56,6 +56,16 @@ Route::get('transitionTest/{status}', function ($status) {
 
 Route::get('sal', function () {
 
+
+    $region = App\Models\Region::find(12);
+
+    $region->getIndex();
+
+    dd($region);
+
+
+    dd('asdf');
+
     $salesmen = \App\Models\Agent::find(6)->salesmen()->get();
     $permissions = \App\Models\User::$bannedPermissions;
 

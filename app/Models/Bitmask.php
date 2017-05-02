@@ -242,6 +242,20 @@ class Bitmask extends Model
 
 
     /**
+     * Устанавливает регион
+     *
+     * @param  integer  $index
+     * @param  integer  $user_id
+     *
+     * @return object
+     */
+    public function setRegion($index, $user_id=NULL){
+        $user_id = ($user_id)?$user_id:$this->userID;
+        return $this->tableDB->where('user_id','=',$user_id)->update(['region_index'=>$index]);
+    }
+
+
+    /**
      * Установить цену
      *
      * @param  integer  $val
