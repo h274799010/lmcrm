@@ -174,23 +174,6 @@ class ApiController extends Controller
         $result = CreateLead::collectStore($data, $this->user->id);
 
         return response()->json(['status' => 'success', 'data' => $result]);
-
-//        // выбираем данные для удобства
-//        $depositor_id = $this->user->id; // id депозитора
-//        $name = $request->name;          // имя клиента
-//        $phone = $request->phone;        // телефон клиента
-//        $comment = $request->comment;    // комментарий
-//
-//        // создание нового лида
-//        $newLead = Lead::createNew($depositor_id, $name, $phone, $comment);
-//
-//        // если все нормально возвращается "Ок"
-//        if ($newLead) {
-//            return response()->json('Ok');
-//        }
-//
-//        // Если что-то пошло не так, возвращается 'Error'
-//        return response()->json('Error');
     }
 
 
@@ -538,7 +521,10 @@ class ApiController extends Controller
         $leads = $leads->map(function ($lead) {
 
             // формат времени
-            $lead->date = $lead->created_at->format('Y/m/d');
+//            $lead->date = $lead->created_at->format('Y/m/d');
+            $lead->date = Aider::dateFormat($lead->created_at);
+
+
 
             // имя статуса лида
             $lead->sName = $lead->statusName();
