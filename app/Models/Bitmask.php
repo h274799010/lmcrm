@@ -112,14 +112,14 @@ class Bitmask extends Model
     public static function createTables($id)
     {
         $agentBitmaskTable = 'agent_bitmask_'.$id;
-        $agentBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, `deleted_at` TIMESTAMP NULL DEFAULT NULL, PRIMARY KEY (`id`))';
+        $agentBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `lead_price` FLOAT DEFAULT 0, `region_index` BIGINT NULL DEFAULT NULL, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, `deleted_at` TIMESTAMP NULL DEFAULT NULL, PRIMARY KEY (`id`))';
 
         if ( $id && !DB::getSchemaBuilder()->hasTable( $agentBitmaskTable ) ) {
             DB::statement('CREATE TABLE IF NOT EXISTS `' . $agentBitmaskTable .'`' .$agentBitmaskFields , []);
         }
 
         $leadBitmaskTable = 'lead_bitmask_'.$id;
-        $leadBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, `deleted_at` TIMESTAMP NULL DEFAULT NULL, PRIMARY KEY (`id`))';
+        $leadBitmaskFields = '(`id` INT NOT NULL AUTO_INCREMENT, `user_id` BIGINT NOT NULL, `status` TINYINT(1) DEFAULT 0, `region_index` BIGINT NULL DEFAULT NULL, `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, `deleted_at` TIMESTAMP NULL DEFAULT NULL, PRIMARY KEY (`id`))';
 
         if ( $id && !DB::getSchemaBuilder()->hasTable( $leadBitmaskTable ) ) {
             DB::statement('CREATE TABLE IF NOT EXISTS `' . $leadBitmaskTable .'`' .$leadBitmaskFields , []);
@@ -238,6 +238,20 @@ class Bitmask extends Model
     public function setStatus($status=0,$user_id=NULL){
         $user_id = ($user_id)?$user_id:$this->userID;
         return $this->tableDB->where('user_id','=',$user_id)->update(['status'=>$status]);
+    }
+
+
+    /**
+     * Устанавливает регион
+     *
+     * @param  integer  $index
+     * @param  integer  $user_id
+     *
+     * @return object
+     */
+    public function setRegion($index, $user_id=NULL){
+        $user_id = ($user_id)?$user_id:$this->userID;
+        return $this->tableDB->where('user_id','=',$user_id)->update(['region_index'=>$index]);
     }
 
 

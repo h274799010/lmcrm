@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\AgentController;
 use App\Models\Agent;
+use App\Models\Region;
 use App\Models\Salesman;
 use App\Models\UserMasks;
 use Validator;
@@ -58,6 +59,8 @@ class SphereController extends AgentController {
         // конструктор маски
         $mask = new AgentBitmask( $data->id, $user_id );
 
+        $saveRegion = false;
+
         // если $mask_id = 0, значить это будет новая запись в маске
         if( $mask_id == 0 ){
 
@@ -71,6 +74,18 @@ class SphereController extends AgentController {
 
             // ищем маску по id
             $mask = $mask->find($mask_id);
+
+            $regionIndex = $mask->region_index;
+
+            if($regionIndex != 0){
+                $saveRegion = collect(Region::parseIndex($regionIndex));
+                $saveRegion = $saveRegion->toJson();
+            }
+
+
+//            dd('sdf');
+
+//            dd($region);
 
             // если маска не найдена - редирект на главную страницу
             if( $mask==NULL ){ return redirect('/'); }
@@ -86,10 +101,17 @@ class SphereController extends AgentController {
 
         }
 
+
+        $regions = Region::where('parent_region_id', 0)->get();
+
+//        $saveRegion = false;
+
         return view('agent.sphere.edit')
             ->with( 'sphere', $data )
             ->with( 'maskData', $maskData )
-            ->with( 'mask', $mask );
+            ->with( 'mask', $mask )
+            ->with('regions', $regions)
+            ->with('saveRegion', $saveRegion);
     }
 
 
@@ -108,6 +130,13 @@ class SphereController extends AgentController {
      */
     public function update(Request $request, $sphere_id, $mask_id)
     {
+
+        $regionId = (int)$request['region'];
+
+//        dd($regionId);
+
+//        dd($request['region']);
+
         $user_id = $this->uid;
 
         // валидация
@@ -161,6 +190,38 @@ class SphereController extends AgentController {
         }
 
 
+//        $regionId
+
+
+        /**
+         * Сохранение индекса региона
+         *
+         */
+
+        $mask->user_id = $user_id;
+
+        // проверка на наличие индекса
+        if ($regionId == 0) {
+            // если индекса нет
+
+            // в качестве индекса присваивается 0 (т.е. лид подходит под все регионы)
+//            $mask->setRegion(0, $user_id);
+            $mask->region_index = 0;
+
+        } else {
+            // если индекс есть
+
+            // находим регион
+            $region = Region::find($regionId);
+
+            // естанавливаем ему индекс
+//            $mask->setRegion($region->getIndex(), $user_id);
+            $mask->region_index = $region->getIndex();
+        }
+
+        $mask->save();
+
+
         if($flagOptions === true) {
             // сохраняем атрибуты
             $mask->setAttrById($options);
@@ -177,6 +238,9 @@ class SphereController extends AgentController {
             // сохраняем данные в БД
             $mask->save();
         }
+
+
+
 
 
         // Сохраняем имя маски
@@ -303,5 +367,62 @@ class SphereController extends AgentController {
         return response()->json('success');
     }
 
+
+    /**
+     * Получение региона с его дочерними регионами
+     *
+     * @param  Request $request
+     *
+     * @return Json
+     */
+    public function getRegions(Request $request)
+    {
+
+        $regions = Region::where('parent_region_id', $request['region_id'])->get();
+
+
+//        // получение региона
+//        $regionData = Region::find($request['region_id']);
+//        // добавление дочерних регионов к региону
+//        $regionData->getChild();
+
+
+        if ($request['region_id'] == 0) {
+
+            $region = [];
+
+        } else {
+
+            $regionData = Region::find($request['region_id']);
+
+            $region = [
+                'id' => $regionData['id'],
+                'parent_id' => $regionData['parent_region_id'],
+                'name' => $regionData['name']
+            ];
+
+        }
+
+
+        $child = [];
+
+        $regions->each(function ($region) use (&$child) {
+
+            $child[] = [
+                'id' => $region['id'],
+                'parent_id' => $region['parent_region_id'],
+                'name' => $region['name']
+            ];
+
+        });
+
+
+        $data = [
+            'region' => $region,
+            'child' => $child
+        ];
+
+        return response()->json(['status' => 'success', 'data' => $data]);
+    }
 
 }

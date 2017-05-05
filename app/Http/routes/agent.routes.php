@@ -215,5 +215,8 @@ Route::group(['prefix' => 'agent', 'middleware' => ['auth', 'agent|salesman'] ],
 
         // обновление строки органайзера из БД
         Route::post('salesman/updateOrganizer',['as'=>'agent.salesman.updateOrganizer', 'uses' => 'Agent\LeadController@updateOrganizer']);
+
+        // Получение региона, вместе с дочерними
+        Route::post('agent/getRegions',['as'=>'agent.get.regions', 'uses' => 'Agent\SphereController@getRegions']);
     });
 });

@@ -210,6 +210,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::post('credits/blockCheckDelete',['as'=>'admin.credits.blockCheckDelete', 'uses' => 'Admin\RequestsPaymentsController@blockCheckDelete']);
     Route::post('credits/changeStatus',['as'=>'admin.credits.changeStatus', 'uses' => 'Admin\RequestsPaymentsController@changeStatus']);
 
+
     /**
      * Отчеты по ручным транзакциям
      *
@@ -237,5 +238,23 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'] ], function
     Route::get('profit/accManagers', ['as' => 'admin.profit.accManagers', 'uses' => 'Admin\ProfitController@accManagers']);
     Route::get('profit/accManagers/datatable', ['as' => 'admin.profit.accManagers.data', 'uses' => 'Admin\ProfitController@accManagersData']);
     Route::get('profit/accManager/detail/{id}', ['as' => 'admin.profit.accManager.detail', 'uses' => 'Admin\ProfitController@accManagerDetail']);
+
+
+
+    /**
+     * Работа с регионами
+     *
+     */
+
+    // Получение всех стран
+    Route::get('countries', ['as' => 'admin.countries', 'uses' => 'Admin\RegionController@countries']);
+
+    // Получение данных по региону
+    Route::get('region/{id}', ['as' => 'admin.region', 'uses' => 'Admin\RegionController@region']);
+
+    // Получение данных по региону
+    Route::post('addRegion', ['as' => 'admin.add.region', 'uses' => 'Admin\RegionController@addRegion']);
+
+
 
 });

@@ -59,5 +59,7 @@ Route::group(['prefix' => 'callcenter','middleware' => ['auth', 'operator'] ], f
     // Загрузка чека оператором при закрытии сделки
     Route::post('lead/checkUpload',['as'=>'operator.lead.checkUpload', 'uses' => 'Operator\SphereController@checkUpload']);
 
+    // Получение региона, вместе с дочерними
+    Route::post('lead/getRegions',['as'=>'operator.get.regions', 'uses' => 'Operator\SphereController@getRegions']);
 
 });
