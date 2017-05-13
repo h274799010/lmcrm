@@ -65,6 +65,35 @@ class RequestsPayments
         );
     }
 
+
+    /**
+     * Создание запроса на пополнение без реквеста по id юсера
+     *
+     * @param integer $id
+     * @param integer $amount
+     *
+     * @return array
+     */
+    public function createReplenishmentRequestPaymentById($id, $amount)
+    {
+
+
+        $user = Agent::find($id);
+
+        $requestPayment = new RequestPayment();
+        $requestPayment->amount = $amount;
+        $requestPayment->initiator_id = $user->id;
+        $requestPayment->status = RequestPayment::STATUS_WAITING_PAYMENT;
+        $requestPayment->type = RequestPayment::TYPE_REPLENISHMENT;
+        $requestPayment->save();
+
+        return array(
+            'status' => 'success',
+            'result' => $requestPayment
+        );
+    }
+
+
     /**
      * Создание запроса на снятие
      *
@@ -213,6 +242,74 @@ class RequestsPayments
         }
     }
 
+
+    /**
+     * Смена статуса запроса по id юзера
+     *
+     * @param int $user_id
+     * @param int $request_payment_id
+     * @param int $status
+     * @return bool
+     */
+    public function setStatusRequestPaymentById($user_id, $request_payment_id, $status)
+    {
+
+        $request_payment_id = (int)$request_payment_id;
+
+        $user = Agent::find($user_id);
+
+        if( !$request_payment_id ) {
+            abort(403, 'Wrong request payment id');
+        }
+
+        $status = (int)$status;
+
+        if( !$status ) {
+            abort(403, 'Wrong status');
+        }
+
+        $requestPayment = RequestPayment::find($request_payment_id);
+
+        $initiator = Agent::find($user_id);
+
+        if($status == RequestPayment::STATUS_CONFIRMED) {
+            $requestPayment->status = RequestPayment::STATUS_CONFIRMED;
+
+            if($requestPayment->type == RequestPayment::TYPE_REPLENISHMENT) {
+                $transactionInfo =
+                    PayMaster::changeManual(
+                        $user->id,  // пользователь которыз инициирует транзакцию
+                        $initiator->id,           // пользователь с кошельком которого происходят изменения
+                        'buyed',    // тип кошелька агента ( buyed, earned, wasted )
+                        $requestPayment->amount          // величина на которую изменяется сумма кошелька
+                    );
+            }
+        }
+        elseif ($status == RequestPayment::STATUS_WAITING_PAYMENT) {
+            $requestPayment->status = RequestPayment::STATUS_WAITING_PAYMENT;
+        } elseif ($status == RequestPayment::STATUS_WAITING_CONFIRMED) {
+            $requestPayment->status = RequestPayment::STATUS_WAITING_CONFIRMED;
+        }
+        else {
+            $requestPayment->status = RequestPayment::STATUS_REJECTED;
+
+            // Если тип запроса был "Вывод" - возвращаем зарезервируваную сумму вывода
+            if($requestPayment->type == RequestPayment::TYPE_WITHDRAWAL) {
+                $transactionInfo = PayMaster::changeManual(
+                    $user->id, // пользователь которыз инициирует транзакцию
+                    $initiator->id,          // пользователь с кошельком которого происходят изменения
+                    'buyed',      // тип кошелька агента ( buyed, earned, wasted )
+                    $requestPayment->amount  // величина на которую изменяется сумма кошелька
+                );
+            }
+        }
+
+        $requestPayment->save();
+
+        return $requestPayment;
+    }
+
+
     /**
      * Получение списка отправленных запросов агентом
      *
@@ -239,6 +336,37 @@ class RequestsPayments
             'types' => $types
         );
     }
+
+
+    /**
+     * Получение списка отправленных запросов агентом
+     *
+     * @param  integer  $id
+     *
+     * @return array
+     */
+    public function getFiledRequestsPaymentById($id)
+    {
+        $user = Agent::find($id);
+
+        $requestsPayments = $user->requestsPayments()
+            ->orderBy('requests_payments.status', 'asc')
+            ->orderBy('requests_payments.created_at', 'desc')
+            ->get();
+
+        // Названия для статуса агента
+        $statuses = RequestPayment::getRequestPaymentStatus();
+
+        // Названия типов статуса
+        $types = RequestPayment::getRequestPaymentType();
+
+        return array(
+            'requestsPayments' => $requestsPayments,
+            'statuses' => $statuses,
+            'types' => $types
+        );
+    }
+
 
     /**
      * Получение списка не обработанных запросов для акк. менеджера / админа
