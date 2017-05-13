@@ -5,8 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use JWTAuth;
 use Exception;
-
-
+use \Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use \Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class authJWT
 {
@@ -28,13 +28,13 @@ class authJWT
 
         } catch (Exception $e) {
 
-            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
+            if ($e instanceof TokenInvalidException){
 
                 return response()->json( 'Token is Invalid' );
 
 //                return response()->json(['error'=>'Token is Invalid']);
 
-            }else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException){
+            }else if ($e instanceof TokenExpiredException){
 
                 return response()->json( 'Token is Expired' );
 

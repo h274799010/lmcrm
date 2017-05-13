@@ -30,6 +30,25 @@ Route::get('notice', ['as' => 'notification', 'middleware' => ['auth', 'agent|sa
 // в этом месте сообщения отмечаются как полученные
 Route::post('notified', ['as' => 'notified', 'middleware' => ['auth', 'agent|salesman'], 'uses' => 'NoticeController@notified']);
 
+
+
+Route::get('no', function(){
+
+    \Notice::sendFcmNotification(6);
+
+//    $fcm->user_id = 6;
+//    $fcm->token = 'sdfsdfsdffd';
+//    $fcm->device = '8888tryadfasdfsdfasfsdfsdfsdfafsdfsdcc';
+//    $fcm->source = 'application';
+
+//    $fcm = \Notice::setFcmToken(6, 'token', 'device', 'application');
+
+//    dd($fcm);
+
+    dd($_SERVER['HTTP_USER_AGENT']);
+});
+
+
 // todo удалить, это для проверки выдачи статистики
 Route::get('transitionTest/{status}', function ($status) {
 

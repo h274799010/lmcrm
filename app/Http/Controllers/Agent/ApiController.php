@@ -33,7 +33,7 @@ use Illuminate\Support\Facades\Input;
 //use App\Http\Requests\Admin\ArticleRequest;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Datatables;
-use App\Facades\Notice;
+//use App\Facades\Notice;
 use App\Models\Auction;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
@@ -42,6 +42,10 @@ use Aider;
 use App\Models\UserMasks;
 use App\Models\OpenLeadsStatusDetails;
 use CreateLead;
+use \Statistic;
+use \Settings;
+use \RequestsPayments;
+use \Notice;
 
 
 class ApiController extends Controller
@@ -126,14 +130,6 @@ class ApiController extends Controller
 
         Log::info($request->all());
 
-
-        $requestData = $request->all();
-
-//  "sphere" => "1"
-//  "specification" => "specification"
-//  "name" => "ff"
-//  "phone" => "sf"
-//  "comment" => "sd"
 
         $data = [
             'sphere' => $request['sphere'],
@@ -523,7 +519,6 @@ class ApiController extends Controller
             // формат времени
 //            $lead->date = $lead->created_at->format('Y/m/d');
             $lead->date = Aider::dateFormat($lead->created_at);
-
 
 
             // имя статуса лида
@@ -1941,6 +1936,229 @@ class ApiController extends Controller
         });
 
         return response()->json(['status' => 'success', 'members' => $members]);
+    }
+
+
+    /**
+     * Получение статистики
+     *
+     *
+     * @param  Request $request
+     *
+     * @return Json
+     */
+    public function getStatistic(Request $request)
+    {
+
+        // данные из реквеста
+        $user_id = $this->user->id;
+//        $sphere_id = (int)$request->sphere_id;
+        $timeFrom = $request->timeFrom;
+        $timeTo = $request->timeTo;
+
+
+        Log::info('тест');
+        Log::info($timeFrom);
+
+        $sphere_id = $request->sphere_id ? (int)$request->sphere_id : false;
+
+
+//        $sphere_id = 1;
+
+//        $timeFrom = '2016-11-04';
+//        $timeTo = '2017-02-04';
+
+        // если id пользователя равен нулю - выходим
+//        if( !$user_id ){ abort(403, 'Wrong user id'); }
+
+        // если id сферы равен нулю - выходим
+//        if (!$sphere_id) {
+//            abort(403, 'Wrong sphere id');
+//        }
+
+        // выбираем пользователя с ролями
+        $userSystemData = User::with('roles')->find($user_id);
+
+        // определяем роль, agent или salesman
+        $userRole = false;
+        // перебираем все роли пользователя и выбираем нужную роль
+        $userSystemData->roles->each(function ($role) use (&$userRole) {
+            // выбираем нужную роль
+            if ($role->slug == 'agent') {
+                // если роль пользователя "agent"
+
+                // выставляем роль пользователя как 'agent'
+                $userRole = 'agent';
+
+            } elseif ($role->slug == 'salesman') {
+                // если роль пользователя "salesman"
+
+                // выставляем роль пользователя как 'salesman'
+                $userRole = 'salesman';
+            }
+        });
+
+        // выбор пользователя в зависимости от его роли
+        if ($userRole == 'agent') {
+            // если агент
+            // выбираем модель агента
+            $user = Agent::with('spheres')->find($user_id);
+
+        } elseif ($userRole == 'salesman') {
+            // если салесман
+            // выбираем модель salesman
+            $user = Salesman::with('spheres')->find($user_id);
+
+        } else {
+            // если нет совпадений по роли
+            // выходим c ошибкой
+            abort(403, 'Wrong user slug');
+        }
+
+        // переменная с текущей сферой
+        $currentSphere = false;
+
+        // переменная со сферами
+        $spheres = collect();
+
+        // если сфер нет - возвращаем ошибку
+        if ($user->spheres->count() == 0) {
+            return response()->json(['status' => 'fail', 'data' => 'no_sphere']);
+        }
+
+        // перебираем все сферы пользователя и выбираем данные по сфере в отдельную коллекцию
+        $user->spheres->each(function ($sphere) use (&$spheres, &$currentSphere, $sphere_id) {
+
+            // ищем среди сфер заданную сферу
+            if ($sphere->id == $sphere_id) {
+                // если id сферы такое же как id заданной сферы
+
+                // добавляем в текущую сферу коллекцию
+                $currentSphere = collect(
+                    [
+                        'id' => $sphere->id,
+                        'name' => $sphere->name,
+                        'openLead' => $sphere->openLead,
+                        'minLead' => $sphere->minLead,
+                    ]
+                );
+            }
+
+            // добавляем данные по сфере в $spheres
+            $spheres->push(
+                collect(
+                    [
+                        'id' => $sphere->id,
+                        'name' => $sphere->name,
+                        'openLead' => $sphere->openLead,
+                        'minLead' => $sphere->minLead,
+                    ]
+                )
+            );
+        });
+
+
+        // если заданной сферы нет в списке пользователя - возвращаем на фронтенд что сфера отсутствует
+        if (!$currentSphere) {
+
+            if (!$sphere_id) {
+
+                $currentSphere = $spheres[0];
+
+            } else {
+
+                return response()->json(['status' => 'fail', 'data' => 'error_sphere_number']);
+            }
+        }
+
+        // выбираем статистику
+        $statistic = Statistic::agentBySphere($user['id'], $currentSphere['id'], true, $timeFrom, $timeTo);
+
+        return response()->json(['status' => 'success', 'spheres' => $spheres, 'statistic' => $statistic]);
+    }
+
+
+    /**
+     * Получение кредитной истории агента
+     *
+     */
+    public function getCredits()
+    {
+
+        // получение кредитной истории агента
+        $creditHistory = RequestsPayments::getFiledRequestsPaymentById($this->user->id);
+
+        $creditHistory['requestsPayments'] = $creditHistory['requestsPayments']->map(function ($item) {
+
+
+            $item->date = Aider::dateFormat($item->created_at);
+
+            return $item;
+
+        });
+
+        // реквизиты для оплаты
+        $requisites = Settings::get_setting('agent.credits.requisites');
+
+
+        return response()->json(['status' => 'success', 'credits' => $creditHistory, 'requisites' => $requisites]);
+    }
+
+
+    /**
+     * Cоздание запроса на ввод денег
+     *
+     *
+     * @param  Request $request
+     *
+     * @return Json
+     */
+    public function createReplenishment(Request $request)
+    {
+
+        $result = RequestsPayments::createReplenishmentRequestPaymentById($this->user->id, $request['amount']);
+
+        return response()->json(['status' => 'success', 'result' => $result]);
+    }
+
+
+    /**
+     * Оплата запроса на ввод денег
+     *
+     *
+     * @param  Request $request
+     *
+     * @return Json
+     */
+    public function payReplenishment(Request $request)
+    {
+
+        $result = RequestsPayments::setStatusRequestPaymentById($this->user->id, $request['item_id'], 3);
+
+        return response()->json(['status' => 'success', 'result' => $result]);
+    }
+
+
+    /**
+     * Сохранение fcm токена
+     *
+     *
+     * @param  Request $request
+     *
+     * @return Json
+     */
+    public function registerFcmToken(Request $request)
+    {
+
+        if(!$request->token){
+            return response()->json(['status'=>'fail', 'data'=>'no fcm token']);
+        }
+
+
+        $fcm = Notice::registerFcmToken($this->user->id, $request->token, $_SERVER['HTTP_USER_AGENT'], 'application');
+
+
+        return response()->json(['status'=>'success', 'fcm'=>$fcm]);
     }
 
 }

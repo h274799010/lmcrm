@@ -14,6 +14,11 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 // Залогинивание по токену
 Route::post('login', ['as' => 'jwt.login', 'uses' => 'Auth\JWTController@login']);
+
+// проверка авторизации пользователя
+Route::post('authCheck', ['as' => 'jwt.logout', 'uses' => 'Auth\JWTController@check']);
+
+
 // Разлогинивание по токену
 Route::post('logout', ['as' => 'jwt.logout', 'uses' => 'Auth\JWTController@logout']);
 
@@ -143,6 +148,20 @@ Route::group(['middleware' => 'jwt-auth'], function () {
     // получение участников из группы пользователя
     Route::post('getGroupMembers', ['uses' => 'Agent\ApiController@getGroupMembers']);
 
+    // получение данных статистики
+    Route::post('getStatistic', ['uses' => 'Agent\ApiController@getStatistic']);
+
+    // получение кредитной истории агента
+    Route::post('getCredits', ['uses' => 'Agent\ApiController@getCredits']);
+
+    // создание запроса на ввод денег
+    Route::post('createReplenishment', ['uses' => 'Agent\ApiController@createReplenishment']);
+
+    // оплата запроса на ввод денег
+    Route::post('payReplenishment', ['uses' => 'Agent\ApiController@payReplenishment']);
+
+    // сохранение fcm токена
+    Route::post('registerFcmToken', ['uses' => 'Agent\ApiController@registerFcmToken']);
 
 });
 
